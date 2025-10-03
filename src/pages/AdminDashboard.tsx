@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookingManagement } from "@/components/BookingManagement";
 import { Button } from "@/components/ui/button";
 import { DollarSign, FileText, Clock, Users, UserCog, Hotel } from "lucide-react";
+import { playNotificationSound } from "@/utils/notificationSound";
 
 export default function AdminDashboard() {
   const { userRole, loading } = useAuth();
@@ -21,6 +22,28 @@ export default function AdminDashboard() {
         navigate('/');
       } else {
         fetchBookings();
+        
+        // Set up real-time subscription for new bookings
+        const channel = supabase
+          .channel('admin-bookings')
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'bookings'
+            },
+            (payload) => {
+              console.log('New booking received:', payload);
+              playNotificationSound();
+              fetchBookings();
+            }
+          )
+          .subscribe();
+
+        return () => {
+          supabase.removeChannel(channel);
+        };
       }
     }
   }, [userRole, loading, navigate]);

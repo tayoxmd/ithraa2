@@ -5,6 +5,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookingManagement } from "@/components/BookingManagement";
+import { playNotificationSound } from "@/utils/notificationSound";
 
 export default function EmployeeDashboard() {
   const { userRole, loading } = useAuth();
@@ -19,6 +20,28 @@ export default function EmployeeDashboard() {
         navigate('/');
       } else {
         fetchBookings();
+        
+        // Set up real-time subscription for new bookings
+        const channel = supabase
+          .channel('employee-bookings')
+          .on(
+            'postgres_changes',
+            {
+              event: 'INSERT',
+              schema: 'public',
+              table: 'bookings'
+            },
+            (payload) => {
+              console.log('New booking received:', payload);
+              playNotificationSound();
+              fetchBookings();
+            }
+          )
+          .subscribe();
+
+        return () => {
+          supabase.removeChannel(channel);
+        };
       }
     }
   }, [userRole, loading, navigate]);

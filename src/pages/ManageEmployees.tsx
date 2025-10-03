@@ -1,316 +1,424 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Shield } from "lucide-react";
-import { employeeSchema } from "@/lib/validations";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { Pencil, Plus, Trash2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
-interface Employee {
+interface UserProfile {
   id: string;
-  user_id: string;
+  full_name: string | null;
+  phone: string | null;
+  email: string;
   role: string;
-  permissions: any;
-  profiles: {
-    full_name: string;
-    phone: string;
-  };
 }
 
-const allPermissions = [
-  { key: 'manage_hotels', label: { ar: 'إدارة الفنادق', en: 'Manage Hotels', fr: 'Gérer les hôtels', es: 'Gestionar hoteles', ru: 'Управление отелями', id: 'Kelola Hotel', ms: 'Urus Hotel' } },
-  { key: 'manage_bookings', label: { ar: 'إدارة الحجوزات', en: 'Manage Bookings', fr: 'Gérer les réservations', es: 'Gestionar reservas', ru: 'Управление бронированием', id: 'Kelola Pemesanan', ms: 'Urus Tempahan' } },
-  { key: 'view_hotel_bookings', label: { ar: 'عرض طلبات الفنادق', en: 'View Hotel Bookings', fr: 'Voir les réservations d\'hôtel', es: 'Ver reservas de hotel', ru: 'Просмотр бронирований отелей', id: 'Lihat Pemesanan Hotel', ms: 'Lihat Tempahan Hotel' } },
-  { key: 'manage_complaints', label: { ar: 'إدارة الشكاوى', en: 'Manage Complaints', fr: 'Gérer les plaintes', es: 'Gestionar quejas', ru: 'Управление жалобами', id: 'Kelola Keluhan', ms: 'Urus Aduan' } },
-  { key: 'view_reports', label: { ar: 'عرض التقارير', en: 'View Reports', fr: 'Voir les rapports', es: 'Ver informes', ru: 'Просмотр отчетов', id: 'Lihat Laporan', ms: 'Lihat Laporan' } },
-  { key: 'manage_employees', label: { ar: 'إدارة الموظفين', en: 'Manage Employees', fr: 'Gérer les employés', es: 'Gestionar empleados', ru: 'Управление сотрудниками', id: 'Kelola Karyawan', ms: 'Urus Pekerja' } },
-];
-
 export default function ManageEmployees() {
-  const { userRole, loading } = useAuth();
-  const { t } = useLanguage();
+  const { toast } = useToast();
+  const { t, language } = useLanguage();
+  const { userRole } = useAuth();
   const navigate = useNavigate();
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [newEmail, setNewEmail] = useState("");
-  const [newName, setNewName] = useState("");
-  const [newPhone, setNewPhone] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [selectedPermissions, setSelectedPermissions] = useState<string[]>([]);
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
+  const [users, setUsers] = useState<UserProfile[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+    full_name: "",
+    phone: "",
+    role: "customer" as "admin" | "employee" | "customer"
+  });
 
   useEffect(() => {
-    if (!loading && userRole !== 'admin') {
+    if (userRole !== 'admin') {
       navigate('/');
-    } else if (!loading) {
-      fetchEmployees();
+      return;
     }
-  }, [userRole, loading, navigate]);
+    fetchUsers();
+  }, [userRole, navigate]);
 
-  const fetchEmployees = async () => {
-    const { data } = await supabase
-      .from('user_roles')
-      .select(`
-        id,
-        user_id,
-        role,
-        permissions,
-        profiles (
-          full_name,
-          phone
-        )
-      `)
-      .eq('role', 'employee');
-    
-    if (data) {
-      setEmployees(data as any);
+  const fetchUsers = async () => {
+    setLoading(true);
+    try {
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name, phone');
+
+      if (profilesError) throw profilesError;
+
+      const { data: rolesData, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) throw rolesError;
+
+      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
+      
+      if (authError) throw authError;
+
+      const combinedUsers: UserProfile[] = profilesData?.map(profile => {
+        const authUser = authUsers?.find((u: any) => u.id === profile.id);
+        const userRole = rolesData?.find((r: any) => r.user_id === profile.id);
+        
+        return {
+          id: profile.id,
+          full_name: profile.full_name,
+          phone: profile.phone,
+          email: authUser?.email || '',
+          role: userRole?.role || 'customer'
+        };
+      }) || [];
+
+      setUsers(combinedUsers);
+    } catch (error: any) {
+      console.error('Error fetching users:', error);
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: t({ ar: "فشل في تحميل المستخدمين", en: "Failed to load users" }),
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleAddEmployee = async () => {
-    // التحقق من صحة المدخلات
-    const validationResult = employeeSchema.safeParse({
-      email: newEmail,
-      password: newPassword,
-      fullName: newName,
-      phone: newPhone,
-    });
-
-    if (!validationResult.success) {
-      const firstError = validationResult.error.errors[0];
+  const handleAddUser = async () => {
+    if (!formData.email || !formData.password) {
       toast({
-        title: t({ ar: "خطأ في البيانات", en: "Validation Error", fr: "Erreur de validation", es: "Error de validación", ru: "Ошибка валидации", id: "Kesalahan Validasi", ms: "Ralat Pengesahan" }),
-        description: firstError.message,
+        title: t({ ar: "تنبيه", en: "Warning" }),
+        description: t({ ar: "يرجى ملء جميع الحقول المطلوبة", en: "Please fill all required fields" }),
         variant: "destructive",
       });
       return;
     }
 
-    const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: validationResult.data.email,
-      password: validationResult.data.password,
-      options: {
-        data: {
-          full_name: validationResult.data.fullName,
-          phone: validationResult.data.phone,
+    setLoading(true);
+    try {
+      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+        email: formData.email,
+        password: formData.password,
+        email_confirm: true,
+        user_metadata: {
+          full_name: formData.full_name,
+          phone: formData.phone
         }
-      }
-    });
+      });
 
-    if (authError) {
+      if (authError) throw authError;
+
+      if (formData.role !== 'customer' && authData.user) {
+        await supabase
+          .from('user_roles')
+          .update({ role: formData.role })
+          .eq('user_id', authData.user.id);
+      }
+
       toast({
-        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
-        description: authError.message,
+        title: t({ ar: "نجح", en: "Success" }),
+        description: t({ ar: "تمت إضافة المستخدم بنجاح", en: "User added successfully" }),
+      });
+
+      setIsAddDialogOpen(false);
+      resetForm();
+      fetchUsers();
+    } catch (error: any) {
+      console.error('Error adding user:', error);
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message || t({ ar: "فشل في إضافة المستخدم", en: "Failed to add user" }),
         variant: "destructive",
       });
-      return;
+    } finally {
+      setLoading(false);
     }
+  };
 
-    if (authData.user) {
+  const handleEditUser = async () => {
+    if (!selectedUser) return;
+
+    setLoading(true);
+    try {
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .update({
+          full_name: formData.full_name,
+          phone: formData.phone
+        })
+        .eq('id', selectedUser.id);
+
+      if (profileError) throw profileError;
+
       const { error: roleError } = await supabase
         .from('user_roles')
-        .update({ 
-          role: 'employee',
-          permissions: selectedPermissions.reduce((acc, perm) => ({ ...acc, [perm]: true }), {})
-        })
-        .eq('user_id', authData.user.id);
+        .update({ role: formData.role })
+        .eq('user_id', selectedUser.id);
 
-      if (roleError) {
-        toast({
-          title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
-          description: roleError.message,
-          variant: "destructive",
-        });
-        return;
+      if (roleError) throw roleError;
+
+      if (formData.password) {
+        const { error: passwordError } = await supabase.auth.admin.updateUserById(
+          selectedUser.id,
+          { password: formData.password }
+        );
+        if (passwordError) throw passwordError;
       }
 
       toast({
-        title: t({ ar: "تم إضافة الموظف", en: "Employee Added", fr: "Employé ajouté", es: "Empleado agregado", ru: "Сотрудник добавлен", id: "Karyawan Ditambahkan", ms: "Pekerja Ditambah" }),
-        description: t({ ar: "تم إضافة الموظف بنجاح", en: "Employee added successfully", fr: "Employé ajouté avec succès", es: "Empleado agregado exitosamente", ru: "Сотрудник успешно добавлен", id: "Karyawan berhasil ditambahkan", ms: "Pekerja berjaya ditambah" }),
+        title: t({ ar: "نجح", en: "Success" }),
+        description: t({ ar: "تم تحديث المستخدم بنجاح", en: "User updated successfully" }),
       });
 
-      setNewEmail("");
-      setNewName("");
-      setNewPhone("");
-      setNewPassword("");
-      setSelectedPermissions([]);
-      setDialogOpen(false);
-      fetchEmployees();
+      setIsEditDialogOpen(false);
+      setSelectedUser(null);
+      resetForm();
+      fetchUsers();
+    } catch (error: any) {
+      console.error('Error updating user:', error);
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message || t({ ar: "فشل في تحديث المستخدم", en: "Failed to update user" }),
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleUpdatePermissions = async (employeeId: string, permissions: string[]) => {
-    const { error } = await supabase
-      .from('user_roles')
-      .update({ 
-        permissions: permissions.reduce((acc, perm) => ({ ...acc, [perm]: true }), {})
-      })
-      .eq('id', employeeId);
-
-    if (error) {
-      toast({
-        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
-        description: error.message,
-        variant: "destructive",
-      });
+  const handleDeleteUser = async (userId: string) => {
+    if (!confirm(t({ ar: "هل أنت متأكد من حذف هذا المستخدم؟", en: "Are you sure you want to delete this user?" }))) {
       return;
     }
 
-    toast({
-      title: t({ ar: "تم التحديث", en: "Updated", fr: "Mis à jour", es: "Actualizado", ru: "Обновлено", id: "Diperbarui", ms: "Dikemas kini" }),
-      description: t({ ar: "تم تحديث الصلاحيات بنجاح", en: "Permissions updated successfully", fr: "Autorisations mises à jour avec succès", es: "Permisos actualizados exitosamente", ru: "Разрешения успешно обновлены", id: "Izin berhasil diperbarui", ms: "Kebenaran berjaya dikemas kini" }),
-    });
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.admin.deleteUser(userId);
+      if (error) throw error;
 
-    fetchEmployees();
+      toast({
+        title: t({ ar: "نجح", en: "Success" }),
+        description: t({ ar: "تم حذف المستخدم بنجاح", en: "User deleted successfully" }),
+      });
+
+      fetchUsers();
+    } catch (error: any) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message || t({ ar: "فشل في حذف المستخدم", en: "Failed to delete user" }),
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading...", fr: "Chargement...", es: "Cargando...", ru: "Загрузка...", id: "Memuat...", ms: "Memuatkan..." })}</div>;
-  }
+  const openEditDialog = (user: UserProfile) => {
+    setSelectedUser(user);
+    setFormData({
+      email: user.email,
+      password: "",
+      full_name: user.full_name || "",
+      phone: user.phone || "",
+      role: user.role as any
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      email: "",
+      password: "",
+      full_name: "",
+      phone: "",
+      role: "customer"
+    });
+  };
+
+  const getRoleLabel = (role: string) => {
+    const labels: Record<string, { ar: string; en: string }> = {
+      admin: { ar: "مدير", en: "Admin" },
+      employee: { ar: "موظف", en: "Employee" },
+      customer: { ar: "عميل", en: "Customer" }
+    };
+    return language === 'ar' ? labels[role]?.ar : labels[role]?.en;
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle p-4">
-      <div className="container mx-auto">
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="outline" onClick={() => navigate('/admin')}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {t({ ar: "العودة", en: "Back", fr: "Retour", es: "Volver", ru: "Назад", id: "Kembali", ms: "Kembali" })}
-          </Button>
-          <h1 className="text-3xl font-bold text-gradient-luxury">{t({ ar: "إدارة الموظفين", en: "Manage Employees", fr: "Gérer les employés", es: "Gestionar empleados", ru: "Управление сотрудниками", id: "Kelola Karyawan", ms: "Urus Pekerja" })}</h1>
-        </div>
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="container mx-auto px-4 py-8 pt-24">
+        <Card className="card-luxury">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-2xl">
+              {t({ ar: "إدارة المستخدمين", en: "Manage Users" })}
+            </CardTitle>
+            <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+              <DialogTrigger asChild>
+                <Button className="btn-luxury">
+                  <Plus className="w-4 h-4 ml-2" />
+                  {t({ ar: "إضافة مستخدم", en: "Add User" })}
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>{t({ ar: "إضافة مستخدم جديد", en: "Add New User" })}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
+                  <div>
+                    <Label>{t({ ar: "البريد الإلكتروني", en: "Email" })}</Label>
+                    <Input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>{t({ ar: "كلمة المرور", en: "Password" })}</Label>
+                    <Input
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>{t({ ar: "الاسم الكامل", en: "Full Name" })}</Label>
+                    <Input
+                      value={formData.full_name}
+                      onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>{t({ ar: "رقم الهاتف", en: "Phone" })}</Label>
+                    <Input
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label>{t({ ar: "الدور", en: "Role" })}</Label>
+                    <Select value={formData.role} onValueChange={(value: any) => setFormData({ ...formData, role: value })}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="customer">{t({ ar: "عميل", en: "Customer" })}</SelectItem>
+                        <SelectItem value="employee">{t({ ar: "موظف", en: "Employee" })}</SelectItem>
+                        <SelectItem value="admin">{t({ ar: "مدير", en: "Admin" })}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button onClick={handleAddUser} disabled={loading} className="w-full btn-luxury">
+                    {t({ ar: "إضافة", en: "Add" })}
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{t({ ar: "الاسم", en: "Name" })}</TableHead>
+                  <TableHead>{t({ ar: "البريد الإلكتروني", en: "Email" })}</TableHead>
+                  <TableHead>{t({ ar: "الهاتف", en: "Phone" })}</TableHead>
+                  <TableHead>{t({ ar: "الدور", en: "Role" })}</TableHead>
+                  <TableHead>{t({ ar: "الإجراءات", en: "Actions" })}</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>{user.full_name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>{user.phone}</TableCell>
+                    <TableCell>{getRoleLabel(user.role)}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
+                          <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="destructive" size="sm" onClick={() => handleDeleteUser(user.id)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
 
-        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="mb-6">
-              <Plus className="w-4 h-4 mr-2" />
-              {t({ ar: "إضافة موظف جديد", en: "Add New Employee", fr: "Ajouter un nouvel employé", es: "Agregar nuevo empleado", ru: "Добавить нового сотрудника", id: "Tambah Karyawan Baru", ms: "Tambah Pekerja Baru" })}
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent>
             <DialogHeader>
-              <DialogTitle>{t({ ar: "إضافة موظف جديد", en: "Add New Employee", fr: "Ajouter un nouvel employé", es: "Agregar nuevo empleado", ru: "Добавить нового сотрудника", id: "Tambah Karyawan Baru", ms: "Tambah Pekerja Baru" })}</DialogTitle>
-              <DialogDescription>
-                {t({ ar: "أدخل معلومات الموظف وحدد الصلاحيات", en: "Enter employee information and select permissions", fr: "Entrez les informations de l'employé et sélectionnez les autorisations", es: "Ingrese la información del empleado y seleccione permisos", ru: "Введите информацию о сотруднике и выберите разрешения", id: "Masukkan informasi karyawan dan pilih izin", ms: "Masukkan maklumat pekerja dan pilih kebenaran" })}
-              </DialogDescription>
+              <DialogTitle>{t({ ar: "تعديل المستخدم", en: "Edit User" })}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <Label>{t({ ar: "الاسم الكامل", en: "Full Name", fr: "Nom complet", es: "Nombre completo", ru: "Полное имя", id: "Nama Lengkap", ms: "Nama Penuh" })}</Label>
-                <Input value={newName} onChange={(e) => setNewName(e.target.value)} />
+                <Label>{t({ ar: "البريد الإلكتروني", en: "Email" })}</Label>
+                <Input
+                  type="email"
+                  value={formData.email}
+                  disabled
+                />
               </div>
               <div>
-                <Label>{t({ ar: "البريد الإلكتروني", en: "Email", fr: "E-mail", es: "Correo electrónico", ru: "Эл. почта", id: "Email", ms: "E-mel" })}</Label>
-                <Input type="email" value={newEmail} onChange={(e) => setNewEmail(e.target.value)} />
+                <Label>{t({ ar: "كلمة المرور الجديدة (اختياري)", en: "New Password (Optional)" })}</Label>
+                <Input
+                  type="password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                />
               </div>
               <div>
-                <Label>{t({ ar: "رقم الجوال", en: "Phone", fr: "Téléphone", es: "Teléfono", ru: "Телефон", id: "Telepon", ms: "Telefon" })}</Label>
-                <Input value={newPhone} onChange={(e) => setNewPhone(e.target.value)} />
+                <Label>{t({ ar: "الاسم الكامل", en: "Full Name" })}</Label>
+                <Input
+                  value={formData.full_name}
+                  onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
+                />
               </div>
               <div>
-                <Label>{t({ ar: "كلمة المرور", en: "Password", fr: "Mot de passe", es: "Contraseña", ru: "Пароль", id: "Kata Sandi", ms: "Kata Laluan" })}</Label>
-                <Input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} />
+                <Label>{t({ ar: "رقم الهاتف", en: "Phone" })}</Label>
+                <Input
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                />
               </div>
               <div>
-                <Label className="mb-2 block">{t({ ar: "الصلاحيات", en: "Permissions", fr: "Autorisations", es: "Permisos", ru: "Разрешения", id: "Izin", ms: "Kebenaran" })}</Label>
-                <div className="space-y-2">
-                  {allPermissions.map((perm) => (
-                    <div key={perm.key} className="flex items-center space-x-2 space-x-reverse">
-                      <Checkbox
-                        id={perm.key}
-                        checked={selectedPermissions.includes(perm.key)}
-                        onCheckedChange={(checked) => {
-                          if (checked) {
-                            setSelectedPermissions([...selectedPermissions, perm.key]);
-                          } else {
-                            setSelectedPermissions(selectedPermissions.filter(p => p !== perm.key));
-                          }
-                        }}
-                      />
-                      <label htmlFor={perm.key}>{t(perm.label)}</label>
-                    </div>
-                  ))}
-                </div>
+                <Label>{t({ ar: "الدور", en: "Role" })}</Label>
+                <Select value={formData.role} onValueChange={(value: any) => setFormData({ ...formData, role: value })}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="customer">{t({ ar: "عميل", en: "Customer" })}</SelectItem>
+                    <SelectItem value="employee">{t({ ar: "موظف", en: "Employee" })}</SelectItem>
+                    <SelectItem value="admin">{t({ ar: "مدير", en: "Admin" })}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <Button onClick={handleAddEmployee} className="w-full">
-                {t({ ar: "إضافة", en: "Add", fr: "Ajouter", es: "Agregar", ru: "Добавить", id: "Tambah", ms: "Tambah" })}
+              <Button onClick={handleEditUser} disabled={loading} className="w-full btn-luxury">
+                {t({ ar: "حفظ التغييرات", en: "Save Changes" })}
               </Button>
             </div>
           </DialogContent>
         </Dialog>
-
-        <div className="grid gap-4">
-          {employees.map((employee) => (
-            <Card key={employee.id} className="card-luxury">
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>{employee.profiles?.full_name || t({ ar: "بدون اسم", en: "No Name", fr: "Sans nom", es: "Sin nombre", ru: "Без имени", id: "Tanpa Nama", ms: "Tiada Nama" })}</span>
-                  <Dialog>
-                    <DialogTrigger asChild>
-                      <Button variant="outline" size="sm" onClick={() => setEditingEmployee(employee)}>
-                        <Shield className="w-4 h-4 mr-2" />
-                        {t({ ar: "تعديل الصلاحيات", en: "Edit Permissions", fr: "Modifier les autorisations", es: "Editar permisos", ru: "Изменить разрешения", id: "Edit Izin", ms: "Edit Kebenaran" })}
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>{t({ ar: "تعديل الصلاحيات", en: "Edit Permissions", fr: "Modifier les autorisations", es: "Editar permisos", ru: "Изменить разрешения", id: "Edit Izin", ms: "Edit Kebenaran" })}</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4">
-                        {allPermissions.map((perm) => (
-                          <div key={perm.key} className="flex items-center space-x-2 space-x-reverse">
-                            <Checkbox
-                              id={`${employee.id}-${perm.key}`}
-                              defaultChecked={employee.permissions?.[perm.key]}
-                              onCheckedChange={(checked) => {
-                                const currentPerms = Object.keys(employee.permissions || {}).filter(k => employee.permissions[k]);
-                                const newPerms = checked 
-                                  ? [...currentPerms, perm.key]
-                                  : currentPerms.filter(p => p !== perm.key);
-                                handleUpdatePermissions(employee.id, newPerms);
-                              }}
-                            />
-                            <label htmlFor={`${employee.id}-${perm.key}`}>{t(perm.label)}</label>
-                          </div>
-                        ))}
-                      </div>
-                    </DialogContent>
-                  </Dialog>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">{employee.profiles?.phone}</p>
-                <div className="mt-2">
-                  <p className="text-sm font-medium">{t({ ar: "الصلاحيات الحالية:", en: "Current Permissions:", fr: "Autorisations actuelles:", es: "Permisos actuales:", ru: "Текущие разрешения:", id: "Izin Saat Ini:", ms: "Kebenaran Semasa:" })}</p>
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {Object.keys(employee.permissions || {}).filter(k => employee.permissions[k]).map(perm => {
-                      const permObj = allPermissions.find(p => p.key === perm);
-                      return permObj ? (
-                        <span key={perm} className="px-2 py-1 bg-primary/10 text-primary rounded-md text-xs">
-                          {t(permObj.label)}
-                        </span>
-                      ) : null;
-                    })}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
       </div>
+      <Footer />
     </div>
   );
 }

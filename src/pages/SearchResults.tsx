@@ -6,8 +6,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, MapPin } from "lucide-react";
+import { Star, MapPin, ChevronDown, ChevronUp } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { SearchBox } from "@/components/SearchBox";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 interface Hotel {
   id: string;
@@ -27,6 +29,7 @@ export default function SearchResults() {
   const { t, language } = useLanguage();
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   const cityId = searchParams.get('city');
   const checkIn = searchParams.get('checkIn');
@@ -72,12 +75,31 @@ export default function SearchResults() {
       <Header />
       
       <div className="container mx-auto px-4 py-8 pt-24">
-        <h1 className="text-3xl font-bold mb-2">
-          {t({ ar: 'نتائج البحث', en: 'Search Results', fr: 'Résultats de recherche', es: 'Resultados de búsqueda', ru: 'Результаты поиска', id: 'Hasil Pencarian', ms: 'Hasil Carian' })}
-        </h1>
-        <p className="text-muted-foreground mb-8">
-          {t({ ar: `تم العثور على ${hotels.length} فندق`, en: `Found ${hotels.length} hotels`, fr: `${hotels.length} hôtels trouvés`, es: `Se encontraron ${hotels.length} hoteles`, ru: `Найдено отелей: ${hotels.length}`, id: `Ditemukan ${hotels.length} hotel`, ms: `Ditemui ${hotels.length} hotel` })}
-        </p>
+        <div className="mb-6">
+          <Collapsible open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">
+                  {t({ ar: 'نتائج البحث', en: 'Search Results', fr: 'Résultats de recherche', es: 'Resultados de búsqueda', ru: 'Результаты поиска', id: 'Hasil Pencarian', ms: 'Hasil Carian' })}
+                </h1>
+                <p className="text-muted-foreground">
+                  {t({ ar: `تم العثور على ${hotels.length} فندق`, en: `Found ${hotels.length} hotels`, fr: `${hotels.length} hôtels trouvés`, es: `Se encontraron ${hotels.length} hoteles`, ru: `Найдено отелей: ${hotels.length}`, id: `Ditemukan ${hotels.length} hotel`, ms: `Ditemui ${hotels.length} hotel` })}
+                </p>
+              </div>
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  {isSearchOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  {t({ ar: 'تعديل خيارات البحث', en: 'Edit Search Options' })}
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent className="mb-8">
+              <div className="scale-95 origin-top">
+                <SearchBox />
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {hotels.map((hotel) => {
