@@ -1,7 +1,7 @@
 import { Mail, Phone, Facebook, Twitter, Instagram, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.svg";
 
 export function Footer() {
   const { t, language } = useLanguage();
