@@ -263,8 +263,11 @@ export default function Booking() {
                       <span>{Math.round(calculateTotal().tax)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
                     </div>
                     <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                      <span>{t({ ar: 'الإجمالي شامل الضرائب', en: 'Total incl. Taxes' })}</span>
-                      <span className="text-primary">{Math.round(calculateTotal().total)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
+                      <span>{t({ ar: 'الإجمالي', en: 'Total' })}</span>
+                      <span className="text-primary">
+                        {Math.round(calculateTotal().total)} {t({ ar: 'ر.س', en: 'SAR' })}
+                        <span className="text-[10px] font-normal text-muted-foreground mr-1">{t({ ar: 'شامل الضريبة', en: 'incl. tax' })}</span>
+                      </span>
                     </div>
                   </div>
                 </CardContent>
@@ -358,8 +361,11 @@ export default function Booking() {
 
                 <div className="border-t pt-4">
                   <div className="flex justify-between font-bold text-xl">
-                    <span>{t({ ar: 'الإجمالي شامل الضرائب', en: 'Total incl. Taxes' })}</span>
-                    <span className="text-primary">{Math.round(calculateTotal().total)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
+                    <span>{t({ ar: 'الإجمالي', en: 'Total' })}</span>
+                    <span className="text-primary">
+                      {Math.round(calculateTotal().total)} {t({ ar: 'ر.س', en: 'SAR' })}
+                      <span className="text-xs font-normal text-muted-foreground mr-1 block">{t({ ar: 'شامل الضريبة', en: 'incl. tax' })}</span>
+                    </span>
                   </div>
                 </div>
               </CardContent>

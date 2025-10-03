@@ -65,7 +65,7 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, fe
               <span className="text-sm text-muted-foreground">ريال / ليلة</span>
             </div>
             <div className="text-xs text-muted-foreground mt-1">
-              السعر الإجمالي: <span className="font-semibold text-foreground">{Math.round(price * 1.15)}</span> ريال شامل الضرائب
+              <span className="font-semibold text-foreground">{Math.round(price * 1.15)}</span> ريال <span className="text-[10px]">شامل الضريبة</span>
             </div>
           </div>
           <Button 
