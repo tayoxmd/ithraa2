@@ -7,6 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search } from "lucide-react";
 
@@ -36,6 +39,22 @@ export default function ManageHotels() {
   const [filteredHotels, setFilteredHotels] = useState<Hotel[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingHotel, setEditingHotel] = useState<Hotel | null>(null);
+  const [formData, setFormData] = useState({
+    name_ar: "",
+    name_en: "",
+    description_ar: "",
+    description_en: "",
+    location: "",
+    location_url: "",
+    contact_phone: "",
+    contact_person: "",
+    price_per_night: "",
+    rating: "5",
+    active: true,
+  });
 
   useEffect(() => {
     if (!loading && userRole !== 'admin') {
@@ -91,11 +110,60 @@ export default function ManageHotels() {
 
       if (error) throw error;
 
+      // Update local state instead of refetching
+      const updatedHotels = hotels.map(h => 
+        h.id === hotelId ? { ...h, active: !currentStatus } : h
+      );
+      setHotels(updatedHotels);
+      setFilteredHotels(updatedHotels.filter(h => 
+        searchQuery === "" || 
+        h.name_ar.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        h.name_en.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        h.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        h.contact_person?.toLowerCase().includes(searchQuery.toLowerCase())
+      ));
+
       toast({
         title: t({ ar: "تم التحديث", en: "Updated", fr: "Mis à jour", es: "Actualizado", ru: "Обновлено", id: "Diperbarui", ms: "Dikemas kini" }),
         description: t({ ar: "تم تحديث حالة الفندق", en: "Hotel status updated", fr: "Statut de l'hôtel mis à jour", es: "Estado del hotel actualizado", ru: "Статус отеля обновлен", id: "Status hotel diperbarui", ms: "Status hotel dikemas kini" }),
       });
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
 
+  const handleAddHotel = async () => {
+    try {
+      const { data: citiesData, error: citiesError } = await supabase
+        .from('cities')
+        .select('id')
+        .limit(1)
+        .single();
+
+      if (citiesError) throw citiesError;
+
+      const { error } = await supabase
+        .from('hotels')
+        .insert([{
+          ...formData,
+          price_per_night: parseFloat(formData.price_per_night),
+          rating: parseFloat(formData.rating),
+          city_id: citiesData.id,
+        }]);
+
+      if (error) throw error;
+
+      toast({
+        title: t({ ar: "تم الإضافة", en: "Added", fr: "Ajouté", es: "Agregado", ru: "Добавлено", id: "Ditambahkan", ms: "Ditambah" }),
+        description: t({ ar: "تم إضافة الفندق بنجاح", en: "Hotel added successfully", fr: "Hôtel ajouté avec succès", es: "Hotel agregado con éxito", ru: "Отель успешно добавлен", id: "Hotel berhasil ditambahkan", ms: "Hotel berjaya ditambah" }),
+      });
+
+      setIsAddDialogOpen(false);
+      resetForm();
       fetchHotels();
     } catch (error: any) {
       toast({
@@ -104,6 +172,73 @@ export default function ManageHotels() {
         variant: "destructive",
       });
     }
+  };
+
+  const handleEditHotel = async () => {
+    if (!editingHotel) return;
+
+    try {
+      const { error } = await supabase
+        .from('hotels')
+        .update({
+          ...formData,
+          price_per_night: parseFloat(formData.price_per_night),
+          rating: parseFloat(formData.rating),
+        })
+        .eq('id', editingHotel.id);
+
+      if (error) throw error;
+
+      toast({
+        title: t({ ar: "تم التحديث", en: "Updated", fr: "Mis à jour", es: "Actualizado", ru: "Обновлено", id: "Diperbarui", ms: "Dikemas kini" }),
+        description: t({ ar: "تم تحديث معلومات الفندق", en: "Hotel information updated", fr: "Informations de l'hôtel mises à jour", es: "Información del hotel actualizada", ru: "Информация об отеле обновлена", id: "Informasi hotel diperbarui", ms: "Maklumat hotel dikemas kini" }),
+      });
+
+      setIsEditDialogOpen(false);
+      setEditingHotel(null);
+      resetForm();
+      fetchHotels();
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const openEditDialog = (hotel: Hotel) => {
+    setEditingHotel(hotel);
+    setFormData({
+      name_ar: hotel.name_ar,
+      name_en: hotel.name_en,
+      description_ar: hotel.description_ar || "",
+      description_en: hotel.description_en || "",
+      location: hotel.location || "",
+      location_url: hotel.location_url || "",
+      contact_phone: hotel.contact_phone || "",
+      contact_person: hotel.contact_person || "",
+      price_per_night: hotel.price_per_night.toString(),
+      rating: hotel.rating.toString(),
+      active: hotel.active,
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const resetForm = () => {
+    setFormData({
+      name_ar: "",
+      name_en: "",
+      description_ar: "",
+      description_en: "",
+      location: "",
+      location_url: "",
+      contact_phone: "",
+      contact_person: "",
+      price_per_night: "",
+      rating: "5",
+      active: true,
+    });
   };
 
   const handleSearch = (query: string) => {
@@ -151,7 +286,7 @@ export default function ManageHotels() {
                 className="pr-10 h-12"
               />
             </div>
-            <Button onClick={() => toast({ title: t({ ar: "قريباً", en: "Coming Soon", fr: "Bientôt", es: "Próximamente", ru: "Скоро", id: "Segera", ms: "Akan Datang" }), description: t({ ar: "سيتم إضافة هذه الميزة قريباً", en: "This feature will be added soon", fr: "Cette fonctionnalité sera ajoutée bientôt", es: "Esta función se agregará pronto", ru: "Эта функция будет добавлена в ближайшее время", id: "Fitur ini akan segera ditambahkan", ms: "Ciri ini akan ditambah tidak lama lagi" }) })} className="h-12 whitespace-nowrap">
+            <Button onClick={() => setIsAddDialogOpen(true)} className="h-12 whitespace-nowrap">
               <Plus className="w-5 h-5 ml-2" />
               {t({ ar: "إضافة فندق", en: "Add Hotel", fr: "Ajouter un hôtel", es: "Agregar hotel", ru: "Добавить отель", id: "Tambah Hotel", ms: "Tambah Hotel" })}
             </Button>
@@ -172,7 +307,7 @@ export default function ManageHotels() {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => toast({ title: t({ ar: "قريباً", en: "Coming Soon", fr: "Bientôt", es: "Próximamente", ru: "Скоро", id: "Segera", ms: "Akan Datang" }), description: t({ ar: "سيتم إضافة هذه الميزة قريباً", en: "This feature will be added soon", fr: "Cette fonctionnalité sera ajoutée bientôt", es: "Esta función se agregará pronto", ru: "Эта функция будет добавлена в ближайшее время", id: "Fitur ini akan segera ditambahkan", ms: "Ciri ini akan ditambah tidak lama lagi" }) })}
+                        onClick={() => openEditDialog(hotel)}
                       >
                         <Edit className="w-4 h-4 ml-1" />
                         {t({ ar: "تعديل", en: "Edit", fr: "Modifier", es: "Editar", ru: "Редактировать", id: "Edit", ms: "Edit" })}
@@ -301,6 +436,146 @@ export default function ManageHotels() {
             </Card>
           )}
         </div>
+
+        {/* Add Hotel Dialog */}
+        <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{t({ ar: "إضافة فندق جديد", en: "Add New Hotel", fr: "Ajouter un nouvel hôtel", es: "Agregar nuevo hotel", ru: "Добавить новый отель", id: "Tambah Hotel Baru", ms: "Tambah Hotel Baharu" })}</DialogTitle>
+              <DialogDescription>
+                {t({ ar: "أدخل معلومات الفندق الجديد", en: "Enter the new hotel information", fr: "Entrez les informations du nouvel hôtel", es: "Ingrese la información del nuevo hotel", ru: "Введите информацию о новом отеле", id: "Masukkan informasi hotel baru", ms: "Masukkan maklumat hotel baharu" })}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "الاسم بالعربية", en: "Name (Arabic)", fr: "Nom (arabe)", es: "Nombre (árabe)", ru: "Название (арабский)", id: "Nama (Arab)", ms: "Nama (Arab)" })}</Label>
+                  <Input value={formData.name_ar} onChange={(e) => setFormData({...formData, name_ar: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "الاسم بالإنجليزية", en: "Name (English)", fr: "Nom (anglais)", es: "Nombre (inglés)", ru: "Название (английский)", id: "Nama (Inggris)", ms: "Nama (Inggeris)" })}</Label>
+                  <Input value={formData.name_en} onChange={(e) => setFormData({...formData, name_en: e.target.value})} />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>{t({ ar: "الوصف بالعربية", en: "Description (Arabic)", fr: "Description (arabe)", es: "Descripción (árabe)", ru: "Описание (арабский)", id: "Deskripsi (Arab)", ms: "Penerangan (Arab)" })}</Label>
+                <Textarea value={formData.description_ar} onChange={(e) => setFormData({...formData, description_ar: e.target.value})} rows={3} />
+              </div>
+              <div className="space-y-2">
+                <Label>{t({ ar: "الوصف بالإنجليزية", en: "Description (English)", fr: "Description (anglais)", es: "Descripción (inglés)", ru: "Описание (английский)", id: "Deskripsi (Inggris)", ms: "Penerangan (Inggeris)" })}</Label>
+                <Textarea value={formData.description_en} onChange={(e) => setFormData({...formData, description_en: e.target.value})} rows={3} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "الموقع", en: "Location", fr: "Emplacement", es: "Ubicación", ru: "Местоположение", id: "Lokasi", ms: "Lokasi" })}</Label>
+                  <Input value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "رابط الموقع", en: "Location URL", fr: "URL de l'emplacement", es: "URL de ubicación", ru: "URL местоположения", id: "URL Lokasi", ms: "URL Lokasi" })}</Label>
+                  <Input value={formData.location_url} onChange={(e) => setFormData({...formData, location_url: e.target.value})} placeholder="https://maps.google.com/..." />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "رقم الهاتف", en: "Phone", fr: "Téléphone", es: "Teléfono", ru: "Телефон", id: "Telepon", ms: "Telefon" })}</Label>
+                  <Input value={formData.contact_phone} onChange={(e) => setFormData({...formData, contact_phone: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "الشخص المسؤول", en: "Contact Person", fr: "Personne de contact", es: "Persona de contacto", ru: "Контактное лицо", id: "Orang yang Dapat Dihubungi", ms: "Orang yang Boleh Dihubungi" })}</Label>
+                  <Input value={formData.contact_person} onChange={(e) => setFormData({...formData, contact_person: e.target.value})} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "السعر لليلة", en: "Price per Night", fr: "Prix par nuit", es: "Precio por noche", ru: "Цена за ночь", id: "Harga per Malam", ms: "Harga setiap Malam" })}</Label>
+                  <Input type="number" value={formData.price_per_night} onChange={(e) => setFormData({...formData, price_per_night: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "التقييم", en: "Rating", fr: "Évaluation", es: "Calificación", ru: "Рейтинг", id: "Penilaian", ms: "Penilaian" })}</Label>
+                  <Input type="number" min="0" max="5" step="0.1" value={formData.rating} onChange={(e) => setFormData({...formData, rating: e.target.value})} />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => { setIsAddDialogOpen(false); resetForm(); }}>
+                {t({ ar: "إلغاء", en: "Cancel", fr: "Annuler", es: "Cancelar", ru: "Отмена", id: "Batal", ms: "Batal" })}
+              </Button>
+              <Button onClick={handleAddHotel}>
+                {t({ ar: "إضافة", en: "Add", fr: "Ajouter", es: "Agregar", ru: "Добавить", id: "Tambah", ms: "Tambah" })}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+
+        {/* Edit Hotel Dialog */}
+        <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+          <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{t({ ar: "تعديل معلومات الفندق", en: "Edit Hotel Information", fr: "Modifier les informations de l'hôtel", es: "Editar información del hotel", ru: "Редактировать информацию об отеле", id: "Edit Informasi Hotel", ms: "Edit Maklumat Hotel" })}</DialogTitle>
+              <DialogDescription>
+                {t({ ar: "عدل معلومات الفندق", en: "Modify the hotel information", fr: "Modifiez les informations de l'hôtel", es: "Modifique la información del hotel", ru: "Измените информацию об отеле", id: "Ubah informasi hotel", ms: "Ubah maklumat hotel" })}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "الاسم بالعربية", en: "Name (Arabic)", fr: "Nom (arabe)", es: "Nombre (árabe)", ru: "Название (арабский)", id: "Nama (Arab)", ms: "Nama (Arab)" })}</Label>
+                  <Input value={formData.name_ar} onChange={(e) => setFormData({...formData, name_ar: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "الاسم بالإنجليزية", en: "Name (English)", fr: "Nom (anglais)", es: "Nombre (inglés)", ru: "Название (английский)", id: "Nama (Inggris)", ms: "Nama (Inggeris)" })}</Label>
+                  <Input value={formData.name_en} onChange={(e) => setFormData({...formData, name_en: e.target.value})} />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>{t({ ar: "الوصف بالعربية", en: "Description (Arabic)", fr: "Description (arabe)", es: "Descripción (árabe)", ru: "Описание (арабский)", id: "Deskripsi (Arab)", ms: "Penerangan (Arab)" })}</Label>
+                <Textarea value={formData.description_ar} onChange={(e) => setFormData({...formData, description_ar: e.target.value})} rows={3} />
+              </div>
+              <div className="space-y-2">
+                <Label>{t({ ar: "الوصف بالإنجليزية", en: "Description (English)", fr: "Description (anglais)", es: "Descripción (inglés)", ru: "Описание (английский)", id: "Deskripsi (Inggris)", ms: "Penerangan (Inggeris)" })}</Label>
+                <Textarea value={formData.description_en} onChange={(e) => setFormData({...formData, description_en: e.target.value})} rows={3} />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "الموقع", en: "Location", fr: "Emplacement", es: "Ubicación", ru: "Местоположение", id: "Lokasi", ms: "Lokasi" })}</Label>
+                  <Input value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "رابط الموقع", en: "Location URL", fr: "URL de l'emplacement", es: "URL de ubicación", ru: "URL местоположения", id: "URL Lokasi", ms: "URL Lokasi" })}</Label>
+                  <Input value={formData.location_url} onChange={(e) => setFormData({...formData, location_url: e.target.value})} placeholder="https://maps.google.com/..." />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "رقم الهاتف", en: "Phone", fr: "Téléphone", es: "Teléfono", ru: "Телефон", id: "Telepon", ms: "Telefon" })}</Label>
+                  <Input value={formData.contact_phone} onChange={(e) => setFormData({...formData, contact_phone: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "الشخص المسؤول", en: "Contact Person", fr: "Personne de contact", es: "Persona de contacto", ru: "Контактное лицо", id: "Orang yang Dapat Dihubungi", ms: "Orang yang Boleh Dihubungi" })}</Label>
+                  <Input value={formData.contact_person} onChange={(e) => setFormData({...formData, contact_person: e.target.value})} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "السعر لليلة", en: "Price per Night", fr: "Prix par nuit", es: "Precio por noche", ru: "Цена за ночь", id: "Harga per Malam", ms: "Harga setiap Malam" })}</Label>
+                  <Input type="number" value={formData.price_per_night} onChange={(e) => setFormData({...formData, price_per_night: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "التقييم", en: "Rating", fr: "Évaluation", es: "Calificación", ru: "Рейтинг", id: "Penilaian", ms: "Penilaian" })}</Label>
+                  <Input type="number" min="0" max="5" step="0.1" value={formData.rating} onChange={(e) => setFormData({...formData, rating: e.target.value})} />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button variant="outline" onClick={() => { setIsEditDialogOpen(false); setEditingHotel(null); resetForm(); }}>
+                {t({ ar: "إلغاء", en: "Cancel", fr: "Annuler", es: "Cancelar", ru: "Отмена", id: "Batal", ms: "Batal" })}
+              </Button>
+              <Button onClick={handleEditHotel}>
+                {t({ ar: "حفظ", en: "Save", fr: "Enregistrer", es: "Guardar", ru: "Сохранить", id: "Simpan", ms: "Simpan" })}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );

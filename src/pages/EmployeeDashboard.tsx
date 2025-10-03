@@ -10,8 +10,10 @@ export default function EmployeeDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && userRole !== 'employee') {
-      navigate('/');
+    if (!loading) {
+      if (userRole !== 'employee') {
+        navigate('/');
+      }
     }
   }, [userRole, loading, navigate]);
 

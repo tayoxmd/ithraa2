@@ -12,8 +12,10 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && userRole !== 'admin') {
-      navigate('/');
+    if (!loading) {
+      if (userRole !== 'admin') {
+        navigate('/');
+      }
     }
   }, [userRole, loading, navigate]);
 

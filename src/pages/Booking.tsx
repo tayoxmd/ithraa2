@@ -230,15 +230,6 @@ export default function Booking() {
                 </CardContent>
               </Card>
 
-              {/* Confirm Button */}
-              <Button 
-                type="submit" 
-                className="w-full btn-luxury h-14 text-lg"
-                disabled={loading}
-              >
-                {loading ? t({ ar: 'جاري المعالجة...', en: 'Processing...', fr: 'Traitement...', es: 'Procesando...', ru: 'Обработка...', id: 'Memproses...', ms: 'Memproses...' }) : t({ ar: 'تأكيد الحجز', en: 'Confirm Booking', fr: 'Confirmer la réservation', es: 'Confirmar reserva', ru: 'Подтвердить бронирование', id: 'Konfirmasi Pemesanan', ms: 'Sahkan Tempahan' })}
-              </Button>
-
               {/* Payment Method */}
               <Card className="card-luxury">
                 <CardHeader>
@@ -262,6 +253,15 @@ export default function Booking() {
                   </Select>
                 </CardContent>
               </Card>
+
+              {/* Confirm Button */}
+              <Button 
+                type="submit" 
+                className="w-full btn-luxury h-14 text-lg"
+                disabled={loading}
+              >
+                {loading ? t({ ar: 'جاري المعالجة...', en: 'Processing...', fr: 'Traitement...', es: 'Procesando...', ru: 'Обработка...', id: 'Memproses...', ms: 'Memproses...' }) : t({ ar: 'تأكيد الحجز', en: 'Confirm Booking', fr: 'Confirmer la réservation', es: 'Confirmar reserva', ru: 'Подтвердить бронирование', id: 'Konfirmasi Pemesanan', ms: 'Sahkan Tempahan' })}
+              </Button>
             </form>
           </div>
 
