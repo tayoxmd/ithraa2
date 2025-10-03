@@ -95,6 +95,7 @@ export default function Booking() {
         check_in: format(checkIn, 'yyyy-MM-dd'),
         check_out: format(checkOut, 'yyyy-MM-dd'),
         guests: parseInt(guests),
+        rooms: parseInt(rooms),
         total_amount: totalAmount,
         payment_method: paymentMethod,
         notes: notes || null,

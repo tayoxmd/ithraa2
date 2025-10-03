@@ -20,6 +20,7 @@ interface Booking {
   check_in: string;
   check_out: string;
   guests: number;
+  rooms: number;
   total_amount: number;
   status: 'new' | 'pending' | 'confirmed' | 'cancelled';
   payment_status: string;
@@ -50,6 +51,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     check_in: "",
     check_out: "",
     guests: "",
+    rooms: "",
     notes: "",
   });
 
@@ -97,6 +99,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
       check_in: booking.check_in,
       check_out: booking.check_out,
       guests: booking.guests.toString(),
+      rooms: booking.rooms.toString(),
       notes: booking.notes || "",
     });
     setIsEditDialogOpen(true);
@@ -112,6 +115,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
           check_in: editFormData.check_in,
           check_out: editFormData.check_out,
           guests: parseInt(editFormData.guests),
+          rooms: parseInt(editFormData.rooms),
           notes: editFormData.notes || null,
         })
         .eq('id', selectedBooking.id);
@@ -240,11 +244,16 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
                     <span className="font-semibold">{t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })}</span>
                     <span>{format(new Date(booking.check_out), "dd/MM/yyyy")}</span>
                   </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Users className="w-4 h-4 text-primary" />
-                    <span className="font-semibold">{t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })}</span>
-                    <span>{booking.guests}</span>
-                  </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Users className="w-4 h-4 text-primary" />
+                      <span className="font-semibold">{t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })}</span>
+                      <span>{booking.guests}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm">
+                      <Users className="w-4 h-4 text-primary" />
+                      <span className="font-semibold">{t({ ar: "عدد الغرف:", en: "Rooms:", fr: "Chambres:", es: "Habitaciones:", ru: "Номера:", id: "Kamar:", ms: "Bilik:" })}</span>
+                      <span>{booking.rooms}</span>
+                    </div>
                   <div className="text-sm">
                     <span className="font-semibold">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:", fr: "Montant total:", es: "Monto total:", ru: "Общая сумма:", id: "Jumlah Total:", ms: "Jumlah Keseluruhan:" })}</span>
                     <span className="text-primary font-bold ml-2">{booking.total_amount} {t({ ar: "ر.س", en: "SAR", fr: "SAR", es: "SAR", ru: "САР", id: "SAR", ms: "SAR" })}</span>
@@ -342,6 +351,15 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
                 min="1"
                 value={editFormData.guests}
                 onChange={(e) => setEditFormData({ ...editFormData, guests: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{t({ ar: "عدد الغرف", en: "Number of Rooms", fr: "Nombre de chambres", es: "Número de habitaciones", ru: "Количество номеров", id: "Jumlah Kamar", ms: "Bilangan Bilik" })}</Label>
+              <Input
+                type="number"
+                min="1"
+                value={editFormData.rooms}
+                onChange={(e) => setEditFormData({ ...editFormData, rooms: e.target.value })}
               />
             </div>
             <div className="space-y-2">

@@ -25,6 +25,7 @@ export type Database = {
           notes: string | null
           payment_method: string | null
           payment_status: string | null
+          rooms: number
           status: Database["public"]["Enums"]["booking_status"] | null
           total_amount: number
           updated_at: string | null
@@ -40,6 +41,7 @@ export type Database = {
           notes?: string | null
           payment_method?: string | null
           payment_status?: string | null
+          rooms?: number
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_amount: number
           updated_at?: string | null
@@ -55,6 +57,7 @@ export type Database = {
           notes?: string | null
           payment_method?: string | null
           payment_status?: string | null
+          rooms?: number
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_amount?: number
           updated_at?: string | null

@@ -13,6 +13,8 @@ interface Booking {
   id: string;
   check_in: string;
   check_out: string;
+  guests: number;
+  rooms: number;
   total_amount: number;
   status: string;
   hotels: {
@@ -134,6 +136,14 @@ export default function CustomerDashboard() {
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">{t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })}</span>
                         <span className="font-medium">{format(new Date(booking.check_out), 'yyyy-MM-dd')}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">{t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })}</span>
+                        <span className="font-medium">{booking.guests}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-muted-foreground">{t({ ar: "عدد الغرف:", en: "Rooms:", fr: "Chambres:", es: "Habitaciones:", ru: "Номера:", id: "Kamar:", ms: "Bilik:" })}</span>
+                        <span className="font-medium">{booking.rooms}</span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:", fr: "Montant total:", es: "Monto total:", ru: "Общая сумма:", id: "Jumlah Total:", ms: "Jumlah Keseluruhan:" })}</span>

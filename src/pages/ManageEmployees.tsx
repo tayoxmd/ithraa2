@@ -34,6 +34,7 @@ interface Employee {
 const allPermissions = [
   { key: 'manage_hotels', label: { ar: 'إدارة الفنادق', en: 'Manage Hotels', fr: 'Gérer les hôtels', es: 'Gestionar hoteles', ru: 'Управление отелями', id: 'Kelola Hotel', ms: 'Urus Hotel' } },
   { key: 'manage_bookings', label: { ar: 'إدارة الحجوزات', en: 'Manage Bookings', fr: 'Gérer les réservations', es: 'Gestionar reservas', ru: 'Управление бронированием', id: 'Kelola Pemesanan', ms: 'Urus Tempahan' } },
+  { key: 'view_hotel_bookings', label: { ar: 'عرض طلبات الفنادق', en: 'View Hotel Bookings', fr: 'Voir les réservations d\'hôtel', es: 'Ver reservas de hotel', ru: 'Просмотр бронирований отелей', id: 'Lihat Pemesanan Hotel', ms: 'Lihat Tempahan Hotel' } },
   { key: 'manage_complaints', label: { ar: 'إدارة الشكاوى', en: 'Manage Complaints', fr: 'Gérer les plaintes', es: 'Gestionar quejas', ru: 'Управление жалобами', id: 'Kelola Keluhan', ms: 'Urus Aduan' } },
   { key: 'view_reports', label: { ar: 'عرض التقارير', en: 'View Reports', fr: 'Voir les rapports', es: 'Ver informes', ru: 'Просмотр отчетов', id: 'Lihat Laporan', ms: 'Lihat Laporan' } },
   { key: 'manage_employees', label: { ar: 'إدارة الموظفين', en: 'Manage Employees', fr: 'Gérer les employés', es: 'Gestionar empleados', ru: 'Управление сотрудниками', id: 'Kelola Karyawan', ms: 'Urus Pekerja' } },
