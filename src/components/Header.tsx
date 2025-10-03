@@ -5,7 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
-import logo from "@/assets/logo.jpg";
+import logo from "@/assets/logo.png";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
