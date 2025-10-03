@@ -99,12 +99,12 @@ export default function CustomerDashboard() {
             {t({ ar: "حجوزاتي", en: "My Bookings", fr: "Mes réservations", es: "Mis reservas", ru: "Мои бронирования", id: "Pemesanan Saya", ms: "Tempahan Saya" })}
           </Button>
           <Button 
-            variant={activeTab === 'profile' ? 'default' : 'outline'}
-            onClick={() => setActiveTab('profile')}
+            variant="outline"
+            onClick={() => navigate('/profile')}
             className="gap-2"
           >
             <User className="w-4 h-4" />
-            {t({ ar: "معلوماتي", en: "My Profile", fr: "Mon profil", es: "Mi perfil", ru: "Мой профиль", id: "Profil Saya", ms: "Profil Saya" })}
+            {t({ ar: "الملف الشخصي", en: "Profile", fr: "Profil", es: "Perfil", ru: "Профиль", id: "Profil", ms: "Profil" })}
           </Button>
         </div>
 

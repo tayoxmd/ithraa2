@@ -6,13 +6,30 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookingManagement } from "@/components/BookingManagement";
 import { playNotificationSound } from "@/utils/notificationSound";
+import { Button } from "@/components/ui/button";
+import { 
+  FileText, 
+  Clock, 
+  CheckCircle,
+  TrendingUp,
+  TrendingDown,
+  User,
+  Home,
+  LayoutDashboard
+} from "lucide-react";
 
 export default function EmployeeDashboard() {
-  const { userRole, loading } = useAuth();
-  const { t } = useLanguage();
+  const { userRole, loading, user } = useAuth();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
+  const [stats, setStats] = useState({
+    totalAssigned: 0,
+    pending: 0,
+    confirmed: 0,
+    pendingChange: 0
+  });
 
   useEffect(() => {
     if (!loading) {
@@ -21,7 +38,6 @@ export default function EmployeeDashboard() {
       } else {
         fetchBookings();
         
-        // Set up real-time subscription for new bookings
         const channel = supabase
           .channel('employee-bookings')
           .on(
@@ -60,6 +76,17 @@ export default function EmployeeDashboard() {
 
       if (error) throw error;
       setBookings(data || []);
+      
+      // Calculate stats
+      const pending = data?.filter(b => b.status === 'new' || b.status === 'pending').length || 0;
+      const confirmed = data?.filter(b => b.status === 'confirmed').length || 0;
+      
+      setStats({
+        totalAssigned: data?.length || 0,
+        pending,
+        confirmed,
+        pendingChange: 5.2
+      });
     } catch (error) {
       console.error('Error fetching bookings:', error);
     } finally {
@@ -68,28 +95,142 @@ export default function EmployeeDashboard() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading...", fr: "Chargement...", es: "Cargando...", ru: "Загрузка...", id: "Memuat...", ms: "Memuatkan..." })}</div>;
+    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-subtle p-4 pt-28">
-      <div className="container mx-auto max-w-7xl">
-        <h1 className="text-3xl font-bold text-gradient-luxury mb-8">{t({ ar: "لوحة تحكم الموظف", en: "Employee Dashboard", fr: "Tableau de bord employé", es: "Panel de empleado", ru: "Панель сотрудника", id: "Dasbor Karyawan", ms: "Papan Pemuka Pekerja" })}</h1>
-        
-        <div className="grid grid-cols-1 gap-6">
-          <Card className="card-luxury">
-            <CardHeader>
-              <CardTitle>{t({ ar: "الطلبات المسندة إليك", en: "Assigned Bookings", fr: "Réservations assignées", es: "Reservas asignadas", ru: "Назначенные бронирования", id: "Pemesanan yang Ditugaskan", ms: "Tempahan yang Diberikan" })}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loadingBookings ? (
-                <p className="text-muted-foreground">{t({ ar: "جاري التحميل...", en: "Loading...", fr: "Chargement...", es: "Cargando...", ru: "Загрузка...", id: "Memuat...", ms: "Memuatkan..." })}</p>
-              ) : (
-                <BookingManagement bookings={bookings} onUpdate={fetchBookings} />
+  const StatCard = ({ title, value, icon: Icon, change, colorClass }: any) => (
+    <Card className="card-luxury hover-lift transition-all">
+      <CardContent className="pt-6">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <div className="flex items-baseline gap-2">
+              <h3 className="text-3xl font-bold">{value}</h3>
+              {change !== undefined && change !== 0 && (
+                <div className={`flex items-center text-sm font-medium ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {change >= 0 ? <TrendingUp className="w-4 h-4 ml-1" /> : <TrendingDown className="w-4 h-4 ml-1" />}
+                  <span>{Math.abs(change)}%</span>
+                </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+          <div className={`p-3 rounded-xl ${colorClass}`}>
+            <Icon className="w-6 h-6 text-white" />
+          </div>
         </div>
+      </CardContent>
+    </Card>
+  );
+
+  const NavItem = ({ icon: Icon, label, onClick }: any) => (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-primary/10 transition-colors text-right"
+    >
+      <Icon className="w-5 h-5 text-primary" />
+      <span className="font-medium">{label}</span>
+    </button>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+      <div className="flex h-screen">
+        {/* Sidebar */}
+        <aside className="hidden lg:flex flex-col w-64 bg-card border-l border-border shadow-xl">
+          <div className="p-6 border-b border-border">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-primary-glow flex items-center justify-center">
+                <LayoutDashboard className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="font-bold text-lg">{t({ ar: "إثراء", en: "ITHRAA" })}</h2>
+                <p className="text-xs text-muted-foreground">{t({ ar: "لوحة الموظف", en: "Employee Panel" })}</p>
+              </div>
+            </div>
+          </div>
+          
+          <nav className="flex-1 p-4 space-y-2">
+            <NavItem 
+              icon={Home} 
+              label={t({ ar: "الرئيسية", en: "Home" })}
+              onClick={() => navigate('/')}
+            />
+            <NavItem 
+              icon={User} 
+              label={t({ ar: "الملف الشخصي", en: "Profile" })}
+              onClick={() => navigate('/profile')}
+            />
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-4 lg:p-8 pt-24 lg:pt-8">
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold mb-2 text-gradient-luxury">
+                {t({ ar: "لوحة تحكم الموظف", en: "Employee Dashboard" })}
+              </h1>
+              <p className="text-muted-foreground">
+                {t({ ar: "إدارة الطلبات المسندة إليك", en: "Manage your assigned bookings" })}
+              </p>
+            </div>
+
+            {/* Quick Actions - Mobile Only */}
+            <div className="lg:hidden grid grid-cols-2 gap-3 mb-6">
+              <Button onClick={() => navigate('/')} variant="outline" className="h-20 flex-col gap-2">
+                <Home className="w-5 h-5" />
+                <span className="text-xs">{t({ ar: "الرئيسية", en: "Home" })}</span>
+              </Button>
+              <Button onClick={() => navigate('/profile')} variant="outline" className="h-20 flex-col gap-2">
+                <User className="w-5 h-5" />
+                <span className="text-xs">{t({ ar: "الملف", en: "Profile" })}</span>
+              </Button>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6 mb-8">
+              <StatCard
+                title={t({ ar: "الطلبات المسندة", en: "Assigned Bookings" })}
+                value={stats.totalAssigned}
+                icon={FileText}
+                change={undefined}
+                colorClass="bg-gradient-to-br from-blue-500 to-blue-600"
+              />
+              <StatCard
+                title={t({ ar: "قيد الانتظار", en: "Pending" })}
+                value={stats.pending}
+                icon={Clock}
+                change={stats.pendingChange}
+                colorClass="bg-gradient-to-br from-orange-500 to-orange-600"
+              />
+              <StatCard
+                title={t({ ar: "تم التأكيد", en: "Confirmed" })}
+                value={stats.confirmed}
+                icon={CheckCircle}
+                change={undefined}
+                colorClass="bg-gradient-to-br from-green-500 to-green-600"
+              />
+            </div>
+
+            {/* Bookings Table */}
+            <Card className="card-luxury">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  {t({ ar: "الطلبات المسندة إليك", en: "Assigned Bookings" })}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loadingBookings ? (
+                  <p className="text-muted-foreground text-center py-8">{t({ ar: "جاري التحميل...", en: "Loading..." })}</p>
+                ) : (
+                  <BookingManagement bookings={bookings} onUpdate={fetchBookings} />
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </main>
       </div>
     </div>
   );

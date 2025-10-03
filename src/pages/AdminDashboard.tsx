@@ -6,15 +6,38 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookingManagement } from "@/components/BookingManagement";
 import { Button } from "@/components/ui/button";
-import { DollarSign, FileText, Clock, Users, UserCog, Hotel } from "lucide-react";
+import { 
+  DollarSign, 
+  FileText, 
+  Clock, 
+  Users, 
+  UserCog, 
+  Hotel,
+  TrendingUp,
+  TrendingDown,
+  Settings,
+  User,
+  Home,
+  LayoutDashboard
+} from "lucide-react";
 import { playNotificationSound } from "@/utils/notificationSound";
 
 export default function AdminDashboard() {
-  const { userRole, loading } = useAuth();
-  const { t } = useLanguage();
+  const { userRole, loading, user } = useAuth();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
+  const [stats, setStats] = useState({
+    totalRevenue: 50000,
+    revenueChange: 8.5,
+    totalBookings: 123,
+    bookingsChange: 12.3,
+    pendingBookings: 15,
+    pendingChange: -5.2,
+    totalCustomers: 87,
+    customersChange: 15.7
+  });
 
   useEffect(() => {
     if (!loading) {
@@ -23,7 +46,6 @@ export default function AdminDashboard() {
       } else {
         fetchBookings();
         
-        // Set up real-time subscription for new bookings
         const channel = supabase
           .channel('admin-bookings')
           .on(
@@ -70,114 +92,172 @@ export default function AdminDashboard() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading...", fr: "Chargement...", es: "Cargando...", ru: "Загрузка...", id: "Memuat...", ms: "Memuatkan..." })}</div>;
+    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-subtle p-4 pt-28">
-      <div className="container mx-auto max-w-7xl">
-        <h1 className="text-3xl font-bold text-gradient-luxury mb-8">{t({ ar: "لوحة تحكم المدير", en: "Admin Dashboard", fr: "Tableau de bord administrateur", es: "Panel de administración", ru: "Панель администратора", id: "Dasbor Admin", ms: "Papan Pemuka Admin" })}</h1>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <Card className="card-luxury hover-lift cursor-pointer" onClick={() => navigate('/manage-employees')}>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <UserCog className="w-6 h-6 text-primary" />
+  const StatCard = ({ title, value, icon: Icon, change, colorClass }: any) => (
+    <Card className="card-luxury hover-lift transition-all">
+      <CardContent className="pt-6">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <div className="flex items-baseline gap-2">
+              <h3 className="text-3xl font-bold">{value}</h3>
+              {change !== undefined && (
+                <div className={`flex items-center text-sm font-medium ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {change >= 0 ? <TrendingUp className="w-4 h-4 ml-1" /> : <TrendingDown className="w-4 h-4 ml-1" />}
+                  <span>{Math.abs(change)}%</span>
                 </div>
-                <div>
-                  <h3 className="font-semibold text-lg">{t({ ar: "إدارة الموظفين", en: "Manage Employees" })}</h3>
-                  <p className="text-sm text-muted-foreground">{t({ ar: "إضافة وتعديل الموظفين", en: "Add and edit employees" })}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="card-luxury hover-lift cursor-pointer" onClick={() => navigate('/manage-hotels')}>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <Hotel className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">{t({ ar: "إدارة الفنادق", en: "Manage Hotels" })}</h3>
-                  <p className="text-sm text-muted-foreground">{t({ ar: "إضافة وتعديل الفنادق", en: "Add and edit hotels" })}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="card-luxury hover-lift cursor-pointer" onClick={() => navigate('/site-settings')}>
-            <CardContent className="pt-6">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
-                  <FileText className="w-6 h-6 text-primary" />
-                </div>
-                <div>
-                  <h3 className="font-semibold text-lg">{t({ ar: "إعدادات الموقع", en: "Site Settings" })}</h3>
-                  <p className="text-sm text-muted-foreground">{t({ ar: "تعديل ألوان وخطوط الموقع", en: "Edit site colors and fonts" })}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-        
-        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
-          <Card className="card-luxury">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">{t({ ar: "إجمالي الأرباح", en: "Total Revenue", fr: "Revenu total", es: "Ingresos totales", ru: "Общий доход", id: "Total Pendapatan", ms: "Jumlah Pendapatan" })}</CardTitle>
-              <DollarSign className="w-4 h-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">٥٠,٠٠٠ ر.س</div>
-            </CardContent>
-          </Card>
-
-          <Card className="card-luxury">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">{t({ ar: "إجمالي الطلبات", en: "Total Bookings", fr: "Réservations totales", es: "Reservas totales", ru: "Всего бронирований", id: "Total Pemesanan", ms: "Jumlah Tempahan" })}</CardTitle>
-              <FileText className="w-4 h-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">١٢٣</div>
-            </CardContent>
-          </Card>
-
-          <Card className="card-luxury">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">{t({ ar: "طلبات قيد الانتظار", en: "Pending Bookings", fr: "Réservations en attente", es: "Reservas pendientes", ru: "Ожидающие бронирования", id: "Pemesanan Tertunda", ms: "Tempahan Tertangguh" })}</CardTitle>
-              <Clock className="w-4 h-4 text-warning" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">١٥</div>
-            </CardContent>
-          </Card>
-
-          <Card className="card-luxury">
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">{t({ ar: "عدد العملاء", en: "Total Customers", fr: "Clients totaux", es: "Clientes totales", ru: "Всего клиентов", id: "Total Pelanggan", ms: "Jumlah Pelanggan" })}</CardTitle>
-              <Users className="w-4 h-4 text-primary" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">٨٧</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <div className="mt-8">
-          <Card className="card-luxury">
-            <CardHeader>
-              <CardTitle>{t({ ar: "الطلبات الأخيرة", en: "Recent Bookings", fr: "Réservations récentes", es: "Reservas recientes", ru: "Недавние бронирования", id: "Pemesanan Terbaru", ms: "Tempahan Terkini" })}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {loadingBookings ? (
-                <p className="text-muted-foreground">{t({ ar: "جاري التحميل...", en: "Loading...", fr: "Chargement...", es: "Cargando...", ru: "Загрузка...", id: "Memuat...", ms: "Memuatkan..." })}</p>
-              ) : (
-                <BookingManagement bookings={bookings} onUpdate={fetchBookings} />
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+          <div className={`p-3 rounded-xl ${colorClass}`}>
+            <Icon className="w-6 h-6 text-white" />
+          </div>
         </div>
+      </CardContent>
+    </Card>
+  );
+
+  const NavItem = ({ icon: Icon, label, onClick }: any) => (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-primary/10 transition-colors text-right"
+    >
+      <Icon className="w-5 h-5 text-primary" />
+      <span className="font-medium">{label}</span>
+    </button>
+  );
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+      <div className="flex h-screen">
+        {/* Sidebar */}
+        <aside className="hidden lg:flex flex-col w-64 bg-card border-l border-border shadow-xl">
+          <div className="p-6 border-b border-border">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-primary-glow flex items-center justify-center">
+                <LayoutDashboard className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="font-bold text-lg">{t({ ar: "إثراء", en: "ITHRAA" })}</h2>
+                <p className="text-xs text-muted-foreground">{t({ ar: "لوحة التحكم", en: "Dashboard" })}</p>
+              </div>
+            </div>
+          </div>
+          
+          <nav className="flex-1 p-4 space-y-2">
+            <NavItem 
+              icon={Home} 
+              label={t({ ar: "الرئيسية", en: "Home" })}
+              onClick={() => navigate('/')}
+            />
+            <NavItem 
+              icon={UserCog} 
+              label={t({ ar: "إدارة الموظفين", en: "Manage Employees" })}
+              onClick={() => navigate('/manage-employees')}
+            />
+            <NavItem 
+              icon={Hotel} 
+              label={t({ ar: "إدارة الفنادق", en: "Manage Hotels" })}
+              onClick={() => navigate('/manage-hotels')}
+            />
+            <NavItem 
+              icon={Settings} 
+              label={t({ ar: "إعدادات الموقع", en: "Site Settings" })}
+              onClick={() => navigate('/site-settings')}
+            />
+            <NavItem 
+              icon={User} 
+              label={t({ ar: "الملف الشخصي", en: "Profile" })}
+              onClick={() => navigate('/profile')}
+            />
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-y-auto">
+          <div className="p-4 lg:p-8 pt-24 lg:pt-8">
+            {/* Header */}
+            <div className="mb-8">
+              <h1 className="text-3xl font-bold mb-2 text-gradient-luxury">
+                {t({ ar: "مرحباً بك في لوحة التحكم", en: "Welcome to Dashboard" })}
+              </h1>
+              <p className="text-muted-foreground">
+                {t({ ar: "نظرة عامة على أداء نظامك", en: "Overview of your system performance" })}
+              </p>
+            </div>
+
+            {/* Quick Actions - Mobile Only */}
+            <div className="lg:hidden grid grid-cols-2 gap-3 mb-6">
+              <Button onClick={() => navigate('/manage-employees')} variant="outline" className="h-20 flex-col gap-2">
+                <UserCog className="w-5 h-5" />
+                <span className="text-xs">{t({ ar: "الموظفين", en: "Employees" })}</span>
+              </Button>
+              <Button onClick={() => navigate('/manage-hotels')} variant="outline" className="h-20 flex-col gap-2">
+                <Hotel className="w-5 h-5" />
+                <span className="text-xs">{t({ ar: "الفنادق", en: "Hotels" })}</span>
+              </Button>
+              <Button onClick={() => navigate('/site-settings')} variant="outline" className="h-20 flex-col gap-2">
+                <Settings className="w-5 h-5" />
+                <span className="text-xs">{t({ ar: "الإعدادات", en: "Settings" })}</span>
+              </Button>
+              <Button onClick={() => navigate('/profile')} variant="outline" className="h-20 flex-col gap-2">
+                <User className="w-5 h-5" />
+                <span className="text-xs">{t({ ar: "الملف", en: "Profile" })}</span>
+              </Button>
+            </div>
+
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+              <StatCard
+                title={t({ ar: "إجمالي الأرباح", en: "Total Revenue" })}
+                value={`${stats.totalRevenue.toLocaleString()} ${t({ ar: "ر.س", en: "SAR" })}`}
+                icon={DollarSign}
+                change={stats.revenueChange}
+                colorClass="bg-gradient-to-br from-green-500 to-green-600"
+              />
+              <StatCard
+                title={t({ ar: "إجمالي الطلبات", en: "Total Bookings" })}
+                value={stats.totalBookings}
+                icon={FileText}
+                change={stats.bookingsChange}
+                colorClass="bg-gradient-to-br from-blue-500 to-blue-600"
+              />
+              <StatCard
+                title={t({ ar: "قيد الانتظار", en: "Pending" })}
+                value={stats.pendingBookings}
+                icon={Clock}
+                change={stats.pendingChange}
+                colorClass="bg-gradient-to-br from-orange-500 to-orange-600"
+              />
+              <StatCard
+                title={t({ ar: "عدد العملاء", en: "Customers" })}
+                value={stats.totalCustomers}
+                icon={Users}
+                change={stats.customersChange}
+                colorClass="bg-gradient-to-br from-purple-500 to-purple-600"
+              />
+            </div>
+
+            {/* Recent Bookings */}
+            <Card className="card-luxury">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  {t({ ar: "الطلبات الأخيرة", en: "Recent Bookings" })}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loadingBookings ? (
+                  <p className="text-muted-foreground text-center py-8">{t({ ar: "جاري التحميل...", en: "Loading..." })}</p>
+                ) : (
+                  <BookingManagement bookings={bookings} onUpdate={fetchBookings} />
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        </main>
       </div>
     </div>
   );

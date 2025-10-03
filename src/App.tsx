@@ -11,6 +11,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import ManageEmployees from "./pages/ManageEmployees";
+import Profile from "./pages/Profile";
 import ManageHotels from "./pages/ManageHotels";
 import SearchResults from "./pages/SearchResults";
 import HotelDetails from "./pages/HotelDetails";
@@ -40,7 +41,8 @@ const App = () => (
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/employee" element={<EmployeeDashboard />} />
               <Route path="/dashboard" element={<CustomerDashboard />} />
-              <Route path="/manage-employees" element={<ManageEmployees />} />
+          <Route path="/manage-employees" element={<ManageEmployees />} />
+          <Route path="/profile" element={<Profile />} />
               <Route path="/manage-hotels" element={<ManageHotels />} />
               <Route path="/site-settings" element={<SiteSettings />} />
               <Route path="/reset-password" element={<ResetPassword />} />
