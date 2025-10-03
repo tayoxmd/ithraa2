@@ -14,16 +14,314 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          check_in: string
+          check_out: string
+          created_at: string | null
+          guests: number
+          hotel_id: string
+          id: string
+          notes: string | null
+          payment_method: string | null
+          payment_status: string | null
+          status: Database["public"]["Enums"]["booking_status"] | null
+          total_amount: number
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          check_in: string
+          check_out: string
+          created_at?: string | null
+          guests?: number
+          hotel_id: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          status?: Database["public"]["Enums"]["booking_status"] | null
+          total_amount: number
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          check_in?: string
+          check_out?: string
+          created_at?: string | null
+          guests?: number
+          hotel_id?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          status?: Database["public"]["Enums"]["booking_status"] | null
+          total_amount?: number
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cities: {
+        Row: {
+          active: boolean | null
+          created_at: string | null
+          id: string
+          name_ar: string
+          name_en: string
+        }
+        Insert: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: string
+          name_ar: string
+          name_en: string
+        }
+        Update: {
+          active?: boolean | null
+          created_at?: string | null
+          id?: string
+          name_ar?: string
+          name_en?: string
+        }
+        Relationships: []
+      }
+      complaints: {
+        Row: {
+          admin_response: string | null
+          booking_id: string | null
+          created_at: string | null
+          description: string
+          id: string
+          status: Database["public"]["Enums"]["complaint_status"] | null
+          subject: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          admin_response?: string | null
+          booking_id?: string | null
+          created_at?: string | null
+          description: string
+          id?: string
+          status?: Database["public"]["Enums"]["complaint_status"] | null
+          subject: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          admin_response?: string | null
+          booking_id?: string | null
+          created_at?: string | null
+          description?: string
+          id?: string
+          status?: Database["public"]["Enums"]["complaint_status"] | null
+          subject?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "complaints_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "complaints_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      financial_transactions: {
+        Row: {
+          amount: number
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "financial_transactions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hotels: {
+        Row: {
+          active: boolean | null
+          city_id: string
+          contact_person: string | null
+          contact_phone: string | null
+          created_at: string | null
+          description_ar: string | null
+          description_en: string | null
+          id: string
+          images: Json | null
+          location: string | null
+          name_ar: string
+          name_en: string
+          price_per_night: number
+          rating: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          city_id: string
+          contact_person?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          id?: string
+          images?: Json | null
+          location?: string | null
+          name_ar: string
+          name_en: string
+          price_per_night: number
+          rating?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          city_id?: string
+          contact_person?: string | null
+          contact_phone?: string | null
+          created_at?: string | null
+          description_ar?: string | null
+          description_en?: string | null
+          id?: string
+          images?: Json | null
+          location?: string | null
+          name_ar?: string
+          name_en?: string
+          price_per_night?: number
+          rating?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotels_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string | null
+          id: string
+          permissions: Json | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          permissions?: Json | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          permissions?: Json | null
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "employee" | "customer"
+      booking_status: "new" | "pending" | "confirmed" | "cancelled"
+      complaint_status: "new" | "pending" | "rejected" | "resolved"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +448,10 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "employee", "customer"],
+      booking_status: ["new", "pending", "confirmed", "cancelled"],
+      complaint_status: ["new", "pending", "rejected", "resolved"],
+    },
   },
 } as const
