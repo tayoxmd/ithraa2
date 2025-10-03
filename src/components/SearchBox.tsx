@@ -2,16 +2,37 @@ import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CalendarIcon, MapPin, Search, Users } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
+
+interface City {
+  id: string;
+  name_ar: string;
+  name_en: string;
+}
 
 export function SearchBox() {
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
   const [guests, setGuests] = useState(2);
+  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [cities, setCities] = useState<City[]>([]);
+
+  useEffect(() => {
+    async function fetchCities() {
+      const { data } = await supabase
+        .from('cities')
+        .select('*')
+        .eq('active', true);
+      if (data) setCities(data);
+    }
+    fetchCities();
+  }, []);
 
   return (
     <div className="w-full max-w-5xl mx-auto">
@@ -20,13 +41,18 @@ export function SearchBox() {
           {/* Location */}
           <div className="relative">
             <label className="text-sm font-medium text-foreground mb-2 block">الوجهة</label>
-            <div className="relative">
-              <MapPin className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-              <Input
-                placeholder="إلى أين تريد الذهاب؟"
-                className="pr-10 h-12 bg-background/50"
-              />
-            </div>
+            <Select value={selectedCity} onValueChange={setSelectedCity}>
+              <SelectTrigger className="h-12 bg-background/50">
+                <SelectValue placeholder="اختر المدينة" />
+              </SelectTrigger>
+              <SelectContent>
+                {cities.map((city) => (
+                  <SelectItem key={city.id} value={city.id}>
+                    {city.name_ar}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Check-in */}

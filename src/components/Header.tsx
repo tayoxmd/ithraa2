@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
-import { Globe, Menu, X } from "lucide-react";
+import { Globe, Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +23,8 @@ const languages = [
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [currentLang, setCurrentLang] = useState(languages[0]);
+  const { user, signOut, userRole } = useAuth();
+  const navigate = useNavigate();
 
   const handleLanguageChange = (lang: typeof languages[0]) => {
     setCurrentLang(lang);
@@ -28,12 +32,18 @@ export function Header() {
     document.documentElement.setAttribute("lang", lang.code);
   };
 
+  const getDashboardPath = () => {
+    if (userRole === 'admin') return '/admin';
+    if (userRole === 'employee') return '/employee';
+    return '/dashboard';
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-b border-border shadow-elegant">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <div className="flex items-center gap-3">
+          <Link to="/" className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-lg bg-gradient-luxury flex items-center justify-center shadow-luxury">
               <span className="text-2xl font-bold text-white">إ</span>
             </div>
@@ -41,7 +51,7 @@ export function Header() {
               <span className="text-xl font-bold text-gradient-luxury">إثراء</span>
               <span className="text-xs text-muted-foreground tracking-wider">ITHRAA</span>
             </div>
-          </div>
+          </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
@@ -79,16 +89,51 @@ export function Header() {
                     {lang.name}
                   </DropdownMenuItem>
                 ))}
-              </DropdownMenuContent>
+            </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="outline" size="sm" className="hidden sm:inline-flex">
-              تسجيل الدخول
-            </Button>
+            {user ? (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden sm:inline-flex gap-2"
+                  onClick={() => navigate(getDashboardPath())}
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  لوحة التحكم
+                </Button>
 
-            <Button size="sm" className="btn-luxury hidden sm:inline-flex">
-              سجل الآن
-            </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden sm:inline-flex gap-2"
+                  onClick={() => signOut()}
+                >
+                  <LogOut className="w-4 h-4" />
+                  تسجيل الخروج
+                </Button>
+              </>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="hidden sm:inline-flex"
+                  onClick={() => navigate('/auth')}
+                >
+                  تسجيل الدخول
+                </Button>
+
+                <Button
+                  size="sm"
+                  className="btn-luxury hidden sm:inline-flex"
+                  onClick={() => navigate('/auth')}
+                >
+                  سجل الآن
+                </Button>
+              </>
+            )}
 
             {/* Mobile Menu Button */}
             <Button
