@@ -14,6 +14,7 @@ import ManageEmployees from "./pages/ManageEmployees";
 import SearchResults from "./pages/SearchResults";
 import HotelDetails from "./pages/HotelDetails";
 import Booking from "./pages/Booking";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -36,6 +37,7 @@ const App = () => (
               <Route path="/employee" element={<EmployeeDashboard />} />
               <Route path="/dashboard" element={<CustomerDashboard />} />
               <Route path="/manage-employees" element={<ManageEmployees />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>

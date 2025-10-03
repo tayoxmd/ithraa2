@@ -199,6 +199,7 @@ export type Database = {
           id: string
           images: Json | null
           location: string | null
+          location_url: string | null
           name_ar: string
           name_en: string
           price_per_night: number
@@ -216,6 +217,7 @@ export type Database = {
           id?: string
           images?: Json | null
           location?: string | null
+          location_url?: string | null
           name_ar: string
           name_en: string
           price_per_night: number
@@ -233,6 +235,7 @@ export type Database = {
           id?: string
           images?: Json | null
           location?: string | null
+          location_url?: string | null
           name_ar?: string
           name_en?: string
           price_per_night?: number

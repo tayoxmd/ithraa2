@@ -107,10 +107,13 @@ export function SearchBox() {
                 <Calendar
                   mode="single"
                   selected={checkIn}
-                  onSelect={setCheckIn}
+                  onSelect={(date) => {
+                    setCheckIn(date);
+                  }}
                   disabled={(date) => date < new Date()}
                   initialFocus
                   locale={ar}
+                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
@@ -138,10 +141,13 @@ export function SearchBox() {
                 <Calendar
                   mode="single"
                   selected={checkOut}
-                  onSelect={setCheckOut}
+                  onSelect={(date) => {
+                    setCheckOut(date);
+                  }}
                   initialFocus
                   locale={ar}
                   disabled={(date) => checkIn ? date <= checkIn : date < new Date()}
+                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>

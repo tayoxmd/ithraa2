@@ -173,8 +173,11 @@ export default function Booking() {
                           <Calendar
                             mode="single"
                             selected={checkIn}
-                            onSelect={setCheckIn}
+                            onSelect={(date) => {
+                              setCheckIn(date);
+                            }}
                             disabled={(date) => date < new Date()}
+                            className="pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>
@@ -199,8 +202,11 @@ export default function Booking() {
                           <Calendar
                             mode="single"
                             selected={checkOut}
-                            onSelect={setCheckOut}
+                            onSelect={(date) => {
+                              setCheckOut(date);
+                            }}
                             disabled={(date) => !checkIn || date <= checkIn}
+                            className="pointer-events-auto"
                           />
                         </PopoverContent>
                       </Popover>

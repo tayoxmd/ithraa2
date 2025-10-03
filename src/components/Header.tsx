@@ -58,21 +58,31 @@ export function Header() {
 
           {/* Actions */}
           <div className="flex items-center gap-3">
-            {/* Language Selector */}
-            <div className="hidden sm:block">
-              <LanguageSelector />
-            </div>
+            {/* Language Selector - Always visible */}
+            <LanguageSelector />
 
             {user ? (
               <>
+                {(userRole === 'admin' || userRole === 'employee') && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="hidden sm:inline-flex gap-2"
+                    onClick={() => navigate(getDashboardPath())}
+                  >
+                    <LayoutDashboard className="w-4 h-4" />
+                    {t('الإدارة', 'Management')}
+                  </Button>
+                )}
+                
                 <Button
                   variant="outline"
                   size="sm"
                   className="hidden sm:inline-flex gap-2"
-                  onClick={() => navigate(getDashboardPath())}
+                  onClick={() => navigate('/dashboard')}
                 >
                   <LayoutDashboard className="w-4 h-4" />
-                  {t('لوحة التحكم', 'Dashboard')}
+                  {t('طلباتي', 'My Bookings')}
                 </Button>
 
                 <Button
@@ -91,7 +101,7 @@ export function Header() {
                   variant="outline"
                   size="sm"
                   className="hidden sm:inline-flex"
-                  onClick={() => navigate('/auth')}
+                  onClick={() => navigate('/auth?mode=login')}
                 >
                   {t('تسجيل الدخول', 'Sign In')}
                 </Button>
@@ -99,7 +109,7 @@ export function Header() {
                 <Button
                   size="sm"
                   className="btn-luxury hidden sm:inline-flex"
-                  onClick={() => navigate('/auth')}
+                  onClick={() => navigate('/auth?mode=signup')}
                 >
                   {t('سجل الآن', 'Sign Up')}
                 </Button>
@@ -122,9 +132,6 @@ export function Header() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 animate-fade-in">
             <nav className="flex flex-col gap-4">
-              <div className="mb-4">
-                <LanguageSelector />
-              </div>
               <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium py-2">
                 {t('الرئيسية', 'Home')}
               </Link>
@@ -139,14 +146,25 @@ export function Header() {
               </a>
               {user ? (
                 <>
+                  {(userRole === 'admin' || userRole === 'employee') && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="justify-start gap-2"
+                      onClick={() => navigate(getDashboardPath())}
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      {t('الإدارة', 'Management')}
+                    </Button>
+                  )}
                   <Button 
                     variant="outline" 
                     size="sm" 
                     className="justify-start gap-2"
-                    onClick={() => navigate(getDashboardPath())}
+                    onClick={() => navigate('/dashboard')}
                   >
                     <LayoutDashboard className="w-4 h-4" />
-                    {t('لوحة التحكم', 'Dashboard')}
+                    {t('طلباتي', 'My Bookings')}
                   </Button>
                   <Button 
                     variant="outline" 
@@ -164,14 +182,14 @@ export function Header() {
                     variant="outline" 
                     size="sm" 
                     className="flex-1"
-                    onClick={() => navigate('/auth')}
+                    onClick={() => navigate('/auth?mode=login')}
                   >
                     {t('تسجيل الدخول', 'Sign In')}
                   </Button>
                   <Button 
                     size="sm" 
                     className="btn-luxury flex-1"
-                    onClick={() => navigate('/auth')}
+                    onClick={() => navigate('/auth?mode=signup')}
                   >
                     {t('سجل الآن', 'Sign Up')}
                   </Button>

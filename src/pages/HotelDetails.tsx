@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, MapPin, ArrowRight } from "lucide-react";
+import { Star, MapPin, ArrowRight, Navigation } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Hotel {
@@ -16,6 +16,7 @@ interface Hotel {
   description_ar: string;
   description_en: string;
   location: string;
+  location_url?: string;
   price_per_night: number;
   rating: number;
   images: any;
@@ -103,6 +104,17 @@ export default function HotelDetails() {
                 <MapPin className="w-4 h-4 ml-1" />
                 <span>{hotel.location}</span>
               </div>
+              {hotel.location_url && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => window.open(hotel.location_url, '_blank')}
+                  className="gap-2"
+                >
+                  <Navigation className="w-4 h-4" />
+                  {t('عرض الموقع', 'View Location')}
+                </Button>
+              )}
             </div>
 
             <p className="text-muted-foreground mb-6 leading-relaxed">

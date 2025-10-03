@@ -77,8 +77,8 @@ export default function CustomerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle p-4">
-      <div className="container mx-auto">
+    <div className="min-h-screen bg-gradient-subtle p-4 pt-28">
+      <div className="container mx-auto max-w-7xl">
         <div className="flex items-center gap-4 mb-8">
           <Button variant="outline" onClick={() => navigate('/')}>
             <Home className="w-4 h-4 mr-2" />
@@ -150,8 +150,14 @@ export default function CustomerDashboard() {
             <CardHeader>
               <CardTitle>{t({ ar: "معلوماتي الشخصية", en: "Personal Information", fr: "Informations personnelles", es: "Información personal", ru: "Личная информация", id: "Informasi Pribadi", ms: "Maklumat Peribadi" })}</CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">{t({ ar: "قريباً...", en: "Coming soon...", fr: "Bientôt...", es: "Próximamente...", ru: "Скоро...", id: "Segera hadir...", ms: "Akan datang..." })}</p>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">{t({ ar: "البريد الإلكتروني", en: "Email", fr: "E-mail", es: "Correo electrónico", ru: "Электронная почта", id: "Email", ms: "E-mel" })}</p>
+                <p className="font-medium">{user.email}</p>
+              </div>
+              <Button onClick={() => navigate('/reset-password')} className="w-full btn-luxury">
+                {t({ ar: "تغيير كلمة المرور", en: "Change Password", fr: "Changer le mot de passe", es: "Cambiar contraseña", ru: "Изменить пароль", id: "Ubah Kata Sandi", ms: "Tukar Kata Laluan" })}
+              </Button>
             </CardContent>
           </Card>
         )}
