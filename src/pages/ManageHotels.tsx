@@ -9,9 +9,16 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search } from "lucide-react";
+
+interface City {
+  id: string;
+  name_ar: string;
+  name_en: string;
+}
 
 interface Hotel {
   id: string;
@@ -19,6 +26,7 @@ interface Hotel {
   name_en: string;
   description_ar: string;
   description_en: string;
+  city_id: string;
   location: string;
   location_url: string;
   contact_phone: string;
@@ -37,6 +45,7 @@ export default function ManageHotels() {
   const navigate = useNavigate();
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [filteredHotels, setFilteredHotels] = useState<Hotel[]>([]);
+  const [cities, setCities] = useState<City[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -47,6 +56,7 @@ export default function ManageHotels() {
     name_en: "",
     description_ar: "",
     description_en: "",
+    city_id: "",
     location: "",
     location_url: "",
     contact_phone: "",
@@ -60,9 +70,25 @@ export default function ManageHotels() {
     if (!loading && userRole !== 'admin') {
       navigate('/');
     } else if (!loading) {
+      fetchCities();
       fetchHotels();
     }
   }, [userRole, loading, navigate]);
+
+  const fetchCities = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('cities')
+        .select('id, name_ar, name_en')
+        .eq('active', true)
+        .order('name_en', { ascending: true });
+
+      if (error) throw error;
+      setCities(data || []);
+    } catch (error: any) {
+      console.error('Error fetching cities:', error);
+    }
+  };
 
   const fetchHotels = async () => {
     try {
@@ -138,13 +164,14 @@ export default function ManageHotels() {
 
   const handleAddHotel = async () => {
     try {
-      const { data: citiesData, error: citiesError } = await supabase
-        .from('cities')
-        .select('id')
-        .limit(1)
-        .single();
-
-      if (citiesError) throw citiesError;
+      if (!formData.city_id) {
+        toast({
+          title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
+          description: t({ ar: "يرجى اختيار المدينة", en: "Please select a city", fr: "Veuillez sélectionner une ville", es: "Por favor seleccione una ciudad", ru: "Пожалуйста, выберите город", id: "Silakan pilih kota", ms: "Sila pilih bandar" }),
+          variant: "destructive",
+        });
+        return;
+      }
 
       const { error } = await supabase
         .from('hotels')
@@ -152,7 +179,7 @@ export default function ManageHotels() {
           ...formData,
           price_per_night: parseFloat(formData.price_per_night),
           rating: parseFloat(formData.rating),
-          city_id: citiesData.id,
+          city_id: formData.city_id,
         }]);
 
       if (error) throw error;
@@ -214,6 +241,7 @@ export default function ManageHotels() {
       name_en: hotel.name_en,
       description_ar: hotel.description_ar || "",
       description_en: hotel.description_en || "",
+      city_id: hotel.city_id || "",
       location: hotel.location || "",
       location_url: hotel.location_url || "",
       contact_phone: hotel.contact_phone || "",
@@ -231,6 +259,7 @@ export default function ManageHotels() {
       name_en: "",
       description_ar: "",
       description_en: "",
+      city_id: "",
       location: "",
       location_url: "",
       contact_phone: "",
@@ -467,13 +496,28 @@ export default function ManageHotels() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t({ ar: "الموقع", en: "Location", fr: "Emplacement", es: "Ubicación", ru: "Местоположение", id: "Lokasi", ms: "Lokasi" })}</Label>
-                  <Input value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} />
+                  <Label>{t({ ar: "المدينة", en: "City", fr: "Ville", es: "Ciudad", ru: "Город", id: "Kota", ms: "Bandar" })}</Label>
+                  <Select value={formData.city_id} onValueChange={(value) => setFormData({...formData, city_id: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t({ ar: "اختر المدينة", en: "Select city", fr: "Sélectionner la ville", es: "Seleccionar ciudad", ru: "Выбрать город", id: "Pilih kota", ms: "Pilih bandar" })} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities.map(city => (
+                        <SelectItem key={city.id} value={city.id}>
+                          {language === 'ar' ? city.name_ar : city.name_en}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>{t({ ar: "رابط الموقع", en: "Location URL", fr: "URL de l'emplacement", es: "URL de ubicación", ru: "URL местоположения", id: "URL Lokasi", ms: "URL Lokasi" })}</Label>
-                  <Input value={formData.location_url} onChange={(e) => setFormData({...formData, location_url: e.target.value})} placeholder="https://maps.google.com/..." />
+                  <Label>{t({ ar: "الموقع التفصيلي", en: "Detailed Location", fr: "Emplacement détaillé", es: "Ubicación detallada", ru: "Подробное местоположение", id: "Lokasi Detail", ms: "Lokasi Terperinci" })}</Label>
+                  <Input value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} placeholder={t({ ar: "مثال: حي النسيم", en: "Example: Al Naseem District", fr: "Exemple: Quartier Al Naseem", es: "Ejemplo: Distrito Al Naseem", ru: "Пример: Район Аль-Насим", id: "Contoh: Distrik Al Naseem", ms: "Contoh: Daerah Al Naseem" })} />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label>{t({ ar: "رابط الموقع", en: "Location URL", fr: "URL de l'emplacement", es: "URL de ubicación", ru: "URL местоположения", id: "URL Lokasi", ms: "URL Lokasi" })}</Label>
+                <Input value={formData.location_url} onChange={(e) => setFormData({...formData, location_url: e.target.value})} placeholder="https://maps.google.com/..." />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -537,13 +581,28 @@ export default function ManageHotels() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t({ ar: "الموقع", en: "Location", fr: "Emplacement", es: "Ubicación", ru: "Местоположение", id: "Lokasi", ms: "Lokasi" })}</Label>
-                  <Input value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} />
+                  <Label>{t({ ar: "المدينة", en: "City", fr: "Ville", es: "Ciudad", ru: "Город", id: "Kota", ms: "Bandar" })}</Label>
+                  <Select value={formData.city_id} onValueChange={(value) => setFormData({...formData, city_id: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t({ ar: "اختر المدينة", en: "Select city", fr: "Sélectionner la ville", es: "Seleccionar ciudad", ru: "Выбрать город", id: "Pilih kota", ms: "Pilih bandar" })} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {cities.map(city => (
+                        <SelectItem key={city.id} value={city.id}>
+                          {language === 'ar' ? city.name_ar : city.name_en}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
-                  <Label>{t({ ar: "رابط الموقع", en: "Location URL", fr: "URL de l'emplacement", es: "URL de ubicación", ru: "URL местоположения", id: "URL Lokasi", ms: "URL Lokasi" })}</Label>
-                  <Input value={formData.location_url} onChange={(e) => setFormData({...formData, location_url: e.target.value})} placeholder="https://maps.google.com/..." />
+                  <Label>{t({ ar: "الموقع التفصيلي", en: "Detailed Location", fr: "Emplacement détaillé", es: "Ubicación detallada", ru: "Подробное местоположение", id: "Lokasi Detail", ms: "Lokasi Terperinci" })}</Label>
+                  <Input value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} placeholder={t({ ar: "مثال: حي النسيم", en: "Example: Al Naseem District", fr: "Exemple: Quartier Al Naseem", es: "Ejemplo: Distrito Al Naseem", ru: "Пример: Район Аль-Насим", id: "Contoh: Distrik Al Naseem", ms: "Contoh: Daerah Al Naseem" })} />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label>{t({ ar: "رابط الموقع", en: "Location URL", fr: "URL de l'emplacement", es: "URL de ubicación", ru: "URL местоположения", id: "URL Lokasi", ms: "URL Lokasi" })}</Label>
+                <Input value={formData.location_url} onChange={(e) => setFormData({...formData, location_url: e.target.value})} placeholder="https://maps.google.com/..." />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">

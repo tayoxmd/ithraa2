@@ -1,8 +1,10 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { BookingManagement } from "@/components/BookingManagement";
 import { Button } from "@/components/ui/button";
 import { DollarSign, FileText, Clock, Users, UserCog, Hotel } from "lucide-react";
 
@@ -10,14 +12,39 @@ export default function AdminDashboard() {
   const { userRole, loading } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(true);
 
   useEffect(() => {
     if (!loading) {
       if (userRole !== 'admin') {
         navigate('/');
+      } else {
+        fetchBookings();
       }
     }
   }, [userRole, loading, navigate]);
+
+  const fetchBookings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          profiles:user_id (full_name, phone),
+          hotels:hotel_id (name_ar, name_en, location)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      setBookings(data || []);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    } finally {
+      setLoadingBookings(false);
+    }
+  };
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading...", fr: "Chargement...", es: "Cargando...", ru: "Загрузка...", id: "Memuat...", ms: "Memuatkan..." })}</div>;
@@ -85,22 +112,17 @@ export default function AdminDashboard() {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="mt-8">
           <Card className="card-luxury">
             <CardHeader>
               <CardTitle>{t({ ar: "الطلبات الأخيرة", en: "Recent Bookings", fr: "Réservations récentes", es: "Reservas recientes", ru: "Недавние бронирования", id: "Pemesanan Terbaru", ms: "Tempahan Terkini" })}</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-muted-foreground">{t({ ar: "قريباً...", en: "Coming soon...", fr: "Bientôt...", es: "Próximamente...", ru: "Скоро...", id: "Segera hadir...", ms: "Akan datang..." })}</p>
-            </CardContent>
-          </Card>
-
-          <Card className="card-luxury">
-            <CardHeader>
-              <CardTitle>{t({ ar: "الإحصائيات", en: "Statistics", fr: "Statistiques", es: "Estadísticas", ru: "Статистика", id: "Statistik", ms: "Statistik" })}</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">{t({ ar: "قريباً...", en: "Coming soon...", fr: "Bientôt...", es: "Próximamente...", ru: "Скоро...", id: "Segera hadir...", ms: "Akan datang..." })}</p>
+              {loadingBookings ? (
+                <p className="text-muted-foreground">{t({ ar: "جاري التحميل...", en: "Loading...", fr: "Chargement...", es: "Cargando...", ru: "Загрузка...", id: "Memuat...", ms: "Memuatkan..." })}</p>
+              ) : (
+                <BookingManagement bookings={bookings} onUpdate={fetchBookings} />
+              )}
             </CardContent>
           </Card>
         </div>

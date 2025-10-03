@@ -1,0 +1,368 @@
+import { useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/hooks/use-toast";
+import { Calendar, Users, Hotel, Mail, MessageCircle, Edit } from "lucide-react";
+import { format } from "date-fns";
+
+interface Booking {
+  id: string;
+  user_id: string;
+  hotel_id: string;
+  check_in: string;
+  check_out: string;
+  guests: number;
+  total_amount: number;
+  status: 'new' | 'pending' | 'confirmed' | 'cancelled';
+  payment_status: string;
+  payment_method: string;
+  notes: string | null;
+  created_at: string;
+  profiles?: {
+    full_name: string;
+    phone: string;
+  };
+  hotels?: {
+    name_ar: string;
+    name_en: string;
+    location: string;
+  };
+}
+
+interface BookingManagementProps {
+  bookings: Booking[];
+  onUpdate: () => void;
+}
+
+export function BookingManagement({ bookings, onUpdate }: BookingManagementProps) {
+  const { t, language } = useLanguage();
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editFormData, setEditFormData] = useState({
+    check_in: "",
+    check_out: "",
+    guests: "",
+    notes: "",
+  });
+
+  const statusColors = {
+    new: "bg-blue-500",
+    pending: "bg-yellow-500",
+    confirmed: "bg-green-500",
+    cancelled: "bg-red-500",
+  };
+
+  const statusLabels = {
+    new: { ar: "جديد", en: "New", fr: "Nouveau", es: "Nuevo", ru: "Новый", id: "Baru", ms: "Baharu" },
+    pending: { ar: "قيد الانتظار", en: "Pending", fr: "En attente", es: "Pendiente", ru: "В ожидании", id: "Tertunda", ms: "Menunggu" },
+    confirmed: { ar: "مؤكد", en: "Confirmed", fr: "Confirmé", es: "Confirmado", ru: "Подтверждено", id: "Dikonfirmasi", ms: "Disahkan" },
+    cancelled: { ar: "ملغى", en: "Cancelled", fr: "Annulé", es: "Cancelado", ru: "Отменено", id: "Dibatalkan", ms: "Dibatalkan" },
+  };
+
+  const handleStatusChange = async (bookingId: string, newStatus: 'new' | 'pending' | 'confirmed' | 'cancelled') => {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ status: newStatus })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+
+      toast({
+        title: t({ ar: "تم التحديث", en: "Updated", fr: "Mis à jour", es: "Actualizado", ru: "Обновлено", id: "Diperbarui", ms: "Dikemas kini" }),
+        description: t({ ar: "تم تحديث حالة الطلب", en: "Booking status updated", fr: "Statut de la réservation mis à jour", es: "Estado de la reserva actualizado", ru: "Статус бронирования обновлен", id: "Status pemesanan diperbarui", ms: "Status tempahan dikemas kini" }),
+      });
+
+      onUpdate();
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const openEditDialog = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setEditFormData({
+      check_in: booking.check_in,
+      check_out: booking.check_out,
+      guests: booking.guests.toString(),
+      notes: booking.notes || "",
+    });
+    setIsEditDialogOpen(true);
+  };
+
+  const handleEditBooking = async () => {
+    if (!selectedBooking) return;
+
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({
+          check_in: editFormData.check_in,
+          check_out: editFormData.check_out,
+          guests: parseInt(editFormData.guests),
+          notes: editFormData.notes || null,
+        })
+        .eq('id', selectedBooking.id);
+
+      if (error) throw error;
+
+      toast({
+        title: t({ ar: "تم التحديث", en: "Updated", fr: "Mis à jour", es: "Actualizado", ru: "Обновлено", id: "Diperbarui", ms: "Dikemas kini" }),
+        description: t({ ar: "تم تحديث معلومات الحجز", en: "Booking information updated", fr: "Informations de réservation mises à jour", es: "Información de reserva actualizada", ru: "Информация о бронировании обновлена", id: "Informasi pemesanan diperbarui", ms: "Maklumat tempahan dikemas kini" }),
+      });
+
+      setIsEditDialogOpen(false);
+      setSelectedBooking(null);
+      onUpdate();
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const shareViaWhatsApp = (booking: Booking) => {
+    const hotelName = language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en;
+    const statusText = t(statusLabels[booking.status]);
+    const message = `
+${t({ ar: "تفاصيل الحجز", en: "Booking Details", fr: "Détails de la réservation", es: "Detalles de la reserva", ru: "Детали бронирования", id: "Detail Pemesanan", ms: "Butiran Tempahan" })}
+
+${t({ ar: "الفندق:", en: "Hotel:", fr: "Hôtel:", es: "Hotel:", ru: "Отель:", id: "Hotel:", ms: "Hotel:" })} ${hotelName}
+${t({ ar: "الموقع:", en: "Location:", fr: "Emplacement:", es: "Ubicación:", ru: "Местоположение:", id: "Lokasi:", ms: "Lokasi:" })} ${booking.hotels?.location}
+${t({ ar: "تاريخ الوصول:", en: "Check-in:", fr: "Arrivée:", es: "Entrada:", ru: "Заезд:", id: "Check-in:", ms: "Daftar masuk:" })} ${format(new Date(booking.check_in), "dd/MM/yyyy")}
+${t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })} ${format(new Date(booking.check_out), "dd/MM/yyyy")}
+${t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })} ${booking.guests}
+${t({ ar: "المبلغ الإجمالي:", en: "Total Amount:", fr: "Montant total:", es: "Monto total:", ru: "Общая сумма:", id: "Jumlah Total:", ms: "Jumlah Keseluruhan:" })} ${booking.total_amount} ${t({ ar: "ر.س", en: "SAR", fr: "SAR", es: "SAR", ru: "САР", id: "SAR", ms: "SAR" })}
+${t({ ar: "الحالة:", en: "Status:", fr: "Statut:", es: "Estado:", ru: "Статус:", id: "Status:", ms: "Status:" })} ${statusText}
+${t({ ar: "طريقة الدفع:", en: "Payment Method:", fr: "Mode de paiement:", es: "Método de pago:", ru: "Способ оплаты:", id: "Metode Pembayaran:", ms: "Kaedah Pembayaran:" })} ${booking.payment_method}
+`;
+
+    const encodedMessage = encodeURIComponent(message.trim());
+    const phoneNumber = booking.profiles?.phone || "";
+    const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;
+    window.open(whatsappUrl, '_blank');
+  };
+
+  const shareViaEmail = (booking: Booking) => {
+    const hotelName = language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en;
+    const statusText = t(statusLabels[booking.status]);
+    const subject = t({ ar: "تفاصيل حجز الفندق", en: "Hotel Booking Details", fr: "Détails de réservation d'hôtel", es: "Detalles de reserva de hotel", ru: "Детали бронирования отеля", id: "Detail Pemesanan Hotel", ms: "Butiran Tempahan Hotel" });
+    const body = `
+${t({ ar: "تفاصيل الحجز", en: "Booking Details", fr: "Détails de la réservation", es: "Detalles de la reserva", ru: "Детали бронирования", id: "Detail Pemesanan", ms: "Butiran Tempahan" })}
+
+${t({ ar: "الفندق:", en: "Hotel:", fr: "Hôtel:", es: "Hotel:", ru: "Отель:", id: "Hotel:", ms: "Hotel:" })} ${hotelName}
+${t({ ar: "الموقع:", en: "Location:", fr: "Emplacement:", es: "Ubicación:", ru: "Местоположение:", id: "Lokasi:", ms: "Lokasi:" })} ${booking.hotels?.location}
+${t({ ar: "تاريخ الوصول:", en: "Check-in:", fr: "Arrivée:", es: "Entrada:", ru: "Заезд:", id: "Check-in:", ms: "Daftar masuk:" })} ${format(new Date(booking.check_in), "dd/MM/yyyy")}
+${t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })} ${format(new Date(booking.check_out), "dd/MM/yyyy")}
+${t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })} ${booking.guests}
+${t({ ar: "المبلغ الإجمالي:", en: "Total Amount:", fr: "Montant total:", es: "Monto total:", ru: "Общая сумма:", id: "Jumlah Total:", ms: "Jumlah Keseluruhan:" })} ${booking.total_amount} ${t({ ar: "ر.س", en: "SAR", fr: "SAR", es: "SAR", ru: "САР", id: "SAR", ms: "SAR" })}
+${t({ ar: "الحالة:", en: "Status:", fr: "Statut:", es: "Estado:", ru: "Статус:", id: "Status:", ms: "Status:" })} ${statusText}
+${t({ ar: "طريقة الدفع:", en: "Payment Method:", fr: "Mode de paiement:", es: "Método de pago:", ru: "Способ оплаты:", id: "Metode Pembayaran:", ms: "Kaedah Pembayaran:" })} ${booking.payment_method}
+
+${t({ ar: "اسم العميل:", en: "Customer Name:", fr: "Nom du client:", es: "Nombre del cliente:", ru: "Имя клиента:", id: "Nama Pelanggan:", ms: "Nama Pelanggan:" })} ${booking.profiles?.full_name}
+${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de téléphone:", es: "Número de teléfono:", ru: "Номер телефона:", id: "Nomor Telepon:", ms: "Nombor Telefon:" })} ${booking.profiles?.phone}
+`;
+
+    const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body.trim())}`;
+    window.location.href = mailtoUrl;
+  };
+
+  if (bookings.length === 0) {
+    return (
+      <Card className="card-luxury">
+        <CardContent className="py-12 text-center">
+          <p className="text-muted-foreground">
+            {t({ ar: "لا توجد طلبات", en: "No bookings", fr: "Aucune réservation", es: "No hay reservas", ru: "Нет бронирований", id: "Tidak ada pemesanan", ms: "Tiada tempahan" })}
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <>
+      <div className="grid gap-4">
+        {bookings.map((booking) => (
+          <Card key={booking.id} className="card-luxury">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between flex-wrap gap-4">
+                <div className="flex items-center gap-3">
+                  <Hotel className="w-5 h-5 text-primary" />
+                  <span className="text-lg">
+                    {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Badge className={statusColors[booking.status]}>
+                    {t(statusLabels[booking.status])}
+                  </Badge>
+                  <Select
+                    value={booking.status}
+                    onValueChange={(value) => handleStatusChange(booking.id, value as 'new' | 'pending' | 'confirmed' | 'cancelled')}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="new">{t(statusLabels.new)}</SelectItem>
+                      <SelectItem value="pending">{t(statusLabels.pending)}</SelectItem>
+                      <SelectItem value="confirmed">{t(statusLabels.confirmed)}</SelectItem>
+                      <SelectItem value="cancelled">{t(statusLabels.cancelled)}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="w-4 h-4 text-primary" />
+                    <span className="font-semibold">{t({ ar: "تاريخ الوصول:", en: "Check-in:", fr: "Arrivée:", es: "Entrada:", ru: "Заезд:", id: "Check-in:", ms: "Daftar masuk:" })}</span>
+                    <span>{format(new Date(booking.check_in), "dd/MM/yyyy")}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Calendar className="w-4 h-4 text-primary" />
+                    <span className="font-semibold">{t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })}</span>
+                    <span>{format(new Date(booking.check_out), "dd/MM/yyyy")}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Users className="w-4 h-4 text-primary" />
+                    <span className="font-semibold">{t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })}</span>
+                    <span>{booking.guests}</span>
+                  </div>
+                  <div className="text-sm">
+                    <span className="font-semibold">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:", fr: "Montant total:", es: "Monto total:", ru: "Общая сумма:", id: "Jumlah Total:", ms: "Jumlah Keseluruhan:" })}</span>
+                    <span className="text-primary font-bold ml-2">{booking.total_amount} {t({ ar: "ر.س", en: "SAR", fr: "SAR", es: "SAR", ru: "САР", id: "SAR", ms: "SAR" })}</span>
+                  </div>
+                  <div className="text-sm">
+                    <span className="font-semibold">{t({ ar: "طريقة الدفع:", en: "Payment Method:", fr: "Mode de paiement:", es: "Método de pago:", ru: "Способ оплаты:", id: "Metode Pembayaran:", ms: "Kaedah Pembayaran:" })}</span>
+                    <span className="ml-2">{booking.payment_method}</span>
+                  </div>
+                  {booking.notes && (
+                    <div className="text-sm">
+                      <span className="font-semibold">{t({ ar: "ملاحظات:", en: "Notes:", fr: "Notes:", es: "Notas:", ru: "Заметки:", id: "Catatan:", ms: "Nota:" })}</span>
+                      <p className="text-muted-foreground mt-1">{booking.notes}</p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="space-y-3">
+                  <div>
+                    <h4 className="font-semibold mb-2">{t({ ar: "معلومات العميل", en: "Customer Information", fr: "Informations client", es: "Información del cliente", ru: "Информация о клиенте", id: "Informasi Pelanggan", ms: "Maklumat Pelanggan" })}</h4>
+                    <div className="space-y-2 text-sm">
+                      <p>
+                        <span className="font-semibold">{t({ ar: "الاسم:", en: "Name:", fr: "Nom:", es: "Nombre:", ru: "Имя:", id: "Nama:", ms: "Nama:" })}</span>
+                        <span className="ml-2">{booking.profiles?.full_name}</span>
+                      </p>
+                      <p>
+                        <span className="font-semibold">{t({ ar: "الهاتف:", en: "Phone:", fr: "Téléphone:", es: "Teléfono:", ru: "Телефон:", id: "Telepon:", ms: "Telefon:" })}</span>
+                        <span className="ml-2">{booking.profiles?.phone}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 pt-4">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => openEditDialog(booking)}
+                    >
+                      <Edit className="w-4 h-4 ml-1" />
+                      {t({ ar: "تعديل", en: "Edit", fr: "Modifier", es: "Editar", ru: "Редактировать", id: "Edit", ms: "Edit" })}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => shareViaWhatsApp(booking)}
+                    >
+                      <MessageCircle className="w-4 h-4 ml-1" />
+                      {t({ ar: "واتساب", en: "WhatsApp", fr: "WhatsApp", es: "WhatsApp", ru: "WhatsApp", id: "WhatsApp", ms: "WhatsApp" })}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => shareViaEmail(booking)}
+                    >
+                      <Mail className="w-4 h-4 ml-1" />
+                      {t({ ar: "بريد", en: "Email", fr: "E-mail", es: "Correo", ru: "Email", id: "Email", ms: "E-mel" })}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Edit Booking Dialog */}
+      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t({ ar: "تعديل تفاصيل الحجز", en: "Edit Booking Details", fr: "Modifier les détails de la réservation", es: "Editar detalles de la reserva", ru: "Редактировать детали бронирования", id: "Edit Detail Pemesanan", ms: "Edit Butiran Tempahan" })}</DialogTitle>
+            <DialogDescription>
+              {t({ ar: "عدل معلومات الحجز", en: "Modify the booking information", fr: "Modifiez les informations de réservation", es: "Modifique la información de la reserva", ru: "Измените информацию о бронировании", id: "Ubah informasi pemesanan", ms: "Ubah maklumat tempahan" })}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="space-y-2">
+              <Label>{t({ ar: "تاريخ الوصول", en: "Check-in Date", fr: "Date d'arrivée", es: "Fecha de entrada", ru: "Дата заезда", id: "Tanggal Check-in", ms: "Tarikh Daftar masuk" })}</Label>
+              <Input
+                type="date"
+                value={editFormData.check_in}
+                onChange={(e) => setEditFormData({ ...editFormData, check_in: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{t({ ar: "تاريخ المغادرة", en: "Check-out Date", fr: "Date de départ", es: "Fecha de salida", ru: "Дата выезда", id: "Tanggal Check-out", ms: "Tarikh Daftar keluar" })}</Label>
+              <Input
+                type="date"
+                value={editFormData.check_out}
+                onChange={(e) => setEditFormData({ ...editFormData, check_out: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{t({ ar: "عدد النزلاء", en: "Number of Guests", fr: "Nombre d'invités", es: "Número de huéspedes", ru: "Количество гостей", id: "Jumlah Tamu", ms: "Bilangan Tetamu" })}</Label>
+              <Input
+                type="number"
+                min="1"
+                value={editFormData.guests}
+                onChange={(e) => setEditFormData({ ...editFormData, guests: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{t({ ar: "ملاحظات", en: "Notes", fr: "Notes", es: "Notas", ru: "Заметки", id: "Catatan", ms: "Nota" })}</Label>
+              <Textarea
+                value={editFormData.notes}
+                onChange={(e) => setEditFormData({ ...editFormData, notes: e.target.value })}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
+              {t({ ar: "إلغاء", en: "Cancel", fr: "Annuler", es: "Cancelar", ru: "Отмена", id: "Batal", ms: "Batal" })}
+            </Button>
+            <Button onClick={handleEditBooking}>
+              {t({ ar: "حفظ", en: "Save", fr: "Enregistrer", es: "Guardar", ru: "Сохранить", id: "Simpan", ms: "Simpan" })}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
