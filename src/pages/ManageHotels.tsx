@@ -27,6 +27,8 @@ interface Hotel {
   description_ar: string;
   description_en: string;
   city_id: string;
+  city_name_ar?: string;
+  city_name_en?: string;
   location: string;
   location_url: string;
   contact_phone: string;
@@ -98,14 +100,20 @@ export default function ManageHotels() {
     try {
       const { data: hotelsData, error } = await supabase
         .from('hotels')
-        .select('*')
+        .select(`
+          *,
+          cities (
+            name_ar,
+            name_en
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       // Get booking counts for each hotel
       const hotelsWithCounts = await Promise.all(
-        (hotelsData || []).map(async (hotel) => {
+        (hotelsData || []).map(async (hotel: any) => {
           const { count } = await supabase
             .from('bookings')
             .select('*', { count: 'exact', head: true })
@@ -113,6 +121,8 @@ export default function ManageHotels() {
           
           return {
             ...hotel,
+            city_name_ar: hotel.cities?.name_ar,
+            city_name_en: hotel.cities?.name_en,
             bookings_count: count || 0
           };
         })
@@ -374,7 +384,7 @@ export default function ManageHotels() {
                     
                     <div className="flex items-center gap-2 text-sm">
                       <MapPin className="w-4 h-4 text-primary" />
-                      <span>{hotel.location}</span>
+                      <span>{language === 'ar' ? hotel.city_name_ar : hotel.city_name_en}</span>
                       {hotel.location_url && (
                         <a 
                           href={hotel.location_url} 
