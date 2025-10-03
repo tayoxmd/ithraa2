@@ -32,6 +32,15 @@ export default function SearchResults() {
   const checkIn = searchParams.get('checkIn');
   const checkOut = searchParams.get('checkOut');
   const guests = searchParams.get('guests');
+  const rooms = searchParams.get('rooms');
+  
+  // Store search params in localStorage for persistence
+  useEffect(() => {
+    if (checkIn) localStorage.setItem('searchCheckIn', checkIn);
+    if (checkOut) localStorage.setItem('searchCheckOut', checkOut);
+    if (guests) localStorage.setItem('searchGuests', guests);
+    if (rooms) localStorage.setItem('searchRooms', rooms);
+  }, [checkIn, checkOut, guests, rooms]);
 
   useEffect(() => {
     async function fetchHotels() {
@@ -53,7 +62,7 @@ export default function SearchResults() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        {t('جاري التحميل...', 'Loading...')}
+        {t({ ar: 'جاري التحميل...', en: 'Loading...', fr: 'Chargement...', es: 'Cargando...', ru: 'Загрузка...', id: 'Memuat...', ms: 'Memuatkan...' })}
       </div>
     );
   }
@@ -64,10 +73,10 @@ export default function SearchResults() {
       
       <div className="container mx-auto px-4 py-8 pt-24">
         <h1 className="text-3xl font-bold mb-2">
-          {t('نتائج البحث', 'Search Results')}
+          {t({ ar: 'نتائج البحث', en: 'Search Results', fr: 'Résultats de recherche', es: 'Resultados de búsqueda', ru: 'Результаты поиска', id: 'Hasil Pencarian', ms: 'Hasil Carian' })}
         </h1>
         <p className="text-muted-foreground mb-8">
-          {t(`تم العثور على ${hotels.length} فندق`, `Found ${hotels.length} hotels`)}
+          {t({ ar: `تم العثور على ${hotels.length} فندق`, en: `Found ${hotels.length} hotels`, fr: `${hotels.length} hôtels trouvés`, es: `Se encontraron ${hotels.length} hoteles`, ru: `Найдено отелей: ${hotels.length}`, id: `Ditemukan ${hotels.length} hotel`, ms: `Ditemui ${hotels.length} hotel` })}
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -104,14 +113,21 @@ export default function SearchResults() {
                     <div>
                       <span className="text-2xl font-bold text-primary">{hotel.price_per_night}</span>
                       <span className="text-sm text-muted-foreground mr-1">
-                        {t('ر.س / ليلة', 'SAR / night')}
+                        {t({ ar: 'ر.س / ليلة', en: 'SAR / night', fr: 'SAR / nuit', es: 'SAR / noche', ru: 'САР / ночь', id: 'SAR / malam', ms: 'SAR / malam' })}
                       </span>
                     </div>
                     <Button 
                       className="btn-luxury"
-                      onClick={() => navigate(`/hotel/${hotel.id}`)}
+                      onClick={() => {
+                        const params = new URLSearchParams();
+                        if (checkIn) params.set('checkIn', checkIn);
+                        if (checkOut) params.set('checkOut', checkOut);
+                        if (guests) params.set('guests', guests);
+                        if (rooms) params.set('rooms', rooms);
+                        navigate(`/hotel/${hotel.id}?${params.toString()}`);
+                      }}
                     >
-                      {t('عرض التفاصيل', 'View Details')}
+                      {t({ ar: 'عرض التفاصيل', en: 'View Details', fr: 'Voir les détails', es: 'Ver detalles', ru: 'Подробности', id: 'Lihat Detail', ms: 'Lihat Butiran' })}
                     </Button>
                   </div>
                 </CardContent>
@@ -123,7 +139,7 @@ export default function SearchResults() {
         {hotels.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">
-              {t('لم يتم العثور على نتائج', 'No results found')}
+              {t({ ar: 'لم يتم العثور على نتائج', en: 'No results found', fr: 'Aucun résultat trouvé', es: 'No se encontraron resultados', ru: 'Результаты не найдены', id: 'Tidak ada hasil ditemukan', ms: 'Tiada hasil ditemui' })}
             </p>
           </div>
         )}

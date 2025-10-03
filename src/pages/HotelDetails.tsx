@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { format } from "date-fns";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
@@ -27,9 +28,17 @@ interface Hotel {
 export default function HotelDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { t, language } = useLanguage();
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Get search parameters from URL or localStorage
+  const searchParams = new URLSearchParams(location.search);
+  const checkIn = searchParams.get('checkIn') || localStorage.getItem('searchCheckIn') || format(new Date(), 'yyyy-MM-dd');
+  const checkOut = searchParams.get('checkOut') || localStorage.getItem('searchCheckOut') || format(new Date(Date.now() + 86400000), 'yyyy-MM-dd');
+  const guests = searchParams.get('guests') || localStorage.getItem('searchGuests') || '2';
+  const rooms = searchParams.get('rooms') || localStorage.getItem('searchRooms') || '1';
 
   useEffect(() => {
     async function fetchHotel() {
@@ -135,9 +144,9 @@ export default function HotelDetails() {
 
                 <Button 
                   className="w-full btn-luxury"
-                  onClick={() => navigate(`/booking/${hotel.id}`)}
+                  onClick={() => navigate(`/booking/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}&rooms=${rooms}`)}
                 >
-                  {t('احجز الآن', 'Book Now')}
+                  {t({ ar: 'احجز الآن', en: 'Book Now', fr: 'Réserver maintenant', es: 'Reservar ahora', ru: 'Забронировать', id: 'Pesan Sekarang', ms: 'Tempah Sekarang' })}
                 </Button>
               </CardContent>
             </Card>
