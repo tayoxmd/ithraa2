@@ -43,11 +43,6 @@ export function Footer() {
             </h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/complaints" className="text-secondary-foreground/80 hover:text-primary transition-colors">
-                  {t('الشكاوى', 'Complaints')}
-                </Link>
-              </li>
-              <li>
                 <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors">
                   {t('مركز المساعدة', 'Help Center')}
                 </a>

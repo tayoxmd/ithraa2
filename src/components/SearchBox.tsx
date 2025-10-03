@@ -109,6 +109,8 @@ export function SearchBox() {
                   selected={checkIn}
                   onSelect={(date) => {
                     setCheckIn(date);
+                    // Close the popover after selection
+                    document.body.click();
                   }}
                   disabled={(date) => date < new Date()}
                   initialFocus
@@ -143,6 +145,8 @@ export function SearchBox() {
                   selected={checkOut}
                   onSelect={(date) => {
                     setCheckOut(date);
+                    // Close the popover after selection
+                    document.body.click();
                   }}
                   initialFocus
                   locale={ar}

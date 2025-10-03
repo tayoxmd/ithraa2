@@ -12,7 +12,6 @@ import EmployeeDashboard from "./pages/EmployeeDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
 import ManageEmployees from "./pages/ManageEmployees";
 import ManageHotels from "./pages/ManageHotels";
-import Complaints from "./pages/Complaints";
 import SearchResults from "./pages/SearchResults";
 import HotelDetails from "./pages/HotelDetails";
 import Booking from "./pages/Booking";
@@ -40,7 +39,6 @@ const App = () => (
               <Route path="/dashboard" element={<CustomerDashboard />} />
               <Route path="/manage-employees" element={<ManageEmployees />} />
               <Route path="/manage-hotels" element={<ManageHotels />} />
-              <Route path="/complaints" element={<Complaints />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

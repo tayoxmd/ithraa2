@@ -6,8 +6,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, MapPin, Phone, Star, Calendar } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search } from "lucide-react";
 
 interface Hotel {
   id: string;
@@ -32,7 +33,9 @@ export default function ManageHotels() {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [filteredHotels, setFilteredHotels] = useState<Hotel[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (!loading && userRole !== 'admin') {
@@ -67,6 +70,7 @@ export default function ManageHotels() {
       );
 
       setHotels(hotelsWithCounts);
+      setFilteredHotels(hotelsWithCounts);
     } catch (error: any) {
       toast({
         title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
@@ -102,6 +106,24 @@ export default function ManageHotels() {
     }
   };
 
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    if (query.trim() === "") {
+      setFilteredHotels(hotels);
+    } else {
+      const filtered = hotels.filter((hotel) => {
+        const searchLower = query.toLowerCase();
+        return (
+          hotel.name_ar.toLowerCase().includes(searchLower) ||
+          hotel.name_en.toLowerCase().includes(searchLower) ||
+          hotel.location.toLowerCase().includes(searchLower) ||
+          hotel.contact_person?.toLowerCase().includes(searchLower)
+        );
+      });
+      setFilteredHotels(filtered);
+    }
+  };
+
   if (loading || loadingData) {
     return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading...", fr: "Chargement...", es: "Cargando...", ru: "Загрузка...", id: "Memuat...", ms: "Memuatkan..." })}</div>;
   }
@@ -109,16 +131,35 @@ export default function ManageHotels() {
   return (
     <div className="min-h-screen bg-gradient-subtle p-4 pt-28">
       <div className="container mx-auto max-w-7xl">
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="outline" onClick={() => navigate('/admin')}>
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            {t({ ar: "العودة", en: "Back", fr: "Retour", es: "Volver", ru: "Назад", id: "Kembali", ms: "Kembali" })}
-          </Button>
-          <h1 className="text-3xl font-bold text-gradient-luxury">{t({ ar: "إدارة الفنادق", en: "Manage Hotels", fr: "Gérer les hôtels", es: "Gestionar hoteles", ru: "Управление отелями", id: "Kelola Hotel", ms: "Urus Hotel" })}</h1>
+        <div className="flex flex-col gap-4 mb-8">
+          <div className="flex items-center gap-4">
+            <Button variant="outline" onClick={() => navigate('/admin')}>
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              {t({ ar: "العودة", en: "Back", fr: "Retour", es: "Volver", ru: "Назад", id: "Kembali", ms: "Kembali" })}
+            </Button>
+            <h1 className="text-3xl font-bold text-gradient-luxury">{t({ ar: "إدارة الفنادق", en: "Manage Hotels", fr: "Gérer les hôtels", es: "Gestionar hoteles", ru: "Управление отелями", id: "Kelola Hotel", ms: "Urus Hotel" })}</h1>
+          </div>
+          
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder={t({ ar: "ابحث عن فندق...", en: "Search for a hotel...", fr: "Rechercher un hôtel...", es: "Buscar un hotel...", ru: "Искать отель...", id: "Cari hotel...", ms: "Cari hotel..." })}
+                value={searchQuery}
+                onChange={(e) => handleSearch(e.target.value)}
+                className="pr-10 h-12"
+              />
+            </div>
+            <Button onClick={() => toast({ title: t({ ar: "قريباً", en: "Coming Soon", fr: "Bientôt", es: "Próximamente", ru: "Скоро", id: "Segera", ms: "Akan Datang" }), description: t({ ar: "سيتم إضافة هذه الميزة قريباً", en: "This feature will be added soon", fr: "Cette fonctionnalité sera ajoutée bientôt", es: "Esta función se agregará pronto", ru: "Эта функция будет добавлена в ближайшее время", id: "Fitur ini akan segera ditambahkan", ms: "Ciri ini akan ditambah tidak lama lagi" }) })} className="h-12 whitespace-nowrap">
+              <Plus className="w-5 h-5 ml-2" />
+              {t({ ar: "إضافة فندق", en: "Add Hotel", fr: "Ajouter un hôtel", es: "Agregar hotel", ru: "Добавить отель", id: "Tambah Hotel", ms: "Tambah Hotel" })}
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-6">
-          {hotels.map((hotel) => (
+          {filteredHotels.map((hotel) => (
             <Card key={hotel.id} className="card-luxury">
               <CardHeader>
                 <CardTitle className="flex items-center justify-between flex-wrap gap-4">
@@ -127,13 +168,23 @@ export default function ManageHotels() {
                     <Badge variant={hotel.active ? "default" : "secondary"}>
                       {hotel.active ? t({ ar: "نشط", en: "Active", fr: "Actif", es: "Activo", ru: "Активный", id: "Aktif", ms: "Aktif" }) : t({ ar: "غير نشط", en: "Inactive", fr: "Inactif", es: "Inactivo", ru: "Неактивный", id: "Tidak Aktif", ms: "Tidak Aktif" })}
                     </Badge>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => toggleHotelStatus(hotel.id, hotel.active)}
-                    >
-                      {hotel.active ? t({ ar: "إيقاف", en: "Deactivate", fr: "Désactiver", es: "Desactivar", ru: "Деактивировать", id: "Nonaktifkan", ms: "Nyahaktifkan" }) : t({ ar: "تفعيل", en: "Activate", fr: "Activer", es: "Activar", ru: "Активировать", id: "Aktifkan", ms: "Aktifkan" })}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toast({ title: t({ ar: "قريباً", en: "Coming Soon", fr: "Bientôt", es: "Próximamente", ru: "Скоро", id: "Segera", ms: "Akan Datang" }), description: t({ ar: "سيتم إضافة هذه الميزة قريباً", en: "This feature will be added soon", fr: "Cette fonctionnalité sera ajoutée bientôt", es: "Esta función se agregará pronto", ru: "Эта функция будет добавлена в ближайшее время", id: "Fitur ini akan segera ditambahkan", ms: "Ciri ini akan ditambah tidak lama lagi" }) })}
+                      >
+                        <Edit className="w-4 h-4 ml-1" />
+                        {t({ ar: "تعديل", en: "Edit", fr: "Modifier", es: "Editar", ru: "Редактировать", id: "Edit", ms: "Edit" })}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleHotelStatus(hotel.id, hotel.active)}
+                      >
+                        {hotel.active ? t({ ar: "إيقاف", en: "Deactivate", fr: "Désactiver", es: "Desactivar", ru: "Деактивировать", id: "Nonaktifkan", ms: "Nyahaktifkan" }) : t({ ar: "تفعيل", en: "Activate", fr: "Activer", es: "Activar", ru: "Активировать", id: "Aktifkan", ms: "Aktifkan" })}
+                      </Button>
+                    </div>
                   </div>
                 </CardTitle>
               </CardHeader>
@@ -229,6 +280,16 @@ export default function ManageHotels() {
               </CardContent>
             </Card>
           ))}
+
+          {filteredHotels.length === 0 && hotels.length > 0 && (
+            <Card className="card-luxury">
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">
+                  {t({ ar: "لا توجد نتائج للبحث", en: "No search results", fr: "Aucun résultat de recherche", es: "No hay resultados de búsqueda", ru: "Нет результатов поиска", id: "Tidak ada hasil pencarian", ms: "Tiada hasil carian" })}
+                </p>
+              </CardContent>
+            </Card>
+          )}
 
           {hotels.length === 0 && (
             <Card className="card-luxury">

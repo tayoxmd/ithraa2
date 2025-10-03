@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { DollarSign, FileText, Clock, Users, UserCog, Hotel, MessageSquare } from "lucide-react";
+import { DollarSign, FileText, Clock, Users, UserCog, Hotel } from "lucide-react";
 
 export default function AdminDashboard() {
   const { userRole, loading } = useAuth();
@@ -26,7 +26,7 @@ export default function AdminDashboard() {
       <div className="container mx-auto max-w-7xl">
         <h1 className="text-3xl font-bold text-gradient-luxury mb-8">{t({ ar: "لوحة تحكم المدير", en: "Admin Dashboard", fr: "Tableau de bord administrateur", es: "Panel de administración", ru: "Панель администратора", id: "Dasbor Admin", ms: "Papan Pemuka Admin" })}</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           <Button onClick={() => navigate('/manage-employees')} className="h-auto p-4 md:p-6">
             <div className="flex flex-col items-center gap-2">
               <UserCog className="w-6 h-6 md:w-8 md:h-8" />
@@ -37,12 +37,6 @@ export default function AdminDashboard() {
             <div className="flex flex-col items-center gap-2">
               <Hotel className="w-6 h-6 md:w-8 md:h-8" />
               <span className="text-xs md:text-sm">{t({ ar: "إدارة الفنادق", en: "Manage Hotels", fr: "Gérer les hôtels", es: "Gestionar hoteles", ru: "Управление отелями", id: "Kelola Hotel", ms: "Urus Hotel" })}</span>
-            </div>
-          </Button>
-          <Button onClick={() => navigate('/complaints')} variant="outline" className="h-auto p-4 md:p-6">
-            <div className="flex flex-col items-center gap-2">
-              <MessageSquare className="w-6 h-6 md:w-8 md:h-8" />
-              <span className="text-xs md:text-sm">{t({ ar: "الشكاوى", en: "Complaints", fr: "Plaintes", es: "Quejas", ru: "Жалобы", id: "Keluhan", ms: "Aduan" })}</span>
             </div>
           </Button>
         </div>
@@ -101,7 +95,7 @@ export default function AdminDashboard() {
 
           <Card className="card-luxury">
             <CardHeader>
-              <CardTitle>{t({ ar: "الشكاوى الجديدة", en: "New Complaints", fr: "Nouvelles plaintes", es: "Nuevas quejas", ru: "Новые жалобы", id: "Keluhan Baru", ms: "Aduan Baru" })}</CardTitle>
+              <CardTitle>{t({ ar: "الإحصائيات", en: "Statistics", fr: "Statistiques", es: "Estadísticas", ru: "Статистика", id: "Statistik", ms: "Statistik" })}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">{t({ ar: "قريباً...", en: "Coming soon...", fr: "Bientôt...", es: "Próximamente...", ru: "Скоро...", id: "Segera hadir...", ms: "Akan datang..." })}</p>

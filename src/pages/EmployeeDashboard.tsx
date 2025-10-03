@@ -36,7 +36,7 @@ export default function EmployeeDashboard() {
 
           <Card className="card-luxury">
             <CardHeader>
-              <CardTitle>{t({ ar: "الشكاوى", en: "Complaints", fr: "Plaintes", es: "Quejas", ru: "Жалобы", id: "Keluhan", ms: "Aduan" })}</CardTitle>
+              <CardTitle>{t({ ar: "الإحصائيات", en: "Statistics", fr: "Statistiques", es: "Estadísticas", ru: "Статистика", id: "Statistik", ms: "Statistik" })}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">{t({ ar: "قريباً...", en: "Coming soon...", fr: "Bientôt...", es: "Próximamente...", ru: "Скоро...", id: "Segera hadir...", ms: "Akan datang..." })}</p>
