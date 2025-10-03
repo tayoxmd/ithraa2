@@ -35,16 +35,14 @@ export default function SearchResults() {
 
   useEffect(() => {
     async function fetchHotels() {
-      let query = supabase
-        .from('hotels_public')
-        .select('*')
-        .eq('active', true);
+      const { data, error } = await supabase.rpc('get_public_hotels', {
+        p_city_id: cityId || null,
+        p_active_only: true
+      });
 
-      if (cityId) {
-        query = query.eq('city_id', cityId);
+      if (error) {
+        console.error('Error fetching hotels:', error);
       }
-
-      const { data } = await query;
       
       if (data) setHotels(data);
       setLoading(false);

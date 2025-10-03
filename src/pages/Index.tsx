@@ -33,13 +33,17 @@ const Index = () => {
   const fetchFeaturedHotels = async () => {
     try {
       const { data, error } = await supabase
-        .from('hotels_public')
-        .select('*')
-        .order('rating', { ascending: false })
-        .limit(6);
+        .rpc('get_public_hotels', {
+          p_city_id: null,
+          p_active_only: true
+        });
 
       if (error) throw error;
-      if (data) setHotels(data);
+      if (data) {
+        // Sort by rating and limit to 6
+        const sortedData = data.sort((a: any, b: any) => b.rating - a.rating).slice(0, 6);
+        setHotels(sortedData);
+      }
     } catch (error) {
       console.error('Error fetching hotels:', error);
     } finally {

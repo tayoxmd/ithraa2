@@ -344,6 +344,46 @@ export type Database = {
       }
     }
     Functions: {
+      get_public_hotel: {
+        Args: { p_hotel_id: string }
+        Returns: {
+          active: boolean
+          city_id: string
+          city_name_ar: string
+          city_name_en: string
+          created_at: string
+          description_ar: string
+          description_en: string
+          id: string
+          images: Json
+          location: string
+          name_ar: string
+          name_en: string
+          price_per_night: number
+          rating: number
+          updated_at: string
+        }[]
+      }
+      get_public_hotels: {
+        Args: { p_active_only?: boolean; p_city_id?: string }
+        Returns: {
+          active: boolean
+          city_id: string
+          city_name_ar: string
+          city_name_en: string
+          created_at: string
+          description_ar: string
+          description_en: string
+          id: string
+          images: Json
+          location: string
+          name_ar: string
+          name_en: string
+          price_per_night: number
+          rating: number
+          updated_at: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

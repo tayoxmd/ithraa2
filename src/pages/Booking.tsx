@@ -50,13 +50,15 @@ export default function Booking() {
     }
     
     async function fetchHotel() {
-      const { data } = await supabase
-        .from('hotels_public')
-        .select('*')
-        .eq('id', id)
-        .single();
+      const { data, error } = await supabase.rpc('get_public_hotel', {
+        p_hotel_id: id
+      });
+
+      if (error) {
+        console.error('Error fetching hotel:', error);
+      }
       
-      if (data) setHotel(data);
+      if (data && data.length > 0) setHotel(data[0]);
     }
     fetchHotel();
   }, [id, user, navigate]);
