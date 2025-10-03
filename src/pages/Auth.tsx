@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { authSchema } from "@/lib/validations";
 
 export default function Auth() {
   const [isLogin, setIsLogin] = useState(true);
@@ -31,8 +32,26 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      // التحقق من صحة المدخلات
+      const validationData = isLogin 
+        ? { email, password }
+        : { email, password, fullName, phone };
+      
+      const validationResult = authSchema.safeParse(validationData);
+
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast({
+          title: "خطأ في البيانات",
+          description: firstError.message,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+
       if (isLogin) {
-        const { error } = await signIn(email, password);
+        const { error } = await signIn(validationResult.data.email, validationResult.data.password);
         if (error) {
           toast({
             title: "خطأ في تسجيل الدخول",
@@ -46,7 +65,12 @@ export default function Auth() {
           });
         }
       } else {
-        const { error } = await signUp(email, password, fullName, phone);
+        const { error } = await signUp(
+          validationResult.data.email, 
+          validationResult.data.password, 
+          validationResult.data.fullName || '', 
+          validationResult.data.phone || ''
+        );
         if (error) {
           toast({
             title: "خطأ في التسجيل",

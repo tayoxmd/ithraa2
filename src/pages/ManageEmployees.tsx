@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, Shield } from "lucide-react";
+import { employeeSchema } from "@/lib/validations";
 import {
   Dialog,
   DialogContent,
@@ -80,22 +81,31 @@ export default function ManageEmployees() {
   };
 
   const handleAddEmployee = async () => {
-    if (!newEmail || !newPassword || !newName) {
+    // التحقق من صحة المدخلات
+    const validationResult = employeeSchema.safeParse({
+      email: newEmail,
+      password: newPassword,
+      fullName: newName,
+      phone: newPhone,
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
       toast({
-        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
-        description: t({ ar: "يرجى ملء جميع الحقول", en: "Please fill all fields", fr: "Veuillez remplir tous les champs", es: "Por favor complete todos los campos", ru: "Пожалуйста, заполните все поля", id: "Harap isi semua kolom", ms: "Sila isi semua medan" }),
+        title: t({ ar: "خطأ في البيانات", en: "Validation Error", fr: "Erreur de validation", es: "Error de validación", ru: "Ошибка валидации", id: "Kesalahan Validasi", ms: "Ralat Pengesahan" }),
+        description: firstError.message,
         variant: "destructive",
       });
       return;
     }
 
     const { data: authData, error: authError } = await supabase.auth.signUp({
-      email: newEmail,
-      password: newPassword,
+      email: validationResult.data.email,
+      password: validationResult.data.password,
       options: {
         data: {
-          full_name: newName,
-          phone: newPhone,
+          full_name: validationResult.data.fullName,
+          phone: validationResult.data.phone,
         }
       }
     });

@@ -2,36 +2,26 @@ import { z } from 'zod';
 
 // Booking validation schema
 export const bookingSchema = z.object({
-  checkIn: z.date({
+  checkIn: z.string({
     required_error: "يرجى تحديد تاريخ تسجيل الوصول",
+  }).regex(/^\d{4}-\d{2}-\d{2}$/, { 
+    message: "تاريخ الوصول غير صحيح" 
   }),
-  checkOut: z.date({
+  checkOut: z.string({
     required_error: "يرجى تحديد تاريخ تسجيل المغادرة",
+  }).regex(/^\d{4}-\d{2}-\d{2}$/, { 
+    message: "تاريخ المغادرة غير صحيح" 
   }),
   guests: z.number()
     .int({ message: "عدد الضيوف يجب أن يكون رقماً صحيحاً" })
     .min(1, { message: "يجب أن يكون هناك ضيف واحد على الأقل" })
     .max(50, { message: "الحد الأقصى للضيوف هو 50" }),
-  rooms: z.number()
-    .int({ message: "عدد الغرف يجب أن يكون رقماً صحيحاً" })
-    .min(1, { message: "يجب حجز غرفة واحدة على الأقل" })
-    .max(20, { message: "الحد الأقصى للغرف هو 20" }),
   notes: z.string()
     .max(500, { message: "الملاحظات يجب أن تكون أقل من 500 حرف" })
     .optional(),
-  paymentMethod: z.enum([
-    'apple_pay',
-    'stc_pay',
-    'google_pay',
-    'mada',
-    'visa',
-    'mastercard'
-  ], {
+  paymentMethod: z.string({
     required_error: "يرجى اختيار وسيلة دفع",
-  }),
-}).refine((data) => data.checkOut > data.checkIn, {
-  message: "تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول",
-  path: ["checkOut"],
+  }).min(1, { message: "يرجى اختيار وسيلة دفع" }),
 });
 
 // Employee validation schema

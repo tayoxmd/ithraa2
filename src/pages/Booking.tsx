@@ -18,6 +18,7 @@ import { CalendarIcon, CreditCard } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { cn } from "@/lib/utils";
+import { bookingSchema } from "@/lib/validations";
 
 const paymentMethods = [
   { id: 'apple-pay', name: 'Apple Pay', nameEn: 'Apple Pay' },
@@ -50,7 +51,7 @@ export default function Booking() {
     
     async function fetchHotel() {
       const { data } = await supabase
-        .from('hotels')
+        .from('hotels_public')
         .select('*')
         .eq('id', id)
         .single();
@@ -70,10 +71,20 @@ export default function Booking() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!checkIn || !checkOut || !paymentMethod) {
+    // التحقق من صحة المدخلات
+    const validationResult = bookingSchema.safeParse({
+      checkIn: checkIn ? format(checkIn, 'yyyy-MM-dd') : '',
+      checkOut: checkOut ? format(checkOut, 'yyyy-MM-dd') : '',
+      guests: parseInt(guests) || 0,
+      paymentMethod,
+      notes,
+    });
+
+    if (!validationResult.success) {
+      const firstError = validationResult.error.errors[0];
       toast({
-        title: t("خطأ", "Error"),
-        description: t("يرجى ملء جميع الحقول المطلوبة", "Please fill all required fields"),
+        title: t("خطأ في البيانات", "Validation Error"),
+        description: firstError.message,
         variant: "destructive",
       });
       return;
@@ -81,20 +92,22 @@ export default function Booking() {
 
     setLoading(true);
 
+    const totalAmount = calculateTotal();
+    
     const { error } = await supabase
       .from('bookings')
-      .insert({
+      .insert([{
         user_id: user!.id,
-        hotel_id: id,
-        check_in: format(checkIn, 'yyyy-MM-dd'),
-        check_out: format(checkOut, 'yyyy-MM-dd'),
-        guests: parseInt(guests) || 2,
-        total_amount: calculateTotal(),
-        payment_method: paymentMethod,
-        notes,
-        status: 'new',
+        hotel_id: id!,
+        check_in: validationResult.data.checkIn,
+        check_out: validationResult.data.checkOut,
+        guests: validationResult.data.guests,
+        total_amount: totalAmount,
+        payment_method: validationResult.data.paymentMethod,
+        notes: validationResult.data.notes || null,
+        status: 'new' as const,
         payment_status: 'pending',
-      });
+      }]);
 
     setLoading(false);
 

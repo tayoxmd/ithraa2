@@ -36,7 +36,7 @@ export default function SearchResults() {
   useEffect(() => {
     async function fetchHotels() {
       let query = supabase
-        .from('hotels')
+        .from('hotels_public')
         .select('*')
         .eq('active', true);
 

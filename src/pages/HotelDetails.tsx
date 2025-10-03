@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, MapPin, Phone, ArrowRight } from "lucide-react";
+import { Star, MapPin, ArrowRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 interface Hotel {
@@ -19,12 +19,8 @@ interface Hotel {
   price_per_night: number;
   rating: number;
   images: any;
-  contact_phone: string;
-  contact_person: string;
-  cities: {
-    name_ar: string;
-    name_en: string;
-  };
+  city_name_ar?: string;
+  city_name_en?: string;
 }
 
 export default function HotelDetails() {
@@ -37,8 +33,8 @@ export default function HotelDetails() {
   useEffect(() => {
     async function fetchHotel() {
       const { data } = await supabase
-        .from('hotels')
-        .select('*, cities(name_ar, name_en)')
+        .from('hotels_public')
+        .select('*')
         .eq('id', id)
         .single();
       
@@ -122,14 +118,6 @@ export default function HotelDetails() {
                   </span>
                 </div>
                 
-                {hotel.contact_phone && (
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center text-muted-foreground">
-                      <Phone className="w-4 h-4 ml-2" />
-                      <span>{hotel.contact_phone}</span>
-                    </div>
-                  </div>
-                )}
 
                 <Button 
                   className="w-full btn-luxury"
