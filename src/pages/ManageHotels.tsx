@@ -37,6 +37,8 @@ interface Hotel {
   active: boolean;
   created_at: string;
   bookings_count?: number;
+  max_guests_per_room: number;
+  extra_guest_price: number;
 }
 
 export default function ManageHotels() {
@@ -64,6 +66,8 @@ export default function ManageHotels() {
     price_per_night: "",
     rating: "5",
     active: true,
+    max_guests_per_room: "2",
+    extra_guest_price: "0",
   });
 
   useEffect(() => {
@@ -180,6 +184,8 @@ export default function ManageHotels() {
           price_per_night: parseFloat(formData.price_per_night),
           rating: parseFloat(formData.rating),
           city_id: formData.city_id,
+          max_guests_per_room: parseInt(formData.max_guests_per_room),
+          extra_guest_price: parseFloat(formData.extra_guest_price),
         }]);
 
       if (error) throw error;
@@ -211,6 +217,8 @@ export default function ManageHotels() {
           ...formData,
           price_per_night: parseFloat(formData.price_per_night),
           rating: parseFloat(formData.rating),
+          max_guests_per_room: parseInt(formData.max_guests_per_room),
+          extra_guest_price: parseFloat(formData.extra_guest_price),
         })
         .eq('id', editingHotel.id);
 
@@ -249,6 +257,8 @@ export default function ManageHotels() {
       price_per_night: hotel.price_per_night.toString(),
       rating: hotel.rating.toString(),
       active: hotel.active,
+      max_guests_per_room: hotel.max_guests_per_room.toString(),
+      extra_guest_price: hotel.extra_guest_price.toString(),
     });
     setIsEditDialogOpen(true);
   };
@@ -267,6 +277,8 @@ export default function ManageHotels() {
       price_per_night: "",
       rating: "5",
       active: true,
+      max_guests_per_room: "2",
+      extra_guest_price: "0",
     });
   };
 
@@ -539,6 +551,16 @@ export default function ManageHotels() {
                   <Input type="number" min="0" max="5" step="0.1" value={formData.rating} onChange={(e) => setFormData({...formData, rating: e.target.value})} />
                 </div>
               </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "الحد الأقصى للأشخاص في الغرفة", en: "Max Guests per Room", fr: "Maximum d'invités par chambre", es: "Máximo de huéspedes por habitación", ru: "Макс. гостей в номере", id: "Maks. Tamu per Kamar", ms: "Maks. Tetamu setiap Bilik" })}</Label>
+                  <Input type="number" min="1" value={formData.max_guests_per_room} onChange={(e) => setFormData({...formData, max_guests_per_room: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "سعر الشخص الإضافي", en: "Extra Guest Price", fr: "Prix par invité supplémentaire", es: "Precio por huésped adicional", ru: "Цена за доп. гостя", id: "Harga Tamu Tambahan", ms: "Harga Tetamu Tambahan" })}</Label>
+                  <Input type="number" min="0" value={formData.extra_guest_price} onChange={(e) => setFormData({...formData, extra_guest_price: e.target.value})} />
+                </div>
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => { setIsAddDialogOpen(false); resetForm(); }}>
@@ -622,6 +644,16 @@ export default function ManageHotels() {
                 <div className="space-y-2">
                   <Label>{t({ ar: "التقييم", en: "Rating", fr: "Évaluation", es: "Calificación", ru: "Рейтинг", id: "Penilaian", ms: "Penilaian" })}</Label>
                   <Input type="number" min="0" max="5" step="0.1" value={formData.rating} onChange={(e) => setFormData({...formData, rating: e.target.value})} />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "الحد الأقصى للأشخاص في الغرفة", en: "Max Guests per Room", fr: "Maximum d'invités par chambre", es: "Máximo de huéspedes por habitación", ru: "Макс. гостей в номере", id: "Maks. Tamu per Kamar", ms: "Maks. Tetamu setiap Bilik" })}</Label>
+                  <Input type="number" min="1" value={formData.max_guests_per_room} onChange={(e) => setFormData({...formData, max_guests_per_room: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "سعر الشخص الإضافي", en: "Extra Guest Price", fr: "Prix par invité supplémentaire", es: "Precio por huésped adicional", ru: "Цена за доп. гостя", id: "Harga Tamu Tambahan", ms: "Harga Tetamu Tambahan" })}</Label>
+                  <Input type="number" min="0" value={formData.extra_guest_price} onChange={(e) => setFormData({...formData, extra_guest_price: e.target.value})} />
                 </div>
               </div>
             </div>

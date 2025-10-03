@@ -35,6 +35,9 @@ interface Booking {
     name_ar: string;
     name_en: string;
     location: string;
+    price_per_night: number;
+    max_guests_per_room: number;
+    extra_guest_price: number;
   };
 }
 
@@ -53,6 +56,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     guests: "",
     rooms: "",
     notes: "",
+    total_amount: "",
   });
 
   const statusColors = {
@@ -67,6 +71,29 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     pending: { ar: "قيد الانتظار", en: "Pending", fr: "En attente", es: "Pendiente", ru: "В ожидании", id: "Tertunda", ms: "Menunggu" },
     confirmed: { ar: "مؤكد", en: "Confirmed", fr: "Confirmé", es: "Confirmado", ru: "Подтверждено", id: "Dikonfirmasi", ms: "Disahkan" },
     cancelled: { ar: "ملغى", en: "Cancelled", fr: "Annulé", es: "Cancelado", ru: "Отменено", id: "Dibatalkan", ms: "Dibatalkan" },
+  };
+
+  const calculateTotal = (checkIn: string, checkOut: string, guests: number, rooms: number, hotel: Booking['hotels']) => {
+    if (!hotel) return 0;
+    
+    const startDate = new Date(checkIn);
+    const endDate = new Date(checkOut);
+    const nights = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Check for invalid dates
+    if (nights <= 0) return 0;
+    
+    // Calculate base room price
+    let total = nights * hotel.price_per_night * rooms;
+    
+    // Calculate extra guests charge
+    const maxGuestsIncluded = (hotel.max_guests_per_room || 2) * rooms;
+    if (guests > maxGuestsIncluded) {
+      const extraGuests = guests - maxGuestsIncluded;
+      total += extraGuests * (hotel.extra_guest_price || 0) * nights;
+    }
+    
+    return total;
   };
 
   const handleStatusChange = async (bookingId: string, newStatus: 'new' | 'pending' | 'confirmed' | 'cancelled') => {
@@ -95,12 +122,14 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
 
   const openEditDialog = (booking: Booking) => {
     setSelectedBooking(booking);
+    const calculatedTotal = calculateTotal(booking.check_in, booking.check_out, booking.guests, booking.rooms, booking.hotels);
     setEditFormData({
       check_in: booking.check_in,
       check_out: booking.check_out,
       guests: booking.guests.toString(),
       rooms: booking.rooms.toString(),
       notes: booking.notes || "",
+      total_amount: calculatedTotal.toString(),
     });
     setIsEditDialogOpen(true);
   };
@@ -108,7 +137,28 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
   const handleEditBooking = async () => {
     if (!selectedBooking) return;
 
+    // Validate dates
+    const startDate = new Date(editFormData.check_in);
+    const endDate = new Date(editFormData.check_out);
+    
+    if (endDate <= startDate) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
+        description: t({ ar: "تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول", en: "Check-out date must be after check-in date", fr: "La date de départ doit être postérieure à la date d'arrivée", es: "La fecha de salida debe ser posterior a la fecha de entrada", ru: "Дата выезда должна быть позже даты заезда", id: "Tanggal check-out harus setelah tanggal check-in", ms: "Tarikh daftar keluar mesti selepas tarikh daftar masuk" }),
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
+      const calculatedTotal = calculateTotal(
+        editFormData.check_in,
+        editFormData.check_out,
+        parseInt(editFormData.guests),
+        parseInt(editFormData.rooms),
+        selectedBooking.hotels
+      );
+
       const { error } = await supabase
         .from('bookings')
         .update({
@@ -117,6 +167,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
           guests: parseInt(editFormData.guests),
           rooms: parseInt(editFormData.rooms),
           notes: editFormData.notes || null,
+          total_amount: calculatedTotal,
         })
         .eq('id', selectedBooking.id);
 
@@ -330,37 +381,87 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
               <Label>{t({ ar: "تاريخ الوصول", en: "Check-in Date", fr: "Date d'arrivée", es: "Fecha de entrada", ru: "Дата заезда", id: "Tanggal Check-in", ms: "Tarikh Daftar masuk" })}</Label>
-              <Input
-                type="date"
-                value={editFormData.check_in}
-                onChange={(e) => setEditFormData({ ...editFormData, check_in: e.target.value })}
-              />
+                <Input
+                  type="date"
+                  value={editFormData.check_in}
+                  onChange={(e) => {
+                    const newTotal = selectedBooking ? calculateTotal(
+                      e.target.value,
+                      editFormData.check_out,
+                      parseInt(editFormData.guests),
+                      parseInt(editFormData.rooms),
+                      selectedBooking.hotels
+                    ) : 0;
+                    setEditFormData({ ...editFormData, check_in: e.target.value, total_amount: newTotal.toString() });
+                  }}
+                />
             </div>
             <div className="space-y-2">
               <Label>{t({ ar: "تاريخ المغادرة", en: "Check-out Date", fr: "Date de départ", es: "Fecha de salida", ru: "Дата выезда", id: "Tanggal Check-out", ms: "Tarikh Daftar keluar" })}</Label>
-              <Input
-                type="date"
-                value={editFormData.check_out}
-                onChange={(e) => setEditFormData({ ...editFormData, check_out: e.target.value })}
-              />
+                <Input
+                  type="date"
+                  value={editFormData.check_out}
+                  onChange={(e) => {
+                    const newTotal = selectedBooking ? calculateTotal(
+                      editFormData.check_in,
+                      e.target.value,
+                      parseInt(editFormData.guests),
+                      parseInt(editFormData.rooms),
+                      selectedBooking.hotels
+                    ) : 0;
+                    setEditFormData({ ...editFormData, check_out: e.target.value, total_amount: newTotal.toString() });
+                  }}
+                />
             </div>
             <div className="space-y-2">
               <Label>{t({ ar: "عدد النزلاء", en: "Number of Guests", fr: "Nombre d'invités", es: "Número de huéspedes", ru: "Количество гостей", id: "Jumlah Tamu", ms: "Bilangan Tetamu" })}</Label>
-              <Input
-                type="number"
-                min="1"
-                value={editFormData.guests}
-                onChange={(e) => setEditFormData({ ...editFormData, guests: e.target.value })}
-              />
+              <Select 
+                value={editFormData.guests} 
+                onValueChange={(value) => {
+                  const newTotal = selectedBooking ? calculateTotal(
+                    editFormData.check_in,
+                    editFormData.check_out,
+                    parseInt(value),
+                    parseInt(editFormData.rooms),
+                    selectedBooking.hotels
+                  ) : 0;
+                  setEditFormData({ ...editFormData, guests: value, total_amount: newTotal.toString() });
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                    <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>{t({ ar: "عدد الغرف", en: "Number of Rooms", fr: "Nombre de chambres", es: "Número de habitaciones", ru: "Количество номеров", id: "Jumlah Kamar", ms: "Bilangan Bilik" })}</Label>
-              <Input
-                type="number"
-                min="1"
-                value={editFormData.rooms}
-                onChange={(e) => setEditFormData({ ...editFormData, rooms: e.target.value })}
-              />
+              <Select 
+                value={editFormData.rooms} 
+                onValueChange={(value) => {
+                  const newTotal = selectedBooking ? calculateTotal(
+                    editFormData.check_in,
+                    editFormData.check_out,
+                    parseInt(editFormData.guests),
+                    parseInt(value),
+                    selectedBooking.hotels
+                  ) : 0;
+                  setEditFormData({ ...editFormData, rooms: value, total_amount: newTotal.toString() });
+                }}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                    <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label>{t({ ar: "ملاحظات", en: "Notes", fr: "Notes", es: "Notas", ru: "Заметки", id: "Catatan", ms: "Nota" })}</Label>
@@ -369,6 +470,12 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
                 onChange={(e) => setEditFormData({ ...editFormData, notes: e.target.value })}
                 rows={3}
               />
+            </div>
+            <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
+              <div className="flex justify-between items-center">
+                <span className="font-semibold">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:", fr: "Montant total:", es: "Monto total:", ru: "Общая сумма:", id: "Jumlah Total:", ms: "Jumlah Keseluruhan:" })}</span>
+                <span className="text-primary font-bold text-lg">{editFormData.total_amount} {t({ ar: "ر.س", en: "SAR", fr: "SAR", es: "SAR", ru: "САР", id: "SAR", ms: "SAR" })}</span>
+              </div>
             </div>
           </div>
           <DialogFooter>

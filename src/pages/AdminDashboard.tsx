@@ -32,7 +32,7 @@ export default function AdminDashboard() {
         .select(`
           *,
           profiles:user_id (full_name, phone),
-          hotels:hotel_id (name_ar, name_en, location)
+          hotels:hotel_id (name_ar, name_en, location, price_per_night, max_guests_per_room, extra_guest_price)
         `)
         .order('created_at', { ascending: false })
         .limit(10);

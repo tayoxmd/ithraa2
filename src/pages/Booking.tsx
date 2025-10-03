@@ -67,12 +67,38 @@ export default function Booking() {
   const calculateTotal = () => {
     if (!hotel) return 0;
     const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+    
+    // Check for invalid dates
+    if (nights <= 0) return 0;
+    
     const roomsCount = parseInt(rooms) || 1;
-    return nights * hotel.price_per_night * roomsCount;
+    const guestsCount = parseInt(guests) || 1;
+    
+    // Calculate base room price
+    let total = nights * hotel.price_per_night * roomsCount;
+    
+    // Calculate extra guests charge
+    const maxGuestsIncluded = (hotel.max_guests_per_room || 2) * roomsCount;
+    if (guestsCount > maxGuestsIncluded) {
+      const extraGuests = guestsCount - maxGuestsIncluded;
+      total += extraGuests * (hotel.extra_guest_price || 0) * nights;
+    }
+    
+    return total;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate dates
+    if (checkOut <= checkIn) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
+        description: t({ ar: "تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول", en: "Check-out date must be after check-in date", fr: "La date de départ doit être postérieure à la date d'arrivée", es: "La fecha de salida debe ser posterior a la fecha de entrada", ru: "Дата выезда должна быть позже даты заезда", id: "Tanggal check-out harus setelah tanggal check-in", ms: "Tarikh daftar keluar mesti selepas tarikh daftar masuk" }),
+        variant: "destructive",
+      });
+      return;
+    }
     
     if (!paymentMethod) {
       toast({

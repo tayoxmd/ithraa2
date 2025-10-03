@@ -199,10 +199,12 @@ export type Database = {
           created_at: string | null
           description_ar: string | null
           description_en: string | null
+          extra_guest_price: number
           id: string
           images: Json | null
           location: string | null
           location_url: string | null
+          max_guests_per_room: number
           name_ar: string
           name_en: string
           price_per_night: number
@@ -217,10 +219,12 @@ export type Database = {
           created_at?: string | null
           description_ar?: string | null
           description_en?: string | null
+          extra_guest_price?: number
           id?: string
           images?: Json | null
           location?: string | null
           location_url?: string | null
+          max_guests_per_room?: number
           name_ar: string
           name_en: string
           price_per_night: number
@@ -235,10 +239,12 @@ export type Database = {
           created_at?: string | null
           description_ar?: string | null
           description_en?: string | null
+          extra_guest_price?: number
           id?: string
           images?: Json | null
           location?: string | null
           location_url?: string | null
+          max_guests_per_room?: number
           name_ar?: string
           name_en?: string
           price_per_night?: number
