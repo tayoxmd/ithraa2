@@ -3,12 +3,15 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarIcon, MapPin, Search, Users } from "lucide-react";
+import { CalendarIcon, MapPin, Search, Users, Bed } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { toast } from "@/hooks/use-toast";
 
 interface City {
   id: string;
@@ -17,9 +20,14 @@ interface City {
 }
 
 export function SearchBox() {
+  const navigate = useNavigate();
+  const { t } = useLanguage();
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
-  const [guests, setGuests] = useState(2);
+  const [guests, setGuests] = useState("2");
+  const [customGuests, setCustomGuests] = useState("");
+  const [rooms, setRooms] = useState("1");
+  const [customRooms, setCustomRooms] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [cities, setCities] = useState<City[]>([]);
 
@@ -34,16 +42,38 @@ export function SearchBox() {
     fetchCities();
   }, []);
 
+  const handleSearch = () => {
+    if (!selectedCity) {
+      toast({
+        title: t("تنبيه", "Warning"),
+        description: t("يرجى اختيار المدينة", "Please select a city"),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const params = new URLSearchParams();
+    params.set('city', selectedCity);
+    if (checkIn) params.set('checkIn', format(checkIn, 'yyyy-MM-dd'));
+    if (checkOut) params.set('checkOut', format(checkOut, 'yyyy-MM-dd'));
+    params.set('guests', guests === 'custom' ? customGuests : guests);
+    params.set('rooms', rooms === 'custom' ? customRooms : rooms);
+
+    navigate(`/search?${params.toString()}`);
+  };
+
   return (
-    <div className="w-full max-w-5xl mx-auto">
+    <div className="w-full max-w-6xl mx-auto">
       <div className="card-luxury rounded-2xl p-6 md:p-8 animate-scale-in">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* Location */}
           <div className="relative">
-            <label className="text-sm font-medium text-foreground mb-2 block">الوجهة</label>
+            <label className="text-sm font-medium text-foreground mb-2 block">
+              {t('الوجهة', 'Destination')}
+            </label>
             <Select value={selectedCity} onValueChange={setSelectedCity}>
               <SelectTrigger className="h-12 bg-background/50">
-                <SelectValue placeholder="اختر المدينة" />
+                <SelectValue placeholder={t('اختر المدينة', 'Select City')} />
               </SelectTrigger>
               <SelectContent>
                 {cities.map((city) => (
@@ -57,7 +87,9 @@ export function SearchBox() {
 
           {/* Check-in */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">تاريخ الوصول</label>
+            <label className="text-sm font-medium text-foreground mb-2 block">
+              {t('تاريخ الوصول', 'Check-in')}
+            </label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -68,7 +100,7 @@ export function SearchBox() {
                   )}
                 >
                   <CalendarIcon className="ml-2 h-4 w-4" />
-                  {checkIn ? format(checkIn, "PPP", { locale: ar }) : "اختر التاريخ"}
+                  {checkIn ? format(checkIn, "PPP", { locale: ar }) : t("اختر التاريخ", "Pick date")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -76,9 +108,9 @@ export function SearchBox() {
                   mode="single"
                   selected={checkIn}
                   onSelect={setCheckIn}
+                  disabled={(date) => date < new Date()}
                   initialFocus
                   locale={ar}
-                  className="pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
@@ -86,7 +118,9 @@ export function SearchBox() {
 
           {/* Check-out */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">تاريخ المغادرة</label>
+            <label className="text-sm font-medium text-foreground mb-2 block">
+              {t('تاريخ المغادرة', 'Check-out')}
+            </label>
             <Popover>
               <PopoverTrigger asChild>
                 <Button
@@ -97,7 +131,7 @@ export function SearchBox() {
                   )}
                 >
                   <CalendarIcon className="ml-2 h-4 w-4" />
-                  {checkOut ? format(checkOut, "PPP", { locale: ar }) : "اختر التاريخ"}
+                  {checkOut ? format(checkOut, "PPP", { locale: ar }) : t("اختر التاريخ", "Pick date")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -107,8 +141,7 @@ export function SearchBox() {
                   onSelect={setCheckOut}
                   initialFocus
                   locale={ar}
-                  disabled={(date) => checkIn ? date < checkIn : false}
-                  className="pointer-events-auto"
+                  disabled={(date) => checkIn ? date <= checkIn : date < new Date()}
                 />
               </PopoverContent>
             </Popover>
@@ -116,25 +149,66 @@ export function SearchBox() {
 
           {/* Guests */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">عدد الضيوف</label>
-            <div className="relative">
-              <Users className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <label className="text-sm font-medium text-foreground mb-2 block">
+              {t('عدد الضيوف', 'Guests')}
+            </label>
+            <Select value={guests} onValueChange={setGuests}>
+              <SelectTrigger className="h-12 bg-background/50">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[1, 2, 3, 4, 5, 6].map(num => (
+                  <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
+                ))}
+                <SelectItem value="custom">{t('أخرى', 'Other')}</SelectItem>
+              </SelectContent>
+            </Select>
+            {guests === 'custom' && (
               <Input
                 type="number"
                 min="1"
-                value={guests}
-                onChange={(e) => setGuests(parseInt(e.target.value) || 1)}
-                className="pr-10 h-12 bg-background/50"
+                value={customGuests}
+                onChange={(e) => setCustomGuests(e.target.value)}
+                placeholder={t('أدخل العدد', 'Enter number')}
+                className="mt-2 h-12"
               />
-            </div>
+            )}
+          </div>
+
+          {/* Rooms */}
+          <div>
+            <label className="text-sm font-medium text-foreground mb-2 block">
+              {t('عدد الغرف', 'Rooms')}
+            </label>
+            <Select value={rooms} onValueChange={setRooms}>
+              <SelectTrigger className="h-12 bg-background/50">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                  <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
+                ))}
+                <SelectItem value="custom">{t('أكثر', 'More')}</SelectItem>
+              </SelectContent>
+            </Select>
+            {rooms === 'custom' && (
+              <Input
+                type="number"
+                min="1"
+                value={customRooms}
+                onChange={(e) => setCustomRooms(e.target.value)}
+                placeholder={t('أدخل العدد', 'Enter number')}
+                className="mt-2 h-12"
+              />
+            )}
           </div>
         </div>
 
         {/* Search Button */}
         <div className="mt-6">
-          <Button className="w-full h-14 text-lg btn-luxury">
+          <Button onClick={handleSearch} className="w-full h-14 text-lg btn-luxury">
             <Search className="ml-2 w-5 h-5" />
-            ابحث الآن
+            {t('ابحث الآن', 'Search Now')}
           </Button>
         </div>
       </div>

@@ -1,6 +1,10 @@
-import { Mail, Phone, Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
+import { Mail, Phone, Facebook, Twitter, Instagram, MessageCircle } from "lucide-react";
+import { Link } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 export function Footer() {
+  const { t, language } = useLanguage();
+  
   return (
     <footer className="bg-secondary text-secondary-foreground mt-20">
       <div className="container mx-auto px-4 py-12">
@@ -12,64 +16,65 @@ export function Footer() {
                 <span className="text-2xl font-bold text-white">إ</span>
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-bold text-white">إثراء</span>
-                <span className="text-xs text-secondary-foreground/70 tracking-wider">ITHRAA</span>
+                <span className="text-xl font-bold text-white">
+                  {t('إثراء', 'ITHRAA')}
+                </span>
+                <span className="text-xs text-secondary-foreground/70 tracking-wider">
+                  {language === 'ar' ? 'ITHRAA' : 'إثراء'}
+                </span>
               </div>
             </div>
             <p className="text-secondary-foreground/80 text-sm leading-relaxed">
-              تجربة فاخرة في حجز الفنادق والشقق الفندقية بأفضل الأسعار وأعلى مستويات الخدمة
+              {t(
+                'تجربة فاخرة في حجز الفنادق والشقق الفندقية بأفضل الأسعار وأعلى مستويات الخدمة',
+                'Premium experience in booking hotels and serviced apartments at the best prices and highest service levels'
+              )}
             </p>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-lg font-bold text-white mb-4">روابط سريعة</h3>
+            <h3 className="text-lg font-bold text-white mb-4">
+              {t('روابط سريعة', 'Quick Links')}
+            </h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors">
-                  الفنادق
-                </a>
+                <Link to="/#hotels" className="text-secondary-foreground/80 hover:text-primary transition-colors">
+                  {t('الفنادق', 'Hotels')}
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors">
-                  العروض
-                </a>
+                <Link to="/#offers" className="text-secondary-foreground/80 hover:text-primary transition-colors">
+                  {t('العروض', 'Offers')}
+                </Link>
               </li>
               <li>
-                <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors">
-                  من نحن
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors">
-                  الشروط والأحكام
-                </a>
+                <Link to="/#about" className="text-secondary-foreground/80 hover:text-primary transition-colors">
+                  {t('من نحن', 'About')}
+                </Link>
               </li>
             </ul>
           </div>
 
           {/* Support */}
           <div>
-            <h3 className="text-lg font-bold text-white mb-4">الدعم</h3>
+            <h3 className="text-lg font-bold text-white mb-4">
+              {t('الدعم', 'Support')}
+            </h3>
             <ul className="space-y-2">
               <li>
                 <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors">
-                  مركز المساعدة
+                  {t('مركز المساعدة', 'Help Center')}
                 </a>
               </li>
               <li>
                 <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors">
-                  سياسة الإلغاء
+                  {t('سياسة الإلغاء', 'Cancellation Policy')}
                 </a>
               </li>
               <li>
                 <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors">
-                  سياسة الخصوصية
-                </a>
-              </li>
-              <li>
-                <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors">
-                  اتصل بنا
+                  {t('سياسة الخصوصية', 'Privacy Policy')}
                 </a>
               </li>
             </ul>
@@ -77,17 +82,36 @@ export function Footer() {
 
           {/* Contact */}
           <div>
-            <h3 className="text-lg font-bold text-white mb-4">تواصل معنا</h3>
+            <h3 className="text-lg font-bold text-white mb-4">
+              {t('تواصل معنا', 'Contact Us')}
+            </h3>
             <div className="space-y-3">
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-primary" />
-                <a href="https://wa.me/966505731136" target="_blank" rel="noopener noreferrer" className="text-secondary-foreground/80 hover:text-primary transition-colors">
-                  +966505731136
+                <a 
+                  href="tel:+966505731136" 
+                  className="text-secondary-foreground/80 hover:text-primary transition-colors"
+                >
+                  0505731136
+                </a>
+              </div>
+              <div className="flex items-center gap-3">
+                <MessageCircle className="w-5 h-5 text-primary" />
+                <a 
+                  href="https://wa.me/966505731136" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-secondary-foreground/80 hover:text-primary transition-colors"
+                >
+                  {t('واتساب', 'WhatsApp')}
                 </a>
               </div>
               <div className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-primary" />
-                <a href="mailto:support@ithraa.com" className="text-secondary-foreground/80 hover:text-primary transition-colors">
+                <a 
+                  href="mailto:support@ithraa.com" 
+                  className="text-secondary-foreground/80 hover:text-primary transition-colors"
+                >
                   support@ithraa.com
                 </a>
               </div>
@@ -114,10 +138,16 @@ export function Footer() {
         {/* Bottom Bar */}
         <div className="border-t border-secondary-foreground/20 mt-8 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-secondary-foreground/60 text-sm text-center md:text-right">
-            © 2025 إثراء ITHRAA. جميع الحقوق محفوظة. | ترخيص رقم: 00000
+            {t(
+              '© 2025 إثراء ITHRAA. جميع الحقوق محفوظة.',
+              '© 2025 ITHRAA. All rights reserved.'
+            )}
           </p>
           <p className="text-secondary-foreground/60 text-sm">
-            صُنع بـ ❤️ في المملكة العربية السعودية
+            {t(
+              'صُنع بـ ❤️ في المملكة العربية السعودية',
+              'Made with ❤️ in Saudi Arabia'
+            )}
           </p>
         </div>
       </div>

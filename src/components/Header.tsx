@@ -3,6 +3,7 @@ import { Globe, Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useLanguage } from "@/contexts/LanguageContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,27 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-const languages = [
-  { code: "ar", name: "العربية", dir: "rtl" },
-  { code: "en", name: "English", dir: "ltr" },
-  { code: "id", name: "Bahasa Indonesia", dir: "ltr" },
-  { code: "fr", name: "Français", dir: "ltr" },
-  { code: "es", name: "Español", dir: "ltr" },
-  { code: "ru", name: "Русский", dir: "ltr" },
-  { code: "ms", name: "Bahasa Melayu", dir: "ltr" },
-];
-
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [currentLang, setCurrentLang] = useState(languages[0]);
   const { user, signOut, userRole } = useAuth();
+  const { t, language, toggleLanguage } = useLanguage();
   const navigate = useNavigate();
-
-  const handleLanguageChange = (lang: typeof languages[0]) => {
-    setCurrentLang(lang);
-    document.documentElement.setAttribute("dir", lang.dir);
-    document.documentElement.setAttribute("lang", lang.code);
-  };
 
   const getDashboardPath = () => {
     if (userRole === 'admin') return '/admin';
@@ -48,49 +33,43 @@ export function Header() {
               <span className="text-2xl font-bold text-white">إ</span>
             </div>
             <div className="flex flex-col">
-              <span className="text-xl font-bold text-gradient-luxury">إثراء</span>
-              <span className="text-xs text-muted-foreground tracking-wider">ITHRAA</span>
+              <span className="text-xl font-bold text-gradient-luxury">
+                {t('إثراء', 'ITHRAA')}
+              </span>
+              <span className="text-xs text-muted-foreground tracking-wider">
+                {language === 'ar' ? 'ITHRAA' : 'إثراء'}
+              </span>
             </div>
           </Link>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#" className="text-foreground hover:text-primary transition-colors font-medium">
-              الرئيسية
+            <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium">
+              {t('الرئيسية', 'Home')}
+            </Link>
+            <a href="/#hotels" className="text-foreground hover:text-primary transition-colors font-medium">
+              {t('الفنادق', 'Hotels')}
             </a>
-            <a href="#hotels" className="text-foreground hover:text-primary transition-colors font-medium">
-              الفنادق
+            <a href="/#offers" className="text-foreground hover:text-primary transition-colors font-medium">
+              {t('العروض', 'Offers')}
             </a>
-            <a href="#offers" className="text-foreground hover:text-primary transition-colors font-medium">
-              العروض
-            </a>
-            <a href="#about" className="text-foreground hover:text-primary transition-colors font-medium">
-              من نحن
+            <a href="/#about" className="text-foreground hover:text-primary transition-colors font-medium">
+              {t('من نحن', 'About')}
             </a>
           </nav>
 
           {/* Actions */}
           <div className="flex items-center gap-3">
             {/* Language Selector */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="gap-2">
-                  <Globe className="w-4 h-4" />
-                  <span className="hidden sm:inline">{currentLang.name}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
-                {languages.map((lang) => (
-                  <DropdownMenuItem
-                    key={lang.code}
-                    onClick={() => handleLanguageChange(lang)}
-                    className={currentLang.code === lang.code ? "bg-accent" : ""}
-                  >
-                    {lang.name}
-                  </DropdownMenuItem>
-                ))}
-            </DropdownMenuContent>
-            </DropdownMenu>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="gap-2"
+              onClick={toggleLanguage}
+            >
+              <Globe className="w-4 h-4" />
+              <span className="hidden sm:inline">{language === 'ar' ? 'العربية' : 'English'}</span>
+            </Button>
 
             {user ? (
               <>
@@ -101,7 +80,7 @@ export function Header() {
                   onClick={() => navigate(getDashboardPath())}
                 >
                   <LayoutDashboard className="w-4 h-4" />
-                  لوحة التحكم
+                  {t('لوحة التحكم', 'Dashboard')}
                 </Button>
 
                 <Button
@@ -111,7 +90,7 @@ export function Header() {
                   onClick={() => signOut()}
                 >
                   <LogOut className="w-4 h-4" />
-                  تسجيل الخروج
+                  {t('تسجيل الخروج', 'Sign Out')}
                 </Button>
               </>
             ) : (
@@ -122,7 +101,7 @@ export function Header() {
                   className="hidden sm:inline-flex"
                   onClick={() => navigate('/auth')}
                 >
-                  تسجيل الدخول
+                  {t('تسجيل الدخول', 'Sign In')}
                 </Button>
 
                 <Button
@@ -130,7 +109,7 @@ export function Header() {
                   className="btn-luxury hidden sm:inline-flex"
                   onClick={() => navigate('/auth')}
                 >
-                  سجل الآن
+                  {t('سجل الآن', 'Sign Up')}
                 </Button>
               </>
             )}
@@ -151,26 +130,58 @@ export function Header() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 animate-fade-in">
             <nav className="flex flex-col gap-4">
-              <a href="#" className="text-foreground hover:text-primary transition-colors font-medium py-2">
-                الرئيسية
+              <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium py-2">
+                {t('الرئيسية', 'Home')}
+              </Link>
+              <a href="/#hotels" className="text-foreground hover:text-primary transition-colors font-medium py-2">
+                {t('الفنادق', 'Hotels')}
               </a>
-              <a href="#hotels" className="text-foreground hover:text-primary transition-colors font-medium py-2">
-                الفنادق
+              <a href="/#offers" className="text-foreground hover:text-primary transition-colors font-medium py-2">
+                {t('العروض', 'Offers')}
               </a>
-              <a href="#offers" className="text-foreground hover:text-primary transition-colors font-medium py-2">
-                العروض
+              <a href="/#about" className="text-foreground hover:text-primary transition-colors font-medium py-2">
+                {t('من نحن', 'About')}
               </a>
-              <a href="#about" className="text-foreground hover:text-primary transition-colors font-medium py-2">
-                من نحن
-              </a>
-              <div className="flex gap-2 pt-2 border-t border-border">
-                <Button variant="outline" size="sm" className="flex-1">
-                  تسجيل الدخول
-                </Button>
-                <Button size="sm" className="btn-luxury flex-1">
-                  سجل الآن
-                </Button>
-              </div>
+              {user ? (
+                <>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="justify-start gap-2"
+                    onClick={() => navigate(getDashboardPath())}
+                  >
+                    <LayoutDashboard className="w-4 h-4" />
+                    {t('لوحة التحكم', 'Dashboard')}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="justify-start gap-2"
+                    onClick={() => signOut()}
+                  >
+                    <LogOut className="w-4 h-4" />
+                    {t('تسجيل الخروج', 'Sign Out')}
+                  </Button>
+                </>
+              ) : (
+                <div className="flex gap-2 pt-2 border-t border-border">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="flex-1"
+                    onClick={() => navigate('/auth')}
+                  >
+                    {t('تسجيل الدخول', 'Sign In')}
+                  </Button>
+                  <Button 
+                    size="sm" 
+                    className="btn-luxury flex-1"
+                    onClick={() => navigate('/auth')}
+                  >
+                    {t('سجل الآن', 'Sign Up')}
+                  </Button>
+                </div>
+              )}
             </nav>
           </div>
         )}
