@@ -24,7 +24,7 @@ export default function EmployeeDashboard() {
       <div className="container mx-auto max-w-7xl">
         <h1 className="text-3xl font-bold text-gradient-luxury mb-8">{t({ ar: "لوحة تحكم الموظف", en: "Employee Dashboard", fr: "Tableau de bord employé", es: "Panel de empleado", ru: "Панель сотрудника", id: "Dasbor Karyawan", ms: "Papan Pemuka Pekerja" })}</h1>
         
-        <div className="grid grid-cols-1 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
           <Card className="card-luxury">
             <CardHeader>
               <CardTitle>{t({ ar: "الطلبات المسندة إليك", en: "Assigned Bookings", fr: "Réservations assignées", es: "Reservas asignadas", ru: "Назначенные бронирования", id: "Pemesanan yang Ditugaskan", ms: "Tempahan yang Diberikan" })}</CardTitle>

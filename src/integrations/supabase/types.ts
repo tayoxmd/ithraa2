@@ -111,7 +111,7 @@ export type Database = {
           status: Database["public"]["Enums"]["complaint_status"] | null
           subject: string
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           admin_response?: string | null
@@ -122,7 +122,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["complaint_status"] | null
           subject: string
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           admin_response?: string | null
@@ -133,7 +133,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["complaint_status"] | null
           subject?: string
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {

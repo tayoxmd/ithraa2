@@ -57,9 +57,11 @@ export function Header() {
           </nav>
 
           {/* Actions */}
-          <div className="flex items-center gap-3">
-            {/* Language Selector - Always visible */}
-            <LanguageSelector />
+          <div className="flex items-center gap-2">
+            {/* Language Selector - Always visible, scaled down on mobile */}
+            <div className="scale-75 sm:scale-90 md:scale-100">
+              <LanguageSelector />
+            </div>
 
             {user ? (
               <>
@@ -82,7 +84,7 @@ export function Header() {
                   onClick={() => navigate('/dashboard')}
                 >
                   <LayoutDashboard className="w-4 h-4" />
-                  {t('طلباتي', 'My Bookings')}
+                  {t({ ar: "الحجوزات ولوحة التحكم", en: "Bookings & Dashboard", fr: "Réservations et Tableau de bord", es: "Reservas y Panel", ru: "Бронирования и Панель", id: "Pemesanan & Dasbor", ms: "Tempahan & Papan Pemuka" })}
                 </Button>
 
                 <Button
@@ -164,7 +166,7 @@ export function Header() {
                     onClick={() => navigate('/dashboard')}
                   >
                     <LayoutDashboard className="w-4 h-4" />
-                    {t('طلباتي', 'My Bookings')}
+                    {t({ ar: "الحجوزات ولوحة التحكم", en: "Bookings & Dashboard", fr: "Réservations et Tableau de bord", es: "Reservas y Panel", ru: "Бронирования и Панель", id: "Pemesanan & Dasbor", ms: "Tempahan & Papan Pemuka" })}
                   </Button>
                   <Button 
                     variant="outline" 

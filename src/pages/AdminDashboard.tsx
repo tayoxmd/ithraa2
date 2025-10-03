@@ -27,27 +27,27 @@ export default function AdminDashboard() {
         <h1 className="text-3xl font-bold text-gradient-luxury mb-8">{t({ ar: "لوحة تحكم المدير", en: "Admin Dashboard", fr: "Tableau de bord administrateur", es: "Panel de administración", ru: "Панель администратора", id: "Dasbor Admin", ms: "Papan Pemuka Admin" })}</h1>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-          <Button onClick={() => navigate('/manage-employees')} className="h-auto p-6">
+          <Button onClick={() => navigate('/manage-employees')} className="h-auto p-4 md:p-6">
             <div className="flex flex-col items-center gap-2">
-              <UserCog className="w-8 h-8" />
-              <span>{t({ ar: "إدارة الموظفين", en: "Manage Employees", fr: "Gérer les employés", es: "Gestionar empleados", ru: "Управление сотрудниками", id: "Kelola Karyawan", ms: "Urus Pekerja" })}</span>
+              <UserCog className="w-6 h-6 md:w-8 md:h-8" />
+              <span className="text-xs md:text-sm">{t({ ar: "إدارة الموظفين", en: "Manage Employees", fr: "Gérer les employés", es: "Gestionar empleados", ru: "Управление сотрудниками", id: "Kelola Karyawan", ms: "Urus Pekerja" })}</span>
             </div>
           </Button>
-          <Button onClick={() => navigate('/')} variant="outline" className="h-auto p-6">
+          <Button onClick={() => navigate('/manage-hotels')} variant="outline" className="h-auto p-4 md:p-6">
             <div className="flex flex-col items-center gap-2">
-              <Hotel className="w-8 h-8" />
-              <span>{t({ ar: "إدارة الفنادق", en: "Manage Hotels", fr: "Gérer les hôtels", es: "Gestionar hoteles", ru: "Управление отелями", id: "Kelola Hotel", ms: "Urus Hotel" })}</span>
+              <Hotel className="w-6 h-6 md:w-8 md:h-8" />
+              <span className="text-xs md:text-sm">{t({ ar: "إدارة الفنادق", en: "Manage Hotels", fr: "Gérer les hôtels", es: "Gestionar hoteles", ru: "Управление отелями", id: "Kelola Hotel", ms: "Urus Hotel" })}</span>
             </div>
           </Button>
-          <Button onClick={() => navigate('/')} variant="outline" className="h-auto p-6">
+          <Button onClick={() => navigate('/complaints')} variant="outline" className="h-auto p-4 md:p-6">
             <div className="flex flex-col items-center gap-2">
-              <MessageSquare className="w-8 h-8" />
-              <span>{t({ ar: "الشكاوى", en: "Complaints", fr: "Plaintes", es: "Quejas", ru: "Жалобы", id: "Keluhan", ms: "Aduan" })}</span>
+              <MessageSquare className="w-6 h-6 md:w-8 md:h-8" />
+              <span className="text-xs md:text-sm">{t({ ar: "الشكاوى", en: "Complaints", fr: "Plaintes", es: "Quejas", ru: "Жалобы", id: "Keluhan", ms: "Aduan" })}</span>
             </div>
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
           <Card className="card-luxury">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">{t({ ar: "إجمالي الأرباح", en: "Total Revenue", fr: "Revenu total", es: "Ingresos totales", ru: "Общий доход", id: "Total Pendapatan", ms: "Jumlah Pendapatan" })}</CardTitle>

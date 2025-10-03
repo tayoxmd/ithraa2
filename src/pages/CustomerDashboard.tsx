@@ -87,7 +87,7 @@ export default function CustomerDashboard() {
           <h1 className="text-3xl font-bold text-gradient-luxury">{t({ ar: "لوحة التحكم", en: "Dashboard", fr: "Tableau de bord", es: "Panel", ru: "Панель", id: "Dasbor", ms: "Papan Pemuka" })}</h1>
         </div>
 
-        <div className="flex gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row gap-4 mb-6">
           <Button 
             variant={activeTab === 'bookings' ? 'default' : 'outline'}
             onClick={() => setActiveTab('bookings')}
