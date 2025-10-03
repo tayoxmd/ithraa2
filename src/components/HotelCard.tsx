@@ -2,8 +2,10 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Star, Wifi, Coffee, Utensils } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface HotelCardProps {
+  id: string;
   name: string;
   nameEn: string;
   location: string;
@@ -13,7 +15,8 @@ interface HotelCardProps {
   featured?: boolean;
 }
 
-export function HotelCard({ name, nameEn, location, price, rating, image, featured }: HotelCardProps) {
+export function HotelCard({ id, name, nameEn, location, price, rating, image, featured }: HotelCardProps) {
+  const navigate = useNavigate();
   return (
     <Card className="card-luxury overflow-hidden hover-lift cursor-pointer group animate-fade-in">
       {/* Image */}
@@ -62,7 +65,11 @@ export function HotelCard({ name, nameEn, location, price, rating, image, featur
               <span className="text-sm text-muted-foreground">ريال / ليلة</span>
             </div>
           </div>
-          <Button size="sm" className="btn-luxury">
+          <Button 
+            size="sm" 
+            className="btn-luxury"
+            onClick={() => navigate(`/hotel/${id}`)}
+          >
             احجز الآن
           </Button>
         </div>

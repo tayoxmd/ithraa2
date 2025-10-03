@@ -69,6 +69,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "bookings_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "bookings_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -307,7 +314,34 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      hotels_public: {
+        Row: {
+          active: boolean | null
+          city_id: string | null
+          city_name_ar: string | null
+          city_name_en: string | null
+          created_at: string | null
+          description_ar: string | null
+          description_en: string | null
+          id: string | null
+          images: Json | null
+          location: string | null
+          name_ar: string | null
+          name_en: string | null
+          price_per_night: number | null
+          rating: number | null
+          updated_at: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotels_city_id_fkey"
+            columns: ["city_id"]
+            isOneToOne: false
+            referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       has_role: {

@@ -5,71 +5,48 @@ import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
 import heroImage from "@/assets/hero-hotel.jpg";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { useLanguage } from "@/contexts/LanguageContext";
 
-const featuredHotels = [
-  {
-    id: 1,
-    name: "فندق الريتز كارلتون",
-    nameEn: "The Ritz-Carlton",
-    location: "الرياض، المملكة العربية السعودية",
-    price: 850,
-    rating: 4.9,
-    image: "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000",
-    featured: true,
-  },
-  {
-    id: 2,
-    name: "فندق فور سيزونز",
-    nameEn: "Four Seasons Hotel",
-    location: "جدة، المملكة العربية السعودية",
-    price: 750,
-    rating: 4.8,
-    image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?q=80&w=1000",
-    featured: true,
-  },
-  {
-    id: 3,
-    name: "منتجع وسبا الفيصلية",
-    nameEn: "Al Faisaliah Resort & Spa",
-    location: "الرياض، المملكة العربية السعودية",
-    price: 680,
-    rating: 4.7,
-    image: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?q=80&w=1000",
-    featured: false,
-  },
-  {
-    id: 4,
-    name: "فندق روزوود",
-    nameEn: "Rosewood Hotel",
-    location: "جدة، المملكة العربية السعودية",
-    price: 920,
-    rating: 4.9,
-    image: "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?q=80&w=1000",
-    featured: false,
-  },
-  {
-    id: 5,
-    name: "شقق ماريوت الفندقية",
-    nameEn: "Marriott Executive Apartments",
-    location: "الدمام، المملكة العربية السعودية",
-    price: 550,
-    rating: 4.6,
-    image: "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?q=80&w=1000",
-    featured: false,
-  },
-  {
-    id: 6,
-    name: "فندق حياة ريجنسي",
-    nameEn: "Hyatt Regency",
-    location: "الخبر، المملكة العربية السعودية",
-    price: 620,
-    rating: 4.7,
-    image: "https://images.unsplash.com/photo-1564501049412-61c2a3083791?q=80&w=1000",
-    featured: false,
-  },
-];
+interface Hotel {
+  id: string;
+  name_ar: string;
+  name_en: string;
+  location: string;
+  price_per_night: number;
+  rating: number;
+  images: any;
+  city_name_ar: string;
+  city_name_en: string;
+}
 
 const Index = () => {
+  const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { language } = useLanguage();
+
+  useEffect(() => {
+    fetchFeaturedHotels();
+  }, []);
+
+  const fetchFeaturedHotels = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('hotels_public')
+        .select('*')
+        .order('rating', { ascending: false })
+        .limit(6);
+
+      if (error) throw error;
+      if (data) setHotels(data);
+    } catch (error) {
+      console.error('Error fetching hotels:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       <Header />
@@ -117,17 +94,32 @@ const Index = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {featuredHotels.map((hotel, index) => (
-            <div
-              key={hotel.id}
-              style={{ animationDelay: `${index * 100}ms` }}
-              className="animate-fade-in-up"
-            >
-              <HotelCard {...hotel} />
-            </div>
-          ))}
-        </div>
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">جاري التحميل...</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {hotels.map((hotel, index) => (
+              <div
+                key={hotel.id}
+                style={{ animationDelay: `${index * 100}ms` }}
+                className="animate-fade-in-up"
+              >
+                <HotelCard
+                  id={hotel.id}
+                  name={language === 'ar' ? hotel.name_ar : hotel.name_en}
+                  nameEn={hotel.name_en}
+                  location={`${language === 'ar' ? hotel.city_name_ar : hotel.city_name_en}`}
+                  price={Number(hotel.price_per_night)}
+                  rating={Number(hotel.rating)}
+                  image={hotel.images && hotel.images[0] ? hotel.images[0] : "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000"}
+                  featured={index < 2}
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </section>
 
       {/* Special Offers Section */}
