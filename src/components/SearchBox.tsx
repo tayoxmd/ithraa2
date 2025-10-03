@@ -45,8 +45,18 @@ export function SearchBox() {
   const handleSearch = () => {
     if (!selectedCity) {
       toast({
-        title: t("تنبيه", "Warning"),
-        description: t("يرجى اختيار المدينة", "Please select a city"),
+        title: t({ ar: "تنبيه", en: "Warning" }),
+        description: t({ ar: "يرجى اختيار المدينة", en: "Please select a city" }),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate dates before search
+    if (checkIn && checkOut && checkOut <= checkIn) {
+      toast({
+        title: t({ ar: "خطأ في التاريخ", en: "Date Error" }),
+        description: t({ ar: "تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول", en: "Check-out date must be after check-in date" }),
         variant: "destructive",
       });
       return;

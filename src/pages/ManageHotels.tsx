@@ -70,6 +70,8 @@ export default function ManageHotels() {
     active: true,
     max_guests_per_room: "2",
     extra_guest_price: "0",
+    total_rooms: "10",
+    tax_percentage: "15",
   });
 
   useEffect(() => {
@@ -196,6 +198,8 @@ export default function ManageHotels() {
           city_id: formData.city_id,
           max_guests_per_room: parseInt(formData.max_guests_per_room),
           extra_guest_price: parseFloat(formData.extra_guest_price),
+          total_rooms: parseInt(formData.total_rooms),
+          tax_percentage: parseFloat(formData.tax_percentage),
         }]);
 
       if (error) throw error;
@@ -229,6 +233,8 @@ export default function ManageHotels() {
           rating: parseFloat(formData.rating),
           max_guests_per_room: parseInt(formData.max_guests_per_room),
           extra_guest_price: parseFloat(formData.extra_guest_price),
+          total_rooms: parseInt(formData.total_rooms),
+          tax_percentage: parseFloat(formData.tax_percentage),
         })
         .eq('id', editingHotel.id);
 
@@ -269,6 +275,8 @@ export default function ManageHotels() {
       active: hotel.active,
       max_guests_per_room: hotel.max_guests_per_room.toString(),
       extra_guest_price: hotel.extra_guest_price.toString(),
+      total_rooms: (hotel as any).total_rooms?.toString() || "10",
+      tax_percentage: (hotel as any).tax_percentage?.toString() || "15",
     });
     setIsEditDialogOpen(true);
   };
@@ -289,6 +297,8 @@ export default function ManageHotels() {
       active: true,
       max_guests_per_room: "2",
       extra_guest_price: "0",
+      total_rooms: "10",
+      tax_percentage: "15",
     });
   };
 
@@ -553,22 +563,36 @@ export default function ManageHotels() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t({ ar: "السعر لليلة", en: "Price per Night", fr: "Prix par nuit", es: "Precio por noche", ru: "Цена за ночь", id: "Harga per Malam", ms: "Harga setiap Malam" })}</Label>
+                  <Label>{t({ ar: "السعر لليلة", en: "Price per Night" })}</Label>
                   <Input type="number" value={formData.price_per_night} onChange={(e) => setFormData({...formData, price_per_night: e.target.value})} />
                 </div>
                 <div className="space-y-2">
-                  <Label>{t({ ar: "التقييم", en: "Rating", fr: "Évaluation", es: "Calificación", ru: "Рейтинг", id: "Penilaian", ms: "Penilaian" })}</Label>
+                  <Label>{t({ ar: "التقييم", en: "Rating" })}</Label>
                   <Input type="number" min="0" max="5" step="0.1" value={formData.rating} onChange={(e) => setFormData({...formData, rating: e.target.value})} />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "عدد الغرف المتاحة", en: "Total Rooms" })}</Label>
+                  <Input type="number" min="1" value={formData.total_rooms || "10"} onChange={(e) => setFormData({...formData, total_rooms: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "الحد الأقصى للأشخاص في الغرفة", en: "Max Guests per Room" })}</Label>
+                  <Input type="number" min="1" value={formData.max_guests_per_room} onChange={(e) => setFormData({...formData, max_guests_per_room: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "نسبة الضريبة %", en: "Tax %" })}</Label>
+                  <Input type="number" min="0" max="100" value={formData.tax_percentage || "15"} onChange={(e) => setFormData({...formData, tax_percentage: e.target.value})} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t({ ar: "الحد الأقصى للأشخاص في الغرفة", en: "Max Guests per Room", fr: "Maximum d'invités par chambre", es: "Máximo de huéspedes por habitación", ru: "Макс. гостей в номере", id: "Maks. Tamu per Kamar", ms: "Maks. Tetamu setiap Bilik" })}</Label>
-                  <Input type="number" min="1" value={formData.max_guests_per_room} onChange={(e) => setFormData({...formData, max_guests_per_room: e.target.value})} />
+                  <Label>{t({ ar: "سعر الشخص الإضافي", en: "Extra Guest Price" })}</Label>
+                  <Input type="number" min="0" value={formData.extra_guest_price} onChange={(e) => setFormData({...formData, extra_guest_price: e.target.value})} />
                 </div>
                 <div className="space-y-2">
-                  <Label>{t({ ar: "سعر الشخص الإضافي", en: "Extra Guest Price", fr: "Prix par invité supplémentaire", es: "Precio por huésped adicional", ru: "Цена за доп. гостя", id: "Harga Tamu Tambahan", ms: "Harga Tetamu Tambahan" })}</Label>
-                  <Input type="number" min="0" value={formData.extra_guest_price} onChange={(e) => setFormData({...formData, extra_guest_price: e.target.value})} />
+                  <Label>{t({ ar: "الشخص المسؤول", en: "Responsible Person" })}</Label>
+                  <Input value={formData.contact_person} onChange={(e) => setFormData({...formData, contact_person: e.target.value})} placeholder={t({ ar: "اسم المسؤول", en: "Responsible name" })} />
                 </div>
               </div>
             </div>

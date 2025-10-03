@@ -209,6 +209,9 @@ export type Database = {
           name_en: string
           price_per_night: number
           rating: number | null
+          responsible_person_id: string | null
+          tax_percentage: number | null
+          total_rooms: number | null
           updated_at: string | null
         }
         Insert: {
@@ -229,6 +232,9 @@ export type Database = {
           name_en: string
           price_per_night: number
           rating?: number | null
+          responsible_person_id?: string | null
+          tax_percentage?: number | null
+          total_rooms?: number | null
           updated_at?: string | null
         }
         Update: {
@@ -249,6 +255,9 @@ export type Database = {
           name_en?: string
           price_per_night?: number
           rating?: number | null
+          responsible_person_id?: string | null
+          tax_percentage?: number | null
+          total_rooms?: number | null
           updated_at?: string | null
         }
         Relationships: [

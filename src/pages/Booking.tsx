@@ -65,26 +65,33 @@ export default function Booking() {
   }, [id, user, navigate]);
 
   const calculateTotal = () => {
-    if (!hotel) return 0;
+    if (!hotel) return { subtotal: 0, extraGuestCharge: 0, tax: 0, total: 0, extraGuestsCount: 0 };
     const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
     
     // Check for invalid dates
-    if (nights <= 0) return 0;
+    if (nights <= 0) return { subtotal: 0, extraGuestCharge: 0, tax: 0, total: 0, extraGuestsCount: 0 };
     
     const roomsCount = parseInt(rooms) || 1;
     const guestsCount = parseInt(guests) || 1;
     
     // Calculate base room price
-    let total = nights * hotel.price_per_night * roomsCount;
+    const subtotal = nights * hotel.price_per_night * roomsCount;
     
     // Calculate extra guests charge
     const maxGuestsIncluded = (hotel.max_guests_per_room || 2) * roomsCount;
+    let extraGuestCharge = 0;
+    let extraGuestsCount = 0;
+    
     if (guestsCount > maxGuestsIncluded) {
-      const extraGuests = guestsCount - maxGuestsIncluded;
-      total += extraGuests * (hotel.extra_guest_price || 0) * nights;
+      extraGuestsCount = guestsCount - maxGuestsIncluded;
+      extraGuestCharge = extraGuestsCount * (hotel.extra_guest_price || 0) * nights;
     }
     
-    return total;
+    const totalBeforeTax = subtotal + extraGuestCharge;
+    const tax = totalBeforeTax * ((hotel.tax_percentage || 15) / 100);
+    const total = totalBeforeTax + tax;
+    
+    return { subtotal, extraGuestCharge, tax, total, extraGuestsCount };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -111,7 +118,7 @@ export default function Booking() {
 
     setLoading(true);
 
-    const totalAmount = calculateTotal();
+    const totalData = calculateTotal();
     
     const { error } = await supabase
       .from('bookings')
@@ -122,7 +129,7 @@ export default function Booking() {
         check_out: format(checkOut, 'yyyy-MM-dd'),
         guests: parseInt(guests),
         rooms: parseInt(rooms),
-        total_amount: totalAmount,
+        total_amount: totalData.total,
         payment_method: paymentMethod,
         notes: notes || null,
         status: 'new' as const,
@@ -140,9 +147,13 @@ export default function Booking() {
     } else {
       toast({
         title: t({ ar: "تم بنجاح", en: "Success", fr: "Succès", es: "Éxito", ru: "Успех", id: "Berhasil", ms: "Berjaya" }),
-        description: t({ ar: "تم إرسال طلب الحجز بنجاح", en: "Booking request submitted successfully", fr: "Demande de réservation soumise avec succès", es: "Solicitud de reserva enviada con éxito", ru: "Запрос на бронирование отправлен успешно", id: "Permintaan pemesanan berhasil dikirim", ms: "Permintaan tempahan berjaya dihantar" }),
+        description: t({ ar: "تم إرسال حجزك بنجاح وفي انتظار التأكيد", en: "Your booking has been sent successfully and is awaiting confirmation", fr: "Votre réservation a été envoyée avec succès et est en attente de confirmation", es: "Su reserva se ha enviado con éxito y está pendiente de confirmación", ru: "Ваше бронирование успешно отправлено и ожидает подтверждения", id: "Pemesanan Anda berhasil dikirim dan menunggu konfirmasi", ms: "Tempahan anda telah berjaya dihantar dan menunggu pengesahan" }),
       });
-      navigate('/dashboard');
+      
+      // Redirect to dashboard after 2 seconds
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
     }
   };
 
@@ -223,20 +234,37 @@ export default function Booking() {
                   {/* Price Breakdown */}
                   <div className="space-y-2 pt-4 border-t">
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{t({ ar: 'السعر لليلة', en: 'Price per night', fr: 'Prix par nuit', es: 'Precio por noche', ru: 'Цена за ночь', id: 'Harga per malam', ms: 'Harga setiap malam' })}</span>
-                      <span>{hotel.price_per_night} {t({ ar: 'ر.س', en: 'SAR', fr: 'SAR', es: 'SAR', ru: 'САР', id: 'SAR', ms: 'SAR' })}</span>
+                      <span className="text-muted-foreground">{t({ ar: 'السعر لليلة', en: 'Price per night' })}</span>
+                      <span>{hotel.price_per_night} {t({ ar: 'ر.س', en: 'SAR' })}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{t({ ar: 'عدد الليالي', en: 'Nights', fr: 'Nuits', es: 'Noches', ru: 'Ночи', id: 'Malam', ms: 'Malam' })}</span>
+                      <span className="text-muted-foreground">{t({ ar: 'عدد الليالي', en: 'Nights' })}</span>
                       <span>{nights}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{t({ ar: 'عدد الغرف', en: 'Rooms', fr: 'Chambres', es: 'Habitaciones', ru: 'Номера', id: 'Kamar', ms: 'Bilik' })}</span>
+                      <span className="text-muted-foreground">{t({ ar: 'عدد الغرف', en: 'Rooms' })}</span>
                       <span>{rooms}</span>
                     </div>
+                    {calculateTotal().extraGuestsCount > 0 && (
+                      <div className="flex justify-between text-sm text-foreground/80">
+                        <span>
+                          {calculateTotal().extraGuestsCount === 1 
+                            ? t({ ar: 'شخص إضافي واحد', en: 'One extra guest' })
+                            : calculateTotal().extraGuestsCount === 2
+                            ? t({ ar: `شخصين إضافيين`, en: 'Two extra guests' })
+                            : t({ ar: `${calculateTotal().extraGuestsCount} أشخاص إضافيين`, en: `${calculateTotal().extraGuestsCount} extra guests` })
+                          }
+                        </span>
+                        <span>+{Math.round(calculateTotal().extraGuestCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
+                      </div>
+                    )}
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{t({ ar: 'الضرائب والرسوم', en: 'Taxes & Fees' })}</span>
+                      <span>{Math.round(calculateTotal().tax)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
+                    </div>
                     <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                      <span>{t({ ar: 'الإجمالي', en: 'Total', fr: 'Total', es: 'Total', ru: 'Итого', id: 'Total', ms: 'Jumlah' })}</span>
-                      <span className="text-primary">{calculateTotal()} {t({ ar: 'ر.س', en: 'SAR', fr: 'SAR', es: 'SAR', ru: 'САР', id: 'SAR', ms: 'SAR' })}</span>
+                      <span>{t({ ar: 'الإجمالي شامل الضرائب', en: 'Total incl. Taxes' })}</span>
+                      <span className="text-primary">{Math.round(calculateTotal().total)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
                     </div>
                   </div>
                 </CardContent>
@@ -330,8 +358,8 @@ export default function Booking() {
 
                 <div className="border-t pt-4">
                   <div className="flex justify-between font-bold text-xl">
-                    <span>{t({ ar: 'الإجمالي', en: 'Total', fr: 'Total', es: 'Total', ru: 'Итого', id: 'Total', ms: 'Jumlah' })}</span>
-                    <span className="text-primary">{calculateTotal()} {t({ ar: 'ر.س', en: 'SAR', fr: 'SAR', es: 'SAR', ru: 'САР', id: 'SAR', ms: 'SAR' })}</span>
+                    <span>{t({ ar: 'الإجمالي شامل الضرائب', en: 'Total incl. Taxes' })}</span>
+                    <span className="text-primary">{Math.round(calculateTotal().total)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
                   </div>
                 </div>
               </CardContent>

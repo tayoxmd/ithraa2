@@ -17,6 +17,8 @@ import HotelDetails from "./pages/HotelDetails";
 import Booking from "./pages/Booking";
 import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
+import SiteSettings from "./pages/SiteSettings";
+import NoResults from "./pages/NoResults";
 
 const queryClient = new QueryClient();
 
@@ -32,6 +34,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/search" element={<SearchResults />} />
+              <Route path="/no-results" element={<NoResults />} />
               <Route path="/hotel/:id" element={<HotelDetails />} />
               <Route path="/booking/:id" element={<Booking />} />
               <Route path="/admin" element={<AdminDashboard />} />
@@ -39,6 +42,7 @@ const App = () => (
               <Route path="/dashboard" element={<CustomerDashboard />} />
               <Route path="/manage-employees" element={<ManageEmployees />} />
               <Route path="/manage-hotels" element={<ManageHotels />} />
+              <Route path="/site-settings" element={<SiteSettings />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

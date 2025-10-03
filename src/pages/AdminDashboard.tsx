@@ -55,19 +55,48 @@ export default function AdminDashboard() {
       <div className="container mx-auto max-w-7xl">
         <h1 className="text-3xl font-bold text-gradient-luxury mb-8">{t({ ar: "لوحة تحكم المدير", en: "Admin Dashboard", fr: "Tableau de bord administrateur", es: "Panel de administración", ru: "Панель администратора", id: "Dasbor Admin", ms: "Papan Pemuka Admin" })}</h1>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-          <Button onClick={() => navigate('/manage-employees')} className="h-auto p-4 md:p-6">
-            <div className="flex flex-col items-center gap-2">
-              <UserCog className="w-6 h-6 md:w-8 md:h-8" />
-              <span className="text-xs md:text-sm">{t({ ar: "إدارة الموظفين", en: "Manage Employees", fr: "Gérer les employés", es: "Gestionar empleados", ru: "Управление сотрудниками", id: "Kelola Karyawan", ms: "Urus Pekerja" })}</span>
-            </div>
-          </Button>
-          <Button onClick={() => navigate('/manage-hotels')} variant="outline" className="h-auto p-4 md:p-6">
-            <div className="flex flex-col items-center gap-2">
-              <Hotel className="w-6 h-6 md:w-8 md:h-8" />
-              <span className="text-xs md:text-sm">{t({ ar: "إدارة الفنادق", en: "Manage Hotels", fr: "Gérer les hôtels", es: "Gestionar hoteles", ru: "Управление отелями", id: "Kelola Hotel", ms: "Urus Hotel" })}</span>
-            </div>
-          </Button>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+          <Card className="card-luxury hover-lift cursor-pointer" onClick={() => navigate('/manage-employees')}>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <UserCog className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">{t({ ar: "إدارة الموظفين", en: "Manage Employees" })}</h3>
+                  <p className="text-sm text-muted-foreground">{t({ ar: "إضافة وتعديل الموظفين", en: "Add and edit employees" })}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="card-luxury hover-lift cursor-pointer" onClick={() => navigate('/manage-hotels')}>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Hotel className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">{t({ ar: "إدارة الفنادق", en: "Manage Hotels" })}</h3>
+                  <p className="text-sm text-muted-foreground">{t({ ar: "إضافة وتعديل الفنادق", en: "Add and edit hotels" })}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="card-luxury hover-lift cursor-pointer" onClick={() => navigate('/site-settings')}>
+            <CardContent className="pt-6">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                  <FileText className="w-6 h-6 text-primary" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg">{t({ ar: "إعدادات الموقع", en: "Site Settings" })}</h3>
+                  <p className="text-sm text-muted-foreground">{t({ ar: "تعديل ألوان وخطوط الموقع", en: "Edit site colors and fonts" })}</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
         </div>
         
         <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8">
