@@ -1,6 +1,7 @@
 import { Mail, Phone, Facebook, Twitter, Instagram, MessageCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import logo from "@/assets/logo.jpg";
 
 export function Footer() {
   const { t, language } = useLanguage();
@@ -12,9 +13,11 @@ export function Footer() {
           {/* Company Info */}
           <div>
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-12 h-12 rounded-lg bg-gradient-luxury flex items-center justify-center shadow-luxury">
-                <span className="text-2xl font-bold text-white">إ</span>
-              </div>
+              <img 
+                src={logo} 
+                alt="ITHRAA Logo" 
+                className="w-12 h-12 object-contain"
+              />
               <div className="flex flex-col">
                 <span className="text-xl font-bold text-white">
                   {t('إثراء', 'ITHRAA')}

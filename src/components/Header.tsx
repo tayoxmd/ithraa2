@@ -5,6 +5,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import logo from "@/assets/logo.jpg";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -24,9 +25,11 @@ export function Header() {
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link to="/" className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-lg bg-gradient-luxury flex items-center justify-center shadow-luxury">
-              <span className="text-2xl font-bold text-white">إ</span>
-            </div>
+            <img 
+              src={logo} 
+              alt="ITHRAA Logo" 
+              className="w-12 h-12 object-contain"
+            />
             <div className="flex flex-col">
               <span className="text-xl font-bold text-gradient-luxury">
                 {t('إثراء', 'ITHRAA')}
