@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
+import ManageEmployees from "./pages/ManageEmployees";
 import SearchResults from "./pages/SearchResults";
 import HotelDetails from "./pages/HotelDetails";
 import Booking from "./pages/Booking";
@@ -34,6 +35,7 @@ const App = () => (
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/employee" element={<EmployeeDashboard />} />
               <Route path="/dashboard" element={<CustomerDashboard />} />
+              <Route path="/manage-employees" element={<ManageEmployees />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </AuthProvider>

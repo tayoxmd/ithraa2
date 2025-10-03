@@ -1,20 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { Globe, Menu, X, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { user, signOut, userRole } = useAuth();
-  const { t, language, toggleLanguage } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
 
   const getDashboardPath = () => {
@@ -61,15 +56,9 @@ export function Header() {
           {/* Actions */}
           <div className="flex items-center gap-3">
             {/* Language Selector */}
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="gap-2"
-              onClick={toggleLanguage}
-            >
-              <Globe className="w-4 h-4" />
-              <span className="hidden sm:inline">{language === 'ar' ? 'العربية' : 'English'}</span>
-            </Button>
+            <div className="hidden sm:block">
+              <LanguageSelector />
+            </div>
 
             {user ? (
               <>
@@ -130,6 +119,9 @@ export function Header() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 animate-fade-in">
             <nav className="flex flex-col gap-4">
+              <div className="mb-4">
+                <LanguageSelector />
+              </div>
               <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium py-2">
                 {t('الرئيسية', 'Home')}
               </Link>

@@ -1,14 +1,34 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 
-type Language = 'ar' | 'en';
+type Language = 'ar' | 'en' | 'fr' | 'es' | 'ru' | 'id' | 'ms';
+
+type TranslationObject = {
+  ar: string;
+  en: string;
+  fr?: string;
+  es?: string;
+  ru?: string;
+  id?: string;
+  ms?: string;
+};
 
 interface LanguageContextType {
   language: Language;
-  toggleLanguage: () => void;
-  t: (ar: string, en: string) => string;
+  setLanguage: (lang: Language) => void;
+  t: (translations: TranslationObject | string, en?: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
+
+const languageNames: Record<Language, string> = {
+  ar: 'العربية',
+  en: 'English',
+  fr: 'Français',
+  es: 'Español',
+  ru: 'Русский',
+  id: 'Bahasa Indonesia',
+  ms: 'Bahasa Melayu'
+};
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
   const [language, setLanguage] = useState<Language>('ar');
@@ -26,16 +46,17 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = language;
   }, [language]);
 
-  const toggleLanguage = () => {
-    setLanguage(prev => prev === 'ar' ? 'en' : 'ar');
-  };
-
-  const t = (ar: string, en: string) => {
-    return language === 'ar' ? ar : en;
+  const t = (translations: TranslationObject | string, en?: string): string => {
+    if (typeof translations === 'string') {
+      // Old format: t('ar text', 'en text')
+      return language === 'ar' ? translations : (en || translations);
+    }
+    // New format: t({ ar: 'ar text', en: 'en text', ... })
+    return translations[language] || translations.en || translations.ar;
   };
 
   return (
-    <LanguageContext.Provider value={{ language, toggleLanguage, t }}>
+    <LanguageContext.Provider value={{ language, setLanguage, t }}>
       {children}
     </LanguageContext.Provider>
   );
@@ -48,3 +69,7 @@ export function useLanguage() {
   }
   return context;
 }
+
+export const languages: Language[] = ['ar', 'en', 'fr', 'es', 'ru', 'id', 'ms'];
+export { languageNames };
+export type { Language };
