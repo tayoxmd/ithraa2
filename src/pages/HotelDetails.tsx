@@ -135,20 +135,12 @@ export default function HotelDetails() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-primary">
-                      {(() => {
-                        const taxRate = (hotel as any).tax_percentage || 15;
-                        const priceWithTax = hotel.price_per_night * (1 + taxRate / 100);
-                        return Math.round(priceWithTax);
-                      })()} {t('ر.س', 'SAR')}
+                      {hotel.price_per_night} {t('ر.س', 'SAR')}
                     </span>
                     <span className="text-muted-foreground">
                       {t('لليلة الواحدة', 'per night')}
                     </span>
                   </div>
-                  
-                  <p className="text-xs text-muted-foreground">
-                    {t('السعر شامل الضريبة', 'Price includes tax')}
-                  </p>
 
                   {checkIn && checkOut && rooms && (() => {
                     const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
@@ -156,9 +148,11 @@ export default function HotelDetails() {
                     const guestsCount = parseInt(guests) || 2;
                     const maxGuestsIncluded = ((hotel as any).max_guests_per_room || 2) * roomsCount;
                     
-                    const taxRate = (hotel as any).tax_percentage || 15;
-                    const priceWithTax = hotel.price_per_night * (1 + taxRate / 100);
-                    let subtotal = priceWithTax * nights * roomsCount;
+                    // Get tax rate (0 means no tax)
+                    const taxRate = ((hotel as any).tax_percentage && (hotel as any).tax_percentage > 0) ? (hotel as any).tax_percentage : 0;
+                    
+                    // Calculate base price
+                    let subtotal = hotel.price_per_night * nights * roomsCount;
                     
                     let extraGuestCharge = 0;
                     let extraGuests = 0;
@@ -167,19 +161,34 @@ export default function HotelDetails() {
                     if (guestsCount > maxGuestsIncluded) {
                       extraGuests = guestsCount - maxGuestsIncluded;
                       const extraGuestPrice = (hotel as any).extra_guest_price || 0;
-                      extraGuestCharge = extraGuests * extraGuestPrice * nights * (1 + taxRate / 100);
-                      subtotal += extraGuestCharge;
+                      extraGuestCharge = extraGuests * extraGuestPrice * nights;
                     }
+                    
+                    // Calculate tax on total before tax
+                    const totalBeforeTax = subtotal + extraGuestCharge;
+                    const tax = taxRate > 0 ? (totalBeforeTax * taxRate / 100) : 0;
+                    const finalTotal = totalBeforeTax + tax;
                     
                     return (
                       <div className="pt-2 border-t space-y-1">
+                        <p className="text-xs text-foreground/70">
+                          {t('السعر الأساسي', 'Base Price')}: {Math.round(subtotal)} {t('ر.س', 'SAR')}
+                        </p>
                         {extraGuests > 0 && (
                           <p className="text-xs text-foreground/70">
-                            +{Math.round(extraGuestCharge)} {t('ريال', 'SAR')} ({extraGuests} {extraGuests === 1 ? t('شخص إضافي', 'extra guest') : t('أشخاص إضافيين', 'extra guests')})
+                            {t('أشخاص إضافيين', 'Extra Guests')}: +{Math.round(extraGuestCharge)} {t('ر.س', 'SAR')} ({extraGuests} {extraGuests === 1 ? t('شخص', 'person') : t('أشخاص', 'persons')})
                           </p>
                         )}
-                        <p className="text-sm font-medium text-foreground">
-                          {t('الإجمالي', 'Total')}: {Math.round(subtotal).toLocaleString()} {t('ر.س', 'SAR')} ({nights} {t('ليلة', 'nights')} × {roomsCount} {t('غرفة', 'rooms')})
+                        {tax > 0 && (
+                          <p className="text-xs text-foreground/70">
+                            {t('الضريبة', 'Tax')} ({taxRate}%): +{Math.round(tax)} {t('ر.س', 'SAR')}
+                          </p>
+                        )}
+                        <p className="text-sm font-bold text-primary pt-1 border-t">
+                          {t('الإجمالي', 'Total')}: {Math.round(finalTotal)} {t('ر.س', 'SAR')}
+                        </p>
+                        <p className="text-[10px] text-muted-foreground">
+                          ({nights} {t('ليلة', 'nights')} × {roomsCount} {t('غرفة', 'rooms')})
                         </p>
                       </div>
                     );

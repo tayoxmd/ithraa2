@@ -14,8 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          details: Json | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          user_id: string | null
+          user_role: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          details?: Json | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          user_id?: string | null
+          user_role?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          user_id?: string | null
+          user_role?: string | null
+        }
+        Relationships: []
+      }
       bookings: {
         Row: {
+          amount_paid: number | null
           check_in: string
           check_out: string
           created_at: string | null
@@ -26,7 +60,7 @@ export type Database = {
           manual_total: number | null
           notes: string | null
           payment_method: string | null
-          payment_status: string | null
+          payment_status: Database["public"]["Enums"]["payment_status"] | null
           rooms: number
           status: Database["public"]["Enums"]["booking_status"] | null
           total_amount: number
@@ -34,6 +68,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          amount_paid?: number | null
           check_in: string
           check_out: string
           created_at?: string | null
@@ -44,7 +79,7 @@ export type Database = {
           manual_total?: number | null
           notes?: string | null
           payment_method?: string | null
-          payment_status?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null
           rooms?: number
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_amount: number
@@ -52,6 +87,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          amount_paid?: number | null
           check_in?: string
           check_out?: string
           created_at?: string | null
@@ -62,7 +98,7 @@ export type Database = {
           manual_total?: number | null
           notes?: string | null
           payment_method?: string | null
-          payment_status?: string | null
+          payment_status?: Database["public"]["Enums"]["payment_status"] | null
           rooms?: number
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_amount?: number
@@ -520,6 +556,7 @@ export type Database = {
       app_role: "admin" | "employee" | "customer"
       booking_status: "new" | "pending" | "confirmed" | "cancelled" | "rejected"
       complaint_status: "new" | "pending" | "rejected" | "resolved"
+      payment_status: "paid" | "partially_paid" | "unpaid"
       room_type: "hotel_rooms" | "owner_rooms"
     }
     CompositeTypes: {
@@ -651,6 +688,7 @@ export const Constants = {
       app_role: ["admin", "employee", "customer"],
       booking_status: ["new", "pending", "confirmed", "cancelled", "rejected"],
       complaint_status: ["new", "pending", "rejected", "resolved"],
+      payment_status: ["paid", "partially_paid", "unpaid"],
       room_type: ["hotel_rooms", "owner_rooms"],
     },
   },

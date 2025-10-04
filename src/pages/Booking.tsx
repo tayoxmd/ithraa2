@@ -78,27 +78,32 @@ export default function Booking() {
     const roomsCount = parseInt(rooms) || 1;
     const guestsCount = parseInt(guests) || 1;
     
-    // Calculate base room price WITH TAX (price is already inclusive)
-    const taxRate = hotel.tax_percentage || 15;
-    const priceWithTax = hotel.price_per_night * (1 + taxRate / 100);
-    const subtotal = nights * priceWithTax * roomsCount;
+    // Get tax rate (0 means no tax)
+    const taxRate = (hotel.tax_percentage && hotel.tax_percentage > 0) ? hotel.tax_percentage : 0;
     
-    // Calculate extra guests charge WITH TAX
+    // Calculate base room price
+    const basePrice = hotel.price_per_night * nights * roomsCount;
+    
+    // Calculate extra guests charge
     const maxGuestsIncluded = (hotel.max_guests_per_room || 2) * roomsCount;
     let extraGuestCharge = 0;
     let extraGuestsCount = 0;
     
     if (guestsCount > maxGuestsIncluded) {
       extraGuestsCount = guestsCount - maxGuestsIncluded;
-      const extraGuestPriceWithTax = (hotel.extra_guest_price || 0) * (1 + taxRate / 100);
-      extraGuestCharge = extraGuestsCount * extraGuestPriceWithTax * nights;
+      extraGuestCharge = extraGuestsCount * (hotel.extra_guest_price || 0) * nights;
     }
     
-    // Total is already tax-inclusive, so no need to add tax again
-    const total = subtotal + extraGuestCharge;
-    const tax = 0; // Tax is already included in the prices
+    // Calculate subtotal before tax
+    const subtotalBeforeTax = basePrice + extraGuestCharge;
     
-    return { subtotal, extraGuestCharge, tax, total, extraGuestsCount };
+    // Calculate tax amount
+    const tax = taxRate > 0 ? (subtotalBeforeTax * taxRate / 100) : 0;
+    
+    // Calculate total
+    const total = subtotalBeforeTax + tax;
+    
+    return { subtotal: basePrice, extraGuestCharge, tax, total, extraGuestsCount };
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -140,7 +145,8 @@ export default function Booking() {
         payment_method: paymentMethod,
         notes: notes || null,
         status: 'new' as const,
-        payment_status: 'pending',
+        payment_status: 'unpaid',
+        amount_paid: 0,
       }]);
 
     setLoading(false);

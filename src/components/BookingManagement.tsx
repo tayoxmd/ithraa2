@@ -23,7 +23,8 @@ interface Booking {
   rooms: number;
   total_amount: number;
   status: 'new' | 'pending' | 'confirmed' | 'cancelled' | 'rejected';
-  payment_status: string;
+  payment_status: 'paid' | 'partially_paid' | 'unpaid';
+  amount_paid: number;
   payment_method: string;
   notes: string | null;
   created_at: string;
@@ -40,6 +41,7 @@ interface Booking {
     price_per_night: number;
     max_guests_per_room: number;
     extra_guest_price: number;
+    tax_percentage: number;
     room_type?: 'hotel_rooms' | 'owner_rooms';
   };
 }
@@ -63,23 +65,36 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     total_amount: "",
     discount_amount: "",
     manual_total: "",
+    amount_paid: "",
     room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
   });
 
   const statusColors = {
-    new: "bg-blue-500",
-    pending: "bg-yellow-500",
-    confirmed: "bg-green-500",
-    cancelled: "bg-red-500",
-    rejected: "bg-red-600",
+    new: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
+    pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
+    confirmed: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
+    cancelled: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
+    rejected: "bg-red-200 text-red-900 dark:bg-red-950 dark:text-red-300",
+  };
+
+  const paymentStatusColors = {
+    paid: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
+    partially_paid: "bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200",
+    unpaid: "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900",
   };
 
   const statusLabels = {
-    new: { ar: "جديد", en: "New", fr: "Nouveau", es: "Nuevo", ru: "Новый", id: "Baru", ms: "Baharu" },
-    pending: { ar: "قيد الانتظار", en: "Pending", fr: "En attente", es: "Pendiente", ru: "В ожидании", id: "Tertunda", ms: "Menunggu" },
-    confirmed: { ar: "مؤكد", en: "Confirmed", fr: "Confirmé", es: "Confirmado", ru: "Подтверждено", id: "Dikonfirmasi", ms: "Disahkan" },
-    cancelled: { ar: "ملغى", en: "Cancelled", fr: "Annulé", es: "Cancelado", ru: "Отменено", id: "Dibatalkan", ms: "Dibatalkan" },
-    rejected: { ar: "مرفوض", en: "Rejected", fr: "Rejeté", es: "Rechazado", ru: "Отклонено", id: "Ditolak", ms: "Ditolak" },
+    new: { ar: "جديد", en: "New" },
+    pending: { ar: "قيد الانتظار", en: "Pending" },
+    confirmed: { ar: "مؤكد", en: "Confirmed" },
+    cancelled: { ar: "ملغى", en: "Cancelled" },
+    rejected: { ar: "مرفوض", en: "Rejected" },
+  };
+
+  const paymentStatusLabels = {
+    paid: { ar: "مدفوع", en: "Paid" },
+    partially_paid: { ar: "مدفوع جزئيًا", en: "Partially Paid" },
+    unpaid: { ar: "غير مدفوع", en: "Unpaid" },
   };
 
   const calculateTotal = (checkIn: string, checkOut: string, guests: number, rooms: number, hotel: Booking['hotels']) => {
@@ -89,25 +104,28 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     const endDate = new Date(checkOut);
     const nights = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
     
-    // Check for invalid dates
     if (nights <= 0) return 0;
     
+    // Get tax rate (0 means no tax)
+    const taxRate = (hotel.tax_percentage && hotel.tax_percentage > 0) ? hotel.tax_percentage : 0;
+    
     // Calculate base room price
-    let total = nights * hotel.price_per_night * rooms;
+    let subtotal = nights * hotel.price_per_night * rooms;
     
     // Calculate extra guests charge
     const maxGuestsIncluded = (hotel.max_guests_per_room || 2) * rooms;
     if (guests > maxGuestsIncluded) {
       const extraGuests = guests - maxGuestsIncluded;
-      total += extraGuests * (hotel.extra_guest_price || 0) * nights;
+      subtotal += extraGuests * (hotel.extra_guest_price || 0) * nights;
     }
     
-    return total;
+    // Add tax
+    const tax = taxRate > 0 ? (subtotal * taxRate / 100) : 0;
+    return subtotal + tax;
   };
 
   const handleStatusChange = async (bookingId: string, newStatus: 'new' | 'pending' | 'confirmed' | 'cancelled' | 'rejected') => {
     try {
-      // Trim the value to remove any extra quotes or whitespace
       const cleanStatus = newStatus.toString().trim().replace(/^["']|["']$/g, '');
       
       const { error } = await supabase
@@ -115,21 +133,43 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
         .update({ status: cleanStatus as 'new' | 'pending' | 'confirmed' | 'cancelled' | 'rejected' })
         .eq('id', bookingId);
 
-      if (error) {
-        console.error('Status update error:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
-        title: t({ ar: "تم التحديث", en: "Updated", fr: "Mis à jour", es: "Actualizado", ru: "Обновлено", id: "Diperbarui", ms: "Dikemas kini" }),
-        description: t({ ar: "تم تحديث حالة الطلب", en: "Booking status updated", fr: "Statut de la réservation mis à jour", es: "Estado de la reserva actualizado", ru: "Статус бронирования обновлен", id: "Status pemesanan diperbarui", ms: "Status tempahan dikemas kini" }),
+        title: t({ ar: "تم التحديث", en: "Updated" }),
+        description: t({ ar: "تم تحديث حالة الطلب", en: "Booking status updated" }),
       });
 
       onUpdate();
     } catch (error: any) {
       console.error('Error updating booking status:', error);
       toast({
-        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message || t({ ar: "حدث خطأ أثناء التحديث", en: "An error occurred during update" }),
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePaymentStatusChange = async (bookingId: string, newPaymentStatus: 'paid' | 'partially_paid' | 'unpaid') => {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ payment_status: newPaymentStatus })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+
+      toast({
+        title: t({ ar: "تم التحديث", en: "Updated" }),
+        description: t({ ar: "تم تحديث حالة الدفع", en: "Payment status updated" }),
+      });
+
+      onUpdate();
+    } catch (error: any) {
+      console.error('Error updating payment status:', error);
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
         description: error.message || t({ ar: "حدث خطأ أثناء التحديث", en: "An error occurred during update" }),
         variant: "destructive",
       });
@@ -148,6 +188,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
       total_amount: (booking.manual_total || calculatedTotal).toString(),
       discount_amount: (booking.discount_amount || 0).toString(),
       manual_total: (booking.manual_total || calculatedTotal).toString(),
+      amount_paid: (booking.amount_paid || 0).toString(),
       room_type: booking.hotels?.room_type || 'hotel_rooms',
     });
     setIsEditDialogOpen(true);
@@ -156,14 +197,13 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
   const handleEditBooking = async () => {
     if (!selectedBooking) return;
 
-    // Validate dates
     const startDate = new Date(editFormData.check_in);
     const endDate = new Date(editFormData.check_out);
     
     if (endDate <= startDate) {
       toast({
-        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
-        description: t({ ar: "تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول", en: "Check-out date must be after check-in date", fr: "La date de départ doit être postérieure à la date d'arrivée", es: "La fecha de salida debe ser posterior a la fecha de entrada", ru: "Дата выезда должна быть позже даты заезда", id: "Tanggal check-out harus setelah tanggal check-in", ms: "Tarikh daftar keluar mesti selepas tarikh daftar masuk" }),
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: t({ ar: "تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول", en: "Check-out date must be after check-in date" }),
         variant: "destructive",
       });
       return;
@@ -172,18 +212,16 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     try {
       const discountAmount = parseFloat(editFormData.discount_amount) || 0;
       const manualTotal = parseFloat(editFormData.manual_total) || 0;
+      const amountPaid = parseFloat(editFormData.amount_paid) || 0;
       const finalTotal = manualTotal - discountAmount;
 
-      console.log('Updating booking with data:', {
-        check_in: editFormData.check_in,
-        check_out: editFormData.check_out,
-        guests: parseInt(editFormData.guests),
-        rooms: parseInt(editFormData.rooms),
-        notes: editFormData.notes || null,
-        total_amount: finalTotal,
-        discount_amount: discountAmount,
-        manual_total: manualTotal,
-      });
+      // Determine payment status based on amount paid
+      let paymentStatus: 'paid' | 'partially_paid' | 'unpaid' = 'unpaid';
+      if (amountPaid >= finalTotal) {
+        paymentStatus = 'paid';
+      } else if (amountPaid > 0) {
+        paymentStatus = 'partially_paid';
+      }
 
       const { error } = await supabase
         .from('bookings')
@@ -196,17 +234,16 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
           total_amount: finalTotal,
           discount_amount: discountAmount,
           manual_total: manualTotal,
+          amount_paid: amountPaid,
+          payment_status: paymentStatus,
         })
         .eq('id', selectedBooking.id);
 
-      if (error) {
-        console.error('Booking update error:', error);
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
-        title: t({ ar: "تم التحديث", en: "Updated", fr: "Mis à jour", es: "Actualizado", ru: "Обновлено", id: "Diperbarui", ms: "Dikemas kini" }),
-        description: t({ ar: "تم تحديث معلومات الحجز", en: "Booking information updated", fr: "Informations de réservation mises à jour", es: "Información de reserva actualizada", ru: "Информация о бронировании обновлена", id: "Informasi pemesanan diperbarui", ms: "Maklumat tempahan dikemas kini" }),
+        title: t({ ar: "تم التحديث", en: "Updated" }),
+        description: t({ ar: "تم تحديث معلومات الحجز", en: "Booking information updated" }),
       });
 
       setIsEditDialogOpen(false);
@@ -215,14 +252,13 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     } catch (error: any) {
       console.error('Error updating booking:', error);
       toast({
-        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
+        title: t({ ar: "خطأ", en: "Error" }),
         description: error.message || t({ ar: "حدث خطأ أثناء تحديث الحجز", en: "An error occurred while updating the booking" }),
         variant: "destructive",
       });
     }
   };
 
-  // Load highlight colors from settings
   useEffect(() => {
     (async () => {
       const { data } = await supabase
@@ -236,17 +272,26 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
   const shareViaWhatsApp = (booking: Booking) => {
     const hotelName = language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en;
     const statusText = t(statusLabels[booking.status]);
+    const paymentStatusText = t(paymentStatusLabels[booking.payment_status]);
+    
+    let paymentInfo = '';
+    if (booking.payment_status === 'partially_paid') {
+      const remaining = booking.total_amount - booking.amount_paid;
+      paymentInfo = `\n${t({ ar: "المبلغ المدفوع:", en: "Amount Paid:" })} ${booking.amount_paid} ${t({ ar: "ر.س", en: "SAR" })}\n${t({ ar: "المبلغ المتبقي:", en: "Remaining Amount:" })} ${remaining} ${t({ ar: "ر.س", en: "SAR" })}`;
+    }
+    
     const message = `
-${t({ ar: "تفاصيل الحجز", en: "Booking Details", fr: "Détails de la réservation", es: "Detalles de la reserva", ru: "Детали бронирования", id: "Detail Pemesanan", ms: "Butiran Tempahan" })}
+${t({ ar: "تفاصيل الحجز", en: "Booking Details" })}
 
-${t({ ar: "الفندق:", en: "Hotel:", fr: "Hôtel:", es: "Hotel:", ru: "Отель:", id: "Hotel:", ms: "Hotel:" })} ${hotelName}
-${t({ ar: "الموقع:", en: "Location:", fr: "Emplacement:", es: "Ubicación:", ru: "Местоположение:", id: "Lokasi:", ms: "Lokasi:" })} ${booking.hotels?.location}
-${t({ ar: "تاريخ الوصول:", en: "Check-in:", fr: "Arrivée:", es: "Entrada:", ru: "Заезд:", id: "Check-in:", ms: "Daftar masuk:" })} ${format(new Date(booking.check_in), "dd/MM/yyyy")}
-${t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })} ${format(new Date(booking.check_out), "dd/MM/yyyy")}
-${t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })} ${booking.guests}
-${t({ ar: "المبلغ الإجمالي:", en: "Total Amount:", fr: "Montant total:", es: "Monto total:", ru: "Общая сумма:", id: "Jumlah Total:", ms: "Jumlah Keseluruhan:" })} ${booking.total_amount} ${t({ ar: "ر.س", en: "SAR", fr: "SAR", es: "SAR", ru: "САР", id: "SAR", ms: "SAR" })}
-${t({ ar: "الحالة:", en: "Status:", fr: "Statut:", es: "Estado:", ru: "Статус:", id: "Status:", ms: "Status:" })} ${statusText}
-${t({ ar: "طريقة الدفع:", en: "Payment Method:", fr: "Mode de paiement:", es: "Método de pago:", ru: "Способ оплаты:", id: "Metode Pembayaran:", ms: "Kaedah Pembayaran:" })} ${booking.payment_method}
+${t({ ar: "الفندق:", en: "Hotel:" })} ${hotelName}
+${t({ ar: "الموقع:", en: "Location:" })} ${booking.hotels?.location}
+${t({ ar: "تاريخ الوصول:", en: "Check-in:" })} ${format(new Date(booking.check_in), "dd/MM/yyyy")}
+${t({ ar: "تاريخ المغادرة:", en: "Check-out:" })} ${format(new Date(booking.check_out), "dd/MM/yyyy")}
+${t({ ar: "عدد النزلاء:", en: "Guests:" })} ${booking.guests}
+${t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })} ${booking.total_amount} ${t({ ar: "ر.س", en: "SAR" })}
+${t({ ar: "الحالة:", en: "Status:" })} ${statusText}
+${t({ ar: "حالة الدفع:", en: "Payment Status:" })} ${paymentStatusText}${paymentInfo}
+${t({ ar: "طريقة الدفع:", en: "Payment Method:" })} ${booking.payment_method}
 `;
 
     const encodedMessage = encodeURIComponent(message.trim());
@@ -258,21 +303,30 @@ ${t({ ar: "طريقة الدفع:", en: "Payment Method:", fr: "Mode de paiement
   const shareViaEmail = (booking: Booking) => {
     const hotelName = language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en;
     const statusText = t(statusLabels[booking.status]);
-    const subject = t({ ar: "تفاصيل حجز الفندق", en: "Hotel Booking Details", fr: "Détails de réservation d'hôtel", es: "Detalles de reserva de hotel", ru: "Детали бронирования отеля", id: "Detail Pemesanan Hotel", ms: "Butiran Tempahan Hotel" });
+    const paymentStatusText = t(paymentStatusLabels[booking.payment_status]);
+    const subject = t({ ar: "تفاصيل حجز الفندق", en: "Hotel Booking Details" });
+    
+    let paymentInfo = '';
+    if (booking.payment_status === 'partially_paid') {
+      const remaining = booking.total_amount - booking.amount_paid;
+      paymentInfo = `\n${t({ ar: "المبلغ المدفوع:", en: "Amount Paid:" })} ${booking.amount_paid} ${t({ ar: "ر.س", en: "SAR" })}\n${t({ ar: "المبلغ المتبقي:", en: "Remaining Amount:" })} ${remaining} ${t({ ar: "ر.س", en: "SAR" })}`;
+    }
+    
     const body = `
-${t({ ar: "تفاصيل الحجز", en: "Booking Details", fr: "Détails de la réservation", es: "Detalles de la reserva", ru: "Детали бронирования", id: "Detail Pemesanan", ms: "Butiran Tempahan" })}
+${t({ ar: "تفاصيل الحجز", en: "Booking Details" })}
 
-${t({ ar: "الفندق:", en: "Hotel:", fr: "Hôtel:", es: "Hotel:", ru: "Отель:", id: "Hotel:", ms: "Hotel:" })} ${hotelName}
-${t({ ar: "الموقع:", en: "Location:", fr: "Emplacement:", es: "Ubicación:", ru: "Местоположение:", id: "Lokasi:", ms: "Lokasi:" })} ${booking.hotels?.location}
-${t({ ar: "تاريخ الوصول:", en: "Check-in:", fr: "Arrivée:", es: "Entrada:", ru: "Заезд:", id: "Check-in:", ms: "Daftar masuk:" })} ${format(new Date(booking.check_in), "dd/MM/yyyy")}
-${t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })} ${format(new Date(booking.check_out), "dd/MM/yyyy")}
-${t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })} ${booking.guests}
-${t({ ar: "المبلغ الإجمالي:", en: "Total Amount:", fr: "Montant total:", es: "Monto total:", ru: "Общая сумма:", id: "Jumlah Total:", ms: "Jumlah Keseluruhan:" })} ${booking.total_amount} ${t({ ar: "ر.س", en: "SAR", fr: "SAR", es: "SAR", ru: "САР", id: "SAR", ms: "SAR" })}
-${t({ ar: "الحالة:", en: "Status:", fr: "Statut:", es: "Estado:", ru: "Статус:", id: "Status:", ms: "Status:" })} ${statusText}
-${t({ ar: "طريقة الدفع:", en: "Payment Method:", fr: "Mode de paiement:", es: "Método de pago:", ru: "Способ оплаты:", id: "Metode Pembayaran:", ms: "Kaedah Pembayaran:" })} ${booking.payment_method}
+${t({ ar: "الفندق:", en: "Hotel:" })} ${hotelName}
+${t({ ar: "الموقع:", en: "Location:" })} ${booking.hotels?.location}
+${t({ ar: "تاريخ الوصول:", en: "Check-in:" })} ${format(new Date(booking.check_in), "dd/MM/yyyy")}
+${t({ ar: "تاريخ المغادرة:", en: "Check-out:" })} ${format(new Date(booking.check_out), "dd/MM/yyyy")}
+${t({ ar: "عدد النزلاء:", en: "Guests:" })} ${booking.guests}
+${t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })} ${booking.total_amount} ${t({ ar: "ر.س", en: "SAR" })}
+${t({ ar: "الحالة:", en: "Status:" })} ${statusText}
+${t({ ar: "حالة الدفع:", en: "Payment Status:" })} ${paymentStatusText}${paymentInfo}
+${t({ ar: "طريقة الدفع:", en: "Payment Method:" })} ${booking.payment_method}
 
-${t({ ar: "اسم العميل:", en: "Customer Name:", fr: "Nom du client:", es: "Nombre del cliente:", ru: "Имя клиента:", id: "Nama Pelanggan:", ms: "Nama Pelanggan:" })} ${booking.profiles?.full_name}
-${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de téléphone:", es: "Número de teléfono:", ru: "Номер телефона:", id: "Nomor Telepon:", ms: "Nombor Telefon:" })} ${booking.profiles?.phone}
+${t({ ar: "اسم العميل:", en: "Customer Name:" })} ${booking.profiles?.full_name}
+${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.phone}
 `;
 
     const mailtoUrl = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body.trim())}`;
@@ -284,7 +338,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
       <Card className="card-luxury">
         <CardContent className="py-12 text-center">
           <p className="text-muted-foreground">
-            {t({ ar: "لا توجد طلبات", en: "No bookings", fr: "Aucune réservation", es: "No hay reservas", ru: "Нет бронирований", id: "Tidak ada pemesanan", ms: "Tiada tempahan" })}
+            {t({ ar: "لا توجد طلبات", en: "No bookings" })}
           </p>
         </CardContent>
       </Card>
@@ -308,15 +362,12 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
                     {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Badge className={statusColors[booking.status]}>
-                    {t(statusLabels[booking.status])}
-                  </Badge>
+                <div className="flex items-center gap-2 flex-wrap">
                   <Select
                     value={booking.status}
-                    onValueChange={(value) => handleStatusChange(booking.id, value as 'new' | 'pending' | 'confirmed' | 'cancelled' | 'rejected')}
+                    onValueChange={(value) => handleStatusChange(booking.id, value as any)}
                   >
-                    <SelectTrigger className="w-[200px]">
+                    <SelectTrigger className={`w-[140px] h-8 ${statusColors[booking.status]}`}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -327,6 +378,19 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
                       <SelectItem value="rejected">{t(statusLabels.rejected)}</SelectItem>
                     </SelectContent>
                   </Select>
+                  <Select
+                    value={booking.payment_status}
+                    onValueChange={(value) => handlePaymentStatusChange(booking.id, value as any)}
+                  >
+                    <SelectTrigger className={`w-[160px] h-8 ${paymentStatusColors[booking.payment_status]}`}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="paid">{t(paymentStatusLabels.paid)}</SelectItem>
+                      <SelectItem value="partially_paid">{t(paymentStatusLabels.partially_paid)}</SelectItem>
+                      <SelectItem value="unpaid">{t(paymentStatusLabels.unpaid)}</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </CardTitle>
             </CardHeader>
@@ -335,35 +399,47 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
                 <div className="space-y-3">
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="w-4 h-4 text-primary" />
-                    <span className="font-semibold">{t({ ar: "تاريخ الوصول:", en: "Check-in:", fr: "Arrivée:", es: "Entrada:", ru: "Заезд:", id: "Check-in:", ms: "Daftar masuk:" })}</span>
+                    <span className="font-semibold">{t({ ar: "تاريخ الوصول:", en: "Check-in:" })}</span>
                     <span>{format(new Date(booking.check_in), "dd/MM/yyyy")}</span>
                   </div>
                   <div className="flex items-center gap-2 text-sm">
                     <Calendar className="w-4 h-4 text-primary" />
-                    <span className="font-semibold">{t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })}</span>
+                    <span className="font-semibold">{t({ ar: "تاريخ المغادرة:", en: "Check-out:" })}</span>
                     <span>{format(new Date(booking.check_out), "dd/MM/yyyy")}</span>
                   </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Users className="w-4 h-4 text-primary" />
-                      <span className="font-semibold">{t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })}</span>
-                      <span>{booking.guests}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-sm">
-                      <Users className="w-4 h-4 text-primary" />
-                      <span className="font-semibold">{t({ ar: "عدد الغرف:", en: "Rooms:", fr: "Chambres:", es: "Habitaciones:", ru: "Номера:", id: "Kamar:", ms: "Bilik:" })}</span>
-                      <span>{booking.rooms}</span>
-                    </div>
-                  <div className="text-sm">
-                    <span className="font-semibold">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:", fr: "Montant total:", es: "Monto total:", ru: "Общая сумма:", id: "Jumlah Total:", ms: "Jumlah Keseluruhan:" })}</span>
-                    <span className="text-primary font-bold ml-2">{booking.total_amount} {t({ ar: "ر.س", en: "SAR", fr: "SAR", es: "SAR", ru: "САР", id: "SAR", ms: "SAR" })}</span>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Users className="w-4 h-4 text-primary" />
+                    <span className="font-semibold">{t({ ar: "عدد النزلاء:", en: "Guests:" })}</span>
+                    <span>{booking.guests}</span>
+                  </div>
+                  <div className="flex items-center gap-2 text-sm">
+                    <Users className="w-4 h-4 text-primary" />
+                    <span className="font-semibold">{t({ ar: "عدد الغرف:", en: "Rooms:" })}</span>
+                    <span>{booking.rooms}</span>
                   </div>
                   <div className="text-sm">
-                    <span className="font-semibold">{t({ ar: "طريقة الدفع:", en: "Payment Method:", fr: "Mode de paiement:", es: "Método de pago:", ru: "Способ оплаты:", id: "Metode Pembayaran:", ms: "Kaedah Pembayaran:" })}</span>
+                    <span className="font-semibold">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })}</span>
+                    <span className="text-primary font-bold ml-2">{booking.total_amount} {t({ ar: "ر.س", en: "SAR" })}</span>
+                  </div>
+                  {booking.payment_status === 'partially_paid' && (
+                    <>
+                      <div className="text-sm">
+                        <span className="font-semibold">{t({ ar: "المبلغ المدفوع:", en: "Amount Paid:" })}</span>
+                        <span className="text-green-600 font-bold ml-2">{booking.amount_paid} {t({ ar: "ر.س", en: "SAR" })}</span>
+                      </div>
+                      <div className="text-sm">
+                        <span className="font-semibold">{t({ ar: "المبلغ المتبقي:", en: "Remaining:" })}</span>
+                        <span className="text-red-600 font-bold ml-2">{booking.total_amount - booking.amount_paid} {t({ ar: "ر.س", en: "SAR" })}</span>
+                      </div>
+                    </>
+                  )}
+                  <div className="text-sm">
+                    <span className="font-semibold">{t({ ar: "طريقة الدفع:", en: "Payment Method:" })}</span>
                     <span className="ml-2">{booking.payment_method}</span>
                   </div>
                   {booking.notes && (
                     <div className="text-sm">
-                      <span className="font-semibold">{t({ ar: "ملاحظات:", en: "Notes:", fr: "Notes:", es: "Notas:", ru: "Заметки:", id: "Catatan:", ms: "Nota:" })}</span>
+                      <span className="font-semibold">{t({ ar: "ملاحظات:", en: "Notes:" })}</span>
                       <p className="text-muted-foreground mt-1">{booking.notes}</p>
                     </div>
                   )}
@@ -371,14 +447,14 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
 
                 <div className="space-y-3">
                   <div>
-                    <h4 className="font-semibold mb-2">{t({ ar: "معلومات العميل", en: "Customer Information", fr: "Informations client", es: "Información del cliente", ru: "Информация о клиенте", id: "Informasi Pelanggan", ms: "Maklumat Pelanggan" })}</h4>
+                    <h4 className="font-semibold mb-2">{t({ ar: "معلومات العميل", en: "Customer Information" })}</h4>
                     <div className="space-y-2 text-sm">
                       <p>
-                        <span className="font-semibold">{t({ ar: "الاسم:", en: "Name:", fr: "Nom:", es: "Nombre:", ru: "Имя:", id: "Nama:", ms: "Nama:" })}</span>
+                        <span className="font-semibold">{t({ ar: "الاسم:", en: "Name:" })}</span>
                         <span className="ml-2">{booking.profiles?.full_name}</span>
                       </p>
                       <p>
-                        <span className="font-semibold">{t({ ar: "الهاتف:", en: "Phone:", fr: "Téléphone:", es: "Teléfono:", ru: "Телефон:", id: "Telepon:", ms: "Telefon:" })}</span>
+                        <span className="font-semibold">{t({ ar: "الهاتف:", en: "Phone:" })}</span>
                         <span className="ml-2">{booking.profiles?.phone}</span>
                       </p>
                     </div>
@@ -391,7 +467,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
                       onClick={() => openEditDialog(booking)}
                     >
                       <Edit className="w-4 h-4 ml-1" />
-                      {t({ ar: "تعديل", en: "Edit", fr: "Modifier", es: "Editar", ru: "Редактировать", id: "Edit", ms: "Edit" })}
+                      {t({ ar: "تعديل", en: "Edit" })}
                     </Button>
                     <Button
                       variant="outline"
@@ -399,7 +475,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
                       onClick={() => shareViaWhatsApp(booking)}
                     >
                       <MessageCircle className="w-4 h-4 ml-1" />
-                      {t({ ar: "واتساب", en: "WhatsApp", fr: "WhatsApp", es: "WhatsApp", ru: "WhatsApp", id: "WhatsApp", ms: "WhatsApp" })}
+                      {t({ ar: "واتساب", en: "WhatsApp" })}
                     </Button>
                     <Button
                       variant="outline"
@@ -407,7 +483,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
                       onClick={() => shareViaEmail(booking)}
                     >
                       <Mail className="w-4 h-4 ml-1" />
-                      {t({ ar: "بريد", en: "Email", fr: "E-mail", es: "Correo", ru: "Email", id: "Email", ms: "E-mel" })}
+                      {t({ ar: "بريد", en: "Email" })}
                     </Button>
                   </div>
                 </div>
@@ -417,177 +493,124 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
         ))}
       </div>
 
-      {/* Edit Booking Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
+        <DialogContent className="max-h-[85vh] overflow-y-auto max-w-2xl">
           <DialogHeader>
-            <DialogTitle>{t({ ar: "تعديل تفاصيل الحجز", en: "Edit Booking Details", fr: "Modifier les détails de la réservation", es: "Editar detalles de la reserva", ru: "Редактировать детали бронирования", id: "Edit Detail Pemesanan", ms: "Edit Butiran Tempahan" })}</DialogTitle>
+            <DialogTitle>{t({ ar: "تعديل تفاصيل الحجز", en: "Edit Booking Details" })}</DialogTitle>
             <DialogDescription>
-              {t({ ar: "عدل معلومات الحجز", en: "Modify the booking information", fr: "Modifiez les informations de réservation", es: "Modifique la información de la reserva", ru: "Измените информацию о бронировании", id: "Ubah informasi pemesanan", ms: "Ubah maklumat tempahan" })}
+              {t({ ar: "عدل معلومات الحجز", en: "Modify the booking information" })}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
-              <Label>{t({ ar: "تاريخ الوصول", en: "Check-in Date", fr: "Date d'arrivée", es: "Fecha de entrada", ru: "Дата заезда", id: "Tanggal Check-in", ms: "Tarikh Daftar masuk" })}</Label>
-                <Input
-                  type="date"
-                  value={editFormData.check_in}
-                  onChange={(e) => {
-                    const newTotal = selectedBooking ? calculateTotal(
-                      e.target.value,
-                      editFormData.check_out,
-                      parseInt(editFormData.guests),
-                      parseInt(editFormData.rooms),
-                      selectedBooking.hotels
-                    ) : 0;
-                    setEditFormData({ ...editFormData, check_in: e.target.value, total_amount: newTotal.toString() });
-                  }}
-                />
-            </div>
-            <div className="space-y-2">
-              <Label>{t({ ar: "تاريخ المغادرة", en: "Check-out Date", fr: "Date de départ", es: "Fecha de salida", ru: "Дата выезда", id: "Tanggal Check-out", ms: "Tarikh Daftar keluar" })}</Label>
-                <Input
-                  type="date"
-                  value={editFormData.check_out}
-                  onChange={(e) => {
-                    const newTotal = selectedBooking ? calculateTotal(
-                      editFormData.check_in,
-                      e.target.value,
-                      parseInt(editFormData.guests),
-                      parseInt(editFormData.rooms),
-                      selectedBooking.hotels
-                    ) : 0;
-                    setEditFormData({ ...editFormData, check_out: e.target.value, total_amount: newTotal.toString() });
-                  }}
-                />
-            </div>
-            <div className="space-y-2">
-              <Label>{t({ ar: "عدد النزلاء", en: "Number of Guests", fr: "Nombre d'invités", es: "Número de huéspedes", ru: "Количество гостей", id: "Jumlah Tamu", ms: "Bilangan Tetamu" })}</Label>
-              <Select 
-                value={editFormData.guests} 
-                onValueChange={(value) => {
+              <Label>{t({ ar: "تاريخ الوصول", en: "Check-in Date" })}</Label>
+              <Input
+                type="date"
+                value={editFormData.check_in}
+                onChange={(e) => {
                   const newTotal = selectedBooking ? calculateTotal(
-                    editFormData.check_in,
+                    e.target.value,
                     editFormData.check_out,
-                    parseInt(value),
+                    parseInt(editFormData.guests),
                     parseInt(editFormData.rooms),
                     selectedBooking.hotels
                   ) : 0;
-                  setEditFormData({ ...editFormData, guests: value, total_amount: newTotal.toString() });
+                  setEditFormData({ ...editFormData, check_in: e.target.value, manual_total: newTotal.toString(), total_amount: newTotal.toString() });
                 }}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                    <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
             </div>
             <div className="space-y-2">
-              <Label>{t({ ar: "عدد الغرف", en: "Number of Rooms", fr: "Nombre de chambres", es: "Número de habitaciones", ru: "Количество номеров", id: "Jumlah Kamar", ms: "Bilangan Bilik" })}</Label>
-              <Select 
-                value={editFormData.rooms} 
-                onValueChange={(value) => {
+              <Label>{t({ ar: "تاريخ المغادرة", en: "Check-out Date" })}</Label>
+              <Input
+                type="date"
+                value={editFormData.check_out}
+                onChange={(e) => {
+                  const newTotal = selectedBooking ? calculateTotal(
+                    editFormData.check_in,
+                    e.target.value,
+                    parseInt(editFormData.guests),
+                    parseInt(editFormData.rooms),
+                    selectedBooking.hotels
+                  ) : 0;
+                  setEditFormData({ ...editFormData, check_out: e.target.value, manual_total: newTotal.toString(), total_amount: newTotal.toString() });
+                }}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{t({ ar: "عدد النزلاء", en: "Number of Guests" })}</Label>
+              <Input
+                type="number"
+                min="1"
+                value={editFormData.guests}
+                onChange={(e) => {
+                  const newTotal = selectedBooking ? calculateTotal(
+                    editFormData.check_in,
+                    editFormData.check_out,
+                    parseInt(e.target.value),
+                    parseInt(editFormData.rooms),
+                    selectedBooking.hotels
+                  ) : 0;
+                  setEditFormData({ ...editFormData, guests: e.target.value, manual_total: newTotal.toString(), total_amount: newTotal.toString() });
+                }}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{t({ ar: "عدد الغرف", en: "Number of Rooms" })}</Label>
+              <Input
+                type="number"
+                min="1"
+                value={editFormData.rooms}
+                onChange={(e) => {
                   const newTotal = selectedBooking ? calculateTotal(
                     editFormData.check_in,
                     editFormData.check_out,
                     parseInt(editFormData.guests),
-                    parseInt(value),
+                    parseInt(e.target.value),
                     selectedBooking.hotels
                   ) : 0;
-                  setEditFormData({ ...editFormData, rooms: value, total_amount: newTotal.toString() });
+                  setEditFormData({ ...editFormData, rooms: e.target.value, manual_total: newTotal.toString(), total_amount: newTotal.toString() });
                 }}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                    <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              />
             </div>
             <div className="space-y-2">
-              <Label>{t({ ar: "نوع الغرف", en: "Room Type" })}</Label>
-              <Select value={editFormData.room_type} onValueChange={(value: 'hotel_rooms' | 'owner_rooms') => setEditFormData({...editFormData, room_type: value})}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="hotel_rooms">{t({ ar: "غرف فندقية", en: "Hotel Rooms" })}</SelectItem>
-                  <SelectItem value="owner_rooms">{t({ ar: "غرف مُلّاك", en: "Owner Rooms" })}</SelectItem>
-                </SelectContent>
-              </Select>
+              <Label>{t({ ar: "المبلغ الإجمالي", en: "Total Amount" })}</Label>
+              <Input
+                type="number"
+                value={editFormData.manual_total}
+                onChange={(e) => setEditFormData({ ...editFormData, manual_total: e.target.value, total_amount: e.target.value })}
+              />
             </div>
             <div className="space-y-2">
-              <Label>{t({ ar: "ملاحظات", en: "Notes", fr: "Notes", es: "Notas", ru: "Заметки", id: "Catatan", ms: "Nota" })}</Label>
+              <Label>{t({ ar: "مبلغ الخصم", en: "Discount Amount" })}</Label>
+              <Input
+                type="number"
+                value={editFormData.discount_amount}
+                onChange={(e) => setEditFormData({ ...editFormData, discount_amount: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{t({ ar: "المبلغ المدفوع", en: "Amount Paid" })}</Label>
+              <Input
+                type="number"
+                value={editFormData.amount_paid}
+                onChange={(e) => setEditFormData({ ...editFormData, amount_paid: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{t({ ar: "ملاحظات", en: "Notes" })}</Label>
               <Textarea
                 value={editFormData.notes}
                 onChange={(e) => setEditFormData({ ...editFormData, notes: e.target.value })}
                 rows={3}
               />
             </div>
-            <div className="space-y-2">
-              <Label>{t({ ar: "قيمة الخصم", en: "Discount Amount" })}</Label>
-              <Input
-                type="number"
-                min="0"
-                value={editFormData.discount_amount}
-                onChange={(e) => {
-                  const discount = parseFloat(e.target.value) || 0;
-                  const manual = parseFloat(editFormData.manual_total) || 0;
-                  const finalTotal = manual - discount;
-                  setEditFormData({ 
-                    ...editFormData, 
-                    discount_amount: e.target.value,
-                    total_amount: finalTotal.toString()
-                  });
-                }}
-                placeholder="0"
-              />
-              <p className="text-xs text-muted-foreground">
-                {t({ ar: "أدخل قيمة الخصم إن وجدت", en: "Enter discount amount if applicable" })}
-              </p>
-            </div>
-            <div className="space-y-2">
-              <Label>{t({ ar: "المبلغ اليدوي", en: "Manual Total" })}</Label>
-              <Input
-                type="number"
-                min="0"
-                value={editFormData.manual_total}
-                onChange={(e) => {
-                  const manual = parseFloat(e.target.value) || 0;
-                  const discount = parseFloat(editFormData.discount_amount) || 0;
-                  const finalTotal = manual - discount;
-                  setEditFormData({ 
-                    ...editFormData, 
-                    manual_total: e.target.value,
-                    total_amount: finalTotal.toString()
-                  });
-                }}
-                placeholder="0"
-              />
-              <p className="text-xs text-muted-foreground">
-                {t({ ar: "أدخل المبلغ يدوياً إذا كنت تريد تعديله", en: "Enter amount manually if you want to modify it" })}
-              </p>
-            </div>
-            <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
-              <div className="flex justify-between items-center">
-                <span className="font-semibold">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:", fr: "Montant total:", es: "Monto total:", ru: "Общая сумма:", id: "Jumlah Total:", ms: "Jumlah Keseluruhan:" })}</span>
-                <span className="text-primary font-bold text-lg">{editFormData.total_amount} {t({ ar: "ر.س", en: "SAR", fr: "SAR", es: "SAR", ru: "САР", id: "SAR", ms: "SAR" })}</span>
-              </div>
-            </div>
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsEditDialogOpen(false)}>
-              {t({ ar: "إلغاء", en: "Cancel", fr: "Annuler", es: "Cancelar", ru: "Отмена", id: "Batal", ms: "Batal" })}
+              {t({ ar: "إلغاء", en: "Cancel" })}
             </Button>
-            <Button onClick={handleEditBooking}>
-              {t({ ar: "حفظ", en: "Save", fr: "Enregistrer", es: "Guardar", ru: "Сохранить", id: "Simpan", ms: "Simpan" })}
+            <Button onClick={handleEditBooking} className="btn-luxury">
+              {t({ ar: "حفظ التغييرات", en: "Save Changes" })}
             </Button>
           </DialogFooter>
         </DialogContent>

@@ -95,6 +95,14 @@ export default function ManageEmployees() {
         };
       }) || [];
 
+      // Sort users: admin first, then employee, then customer
+      const roleOrder = { admin: 1, employee: 2, customer: 3 };
+      combinedUsers.sort((a, b) => {
+        const aOrder = roleOrder[a.role as keyof typeof roleOrder] || 999;
+        const bOrder = roleOrder[b.role as keyof typeof roleOrder] || 999;
+        return aOrder - bOrder;
+      });
+
       setUsers(combinedUsers);
     } catch (error: any) {
       console.error('Error fetching users:', error);

@@ -29,14 +29,14 @@ export default function AdminDashboard() {
   const [bookings, setBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [stats, setStats] = useState({
-    totalRevenue: 50000,
-    revenueChange: 8.5,
-    totalBookings: 123,
-    bookingsChange: 12.3,
-    pendingBookings: 15,
-    pendingChange: -5.2,
-    totalCustomers: 87,
-    customersChange: 15.7
+    totalProfits: 0,
+    awaitingPayment: 0,
+    unpaidBookings: 0,
+    totalBookings: 0,
+    totalSales: 0,
+    cancelledLosses: 0,
+    pendingBookings: 0,
+    totalCustomers: 0,
   });
 
   useEffect(() => {
@@ -95,22 +95,39 @@ export default function AdminDashboard() {
 
   const fetchStats = async () => {
     try {
-      // Total confirmed revenue
-      const { data: confirmedBookings, error: revenueError } = await supabase
+      // Fetch all bookings
+      const { data: allBookings } = await supabase
         .from('bookings')
-        .select('total_amount')
-        .eq('status', 'confirmed');
+        .select('total_amount, status, payment_status, amount_paid');
 
-      const totalRevenue = confirmedBookings?.reduce((sum, booking) => 
-        sum + (parseFloat(booking.total_amount?.toString() || '0')), 0
-      ) || 0;
+      const bookingsArray = allBookings || [];
 
-      // Total bookings (all statuses)
-      const { count: totalBookingsCount, error: bookingsError } = await supabase
-        .from('bookings')
-        .select('*', { count: 'exact', head: true });
+      // Calculate statistics
+      const totalProfits = bookingsArray
+        .filter(b => b.payment_status === 'paid')
+        .reduce((sum, b) => sum + (parseFloat(b.total_amount?.toString() || '0')), 0);
 
-      // Pending bookings (new + pending)
+      const awaitingPayment = bookingsArray
+        .filter(b => b.payment_status === 'partially_paid')
+        .reduce((sum, b) => sum + (parseFloat(b.total_amount?.toString() || '0') - parseFloat(b.amount_paid?.toString() || '0')), 0);
+
+      const unpaidBookings = bookingsArray
+        .filter(b => b.payment_status === 'unpaid' && b.status !== 'cancelled' && b.status !== 'rejected')
+        .reduce((sum, b) => sum + (parseFloat(b.total_amount?.toString() || '0')), 0);
+
+      const totalBookingsAmount = bookingsArray
+        .filter(b => b.status !== 'cancelled' && b.status !== 'rejected')
+        .reduce((sum, b) => sum + (parseFloat(b.total_amount?.toString() || '0')), 0);
+
+      const totalSales = bookingsArray
+        .filter(b => b.status === 'confirmed')
+        .reduce((sum, b) => sum + (parseFloat(b.total_amount?.toString() || '0')), 0);
+
+      const cancelledLosses = bookingsArray
+        .filter(b => b.status === 'cancelled' || b.status === 'rejected')
+        .reduce((sum, b) => sum + (parseFloat(b.total_amount?.toString() || '0')), 0);
+
+      // Pending bookings count
       const { count: newCount } = await supabase
         .from('bookings')
         .select('*', { count: 'exact', head: true })
@@ -123,8 +140,8 @@ export default function AdminDashboard() {
 
       const pendingBookings = (newCount || 0) + (pendingCount || 0);
 
-      // Total customers (users with role 'customer')
-      const { data: customerRoles, error: customersError } = await supabase
+      // Total customers
+      const { data: customerRoles } = await supabase
         .from('user_roles')
         .select('user_id')
         .eq('role', 'customer');
@@ -132,14 +149,14 @@ export default function AdminDashboard() {
       const totalCustomers = customerRoles?.length || 0;
 
       setStats({
-        totalRevenue: Math.round(totalRevenue),
-        revenueChange: 8.5, // This would require historical data
-        totalBookings: totalBookingsCount || 0,
-        bookingsChange: 12.3, // This would require historical data
+        totalProfits: Math.round(totalProfits),
+        awaitingPayment: Math.round(awaitingPayment),
+        unpaidBookings: Math.round(unpaidBookings),
+        totalBookings: Math.round(totalBookingsAmount),
+        totalSales: Math.round(totalSales),
+        cancelledLosses: Math.round(cancelledLosses),
         pendingBookings,
-        pendingChange: -5.2, // This would require historical data
         totalCustomers,
-        customersChange: 15.7 // This would require historical data
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -150,20 +167,14 @@ export default function AdminDashboard() {
     return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
   }
 
-  const StatCard = ({ title, value, icon: Icon, change, colorClass }: any) => (
+  const StatCard = ({ title, value, icon: Icon, colorClass }: any) => (
     <Card className="card-luxury hover-lift transition-all">
       <CardContent className="pt-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
             <div className="flex items-baseline gap-2">
-              <h3 className="text-3xl font-bold">{value}</h3>
-              {change !== undefined && (
-                <div className={`flex items-center text-sm font-medium ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {change >= 0 ? <TrendingUp className="w-4 h-4 ml-1" /> : <TrendingDown className="w-4 h-4 ml-1" />}
-                  <span>{Math.abs(change)}%</span>
-                </div>
-              )}
+              <h3 className="text-2xl lg:text-3xl font-bold">{value}</h3>
             </div>
           </div>
           <div className={`p-3 rounded-xl ${colorClass}`}>
@@ -218,6 +229,11 @@ export default function AdminDashboard() {
               onClick={() => navigate('/manage-hotels')}
             />
             <NavItem 
+              icon={FileText} 
+              label={t({ ar: "سجل الأحداث", en: "Audit Logs" })}
+              onClick={() => navigate('/audit-logs')}
+            />
+            <NavItem 
               icon={Settings} 
               label={t({ ar: "إعدادات الموقع", en: "Site Settings" })}
               onClick={() => navigate('/site-settings')}
@@ -264,34 +280,54 @@ export default function AdminDashboard() {
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 mb-8">
               <StatCard
-                title={t({ ar: "إجمالي الأرباح", en: "Total Revenue" })}
-                value={`${stats.totalRevenue.toLocaleString()} ${t({ ar: "ر.س", en: "SAR" })}`}
+                title={t({ ar: "إجمالي الأرباح", en: "Total Profits" })}
+                value={`${stats.totalProfits.toLocaleString()} ${t({ ar: "ر.س", en: "SAR" })}`}
                 icon={DollarSign}
-                change={stats.revenueChange}
-                colorClass="bg-gradient-to-br from-green-500 to-green-600"
+                colorClass="bg-gradient-to-br from-amber-500 to-amber-600"
+              />
+              <StatCard
+                title={t({ ar: "أموال في انتظار الدفع", en: "Awaiting Payment" })}
+                value={`${stats.awaitingPayment.toLocaleString()} ${t({ ar: "ر.س", en: "SAR" })}`}
+                icon={Clock}
+                colorClass="bg-gradient-to-br from-slate-500 to-slate-600"
+              />
+              <StatCard
+                title={t({ ar: "طلبات غير مدفوعة", en: "Unpaid Bookings" })}
+                value={`${stats.unpaidBookings.toLocaleString()} ${t({ ar: "ر.س", en: "SAR" })}`}
+                icon={FileText}
+                colorClass="bg-gradient-to-br from-gray-900 to-gray-800"
               />
               <StatCard
                 title={t({ ar: "إجمالي الطلبات", en: "Total Bookings" })}
-                value={stats.totalBookings}
-                icon={FileText}
-                change={stats.bookingsChange}
-                colorClass="bg-gradient-to-br from-blue-500 to-blue-600"
+                value={`${stats.totalBookings.toLocaleString()} ${t({ ar: "ر.س", en: "SAR" })}`}
+                icon={TrendingUp}
+                colorClass="bg-gradient-to-br from-purple-500 to-purple-600"
+              />
+              <StatCard
+                title={t({ ar: "إجمالي المبيعات", en: "Total Sales" })}
+                value={`${stats.totalSales.toLocaleString()} ${t({ ar: "ر.س", en: "SAR" })}`}
+                icon={DollarSign}
+                colorClass="bg-gradient-to-br from-green-500 to-green-600"
+              />
+              <StatCard
+                title={t({ ar: "خسائر الطلبات الملغاة", en: "Cancelled Losses" })}
+                value={`${stats.cancelledLosses.toLocaleString()} ${t({ ar: "ر.س", en: "SAR" })}`}
+                icon={TrendingDown}
+                colorClass="bg-gradient-to-br from-red-500 to-red-600"
               />
               <StatCard
                 title={t({ ar: "قيد الانتظار", en: "Pending" })}
                 value={stats.pendingBookings}
                 icon={Clock}
-                change={stats.pendingChange}
                 colorClass="bg-gradient-to-br from-orange-500 to-orange-600"
               />
               <StatCard
                 title={t({ ar: "عدد العملاء", en: "Customers" })}
                 value={stats.totalCustomers}
                 icon={Users}
-                change={stats.customersChange}
-                colorClass="bg-gradient-to-br from-purple-500 to-purple-600"
+                colorClass="bg-gradient-to-br from-blue-500 to-blue-600"
               />
             </div>
 
