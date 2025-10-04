@@ -570,6 +570,13 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_hotel_contacts: {
+        Args: { p_hotel_id: string }
+        Returns: {
+          contact_person: string
+          contact_phone: string
+        }[]
+      }
       get_public_hotel: {
         Args: { p_hotel_id: string }
         Returns: {
