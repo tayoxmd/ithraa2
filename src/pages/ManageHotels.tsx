@@ -20,6 +20,11 @@ interface City {
   name_en: string;
 }
 
+interface Employee {
+  id: string;
+  full_name: string;
+}
+
 interface Hotel {
   id: string;
   name_ar: string;
@@ -50,6 +55,7 @@ export default function ManageHotels() {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [filteredHotels, setFilteredHotels] = useState<Hotel[]>([]);
   const [cities, setCities] = useState<City[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
   const [loadingData, setLoadingData] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -79,6 +85,7 @@ export default function ManageHotels() {
       navigate('/');
     } else if (!loading) {
       fetchCities();
+      fetchEmployees();
       fetchHotels();
     }
   }, [userRole, loading, navigate]);
@@ -95,6 +102,33 @@ export default function ManageHotels() {
       setCities(data || []);
     } catch (error: any) {
       console.error('Error fetching cities:', error);
+    }
+  };
+
+  const fetchEmployees = async () => {
+    try {
+      // Get all employee user IDs from user_roles table
+      const { data: employeeRoles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'employee');
+
+      if (rolesError) throw rolesError;
+
+      if (employeeRoles && employeeRoles.length > 0) {
+        const employeeIds = employeeRoles.map(r => r.user_id);
+        
+        // Get profiles for these employees
+        const { data: employeeProfiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', employeeIds);
+
+        if (profilesError) throw profilesError;
+        setEmployees(employeeProfiles || []);
+      }
+    } catch (error: any) {
+      console.error('Error fetching employees:', error);
     }
   };
 
@@ -578,7 +612,16 @@ export default function ManageHotels() {
                 </div>
                 <div className="space-y-2">
                   <Label>{t({ ar: "الحد الأقصى للأشخاص في الغرفة", en: "Max Guests per Room" })}</Label>
-                  <Input type="number" min="1" value={formData.max_guests_per_room} onChange={(e) => setFormData({...formData, max_guests_per_room: e.target.value})} />
+                  <Select value={formData.max_guests_per_room} onValueChange={(value) => setFormData({...formData, max_guests_per_room: value})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5, 6].map(num => (
+                        <SelectItem key={num} value={num.toString()}>{num} {t({ ar: 'أشخاص', en: 'persons' })}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>{t({ ar: "نسبة الضريبة %", en: "Tax %" })}</Label>
@@ -591,8 +634,22 @@ export default function ManageHotels() {
                   <Input type="number" min="0" value={formData.extra_guest_price} onChange={(e) => setFormData({...formData, extra_guest_price: e.target.value})} />
                 </div>
                 <div className="space-y-2">
-                  <Label>{t({ ar: "الشخص المسؤول", en: "Responsible Person" })}</Label>
-                  <Input value={formData.contact_person} onChange={(e) => setFormData({...formData, contact_person: e.target.value})} placeholder={t({ ar: "اسم المسؤول", en: "Responsible name" })} />
+                  <Label>{t({ ar: "المسؤولون عن الفندق", en: "Hotel Managers" })}</Label>
+                  <Select value={formData.contact_person} onValueChange={(value) => setFormData({...formData, contact_person: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder={t({ ar: "اختر الموظف المسؤول", en: "Select responsible employee" })} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {employees.map(emp => (
+                        <SelectItem key={emp.id} value={emp.id}>
+                          {emp.full_name || emp.id}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-muted-foreground">
+                    {t({ ar: "سيتم إرسال الطلبات إلى لوحة التحكم الخاصة بالموظف المحدد", en: "Requests will be sent to the selected employee's dashboard" })}
+                  </p>
                 </div>
               </div>
             </div>

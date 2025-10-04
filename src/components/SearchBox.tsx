@@ -19,16 +19,20 @@ interface City {
   name_en: string;
 }
 
-export function SearchBox() {
+export function SearchBox({ initialValues }: { initialValues?: any } = {}) {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const [checkIn, setCheckIn] = useState<Date>();
-  const [checkOut, setCheckOut] = useState<Date>();
-  const [guests, setGuests] = useState("2");
+  const [checkIn, setCheckIn] = useState<Date | undefined>(
+    initialValues?.checkIn ? new Date(initialValues.checkIn) : undefined
+  );
+  const [checkOut, setCheckOut] = useState<Date | undefined>(
+    initialValues?.checkOut ? new Date(initialValues.checkOut) : undefined
+  );
+  const [guests, setGuests] = useState(initialValues?.guests || "2");
   const [customGuests, setCustomGuests] = useState("");
-  const [rooms, setRooms] = useState("1");
+  const [rooms, setRooms] = useState(initialValues?.rooms || "1");
   const [customRooms, setCustomRooms] = useState("");
-  const [selectedCity, setSelectedCity] = useState<string>("");
+  const [selectedCity, setSelectedCity] = useState<string>(initialValues?.city || "");
   const [cities, setCities] = useState<City[]>([]);
 
   useEffect(() => {
@@ -167,35 +171,7 @@ export function SearchBox() {
             </Popover>
           </div>
 
-          {/* Guests */}
-          <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">
-              {t('عدد الضيوف', 'Guests')}
-            </label>
-            <Select value={guests} onValueChange={setGuests}>
-              <SelectTrigger className="h-12 bg-background/50">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {[1, 2, 3, 4, 5, 6].map(num => (
-                  <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
-                ))}
-                <SelectItem value="custom">{t('أخرى', 'Other')}</SelectItem>
-              </SelectContent>
-            </Select>
-            {guests === 'custom' && (
-              <Input
-                type="number"
-                min="1"
-                value={customGuests}
-                onChange={(e) => setCustomGuests(e.target.value)}
-                placeholder={t('أدخل العدد', 'Enter number')}
-                className="mt-2 h-12"
-              />
-            )}
-          </div>
-
-          {/* Rooms */}
+          {/* Rooms - Now before Guests */}
           <div>
             <label className="text-sm font-medium text-foreground mb-2 block">
               {t('عدد الغرف', 'Rooms')}
@@ -217,6 +193,34 @@ export function SearchBox() {
                 min="1"
                 value={customRooms}
                 onChange={(e) => setCustomRooms(e.target.value)}
+                placeholder={t('أدخل العدد', 'Enter number')}
+                className="mt-2 h-12"
+              />
+            )}
+          </div>
+
+          {/* Guests - Now after Rooms */}
+          <div>
+            <label className="text-sm font-medium text-foreground mb-2 block">
+              {t('عدد الضيوف', 'Guests')}
+            </label>
+            <Select value={guests} onValueChange={setGuests}>
+              <SelectTrigger className="h-12 bg-background/50">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {[1, 2, 3, 4, 5, 6].map(num => (
+                  <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
+                ))}
+                <SelectItem value="custom">{t('أخرى', 'Other')}</SelectItem>
+              </SelectContent>
+            </Select>
+            {guests === 'custom' && (
+              <Input
+                type="number"
+                min="1"
+                value={customGuests}
+                onChange={(e) => setCustomGuests(e.target.value)}
                 placeholder={t('أدخل العدد', 'Enter number')}
                 className="mt-2 h-12"
               />

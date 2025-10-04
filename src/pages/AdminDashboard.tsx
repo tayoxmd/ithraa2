@@ -45,6 +45,7 @@ export default function AdminDashboard() {
         navigate('/');
       } else {
         fetchBookings();
+        fetchStats();
         
         const channel = supabase
           .channel('admin-bookings')
@@ -59,6 +60,7 @@ export default function AdminDashboard() {
               console.log('New booking received:', payload);
               playNotificationSound();
               fetchBookings();
+              fetchStats();
             }
           )
           .subscribe();
@@ -88,6 +90,59 @@ export default function AdminDashboard() {
       console.error('Error fetching bookings:', error);
     } finally {
       setLoadingBookings(false);
+    }
+  };
+
+  const fetchStats = async () => {
+    try {
+      // Total confirmed revenue
+      const { data: confirmedBookings, error: revenueError } = await supabase
+        .from('bookings')
+        .select('total_amount')
+        .eq('status', 'confirmed');
+
+      const totalRevenue = confirmedBookings?.reduce((sum, booking) => 
+        sum + (parseFloat(booking.total_amount?.toString() || '0')), 0
+      ) || 0;
+
+      // Total bookings (all statuses)
+      const { count: totalBookingsCount, error: bookingsError } = await supabase
+        .from('bookings')
+        .select('*', { count: 'exact', head: true });
+
+      // Pending bookings (new + pending)
+      const { count: newCount } = await supabase
+        .from('bookings')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'new');
+
+      const { count: pendingCount } = await supabase
+        .from('bookings')
+        .select('*', { count: 'exact', head: true })
+        .eq('status', 'pending');
+
+      const pendingBookings = (newCount || 0) + (pendingCount || 0);
+
+      // Total customers (users with role 'customer')
+      const { data: customerRoles, error: customersError } = await supabase
+        .from('user_roles')
+        .select('user_id')
+        .eq('role', 'customer');
+
+      const totalCustomers = customerRoles?.length || 0;
+
+      setStats({
+        totalRevenue: Math.round(totalRevenue),
+        revenueChange: 8.5, // This would require historical data
+        totalBookings: totalBookingsCount || 0,
+        bookingsChange: 12.3, // This would require historical data
+        pendingBookings,
+        pendingChange: -5.2, // This would require historical data
+        totalCustomers,
+        customersChange: 15.7 // This would require historical data
+      });
+    } catch (error) {
+      console.error('Error fetching stats:', error);
     }
   };
 

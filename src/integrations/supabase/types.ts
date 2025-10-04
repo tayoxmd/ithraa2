@@ -190,6 +190,35 @@ export type Database = {
           },
         ]
       }
+      hotel_responsible_persons: {
+        Row: {
+          created_at: string | null
+          employee_id: string
+          hotel_id: string
+          id: string
+        }
+        Insert: {
+          created_at?: string | null
+          employee_id: string
+          hotel_id: string
+          id?: string
+        }
+        Update: {
+          created_at?: string | null
+          employee_id?: string
+          hotel_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotel_responsible_persons_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hotels: {
         Row: {
           active: boolean | null
@@ -294,6 +323,72 @@ export type Database = {
         }
         Relationships: []
       }
+      room_availability: {
+        Row: {
+          booking_id: string
+          check_in: string
+          check_out: string
+          created_at: string | null
+          hotel_id: string
+          id: string
+          rooms_booked: number
+        }
+        Insert: {
+          booking_id: string
+          check_in: string
+          check_out: string
+          created_at?: string | null
+          hotel_id: string
+          id?: string
+          rooms_booked?: number
+        }
+        Update: {
+          booking_id?: string
+          check_in?: string
+          check_out?: string
+          created_at?: string | null
+          hotel_id?: string
+          id?: string
+          rooms_booked?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_availability_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_availability_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      site_settings: {
+        Row: {
+          created_at: string | null
+          id: string
+          tax_percentage: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          tax_percentage?: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          tax_percentage?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string | null
@@ -331,6 +426,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_room_availability: {
+        Args: {
+          p_check_in: string
+          p_check_out: string
+          p_hotel_id: string
+          p_rooms_needed: number
+        }
+        Returns: boolean
+      }
       get_public_hotel: {
         Args: { p_hotel_id: string }
         Returns: {

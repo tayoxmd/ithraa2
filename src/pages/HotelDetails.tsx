@@ -132,21 +132,40 @@ export default function HotelDetails() {
 
             <Card className="card-luxury mb-6">
               <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-2xl font-bold text-primary">
-                    {hotel.price_per_night} {t('ر.س', 'SAR')}
-                  </span>
-                  <span className="text-muted-foreground">
-                    {t('لليلة الواحدة', 'per night')}
-                  </span>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-2xl font-bold text-primary">
+                      {hotel.price_per_night} {t('ر.س', 'SAR')}
+                    </span>
+                    <span className="text-muted-foreground">
+                      {t('لليلة الواحدة', 'per night')}
+                    </span>
+                  </div>
+                  
+                  <p className="text-xs text-muted-foreground">
+                    {t('السعر شامل الضريبة', 'Price includes tax')}
+                  </p>
+
+                  {checkIn && checkOut && rooms && (
+                    <div className="pt-2 border-t">
+                      <p className="text-sm font-medium text-foreground">
+                        {(() => {
+                          const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
+                          const roomsCount = parseInt(rooms) || 1;
+                          const guestsCount = parseInt(guests) || 2;
+                          const total = hotel.price_per_night * nights * roomsCount;
+                          return `${t('الإجمالي', 'Total')}: ${total.toLocaleString()} ${t('ر.س', 'SAR')} (${nights} ${t('ليلة', 'nights')} × ${roomsCount} ${t('غرفة', 'rooms')})`;
+                        })()}
+                      </p>
+                    </div>
+                  )}
                 </div>
-                
 
                 <Button 
-                  className="w-full btn-luxury"
+                  className="w-full btn-luxury mt-4"
                   onClick={() => navigate(`/booking/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}&rooms=${rooms}`)}
                 >
-                  {t({ ar: 'احجز الآن', en: 'Book Now', fr: 'Réserver maintenant', es: 'Reservar ahora', ru: 'Забронировать', id: 'Pesan Sekarang', ms: 'Tempah Sekarang' })}
+                  {t({ ar: 'احجز الآن', en: 'Book Now' })}
                 </Button>
               </CardContent>
             </Card>
