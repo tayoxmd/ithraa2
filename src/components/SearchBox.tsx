@@ -6,12 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { CalendarIcon, MapPin, Search, Users, Bed } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { format } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 import { ar } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
+import type { DateRange } from "react-day-picker";
 
 interface City {
   id: string;
@@ -19,21 +20,28 @@ interface City {
   name_en: string;
 }
 
-export function SearchBox({ initialValues }: { initialValues?: any } = {}) {
+export function SearchBox({ initialValues, onSearch }: { initialValues?: any, onSearch?: () => void } = {}) {
   const navigate = useNavigate();
   const { t } = useLanguage();
-  const [checkIn, setCheckIn] = useState<Date | undefined>(
-    initialValues?.checkIn ? new Date(initialValues.checkIn) : undefined
-  );
-  const [checkOut, setCheckOut] = useState<Date | undefined>(
-    initialValues?.checkOut ? new Date(initialValues.checkOut) : undefined
-  );
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+    if (initialValues?.checkIn && initialValues?.checkOut) {
+      return {
+        from: new Date(initialValues.checkIn),
+        to: new Date(initialValues.checkOut)
+      };
+    }
+    return undefined;
+  });
   const [guests, setGuests] = useState(initialValues?.guests || "2");
   const [customGuests, setCustomGuests] = useState("");
   const [rooms, setRooms] = useState(initialValues?.rooms || "1");
   const [customRooms, setCustomRooms] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>(initialValues?.city || "");
   const [cities, setCities] = useState<City[]>([]);
+
+  const nights = dateRange?.from && dateRange?.to 
+    ? differenceInDays(dateRange.to, dateRange.from)
+    : 0;
 
   useEffect(() => {
     async function fetchCities() {
@@ -57,7 +65,7 @@ export function SearchBox({ initialValues }: { initialValues?: any } = {}) {
     }
 
     // Validate dates before search
-    if (checkIn && checkOut && checkOut <= checkIn) {
+    if (dateRange?.from && dateRange?.to && dateRange.to <= dateRange.from) {
       toast({
         title: t({ ar: "خطأ في التاريخ", en: "Date Error" }),
         description: t({ ar: "تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول", en: "Check-out date must be after check-in date" }),
@@ -68,15 +76,17 @@ export function SearchBox({ initialValues }: { initialValues?: any } = {}) {
 
     const params = new URLSearchParams();
     params.set('city', selectedCity);
-    if (checkIn) params.set('checkIn', format(checkIn, 'yyyy-MM-dd'));
-    if (checkOut) params.set('checkOut', format(checkOut, 'yyyy-MM-dd'));
+    if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'));
+    if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'));
     params.set('guests', guests === 'custom' ? customGuests : guests);
     params.set('rooms', rooms === 'custom' ? customRooms : rooms);
 
     navigate(`/search?${params.toString()}`);
     
-    // Scroll to top after search
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Call onSearch callback if provided (for scrolling in SearchResults)
+    if (onSearch) {
+      onSearch();
+    }
   };
 
   return (
@@ -102,10 +112,10 @@ export function SearchBox({ initialValues }: { initialValues?: any } = {}) {
             </Select>
           </div>
 
-          {/* Check-in */}
-          <div>
+          {/* Date Range */}
+          <div className="lg:col-span-2">
             <label className="text-sm font-medium text-foreground mb-2 block">
-              {t('تاريخ الوصول', 'Check-in')}
+              {t('تاريخ الوصول والمغادرة', 'Check-in & Check-out')}
             </label>
             <Popover>
               <PopoverTrigger asChild>
@@ -113,63 +123,41 @@ export function SearchBox({ initialValues }: { initialValues?: any } = {}) {
                   variant="outline"
                   className={cn(
                     "w-full h-12 justify-start text-right font-normal bg-background/50",
-                    !checkIn && "text-muted-foreground"
+                    !dateRange && "text-muted-foreground"
                   )}
                 >
                   <CalendarIcon className="ml-2 h-4 w-4" />
-                  {checkIn ? format(checkIn, "PPP", { locale: ar }) : t("اختر التاريخ", "Pick date")}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={checkIn}
-                  onSelect={(date) => {
-                    setCheckIn(date);
-                    // Close the popover after selection
-                    document.body.click();
-                  }}
-                  disabled={(date) => date < new Date()}
-                  initialFocus
-                  locale={ar}
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          {/* Check-out */}
-          <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">
-              {t('تاريخ المغادرة', 'Check-out')}
-            </label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full h-12 justify-start text-right font-normal bg-background/50",
-                    !checkOut && "text-muted-foreground"
+                  {dateRange?.from ? (
+                    dateRange.to ? (
+                      <>
+                        {format(dateRange.from, "PPP", { locale: ar })} - {format(dateRange.to, "PPP", { locale: ar })}
+                      </>
+                    ) : (
+                      format(dateRange.from, "PPP", { locale: ar })
+                    )
+                  ) : (
+                    t("اختر التواريخ", "Pick dates")
                   )}
-                >
-                  <CalendarIcon className="ml-2 h-4 w-4" />
-                  {checkOut ? format(checkOut, "PPP", { locale: ar }) : t("اختر التاريخ", "Pick date")}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={checkOut}
-                  onSelect={(date) => {
-                    setCheckOut(date);
-                    // Close the popover after selection
-                    document.body.click();
-                  }}
-                  initialFocus
-                  locale={ar}
-                  disabled={(date) => checkIn ? date <= checkIn : date < new Date()}
-                  className="pointer-events-auto"
-                />
+                <div>
+                  <Calendar
+                    mode="range"
+                    selected={dateRange}
+                    onSelect={setDateRange}
+                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                    initialFocus
+                    locale={ar}
+                    className="pointer-events-auto"
+                    numberOfMonths={2}
+                  />
+                  {nights > 0 && (
+                    <div className="px-3 pb-3 text-sm text-foreground">
+                      {t('عدد الأيام', 'Number of days')}: <span className="font-semibold">{nights}</span>
+                    </div>
+                  )}
+                </div>
               </PopoverContent>
             </Popover>
           </div>

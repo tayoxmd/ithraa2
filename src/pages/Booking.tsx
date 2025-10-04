@@ -253,8 +253,8 @@ export default function Booking() {
                       <span>{rooms}</span>
                     </div>
                     {calculateTotal().extraGuestsCount > 0 && (
-                      <div className="flex justify-between text-sm text-foreground/80">
-                        <span>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">
                           {calculateTotal().extraGuestsCount === 1 
                             ? t({ ar: 'شخص إضافي واحد', en: 'One extra guest' })
                             : calculateTotal().extraGuestsCount === 2

@@ -150,32 +150,40 @@ export default function HotelDetails() {
                     {t('السعر شامل الضريبة', 'Price includes tax')}
                   </p>
 
-                  {checkIn && checkOut && rooms && (
-                    <div className="pt-2 border-t">
-                      <p className="text-sm font-medium text-foreground">
-                        {(() => {
-                          const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
-                          const roomsCount = parseInt(rooms) || 1;
-                          const guestsCount = parseInt(guests) || 2;
-                          const maxGuestsIncluded = ((hotel as any).max_guests_per_room || 2) * roomsCount;
-                          
-                          const taxRate = (hotel as any).tax_percentage || 15;
-                          const priceWithTax = hotel.price_per_night * (1 + taxRate / 100);
-                          let subtotal = priceWithTax * nights * roomsCount;
-                          
-                          // Add extra guests charge
-                          if (guestsCount > maxGuestsIncluded) {
-                            const extraGuests = guestsCount - maxGuestsIncluded;
-                            const extraGuestPrice = (hotel as any).extra_guest_price || 0;
-                            const extraCharge = extraGuests * extraGuestPrice * nights * (1 + taxRate / 100);
-                            subtotal += extraCharge;
-                          }
-                          
-                          return `${t('الإجمالي', 'Total')}: ${Math.round(subtotal).toLocaleString()} ${t('ر.س', 'SAR')} (${nights} ${t('ليلة', 'nights')} × ${roomsCount} ${t('غرفة', 'rooms')})`;
-                        })()}
-                      </p>
-                    </div>
-                  )}
+                  {checkIn && checkOut && rooms && (() => {
+                    const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
+                    const roomsCount = parseInt(rooms) || 1;
+                    const guestsCount = parseInt(guests) || 2;
+                    const maxGuestsIncluded = ((hotel as any).max_guests_per_room || 2) * roomsCount;
+                    
+                    const taxRate = (hotel as any).tax_percentage || 15;
+                    const priceWithTax = hotel.price_per_night * (1 + taxRate / 100);
+                    let subtotal = priceWithTax * nights * roomsCount;
+                    
+                    let extraGuestCharge = 0;
+                    let extraGuests = 0;
+                    
+                    // Calculate extra guests charge
+                    if (guestsCount > maxGuestsIncluded) {
+                      extraGuests = guestsCount - maxGuestsIncluded;
+                      const extraGuestPrice = (hotel as any).extra_guest_price || 0;
+                      extraGuestCharge = extraGuests * extraGuestPrice * nights * (1 + taxRate / 100);
+                      subtotal += extraGuestCharge;
+                    }
+                    
+                    return (
+                      <div className="pt-2 border-t space-y-1">
+                        {extraGuests > 0 && (
+                          <p className="text-xs text-foreground/70">
+                            +{Math.round(extraGuestCharge)} {t('ريال', 'SAR')} ({extraGuests} {extraGuests === 1 ? t('شخص إضافي', 'extra guest') : t('أشخاص إضافيين', 'extra guests')})
+                          </p>
+                        )}
+                        <p className="text-sm font-medium text-foreground">
+                          {t('الإجمالي', 'Total')}: {Math.round(subtotal).toLocaleString()} {t('ر.س', 'SAR')} ({nights} {t('ليلة', 'nights')} × {roomsCount} {t('غرفة', 'rooms')})
+                        </p>
+                      </div>
+                    );
+                  })()}
                 </div>
 
                 <Button 

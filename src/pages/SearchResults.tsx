@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -30,6 +30,7 @@ export default function SearchResults() {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const searchBoxRef = useRef<HTMLDivElement>(null);
 
   const cityId = searchParams.get('city');
   const checkIn = searchParams.get('checkIn');
@@ -75,7 +76,7 @@ export default function SearchResults() {
       <Header />
       
       <div className="container mx-auto px-4 py-8 pt-24">
-        <div className="mb-6">
+        <div className="mb-6" ref={searchBoxRef}>
           <Collapsible open={isSearchOpen} onOpenChange={setIsSearchOpen}>
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -95,13 +96,19 @@ export default function SearchResults() {
             </div>
             <CollapsibleContent className="mb-8">
               <div className="scale-95 origin-top">
-                <SearchBox initialValues={{ 
-                  city: cityId,
-                  checkIn,
-                  checkOut,
-                  guests,
-                  rooms
-                }} />
+                <SearchBox 
+                  initialValues={{ 
+                    city: cityId,
+                    checkIn,
+                    checkOut,
+                    guests,
+                    rooms
+                  }}
+                  onSearch={() => {
+                    // Scroll to the search box (top of collapsible)
+                    searchBoxRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                  }}
+                />
               </div>
             </CollapsibleContent>
           </Collapsible>
@@ -154,30 +161,40 @@ export default function SearchResults() {
                     <p className="text-xs text-muted-foreground mt-1">
                       {t({ ar: 'السعر شامل الضريبة', en: 'Price includes tax' })}
                     </p>
-                    {checkIn && checkOut && rooms && guests && (
-                      <p className="text-xs text-foreground/80 mt-1 font-medium">
-                        {(() => {
-                          const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
-                          const roomsCount = parseInt(rooms) || 1;
-                          const guestsCount = parseInt(guests) || 2;
-                          const maxGuestsIncluded = ((hotel as any).max_guests_per_room || 2) * roomsCount;
-                          
-                          const taxRate = (hotel as any).tax_percentage || 15;
-                          const priceWithTax = hotel.price_per_night * (1 + taxRate / 100);
-                          let subtotal = priceWithTax * nights * roomsCount;
-                          
-                          // Add extra guests charge
-                          if (guestsCount > maxGuestsIncluded) {
-                            const extraGuests = guestsCount - maxGuestsIncluded;
-                            const extraGuestPrice = (hotel as any).extra_guest_price || 0;
-                            const extraCharge = extraGuests * extraGuestPrice * nights * (1 + taxRate / 100);
-                            subtotal += extraCharge;
-                          }
-                          
-                          return `${t({ ar: 'الإجمالي', en: 'Total' })}: ${Math.round(subtotal).toLocaleString()} ${t({ ar: 'ر.س', en: 'SAR' })} (${nights} ${t({ ar: 'ليلة', en: 'nights' })} × ${roomsCount} ${t({ ar: 'غرفة', en: 'rooms' })})`;
-                        })()}
-                      </p>
-                    )}
+                    {checkIn && checkOut && rooms && guests && (() => {
+                      const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
+                      const roomsCount = parseInt(rooms) || 1;
+                      const guestsCount = parseInt(guests) || 2;
+                      const maxGuestsIncluded = ((hotel as any).max_guests_per_room || 2) * roomsCount;
+                      
+                      const taxRate = (hotel as any).tax_percentage || 15;
+                      const priceWithTax = hotel.price_per_night * (1 + taxRate / 100);
+                      let subtotal = priceWithTax * nights * roomsCount;
+                      
+                      let extraGuestCharge = 0;
+                      let extraGuests = 0;
+                      
+                      // Calculate extra guests charge
+                      if (guestsCount > maxGuestsIncluded) {
+                        extraGuests = guestsCount - maxGuestsIncluded;
+                        const extraGuestPrice = (hotel as any).extra_guest_price || 0;
+                        extraGuestCharge = extraGuests * extraGuestPrice * nights * (1 + taxRate / 100);
+                        subtotal += extraGuestCharge;
+                      }
+                      
+                      return (
+                        <>
+                          {extraGuests > 0 && (
+                            <p className="text-xs text-foreground/70 mt-1">
+                              +{Math.round(extraGuestCharge)} {t({ ar: 'ريال', en: 'SAR' })} ({extraGuests} {extraGuests === 1 ? t({ ar: 'شخص إضافي', en: 'extra guest' }) : t({ ar: 'أشخاص إضافيين', en: 'extra guests' })})
+                            </p>
+                          )}
+                          <p className="text-xs text-foreground/80 mt-1 font-medium">
+                            {t({ ar: 'الإجمالي', en: 'Total' })}: {Math.round(subtotal).toLocaleString()} {t({ ar: 'ر.س', en: 'SAR' })} ({nights} {t({ ar: 'ليلة', en: 'nights' })} × {roomsCount} {t({ ar: 'غرفة', en: 'rooms' })})
+                          </p>
+                        </>
+                      );
+                    })()}
                   </div>
                     <Button 
                       className="btn-luxury"
