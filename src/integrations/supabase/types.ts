@@ -565,6 +565,20 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_site_settings: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          email: string
+          facebook_url: string
+          hotel_room_color: string
+          instagram_url: string
+          owner_room_color: string
+          phone: string
+          tax_percentage: number
+          twitter_url: string
+          whatsapp_number: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

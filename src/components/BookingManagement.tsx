@@ -516,6 +516,57 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     </div>
                   </div>
 
+                  {/* Hotel Confirmation Number Input */}
+                  {booking.hotel_confirmation_number ? (
+                    <div className="mt-3">
+                      <div className="inline-block px-4 py-2 bg-white border-4 border-purple-600 rounded-md">
+                        <span className="text-sm font-semibold text-black">
+                          {t({ ar: "رقم تأكيد الفندق:", en: "Hotel Conf#:" })} {booking.hotel_confirmation_number}
+                        </span>
+                      </div>
+                    </div>
+                  ) : showConfNumberInput === booking.id ? (
+                    <div className="mt-3 flex gap-2">
+                      <Input
+                        value={hotelConfNumber}
+                        onChange={(e) => setHotelConfNumber(e.target.value)}
+                        placeholder={t({ ar: "رقم حجز الفندق", en: "Hotel Confirmation Number" })}
+                        className="max-w-xs"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={async () => {
+                          if (!hotelConfNumber.trim()) return;
+                          try {
+                            const { error } = await supabase
+                              .from('bookings')
+                              .update({ hotel_confirmation_number: hotelConfNumber })
+                              .eq('id', booking.id);
+                            
+                            if (error) throw error;
+                            
+                            toast({
+                              title: t({ ar: "تم التحديث", en: "Updated" }),
+                              description: t({ ar: "تم إضافة رقم تأكيد الفندق", en: "Hotel confirmation number added" }),
+                            });
+                            
+                            setHotelConfNumber("");
+                            setShowConfNumberInput(null);
+                            onUpdate();
+                          } catch (error: any) {
+                            toast({
+                              title: t({ ar: "خطأ", en: "Error" }),
+                              description: error.message,
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                      >
+                        {t({ ar: "إدخال", en: "Submit" })}
+                      </Button>
+                    </div>
+                  ) : null}
+
                   <div className="flex flex-wrap gap-2 pt-4">
                     <Button
                       variant="outline"
@@ -525,6 +576,59 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                       <Edit className="w-4 h-4 ml-1" />
                       {t({ ar: "تعديل", en: "Edit" })}
                     </Button>
+                    {!booking.hotel_confirmation_number && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setShowConfNumberInput(booking.id);
+                          setHotelConfNumber("");
+                        }}
+                      >
+                        <Hotel className="w-4 h-4 ml-1" />
+                        {t({ ar: "رقم الفندق", en: "Hotel Conf#" })}
+                      </Button>
+                    )}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const customerPageUrl = generateCustomerPageUrl(booking.user_id);
+                        downloadBookingPDF({
+                          bookingNumber: booking.booking_number || 0,
+                          hotelConfirmationNumber: booking.hotel_confirmation_number,
+                          guestName: booking.guest_name || booking.profiles?.full_name || '',
+                          clientName: booking.profiles?.full_name || '',
+                          clientEmail: user?.email || '',
+                          clientPhone: booking.profiles?.phone || '',
+                          hotelNameEn: booking.hotels?.name_en || '',
+                          hotelNameAr: booking.hotels?.name_ar || '',
+                          hotelLocation: booking.hotels?.location || '',
+                          hotelLocationUrl: booking.hotels?.location_url,
+                          checkIn: new Date(booking.check_in),
+                          checkOut: new Date(booking.check_out),
+                          nights: Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24)),
+                          rooms: booking.rooms,
+                          guests: booking.guests,
+                          baseGuests: (booking.hotels?.max_guests_per_room || 2) * booking.rooms,
+                          extraGuests: Math.max(0, booking.guests - ((booking.hotels?.max_guests_per_room || 2) * booking.rooms)),
+                          roomType: booking.hotels?.room_type === 'owner_rooms' ? 'Owner Room' : 'Hotel Room',
+                          pricePerNight: booking.hotels?.price_per_night || 0,
+                          subtotal: booking.manual_total || booking.total_amount,
+                          extraGuestCharge: 0,
+                          discountAmount: booking.discount_amount,
+                          netAmount: (booking.manual_total || booking.total_amount) - (booking.discount_amount || 0),
+                          vatAmount: ((booking.manual_total || booking.total_amount) - (booking.discount_amount || 0)) * (booking.hotels?.tax_percentage || 0) / 100,
+                          totalAmount: booking.total_amount,
+                          paymentMethod: booking.payment_method || '',
+                          notes: booking.notes,
+                          customerPageUrl,
+                        });
+                      }}
+                    >
+                      <Download className="w-4 h-4 ml-1" />
+                      {t({ ar: "PDF", en: "PDF" })}
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
@@ -532,6 +636,46 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     >
                       <Share2 className="w-4 h-4 ml-1" />
                       {t({ ar: "مشاركة", en: "Share" })}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        const customerPageUrl = generateCustomerPageUrl(booking.user_id);
+                        sharePDFViaWhatsApp({
+                          bookingNumber: booking.booking_number || 0,
+                          hotelConfirmationNumber: booking.hotel_confirmation_number,
+                          guestName: booking.guest_name || booking.profiles?.full_name || '',
+                          clientName: booking.profiles?.full_name || '',
+                          clientEmail: user?.email || '',
+                          clientPhone: booking.profiles?.phone || '',
+                          hotelNameEn: booking.hotels?.name_en || '',
+                          hotelNameAr: booking.hotels?.name_ar || '',
+                          hotelLocation: booking.hotels?.location || '',
+                          hotelLocationUrl: booking.hotels?.location_url,
+                          checkIn: new Date(booking.check_in),
+                          checkOut: new Date(booking.check_out),
+                          nights: Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24)),
+                          rooms: booking.rooms,
+                          guests: booking.guests,
+                          baseGuests: (booking.hotels?.max_guests_per_room || 2) * booking.rooms,
+                          extraGuests: Math.max(0, booking.guests - ((booking.hotels?.max_guests_per_room || 2) * booking.rooms)),
+                          roomType: booking.hotels?.room_type === 'owner_rooms' ? 'Owner Room' : 'Hotel Room',
+                          pricePerNight: booking.hotels?.price_per_night || 0,
+                          subtotal: booking.manual_total || booking.total_amount,
+                          extraGuestCharge: 0,
+                          discountAmount: booking.discount_amount,
+                          netAmount: (booking.manual_total || booking.total_amount) - (booking.discount_amount || 0),
+                          vatAmount: ((booking.manual_total || booking.total_amount) - (booking.discount_amount || 0)) * (booking.hotels?.tax_percentage || 0) / 100,
+                          totalAmount: booking.total_amount,
+                          paymentMethod: booking.payment_method || '',
+                          notes: booking.notes,
+                          customerPageUrl,
+                        });
+                      }}
+                    >
+                      <FileText className="w-4 h-4 ml-1" />
+                      {t({ ar: "PDF واتساب", en: "PDF WhatsApp" })}
                     </Button>
                     <Button
                       variant="outline"

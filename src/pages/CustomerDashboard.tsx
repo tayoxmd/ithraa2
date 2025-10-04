@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -7,7 +7,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { Home, FileText, User } from "lucide-react";
+import { Home, FileText, User, Download } from "lucide-react";
+import { downloadBookingPDF } from "@/utils/pdfGenerator";
+import { generateCustomerPageUrl, validateCustomerAccess } from "@/utils/customerLinks";
 
 interface Booking {
   id: string;
@@ -17,8 +19,27 @@ interface Booking {
   rooms: number;
   total_amount: number;
   status: string;
+  payment_method: string;
+  guest_name?: string;
+  hotel_confirmation_number?: string;
+  booking_number?: number;
+  discount_amount?: number;
+  manual_total?: number;
+  notes?: string;
+  user_id: string;
   hotels: {
     name_ar: string;
+    name_en: string;
+    location: string;
+    location_url?: string;
+    price_per_night: number;
+    max_guests_per_room: number;
+    tax_percentage: number;
+    room_type?: 'hotel_rooms' | 'owner_rooms';
+  };
+  profiles?: {
+    full_name: string;
+    phone: string;
   };
 }
 
@@ -26,24 +47,37 @@ export default function CustomerDashboard() {
   const { user, loading } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [activeTab, setActiveTab] = useState<'bookings' | 'profile'>('bookings');
 
   useEffect(() => {
-    if (!loading && !user) {
-      navigate('/auth');
-    } else if (user) {
-      fetchBookings();
-    }
-  }, [user, loading, navigate]);
-
-  const fetchBookings = async () => {
-    if (!user) return;
+    const checkAccess = async () => {
+      // Check if accessing via permanent link
+      const requestedUserId = searchParams.get('uid');
+      
+      if (requestedUserId) {
+        const hasAccess = await validateCustomerAccess(requestedUserId);
+        if (!hasAccess) {
+          navigate('/auth');
+          return;
+        }
+        fetchBookings(requestedUserId);
+      } else if (!loading && !user) {
+        navigate('/auth');
+      } else if (user) {
+        fetchBookings(user.id);
+      }
+    };
     
+    checkAccess();
+  }, [user, loading, navigate, searchParams]);
+
+  const fetchBookings = async (userId: string) => {
     const { data } = await supabase
       .from('bookings')
-      .select('*, hotels(name_ar)')
-      .eq('user_id', user.id)
+      .select('*, hotels(name_ar, name_en, location, location_url, price_per_night, max_guests_per_room, tax_percentage, room_type), profiles(full_name, phone)')
+      .eq('user_id', userId)
       .order('created_at', { ascending: false });
     
     if (data) setBookings(data as Booking[]);
@@ -120,11 +154,20 @@ export default function CustomerDashboard() {
               {bookings.map((booking) => (
                 <Card key={booking.id} className="card-luxury">
                   <CardHeader>
-                    <div className="flex justify-between items-start">
+                    <div className="flex justify-between items-start flex-wrap gap-2">
                       <CardTitle>{booking.hotels?.name_ar}</CardTitle>
-                      <Badge className={getStatusColor(booking.status)}>
-                        {getStatusText(booking.status)}
-                      </Badge>
+                      <div className="flex gap-2 flex-wrap">
+                        <Badge className={getStatusColor(booking.status)}>
+                          {getStatusText(booking.status)}
+                        </Badge>
+                        {booking.hotel_confirmation_number && (
+                          <div className="px-3 py-1 bg-white border-4 border-purple-600 rounded-md">
+                            <span className="text-xs font-semibold text-black">
+                              {t({ ar: "رقم تأكيد الفندق:", en: "Hotel Conf#:" })} {booking.hotel_confirmation_number}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -134,7 +177,7 @@ export default function CustomerDashboard() {
                         <span className="font-medium">{format(new Date(booking.check_in), 'yyyy-MM-dd')}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })}</span>
+                        <span className="text-muted-foreground">{t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезد:", id: "Check-out:", ms: "Daftar keluar:" })}</span>
                         <span className="font-medium">{format(new Date(booking.check_out), 'yyyy-MM-dd')}</span>
                       </div>
                       <div className="flex justify-between">
@@ -149,6 +192,48 @@ export default function CustomerDashboard() {
                         <span className="text-muted-foreground">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:", fr: "Montant total:", es: "Monto total:", ru: "Общая сумма:", id: "Jumlah Total:", ms: "Jumlah Keseluruhan:" })}</span>
                         <span className="font-medium">{booking.total_amount} {t({ ar: "ر.س", en: "SAR", fr: "SAR", es: "SAR", ru: "SAR", id: "SAR", ms: "SAR" })}</span>
                       </div>
+                    </div>
+                    <div className="mt-4">
+                      <Button
+                        size="sm"
+                        className="w-full"
+                        onClick={() => {
+                          const customerPageUrl = generateCustomerPageUrl(booking.user_id);
+                          downloadBookingPDF({
+                            bookingNumber: booking.booking_number || 0,
+                            hotelConfirmationNumber: booking.hotel_confirmation_number,
+                            guestName: booking.guest_name || booking.profiles?.full_name || '',
+                            clientName: booking.profiles?.full_name || '',
+                            clientEmail: user?.email || '',
+                            clientPhone: booking.profiles?.phone || '',
+                            hotelNameEn: booking.hotels?.name_en || '',
+                            hotelNameAr: booking.hotels?.name_ar || '',
+                            hotelLocation: booking.hotels?.location || '',
+                            hotelLocationUrl: booking.hotels?.location_url,
+                            checkIn: new Date(booking.check_in),
+                            checkOut: new Date(booking.check_out),
+                            nights: Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24)),
+                            rooms: booking.rooms,
+                            guests: booking.guests,
+                            baseGuests: (booking.hotels?.max_guests_per_room || 2) * booking.rooms,
+                            extraGuests: Math.max(0, booking.guests - ((booking.hotels?.max_guests_per_room || 2) * booking.rooms)),
+                            roomType: booking.hotels?.room_type === 'owner_rooms' ? 'Owner Room' : 'Hotel Room',
+                            pricePerNight: booking.hotels?.price_per_night || 0,
+                            subtotal: booking.manual_total || booking.total_amount,
+                            extraGuestCharge: 0,
+                            discountAmount: booking.discount_amount,
+                            netAmount: (booking.manual_total || booking.total_amount) - (booking.discount_amount || 0),
+                            vatAmount: ((booking.manual_total || booking.total_amount) - (booking.discount_amount || 0)) * (booking.hotels?.tax_percentage || 0) / 100,
+                            totalAmount: booking.total_amount,
+                            paymentMethod: booking.payment_method || '',
+                            notes: booking.notes,
+                            customerPageUrl,
+                          });
+                        }}
+                      >
+                        <Download className="w-4 h-4 mr-2" />
+                        {t({ ar: "تحميل PDF", en: "Download PDF", fr: "Télécharger PDF", es: "Descargar PDF", ru: "Скачать PDF", id: "Unduh PDF", ms: "Muat turun PDF" })}
+                      </Button>
                     </div>
                   </CardContent>
                 </Card>
