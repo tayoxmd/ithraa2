@@ -31,7 +31,7 @@ export default function SiteSettings() {
     phone: '0505731136'
   });
   const [exceptionColors, setExceptionColors] = useState({
-    owner_room_color: '#e0f2fe',
+    owner_room_color: '#87CEEB',
     hotel_room_color: '' as string
   });
 
@@ -63,7 +63,7 @@ export default function SiteSettings() {
           phone: data.phone || '0505731136'
         });
         setExceptionColors({
-          owner_room_color: data.owner_room_color || '#e0f2fe',
+          owner_room_color: data.owner_room_color || '#87CEEB',
           hotel_room_color: data.hotel_room_color || ''
         });
       }

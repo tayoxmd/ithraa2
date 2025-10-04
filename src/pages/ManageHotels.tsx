@@ -63,7 +63,7 @@ export default function ManageHotels() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingHotel, setEditingHotel] = useState<Hotel | null>(null);
   const [selectedResponsiblePersons, setSelectedResponsiblePersons] = useState<string[]>([]);
-  const [highlightColors, setHighlightColors] = useState<{ owner: string; hotel: string | null }>({ owner: '#e0f2fe', hotel: null });
+  const [highlightColors, setHighlightColors] = useState<{ owner: string; hotel: string | null }>({ owner: '#87CEEB', hotel: null });
   const [formData, setFormData] = useState({
     name_ar: "",
     name_en: "",
@@ -144,7 +144,7 @@ export default function ManageHotels() {
       .single();
     if (data) {
       setHighlightColors({ 
-        owner: data.owner_room_color || '#e0f2fe', 
+        owner: data.owner_room_color || '#87CEEB', 
         hotel: data.hotel_room_color || null 
       });
     }
@@ -364,8 +364,8 @@ export default function ManageHotels() {
       active: hotel.active,
       max_guests_per_room: hotel.max_guests_per_room.toString(),
       extra_guest_price: hotel.extra_guest_price.toString(),
-      total_rooms: (hotel as any).total_rooms?.toString() || "10",
-      tax_percentage: (hotel as any).tax_percentage?.toString() || "15",
+      total_rooms: (hotel as any).total_rooms?.toString() || "0",
+      tax_percentage: (hotel as any).tax_percentage?.toString() || "0",
       room_type: hotel.room_type || 'hotel_rooms',
     });
 
@@ -398,8 +398,8 @@ export default function ManageHotels() {
       active: true,
       max_guests_per_room: "2",
       extra_guest_price: "0",
-      total_rooms: "10",
-      tax_percentage: "15",
+      total_rooms: "0",
+      tax_percentage: "0",
       room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
     });
   };
@@ -674,7 +674,8 @@ export default function ManageHotels() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>{t({ ar: "عدد الغرف المتاحة", en: "Total Rooms" })}</Label>
-                  <Input type="number" min="0" value={formData.total_rooms || "10"} onChange={(e) => setFormData({...formData, total_rooms: e.target.value})} />
+                  <Input type="number" min="0" value={formData.total_rooms || "0"} onChange={(e) => setFormData({...formData, total_rooms: e.target.value})} placeholder="0" />
+                  <p className="text-xs text-muted-foreground">{t({ ar: "إذا كان 0 فلا توجد غرف متاحة", en: "If 0, no rooms available" })}</p>
                 </div>
                 <div className="space-y-2">
                   <Label>{t({ ar: "الحد الأقصى للأشخاص في الغرفة", en: "Max Guests per Room" })}</Label>
@@ -691,7 +692,8 @@ export default function ManageHotels() {
                 </div>
                 <div className="space-y-2">
                   <Label>{t({ ar: "نسبة الضريبة %", en: "Tax %" })}</Label>
-                  <Input type="number" min="0" max="100" value={formData.tax_percentage || "15"} onChange={(e) => setFormData({...formData, tax_percentage: e.target.value})} />
+                  <Input type="number" min="0" max="100" step="0.1" value={formData.tax_percentage || "0"} onChange={(e) => setFormData({...formData, tax_percentage: e.target.value})} placeholder="0" />
+                  <p className="text-xs text-muted-foreground">{t({ ar: "إذا كان 0 فلا توجد ضريبة", en: "If 0, no tax" })}</p>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -838,11 +840,13 @@ export default function ManageHotels() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>{t({ ar: "عدد الغرف المتاحة", en: "Total Rooms" })}</Label>
-                  <Input type="number" min="0" value={formData.total_rooms || "10"} onChange={(e) => setFormData({...formData, total_rooms: e.target.value})} />
+                  <Input type="number" min="0" value={formData.total_rooms || "0"} onChange={(e) => setFormData({...formData, total_rooms: e.target.value})} placeholder="0" />
+                  <p className="text-xs text-muted-foreground">{t({ ar: "إذا كان 0 فلا توجد غرف متاحة", en: "If 0, no rooms available" })}</p>
                 </div>
                 <div className="space-y-2">
                   <Label>{t({ ar: "نسبة الضريبة %", en: "Tax %" })}</Label>
-                  <Input type="number" min="0" max="100" value={formData.tax_percentage || "15"} onChange={(e) => setFormData({...formData, tax_percentage: e.target.value})} />
+                  <Input type="number" min="0" max="100" step="0.1" value={formData.tax_percentage || "0"} onChange={(e) => setFormData({...formData, tax_percentage: e.target.value})} placeholder="0" />
+                  <p className="text-xs text-muted-foreground">{t({ ar: "إذا كان 0 فلا توجد ضريبة", en: "If 0, no tax" })}</p>
                 </div>
               </div>
               <div className="space-y-2">

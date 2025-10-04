@@ -51,7 +51,7 @@ interface BookingManagementProps {
 
 export function BookingManagement({ bookings, onUpdate }: BookingManagementProps) {
   const { t, language } = useLanguage();
-  const [highlightColors, setHighlightColors] = useState<{ owner: string; hotel: string | null }>({ owner: '#e0f2fe', hotel: null });
+  const [highlightColors, setHighlightColors] = useState<{ owner: string; hotel: string | null }>({ owner: '#87CEEB', hotel: null });
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
@@ -107,12 +107,18 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
 
   const handleStatusChange = async (bookingId: string, newStatus: 'new' | 'pending' | 'confirmed' | 'cancelled' | 'rejected') => {
     try {
+      // Trim the value to remove any extra quotes or whitespace
+      const cleanStatus = newStatus.toString().trim().replace(/^["']|["']$/g, '');
+      
       const { error } = await supabase
         .from('bookings')
-        .update({ status: newStatus })
+        .update({ status: cleanStatus as 'new' | 'pending' | 'confirmed' | 'cancelled' | 'rejected' })
         .eq('id', bookingId);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Status update error:', error);
+        throw error;
+      }
 
       toast({
         title: t({ ar: "تم التحديث", en: "Updated", fr: "Mis à jour", es: "Actualizado", ru: "Обновлено", id: "Diperbarui", ms: "Dikemas kini" }),
@@ -121,9 +127,10 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
 
       onUpdate();
     } catch (error: any) {
+      console.error('Error updating booking status:', error);
       toast({
         title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
-        description: error.message,
+        description: error.message || t({ ar: "حدث خطأ أثناء التحديث", en: "An error occurred during update" }),
         variant: "destructive",
       });
     }
@@ -167,6 +174,17 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
       const manualTotal = parseFloat(editFormData.manual_total) || 0;
       const finalTotal = manualTotal - discountAmount;
 
+      console.log('Updating booking with data:', {
+        check_in: editFormData.check_in,
+        check_out: editFormData.check_out,
+        guests: parseInt(editFormData.guests),
+        rooms: parseInt(editFormData.rooms),
+        notes: editFormData.notes || null,
+        total_amount: finalTotal,
+        discount_amount: discountAmount,
+        manual_total: manualTotal,
+      });
+
       const { error } = await supabase
         .from('bookings')
         .update({
@@ -181,7 +199,10 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
         })
         .eq('id', selectedBooking.id);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Booking update error:', error);
+        throw error;
+      }
 
       toast({
         title: t({ ar: "تم التحديث", en: "Updated", fr: "Mis à jour", es: "Actualizado", ru: "Обновлено", id: "Diperbarui", ms: "Dikemas kini" }),
@@ -192,9 +213,10 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
       setSelectedBooking(null);
       onUpdate();
     } catch (error: any) {
+      console.error('Error updating booking:', error);
       toast({
         title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
-        description: error.message,
+        description: error.message || t({ ar: "حدث خطأ أثناء تحديث الحجز", en: "An error occurred while updating the booking" }),
         variant: "destructive",
       });
     }
@@ -207,7 +229,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
         .from('site_settings')
         .select('owner_room_color, hotel_room_color')
         .single();
-      setHighlightColors({ owner: data?.owner_room_color || '#e0f2fe', hotel: data?.hotel_room_color || null });
+      setHighlightColors({ owner: data?.owner_room_color || '#87CEEB', hotel: data?.hotel_room_color || null });
     })();
   }, []);
 
