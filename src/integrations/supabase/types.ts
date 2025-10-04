@@ -355,7 +355,7 @@ export type Database = {
           {
             foreignKeyName: "room_availability_booking_id_fkey"
             columns: ["booking_id"]
-            isOneToOne: false
+            isOneToOne: true
             referencedRelation: "bookings"
             referencedColumns: ["id"]
           },
@@ -371,21 +371,39 @@ export type Database = {
       site_settings: {
         Row: {
           created_at: string | null
+          email: string | null
+          facebook_url: string | null
           id: string
+          instagram_url: string | null
+          phone: string | null
           tax_percentage: number
+          twitter_url: string | null
           updated_at: string | null
+          whatsapp_number: string | null
         }
         Insert: {
           created_at?: string | null
+          email?: string | null
+          facebook_url?: string | null
           id?: string
+          instagram_url?: string | null
+          phone?: string | null
           tax_percentage?: number
+          twitter_url?: string | null
           updated_at?: string | null
+          whatsapp_number?: string | null
         }
         Update: {
           created_at?: string | null
+          email?: string | null
+          facebook_url?: string | null
           id?: string
+          instagram_url?: string | null
+          phone?: string | null
           tax_percentage?: number
+          twitter_url?: string | null
           updated_at?: string | null
+          whatsapp_number?: string | null
         }
         Relationships: []
       }

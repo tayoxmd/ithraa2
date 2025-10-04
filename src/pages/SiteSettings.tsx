@@ -22,6 +22,14 @@ export default function SiteSettings() {
   const [fontSize, setFontSize] = useState("16");
   const [taxPercentage, setTaxPercentage] = useState("15");
   const [loadingSettings, setLoadingSettings] = useState(true);
+  const [socialMedia, setSocialMedia] = useState({
+    facebook_url: '',
+    twitter_url: '',
+    instagram_url: '',
+    whatsapp_number: '+966505731136',
+    email: 'support@ithraa.com',
+    phone: '0505731136'
+  });
 
   useEffect(() => {
     if (!loading && userRole !== 'admin') {
@@ -42,6 +50,14 @@ export default function SiteSettings() {
       
       if (data) {
         setTaxPercentage(data.tax_percentage?.toString() || "15");
+        setSocialMedia({
+          facebook_url: data.facebook_url || '',
+          twitter_url: data.twitter_url || '',
+          instagram_url: data.instagram_url || '',
+          whatsapp_number: data.whatsapp_number || '+966505731136',
+          email: data.email || 'support@ithraa.com',
+          phone: data.phone || '0505731136'
+        });
       }
     } catch (error: any) {
       console.error('Error fetching settings:', error);
@@ -89,6 +105,41 @@ export default function SiteSettings() {
       toast({
         title: t({ ar: "تم الحفظ", en: "Saved" }),
         description: t({ ar: "تم حفظ إعدادات الضريبة", en: "Tax settings saved" }),
+      });
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSaveSocialMedia = async () => {
+    try {
+      const { data: existingSettings } = await supabase
+        .from('site_settings')
+        .select('id')
+        .single();
+
+      if (existingSettings) {
+        const { error } = await supabase
+          .from('site_settings')
+          .update(socialMedia)
+          .eq('id', existingSettings.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('site_settings')
+          .insert({ ...socialMedia, tax_percentage: parseFloat(taxPercentage) });
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: t({ ar: "تم الحفظ", en: "Saved" }),
+        description: t({ ar: "تم حفظ إعدادات وسائل التواصل", en: "Social media settings saved" }),
       });
     } catch (error: any) {
       toast({
@@ -232,18 +283,80 @@ export default function SiteSettings() {
             </CardContent>
           </Card>
 
-          {/* Layout Section */}
-          <Card className="card-luxury">
+          {/* Social Media Section */}
+          <Card className="card-luxury lg:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Layout className="w-5 h-5" />
-                {t({ ar: 'تصميم الصفحات', en: 'Page Layouts' })}
+                {t({ ar: 'وسائل التواصل الاجتماعي', en: 'Social Media' })}
               </CardTitle>
             </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-4">
-                {t({ ar: 'قريباً - تخصيص تصاميم الصفحات', en: 'Coming soon - Customize page layouts' })}
-              </p>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>{t({ ar: 'رابط فيسبوك', en: 'Facebook URL' })}</Label>
+                  <Input 
+                    type="url"
+                    value={socialMedia.facebook_url}
+                    onChange={(e) => setSocialMedia({...socialMedia, facebook_url: e.target.value})}
+                    placeholder="https://facebook.com/..."
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label>{t({ ar: 'رابط تويتر', en: 'Twitter URL' })}</Label>
+                  <Input 
+                    type="url"
+                    value={socialMedia.twitter_url}
+                    onChange={(e) => setSocialMedia({...socialMedia, twitter_url: e.target.value})}
+                    placeholder="https://twitter.com/..."
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label>{t({ ar: 'رابط إنستقرام', en: 'Instagram URL' })}</Label>
+                  <Input 
+                    type="url"
+                    value={socialMedia.instagram_url}
+                    onChange={(e) => setSocialMedia({...socialMedia, instagram_url: e.target.value})}
+                    placeholder="https://instagram.com/..."
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label>{t({ ar: 'رقم واتساب', en: 'WhatsApp Number' })}</Label>
+                  <Input 
+                    type="tel"
+                    value={socialMedia.whatsapp_number}
+                    onChange={(e) => setSocialMedia({...socialMedia, whatsapp_number: e.target.value})}
+                    placeholder="+966505731136"
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label>{t({ ar: 'البريد الإلكتروني', en: 'Email' })}</Label>
+                  <Input 
+                    type="email"
+                    value={socialMedia.email}
+                    onChange={(e) => setSocialMedia({...socialMedia, email: e.target.value})}
+                    placeholder="support@ithraa.com"
+                    className="mt-2"
+                  />
+                </div>
+                <div>
+                  <Label>{t({ ar: 'رقم الهاتف', en: 'Phone' })}</Label>
+                  <Input 
+                    type="tel"
+                    value={socialMedia.phone}
+                    onChange={(e) => setSocialMedia({...socialMedia, phone: e.target.value})}
+                    placeholder="0505731136"
+                    className="mt-2"
+                  />
+                </div>
+              </div>
+              <Button onClick={handleSaveSocialMedia} className="w-full btn-luxury">
+                {t({ ar: 'حفظ إعدادات وسائل التواصل', en: 'Save Social Media Settings' })}
+              </Button>
             </CardContent>
           </Card>
         </div>

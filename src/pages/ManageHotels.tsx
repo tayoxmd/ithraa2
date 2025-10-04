@@ -61,6 +61,7 @@ export default function ManageHotels() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingHotel, setEditingHotel] = useState<Hotel | null>(null);
+  const [selectedResponsiblePersons, setSelectedResponsiblePersons] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     name_ar: "",
     name_en: "",
@@ -223,7 +224,7 @@ export default function ManageHotels() {
         return;
       }
 
-      const { error } = await supabase
+      const { data: hotelData, error } = await supabase
         .from('hotels')
         .insert([{
           ...formData,
@@ -234,9 +235,23 @@ export default function ManageHotels() {
           extra_guest_price: parseFloat(formData.extra_guest_price),
           total_rooms: parseInt(formData.total_rooms),
           tax_percentage: parseFloat(formData.tax_percentage),
-        }]);
+        }])
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Add responsible persons
+      if (selectedResponsiblePersons.length > 0 && hotelData) {
+        const responsiblePersonsData = selectedResponsiblePersons.map(personId => ({
+          hotel_id: hotelData.id,
+          employee_id: personId
+        }));
+        
+        await supabase
+          .from('hotel_responsible_persons')
+          .insert(responsiblePersonsData);
+      }
 
       toast({
         title: t({ ar: "تم الإضافة", en: "Added", fr: "Ajouté", es: "Agregado", ru: "Добавлено", id: "Ditambahkan", ms: "Ditambah" }),
@@ -244,6 +259,7 @@ export default function ManageHotels() {
       });
 
       setIsAddDialogOpen(false);
+      setSelectedResponsiblePersons([]);
       resetForm();
       fetchHotels();
     } catch (error: any) {
@@ -274,6 +290,25 @@ export default function ManageHotels() {
 
       if (error) throw error;
 
+      // Update responsible persons
+      // First delete existing ones
+      await supabase
+        .from('hotel_responsible_persons')
+        .delete()
+        .eq('hotel_id', editingHotel.id);
+
+      // Then add new ones
+      if (selectedResponsiblePersons.length > 0) {
+        const responsiblePersonsData = selectedResponsiblePersons.map(personId => ({
+          hotel_id: editingHotel.id,
+          employee_id: personId
+        }));
+        
+        await supabase
+          .from('hotel_responsible_persons')
+          .insert(responsiblePersonsData);
+      }
+
       toast({
         title: t({ ar: "تم التحديث", en: "Updated", fr: "Mis à jour", es: "Actualizado", ru: "Обновлено", id: "Diperbarui", ms: "Dikemas kini" }),
         description: t({ ar: "تم تحديث معلومات الفندق", en: "Hotel information updated", fr: "Informations de l'hôtel mises à jour", es: "Información del hotel actualizada", ru: "Информация об отеле обновлена", id: "Informasi hotel diperbarui", ms: "Maklumat hotel dikemas kini" }),
@@ -281,6 +316,7 @@ export default function ManageHotels() {
 
       setIsEditDialogOpen(false);
       setEditingHotel(null);
+      setSelectedResponsiblePersons([]);
       resetForm();
       fetchHotels();
     } catch (error: any) {
@@ -292,7 +328,7 @@ export default function ManageHotels() {
     }
   };
 
-  const openEditDialog = (hotel: Hotel) => {
+  const openEditDialog = async (hotel: Hotel) => {
     setEditingHotel(hotel);
     setFormData({
       name_ar: hotel.name_ar,
@@ -312,6 +348,17 @@ export default function ManageHotels() {
       total_rooms: (hotel as any).total_rooms?.toString() || "10",
       tax_percentage: (hotel as any).tax_percentage?.toString() || "15",
     });
+
+    // Fetch existing responsible persons
+    const { data: responsiblePersons } = await supabase
+      .from('hotel_responsible_persons')
+      .select('employee_id')
+      .eq('hotel_id', hotel.id);
+
+    if (responsiblePersons) {
+      setSelectedResponsiblePersons(responsiblePersons.map(rp => rp.employee_id));
+    }
+
     setIsEditDialogOpen(true);
   };
 
@@ -635,20 +682,36 @@ export default function ManageHotels() {
                 </div>
                 <div className="space-y-2">
                   <Label>{t({ ar: "المسؤولون عن الفندق", en: "Hotel Managers" })}</Label>
-                  <Select value={formData.contact_person} onValueChange={(value) => setFormData({...formData, contact_person: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t({ ar: "اختر الموظف المسؤول", en: "Select responsible employee" })} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {employees.map(emp => (
-                        <SelectItem key={emp.id} value={emp.id}>
-                          {emp.full_name || emp.id}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <div className="border rounded-md p-3 max-h-40 overflow-y-auto space-y-2">
+                    {employees.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">
+                        {t({ ar: "لا يوجد موظفون متاحون", en: "No employees available" })}
+                      </p>
+                    ) : (
+                      employees.map(emp => (
+                        <div key={emp.id} className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            id={`emp-${emp.id}`}
+                            checked={selectedResponsiblePersons.includes(emp.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedResponsiblePersons([...selectedResponsiblePersons, emp.id]);
+                              } else {
+                                setSelectedResponsiblePersons(selectedResponsiblePersons.filter(id => id !== emp.id));
+                              }
+                            }}
+                            className="rounded border-border"
+                          />
+                          <label htmlFor={`emp-${emp.id}`} className="text-sm cursor-pointer">
+                            {emp.full_name || emp.id}
+                          </label>
+                        </div>
+                      ))
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground">
-                    {t({ ar: "سيتم إرسال الطلبات إلى لوحة التحكم الخاصة بالموظف المحدد", en: "Requests will be sent to the selected employee's dashboard" })}
+                    {t({ ar: "سيتم إرسال الطلبات إلى لوحة التحكم الخاصة بالموظفين المحددين", en: "Requests will be sent to selected employees' dashboards" })}
                   </p>
                 </div>
               </div>
@@ -746,6 +809,40 @@ export default function ManageHotels() {
                   <Label>{t({ ar: "سعر الشخص الإضافي", en: "Extra Guest Price", fr: "Prix par invité supplémentaire", es: "Precio por huésped adicional", ru: "Цена за доп. гостя", id: "Harga Tamu Tambahan", ms: "Harga Tetamu Tambahan" })}</Label>
                   <Input type="number" min="0" value={formData.extra_guest_price} onChange={(e) => setFormData({...formData, extra_guest_price: e.target.value})} />
                 </div>
+              </div>
+              <div className="space-y-2">
+                <Label>{t({ ar: "المسؤولون عن الفندق", en: "Hotel Managers" })}</Label>
+                <div className="border rounded-md p-3 max-h-40 overflow-y-auto space-y-2">
+                  {employees.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      {t({ ar: "لا يوجد موظفون متاحون", en: "No employees available" })}
+                    </p>
+                  ) : (
+                    employees.map(emp => (
+                      <div key={emp.id} className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id={`emp-edit-${emp.id}`}
+                          checked={selectedResponsiblePersons.includes(emp.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedResponsiblePersons([...selectedResponsiblePersons, emp.id]);
+                            } else {
+                              setSelectedResponsiblePersons(selectedResponsiblePersons.filter(id => id !== emp.id));
+                            }
+                          }}
+                          className="rounded border-border"
+                        />
+                        <label htmlFor={`emp-edit-${emp.id}`} className="text-sm cursor-pointer">
+                          {emp.full_name || emp.id}
+                        </label>
+                      </div>
+                    ))
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {t({ ar: "سيتم إرسال الطلبات إلى لوحة التحكم الخاصة بالموظفين المحددين", en: "Requests will be sent to selected employees' dashboards" })}
+                </p>
               </div>
             </div>
             <DialogFooter>
