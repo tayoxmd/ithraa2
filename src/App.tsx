@@ -21,6 +21,7 @@ import NotFound from "./pages/NotFound";
 import SiteSettings from "./pages/SiteSettings";
 import NoResults from "./pages/NoResults";
 import AuditLogs from "./pages/AuditLogs";
+import PDFSettings from "./pages/PDFSettings";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
           <Route path="/profile" element={<Profile />} />
               <Route path="/manage-hotels" element={<ManageHotels />} />
               <Route path="/site-settings" element={<SiteSettings />} />
+              <Route path="/pdf-settings" element={<PDFSettings />} />
               <Route path="/audit-logs" element={<AuditLogs />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="*" element={<NotFound />} />

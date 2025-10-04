@@ -239,6 +239,11 @@ export default function AdminDashboard() {
               onClick={() => navigate('/site-settings')}
             />
             <NavItem 
+              icon={FileText} 
+              label={t({ ar: "إعدادات PDF", en: "PDF Settings" })}
+              onClick={() => navigate('/pdf-settings')}
+            />
+            <NavItem 
               icon={User} 
               label={t({ ar: "الملف الشخصي", en: "Profile" })}
               onClick={() => navigate('/profile')}
@@ -285,19 +290,6 @@ export default function AdminDashboard() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 mb-8">
-              <Card className="card-luxury hover-lift transition-all cursor-pointer" onClick={() => navigate('/audit-logs')}>
-                <CardContent className="pt-6">
-                  <div className="flex items-start justify-between">
-                    <div className="space-y-2">
-                      <p className="text-sm font-medium text-muted-foreground">{t({ ar: "سجل الأحداث", en: "Audit Logs" })}</p>
-                      <p className="text-sm text-muted-foreground">{t({ ar: "عرض جميع الأنشطة والتعديلات", en: "View all activities and changes" })}</p>
-                    </div>
-                    <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600">
-                      <FileText className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
               <StatCard
                 title={t({ ar: "إجمالي الأرباح", en: "Total Profits" })}
                 value={`${stats.totalProfits.toLocaleString()} ${t({ ar: "ر.س", en: "SAR" })}`}

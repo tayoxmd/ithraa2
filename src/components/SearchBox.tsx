@@ -82,6 +82,9 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
     params.set('guests', guests === 'custom' ? customGuests : guests);
     params.set('rooms', rooms === 'custom' ? customRooms : rooms);
 
+    // Close calendar if open
+    setIsCalendarOpen(false);
+
     navigate(`/search?${params.toString()}`);
     
     // Call onSearch callback if provided (for scrolling in SearchResults)

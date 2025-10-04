@@ -353,6 +353,63 @@ export type Database = {
           },
         ]
       }
+      pdf_settings: {
+        Row: {
+          bank_account_number: string | null
+          bank_location: string | null
+          bank_name: string | null
+          cancellation_policy_ar: string | null
+          cancellation_policy_en: string | null
+          company_description_ar: string | null
+          company_description_en: string | null
+          company_logo_url: string | null
+          contact_numbers: Json | null
+          created_at: string | null
+          iban: string | null
+          id: string
+          responsible_persons: Json | null
+          terms_ar: string | null
+          terms_en: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          bank_account_number?: string | null
+          bank_location?: string | null
+          bank_name?: string | null
+          cancellation_policy_ar?: string | null
+          cancellation_policy_en?: string | null
+          company_description_ar?: string | null
+          company_description_en?: string | null
+          company_logo_url?: string | null
+          contact_numbers?: Json | null
+          created_at?: string | null
+          iban?: string | null
+          id?: string
+          responsible_persons?: Json | null
+          terms_ar?: string | null
+          terms_en?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          bank_account_number?: string | null
+          bank_location?: string | null
+          bank_name?: string | null
+          cancellation_policy_ar?: string | null
+          cancellation_policy_en?: string | null
+          company_description_ar?: string | null
+          company_description_en?: string | null
+          company_logo_url?: string | null
+          contact_numbers?: Json | null
+          created_at?: string | null
+          iban?: string | null
+          id?: string
+          responsible_persons?: Json | null
+          terms_ar?: string | null
+          terms_en?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -585,6 +642,15 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      log_audit_event: {
+        Args: {
+          p_action: string
+          p_details?: Json
+          p_entity_id?: string
+          p_entity_type: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
