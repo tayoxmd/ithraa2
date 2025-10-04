@@ -137,6 +137,19 @@ export default function ManageHotels() {
     }
   };
 
+  const fetchHighlightColors = async () => {
+    const { data } = await supabase
+      .from('site_settings')
+      .select('owner_room_color, hotel_room_color')
+      .single();
+    if (data) {
+      setHighlightColors({ 
+        owner: data.owner_room_color || '#e0f2fe', 
+        hotel: data.hotel_room_color || null 
+      });
+    }
+  };
+
   const fetchHotels = async () => {
     try {
       const { data: hotelsData, error } = await supabase

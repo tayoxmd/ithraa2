@@ -149,14 +149,15 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                     initialFocus
                     locale={ar}
                     className="pointer-events-auto"
-                    numberOfMonths={2}
+                    numberOfMonths={1}
                   />
                   <div className="px-3 pb-3 border-t flex items-center justify-between">
                     <span className="text-sm">
                       {t('عدد الأيام', 'Number of days')}: <strong>{numberOfDays}</strong>
                     </span>
                     <Button 
-                      size="sm" 
+                      size="default"
+                      className="min-w-28 h-10 px-6 text-base"
                       onClick={() => setIsCalendarOpen(false)}
                     >
                       {t('موافق', 'OK')}
