@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,8 +11,10 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, Users, Hotel, Mail, MessageCircle, Edit, Share2 } from "lucide-react";
+import { Calendar, Users, Hotel, Mail, MessageCircle, Edit, Share2, FileText, Download } from "lucide-react";
 import { format } from "date-fns";
+import { downloadBookingPDF, sharePDFViaEmail, sharePDFViaWhatsApp } from "@/utils/pdfGenerator";
+import { generateCustomerPageUrl } from "@/utils/customerLinks";
 
 interface Booking {
   id: string;
@@ -28,6 +31,8 @@ interface Booking {
   payment_method: string;
   notes: string | null;
   guest_name?: string;
+  hotel_confirmation_number?: string;
+  booking_number?: number;
   created_at: string;
   discount_amount?: number;
   manual_total?: number;
@@ -39,6 +44,7 @@ interface Booking {
     name_ar: string;
     name_en: string;
     location: string;
+    location_url?: string;
     price_per_night: number;
     max_guests_per_room: number;
     extra_guest_price: number;
@@ -54,9 +60,12 @@ interface BookingManagementProps {
 
 export function BookingManagement({ bookings, onUpdate }: BookingManagementProps) {
   const { t, language } = useLanguage();
+  const { user } = useAuth();
   const [highlightColors, setHighlightColors] = useState<{ owner: string; hotel: string | null }>({ owner: '#87CEEB', hotel: null });
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [hotelConfNumber, setHotelConfNumber] = useState<string>("");
+  const [showConfNumberInput, setShowConfNumberInput] = useState<string | null>(null);
   const [editFormData, setEditFormData] = useState({
     check_in: "",
     check_out: "",

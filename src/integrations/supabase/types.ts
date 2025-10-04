@@ -50,12 +50,14 @@ export type Database = {
       bookings: {
         Row: {
           amount_paid: number | null
+          booking_number: number
           check_in: string
           check_out: string
           created_at: string | null
           discount_amount: number | null
           guest_name: string | null
           guests: number
+          hotel_confirmation_number: string | null
           hotel_id: string
           id: string
           manual_total: number | null
@@ -70,12 +72,14 @@ export type Database = {
         }
         Insert: {
           amount_paid?: number | null
+          booking_number?: number
           check_in: string
           check_out: string
           created_at?: string | null
           discount_amount?: number | null
           guest_name?: string | null
           guests?: number
+          hotel_confirmation_number?: string | null
           hotel_id: string
           id?: string
           manual_total?: number | null
@@ -90,12 +94,14 @@ export type Database = {
         }
         Update: {
           amount_paid?: number | null
+          booking_number?: number
           check_in?: string
           check_out?: string
           created_at?: string | null
           discount_amount?: number | null
           guest_name?: string | null
           guests?: number
+          hotel_confirmation_number?: string | null
           hotel_id?: string
           id?: string
           manual_total?: number | null
