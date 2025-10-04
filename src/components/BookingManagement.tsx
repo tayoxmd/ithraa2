@@ -614,6 +614,15 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                       size="sm"
                       onClick={() => {
                         const customerPageUrl = generateCustomerPageUrl(booking.user_id);
+                        const nights = Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24));
+                        const taxRate = booking.hotels?.tax_percentage || 0;
+                        
+                        // Calculate amounts correctly
+                        // total_amount already includes tax, so we need to reverse calculate
+                        const totalAfterDiscount = (booking.manual_total || booking.total_amount) - (booking.discount_amount || 0);
+                        const subtotalBeforeTax = taxRate > 0 ? totalAfterDiscount / (1 + taxRate / 100) : totalAfterDiscount;
+                        const vatAmount = totalAfterDiscount - subtotalBeforeTax;
+                        
                         downloadBookingPDF({
                           bookingNumber: booking.booking_number || 0,
                           hotelConfirmationNumber: booking.hotel_confirmation_number,
@@ -627,18 +636,18 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                           hotelLocationUrl: booking.hotels?.location_url,
                           checkIn: new Date(booking.check_in),
                           checkOut: new Date(booking.check_out),
-                          nights: Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24)),
+                          nights,
                           rooms: booking.rooms,
                           guests: booking.guests,
                           baseGuests: (booking.hotels?.max_guests_per_room || 2) * booking.rooms,
                           extraGuests: Math.max(0, booking.guests - ((booking.hotels?.max_guests_per_room || 2) * booking.rooms)),
                           roomType: booking.hotels?.room_type === 'owner_rooms' ? 'Owner Room' : 'Hotel Room',
                           pricePerNight: booking.hotels?.price_per_night || 0,
-                          subtotal: booking.manual_total || booking.total_amount,
+                          subtotal: subtotalBeforeTax,
                           extraGuestCharge: 0,
                           discountAmount: booking.discount_amount,
-                          netAmount: (booking.manual_total || booking.total_amount) - (booking.discount_amount || 0),
-                          vatAmount: ((booking.manual_total || booking.total_amount) - (booking.discount_amount || 0)) * (booking.hotels?.tax_percentage || 0) / 100,
+                          netAmount: subtotalBeforeTax - (booking.discount_amount || 0),
+                          vatAmount,
                           totalAmount: booking.total_amount,
                           paymentMethod: booking.payment_method || '',
                           notes: booking.notes,
@@ -662,6 +671,15 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                       size="sm"
                       onClick={() => {
                         const customerPageUrl = generateCustomerPageUrl(booking.user_id);
+                        const nights = Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24));
+                        const taxRate = booking.hotels?.tax_percentage || 0;
+                        
+                        // Calculate amounts correctly
+                        // total_amount already includes tax, so we need to reverse calculate
+                        const totalAfterDiscount = (booking.manual_total || booking.total_amount) - (booking.discount_amount || 0);
+                        const subtotalBeforeTax = taxRate > 0 ? totalAfterDiscount / (1 + taxRate / 100) : totalAfterDiscount;
+                        const vatAmount = totalAfterDiscount - subtotalBeforeTax;
+                        
                         sharePDFViaWhatsApp({
                           bookingNumber: booking.booking_number || 0,
                           hotelConfirmationNumber: booking.hotel_confirmation_number,
@@ -675,18 +693,18 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                           hotelLocationUrl: booking.hotels?.location_url,
                           checkIn: new Date(booking.check_in),
                           checkOut: new Date(booking.check_out),
-                          nights: Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24)),
+                          nights,
                           rooms: booking.rooms,
                           guests: booking.guests,
                           baseGuests: (booking.hotels?.max_guests_per_room || 2) * booking.rooms,
                           extraGuests: Math.max(0, booking.guests - ((booking.hotels?.max_guests_per_room || 2) * booking.rooms)),
                           roomType: booking.hotels?.room_type === 'owner_rooms' ? 'Owner Room' : 'Hotel Room',
                           pricePerNight: booking.hotels?.price_per_night || 0,
-                          subtotal: booking.manual_total || booking.total_amount,
+                          subtotal: subtotalBeforeTax,
                           extraGuestCharge: 0,
                           discountAmount: booking.discount_amount,
-                          netAmount: (booking.manual_total || booking.total_amount) - (booking.discount_amount || 0),
-                          vatAmount: ((booking.manual_total || booking.total_amount) - (booking.discount_amount || 0)) * (booking.hotels?.tax_percentage || 0) / 100,
+                          netAmount: subtotalBeforeTax - (booking.discount_amount || 0),
+                          vatAmount,
                           totalAmount: booking.total_amount,
                           paymentMethod: booking.payment_method || '',
                           notes: booking.notes,

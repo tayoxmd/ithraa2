@@ -219,17 +219,16 @@ export function Header() {
       {/* Fixed Booking Button for Mobile/Tablet - Only show for logged in users */}
       {user && isMobileOrTablet && location.pathname !== '/dashboard' && (
         <div 
-          className={`fixed ${isScrolled ? 'top-24' : 'top-20'} left-0 right-0 z-40 transition-all duration-300 lg:hidden`}
+          className={`fixed ${isScrolled ? 'top-24' : 'top-20'} ${language === 'ar' ? 'right-4' : 'left-4'} z-40 transition-all duration-300 lg:hidden`}
+          style={{ width: '60%', maxWidth: '250px' }}
         >
-          <div className="container mx-auto px-4">
-            <Button
-              onClick={() => navigate('/dashboard')}
-              className="w-full h-14 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all"
-            >
-              <LayoutDashboard className="w-5 h-5 ml-2" />
-              {t({ ar: "الحجوزات ولوحة التحكم", en: "Bookings & Dashboard" })}
-            </Button>
-          </div>
+          <Button
+            onClick={() => navigate('/dashboard')}
+            className="w-full h-12 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all text-sm"
+          >
+            <LayoutDashboard className="w-4 h-4 ml-2" />
+            {t({ ar: "الحجوزات ولوحة التحكم", en: "Bookings & Dashboard" })}
+          </Button>
         </div>
       )}
     </>
