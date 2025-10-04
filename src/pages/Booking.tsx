@@ -54,7 +54,9 @@ export default function Booking() {
 
   useEffect(() => {
     if (!user) {
-      navigate('/auth');
+      // Store the current URL to redirect back after login
+      const redirectUrl = `${location.pathname}${location.search}`;
+      navigate(`/auth?redirect=${encodeURIComponent(redirectUrl)}`);
       return;
     }
     
@@ -70,7 +72,7 @@ export default function Booking() {
       if (data && data.length > 0) setHotel(data[0]);
     }
     fetchHotel();
-  }, [id, user, navigate]);
+  }, [id, user, navigate, location]);
 
   const calculateTotal = () => {
     if (!hotel) return { subtotal: 0, extraGuestCharge: 0, tax: 0, total: 0, extraGuestsCount: 0 };

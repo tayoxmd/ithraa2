@@ -12,6 +12,7 @@ import { authSchema } from "@/lib/validations";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
+  const redirectUrl = searchParams.get('redirect');
   const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'signup');
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,7 +53,11 @@ export default function Auth() {
       }
 
       if (isLogin) {
-        const { error } = await signIn(validationResult.data.email, validationResult.data.password);
+        const { error } = await signIn(
+          validationResult.data.email, 
+          validationResult.data.password,
+          redirectUrl || undefined
+        );
         if (error) {
           toast({
             title: "خطأ في تسجيل الدخول",
@@ -70,7 +75,8 @@ export default function Auth() {
           validationResult.data.email, 
           validationResult.data.password, 
           validationResult.data.fullName || '', 
-          validationResult.data.phone || ''
+          validationResult.data.phone || '',
+          redirectUrl || undefined
         );
         if (error) {
           toast({
@@ -83,7 +89,11 @@ export default function Auth() {
             title: "تم التسجيل بنجاح",
             description: "تم إنشاء حسابك بنجاح",
           });
-          setIsLogin(true);
+          // If there's a redirect URL, user will be redirected after signup
+          // Otherwise, switch to login mode
+          if (!redirectUrl) {
+            setIsLogin(true);
+          }
         }
       }
     } catch (error: any) {

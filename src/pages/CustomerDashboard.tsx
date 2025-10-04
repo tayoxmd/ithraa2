@@ -19,6 +19,8 @@ interface Booking {
   rooms: number;
   total_amount: number;
   status: string;
+  payment_status: 'paid' | 'partially_paid' | 'unpaid';
+  amount_paid: number;
   payment_method: string;
   guest_name?: string;
   hotel_confirmation_number?: string;
@@ -45,7 +47,7 @@ interface Booking {
 
 export default function CustomerDashboard() {
   const { user, loading } = useAuth();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -85,22 +87,52 @@ export default function CustomerDashboard() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'new': return 'bg-status-new';
-      case 'confirmed': return 'bg-status-confirmed';
-      case 'cancelled': return 'bg-status-cancelled';
-      case 'completed': return 'bg-status-completed';
-      default: return 'bg-muted';
+      case 'confirmed':
+        return 'bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400 border-green-500/20';
+      case 'pending':
+        return 'bg-yellow-500/10 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-400 border-yellow-500/20';
+      case 'new':
+        return 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border-blue-500/20';
+      case 'cancelled':
+        return 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400 border-red-500/20';
+      case 'rejected':
+        return 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400 border-red-500/20';
+      default:
+        return 'bg-gray-500/10 text-gray-600 dark:bg-gray-500/20 dark:text-gray-400 border-gray-500/20';
+    }
+  };
+
+  const getPaymentStatusColor = (status: string) => {
+    switch (status) {
+      case 'paid':
+        return 'bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400 border-green-500/20';
+      case 'partially_paid':
+        return 'bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400 border-orange-500/20';
+      case 'unpaid':
+        return 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400 border-red-500/20';
+      default:
+        return 'bg-gray-500/10 text-gray-600 dark:bg-gray-500/20 dark:text-gray-400 border-gray-500/20';
     }
   };
 
   const getStatusText = (status: string) => {
-    const statusMap = {
-      new: { ar: 'جديد', en: 'New', fr: 'Nouveau', es: 'Nuevo', ru: 'Новый', id: 'Baru', ms: 'Baru' },
-      confirmed: { ar: 'مؤكد', en: 'Confirmed', fr: 'Confirmé', es: 'Confirmado', ru: 'Подтверждено', id: 'Dikonfirmasi', ms: 'Disahkan' },
-      cancelled: { ar: 'ملغي', en: 'Cancelled', fr: 'Annulé', es: 'Cancelado', ru: 'Отменено', id: 'Dibatalkan', ms: 'Dibatalkan' },
-      completed: { ar: 'مكتمل', en: 'Completed', fr: 'Terminé', es: 'Completado', ru: 'Завершено', id: 'Selesai', ms: 'Selesai' }
+    const statusMap: { [key: string]: { ar: string; en: string } } = {
+      'new': { ar: 'جديد', en: 'New' },
+      'confirmed': { ar: 'مؤكد', en: 'Confirmed' },
+      'pending': { ar: 'قيد المعالجة', en: 'Pending' },
+      'cancelled': { ar: 'ملغي', en: 'Cancelled' },
+      'rejected': { ar: 'مرفوض', en: 'Rejected' },
     };
-    return t(statusMap[status as keyof typeof statusMap] || { ar: status, en: status, fr: status, es: status, ru: status, id: status, ms: status });
+    return statusMap[status] || { ar: status, en: status };
+  };
+
+  const getPaymentStatusText = (status: string) => {
+    const statusMap: { [key: string]: { ar: string; en: string } } = {
+      'paid': { ar: 'مدفوع', en: 'Paid' },
+      'partially_paid': { ar: 'مدفوع جزئياً', en: 'Partially Paid' },
+      'unpaid': { ar: 'غير مدفوع', en: 'Unpaid' },
+    };
+    return statusMap[status] || { ar: status, en: status };
   };
 
   if (loading) {
@@ -154,21 +186,28 @@ export default function CustomerDashboard() {
               {bookings.map((booking) => (
                 <Card key={booking.id} className="card-luxury">
                   <CardHeader>
-                    <div className="flex justify-between items-start flex-wrap gap-2">
-                      <CardTitle>{booking.hotels?.name_ar}</CardTitle>
-                      <div className="flex gap-2 flex-wrap">
-                        <Badge className={getStatusColor(booking.status)}>
-                          {getStatusText(booking.status)}
+                    <div className="flex justify-between items-start flex-wrap gap-3">
+                      <CardTitle className="text-lg sm:text-xl flex-1 min-w-0">
+                        {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
+                      </CardTitle>
+                      <div className="flex gap-2 flex-wrap items-center">
+                        <Badge className={`${getStatusColor(booking.status)} px-3 py-1.5 min-w-[100px] justify-center border text-xs sm:text-sm`}>
+                          {language === 'ar' ? getStatusText(booking.status).ar : getStatusText(booking.status).en}
                         </Badge>
-                        {booking.hotel_confirmation_number && (
-                          <div className="px-3 py-1 bg-white border-4 border-purple-600 rounded-md">
-                            <span className="text-xs font-semibold text-black">
-                              {t({ ar: "رقم تأكيد الفندق:", en: "Hotel Conf#:" })} {booking.hotel_confirmation_number}
-                            </span>
-                          </div>
-                        )}
+                        <Badge className={`${getPaymentStatusColor(booking.payment_status)} px-3 py-1.5 min-w-[100px] justify-center border text-xs sm:text-sm`}>
+                          {language === 'ar' ? getPaymentStatusText(booking.payment_status).ar : getPaymentStatusText(booking.payment_status).en}
+                        </Badge>
                       </div>
                     </div>
+                    {booking.hotel_confirmation_number && (
+                      <div className="mt-3">
+                        <div className="inline-block px-3 py-1.5 bg-white border-2 border-purple-600 rounded-md">
+                          <span className="text-xs font-semibold text-black">
+                            {t({ ar: "رقم حجز الفندق:", en: "Hotel Booking#:" })} {booking.hotel_confirmation_number}
+                          </span>
+                        </div>
+                      </div>
+                    )}
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-2">

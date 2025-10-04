@@ -7,8 +7,8 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
-  signUp: (email: string, password: string, fullName: string, phone: string) => Promise<{ error: any }>;
-  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string, phone: string, redirectUrl?: string) => Promise<{ error: any }>;
+  signIn: (email: string, password: string, redirectUrl?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   userRole: string | null;
 }
@@ -64,31 +64,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signUp = async (email: string, password: string, fullName: string, phone: string) => {
-    const redirectUrl = `${window.location.origin}/`;
+  const signUp = async (email: string, password: string, fullName: string, phone: string, redirectUrl?: string) => {
+    const emailRedirectUrl = `${window.location.origin}/`;
     
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
+        emailRedirectTo: emailRedirectUrl,
         data: {
           full_name: fullName,
           phone: phone
         }
       }
     });
+    
+    if (!error && redirectUrl) {
+      navigate(redirectUrl);
+    }
+    
     return { error };
   };
 
-  const signIn = async (email: string, password: string) => {
+  const signIn = async (email: string, password: string, redirectUrl?: string) => {
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     
     if (!error) {
-      navigate('/');
+      // Redirect to the stored URL or default to homepage
+      navigate(redirectUrl || '/');
     }
     
     return { error };

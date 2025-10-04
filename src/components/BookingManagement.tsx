@@ -163,9 +163,18 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
 
   const handlePaymentStatusChange = async (bookingId: string, newPaymentStatus: 'paid' | 'partially_paid' | 'unpaid') => {
     try {
+      // Get the booking to update amount_paid if status is 'paid'
+      const booking = bookings.find(b => b.id === bookingId);
+      const updateData: any = { payment_status: newPaymentStatus };
+      
+      // If status is 'paid', set amount_paid to total_amount
+      if (newPaymentStatus === 'paid' && booking) {
+        updateData.amount_paid = booking.total_amount;
+      }
+      
       const { error } = await supabase
         .from('bookings')
-        .update({ payment_status: newPaymentStatus })
+        .update(updateData)
         .eq('id', bookingId);
 
       if (error) throw error;
@@ -479,7 +488,9 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     <>
                       <div className="text-sm">
                         <span className="font-semibold">{t({ ar: "المبلغ المدفوع:", en: "Amount Paid:" })}</span>
-                        <span className="text-green-600 font-bold ml-2">{booking.amount_paid} {t({ ar: "ر.س", en: "SAR" })}</span>
+                        <span className={`font-bold ml-2 ${booking.payment_status === 'paid' ? 'text-green-600' : ''}`}>
+                          {booking.amount_paid} {t({ ar: "ر.س", en: "SAR" })}
+                        </span>
                       </div>
                       {booking.payment_status === 'partially_paid' && (
                         <div className="text-sm">
@@ -516,56 +527,78 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     </div>
                   </div>
 
-                  {/* Hotel Confirmation Number Input */}
-                  {booking.hotel_confirmation_number ? (
-                    <div className="mt-3">
-                      <div className="inline-block px-4 py-2 bg-white border-4 border-purple-600 rounded-md">
-                        <span className="text-sm font-semibold text-black">
-                          {t({ ar: "رقم تأكيد الفندق:", en: "Hotel Conf#:" })} {booking.hotel_confirmation_number}
-                        </span>
-                      </div>
-                    </div>
-                  ) : showConfNumberInput === booking.id ? (
-                    <div className="mt-3 flex gap-2">
-                      <Input
-                        value={hotelConfNumber}
-                        onChange={(e) => setHotelConfNumber(e.target.value)}
-                        placeholder={t({ ar: "رقم حجز الفندق", en: "Hotel Confirmation Number" })}
-                        className="max-w-xs"
-                      />
-                      <Button
-                        size="sm"
-                        onClick={async () => {
-                          if (!hotelConfNumber.trim()) return;
-                          try {
-                            const { error } = await supabase
-                              .from('bookings')
-                              .update({ hotel_confirmation_number: hotelConfNumber })
-                              .eq('id', booking.id);
-                            
-                            if (error) throw error;
-                            
-                            toast({
-                              title: t({ ar: "تم التحديث", en: "Updated" }),
-                              description: t({ ar: "تم إضافة رقم تأكيد الفندق", en: "Hotel confirmation number added" }),
-                            });
-                            
-                            setHotelConfNumber("");
+                  {/* Hotel Confirmation Number - Editable */}
+                  <div className="mt-3">
+                    {showConfNumberInput === booking.id ? (
+                      <div className="flex gap-2 flex-wrap">
+                        <Input
+                          value={hotelConfNumber}
+                          onChange={(e) => setHotelConfNumber(e.target.value)}
+                          placeholder={t({ ar: "رقم حجز الفندق", en: "Hotel Booking Number" })}
+                          className="max-w-xs"
+                        />
+                        <Button
+                          size="sm"
+                          onClick={async () => {
+                            try {
+                              const { error } = await supabase
+                                .from('bookings')
+                                .update({ hotel_confirmation_number: hotelConfNumber || null })
+                                .eq('id', booking.id);
+                              
+                              if (error) throw error;
+                              
+                              toast({
+                                title: t({ ar: "تم التحديث", en: "Updated" }),
+                                description: t({ ar: "تم تحديث رقم حجز الفندق", en: "Hotel booking number updated" }),
+                              });
+                              
+                              setHotelConfNumber("");
+                              setShowConfNumberInput(null);
+                              onUpdate();
+                            } catch (error: any) {
+                              toast({
+                                title: t({ ar: "خطأ", en: "Error" }),
+                                description: error.message,
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          {t({ ar: "حفظ", en: "Save" })}
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
                             setShowConfNumberInput(null);
-                            onUpdate();
-                          } catch (error: any) {
-                            toast({
-                              title: t({ ar: "خطأ", en: "Error" }),
-                              description: error.message,
-                              variant: "destructive",
-                            });
-                          }
-                        }}
-                      >
-                        {t({ ar: "إدخال", en: "Submit" })}
-                      </Button>
-                    </div>
-                  ) : null}
+                            setHotelConfNumber("");
+                          }}
+                        >
+                          {t({ ar: "إلغاء", en: "Cancel" })}
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2">
+                        <div className="inline-block px-4 py-2 bg-white border-4 border-purple-600 rounded-md">
+                          <span className="text-sm font-semibold text-black">
+                            {t({ ar: "رقم حجز الفندق:", en: "Hotel Booking#:" })} {booking.hotel_confirmation_number || t({ ar: "غير متوفر", en: "N/A" })}
+                          </span>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => {
+                            setHotelConfNumber(booking.hotel_confirmation_number || '');
+                            setShowConfNumberInput(booking.id);
+                          }}
+                        >
+                          <Edit className="w-4 h-4 ml-1" />
+                          {t({ ar: "تعديل", en: "Edit" })}
+                        </Button>
+                      </div>
+                    )}
+                  </div>
 
                   <div className="flex flex-wrap gap-2 pt-4">
                     <Button
@@ -576,19 +609,6 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                       <Edit className="w-4 h-4 ml-1" />
                       {t({ ar: "تعديل", en: "Edit" })}
                     </Button>
-                    {!booking.hotel_confirmation_number && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setShowConfNumberInput(booking.id);
-                          setHotelConfNumber("");
-                        }}
-                      >
-                        <Hotel className="w-4 h-4 ml-1" />
-                        {t({ ar: "رقم الفندق", en: "Hotel Conf#" })}
-                      </Button>
-                    )}
                     <Button
                       variant="outline"
                       size="sm"
