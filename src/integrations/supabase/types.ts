@@ -514,13 +514,19 @@ export type Database = {
           created_at: string
           description_ar: string
           description_en: string
+          extra_guest_price: number
           id: string
           images: Json
           location: string
+          location_url: string
+          max_guests_per_room: number
           name_ar: string
           name_en: string
           price_per_night: number
           rating: number
+          room_type: Database["public"]["Enums"]["room_type"]
+          tax_percentage: number
+          total_rooms: number
           updated_at: string
         }[]
       }
@@ -534,13 +540,19 @@ export type Database = {
           created_at: string
           description_ar: string
           description_en: string
+          extra_guest_price: number
           id: string
           images: Json
           location: string
+          location_url: string
+          max_guests_per_room: number
           name_ar: string
           name_en: string
           price_per_night: number
           rating: number
+          room_type: Database["public"]["Enums"]["room_type"]
+          tax_percentage: number
+          total_rooms: number
           updated_at: string
         }[]
       }
