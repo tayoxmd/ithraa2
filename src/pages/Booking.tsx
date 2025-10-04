@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -24,6 +25,7 @@ const paymentMethods = [
   { id: 'stc-pay', name: 'STC Pay', nameEn: 'STC Pay' },
   { id: 'google-pay', name: 'Google Pay', nameEn: 'Google Pay' },
   { id: 'mada', name: 'مدى', nameEn: 'Mada' },
+  { id: 'mada-pay', name: 'تطبيق مدى', nameEn: 'Mada Pay' },
   { id: 'visa', name: 'فيزا', nameEn: 'Visa' },
   { id: 'mastercard', name: 'ماستر كارد', nameEn: 'Mastercard' },
   { id: 'bank-transfer', name: 'تحويل بنكي', nameEn: 'Bank Transfer' },
@@ -46,6 +48,8 @@ export default function Booking() {
   
   const [paymentMethod, setPaymentMethod] = useState("");
   const [notes, setNotes] = useState("");
+  const [guestName, setGuestName] = useState("");
+  const [useCustomerName, setUseCustomerName] = useState(false);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -119,6 +123,15 @@ export default function Booking() {
       return;
     }
     
+    if (!guestName.trim()) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
+        description: t({ ar: "يرجى إدخال اسم الضيف", en: "Please enter guest name", fr: "Veuillez entrer le nom de l'invité", es: "Por favor ingrese el nombre del huésped", ru: "Пожалуйста, введите имя гостя", id: "Silakan masukkan nama tamu", ms: "Sila masukkan nama tetamu" }),
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (!paymentMethod) {
       toast({
         title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
@@ -132,6 +145,11 @@ export default function Booking() {
 
     const totalData = calculateTotal();
     
+    // Format guest name: uppercase if English, keep as is if Arabic
+    const formattedGuestName = /^[a-zA-Z\s]+$/.test(guestName.trim()) 
+      ? guestName.trim().toUpperCase() 
+      : guestName.trim();
+    
     const { error } = await supabase
       .from('bookings')
       .insert([{
@@ -144,6 +162,7 @@ export default function Booking() {
         total_amount: totalData.total,
         payment_method: paymentMethod,
         notes: notes || null,
+        guest_name: formattedGuestName,
         status: 'new' as const,
         payment_status: 'unpaid',
         amount_paid: 0,
@@ -258,6 +277,18 @@ export default function Booking() {
                       <span className="text-muted-foreground">{t({ ar: 'عدد الغرف', en: 'Rooms' })}</span>
                       <span>{rooms}</span>
                     </div>
+                    <div className="flex justify-between text-sm">
+                      <span className="text-muted-foreground">{t({ ar: 'أساسي', en: 'Base guests' })}</span>
+                      <span>
+                        {(hotel.max_guests_per_room || 2) * parseInt(rooms)}{' '}
+                        {((hotel.max_guests_per_room || 2) * parseInt(rooms)) === 1 
+                          ? t({ ar: 'شخص', en: 'person' })
+                          : ((hotel.max_guests_per_room || 2) * parseInt(rooms)) === 2
+                          ? t({ ar: 'شخصان', en: 'persons' })
+                          : t({ ar: 'أشخاص', en: 'persons' })
+                        }
+                      </span>
+                    </div>
                     {calculateTotal().extraGuestsCount > 0 && (
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">
@@ -273,12 +304,57 @@ export default function Booking() {
                     )}
                     <div className="flex justify-between font-bold text-lg pt-2 border-t">
                       <span>{t({ ar: 'الإجمالي', en: 'Total' })}</span>
-                      <span className="text-primary">
-                        {Math.round(calculateTotal().total)} {t({ ar: 'ر.س', en: 'SAR' })}
-                        <span className="text-[10px] font-normal text-muted-foreground mr-1">{t({ ar: 'شامل الضريبة', en: 'incl. tax' })}</span>
-                      </span>
+                      <div className="flex flex-col items-end">
+                        <span className="text-primary">
+                          {Math.round(calculateTotal().total)} {t({ ar: 'ر.س', en: 'SAR' })}
+                        </span>
+                        <span className="text-[10px] font-normal text-muted-foreground">{t({ ar: 'شامل الضريبة', en: 'incl. tax' })}</span>
+                      </div>
                     </div>
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Guest Name */}
+              <Card className="card-luxury">
+                <CardHeader>
+                  <CardTitle>{t({ ar: 'اسم الضيف', en: 'Guest Name' })}</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="use-customer-name"
+                      checked={useCustomerName}
+                      onChange={(e) => {
+                        setUseCustomerName(e.target.checked);
+                        if (e.target.checked && user) {
+                          // Get customer name from profile
+                          supabase
+                            .from('profiles')
+                            .select('full_name')
+                            .eq('id', user.id)
+                            .single()
+                            .then(({ data }) => {
+                              if (data?.full_name) {
+                                setGuestName(data.full_name);
+                              }
+                            });
+                        }
+                      }}
+                      className="w-4 h-4"
+                    />
+                    <label htmlFor="use-customer-name" className="text-sm text-muted-foreground cursor-pointer">
+                      {t({ ar: 'هل اسم العميل هو نفسه اسم الضيف؟', en: 'Is the customer name the same as the guest name?' })}
+                    </label>
+                  </div>
+                  <Input
+                    value={guestName}
+                    onChange={(e) => setGuestName(e.target.value)}
+                    placeholder={t({ ar: 'أدخل اسم الضيف', en: 'Enter guest name' })}
+                    required
+                    disabled={useCustomerName}
+                  />
                 </CardContent>
               </Card>
 

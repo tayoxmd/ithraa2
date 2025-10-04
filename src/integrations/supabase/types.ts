@@ -54,6 +54,7 @@ export type Database = {
           check_out: string
           created_at: string | null
           discount_amount: number | null
+          guest_name: string | null
           guests: number
           hotel_id: string
           id: string
@@ -73,6 +74,7 @@ export type Database = {
           check_out: string
           created_at?: string | null
           discount_amount?: number | null
+          guest_name?: string | null
           guests?: number
           hotel_id: string
           id?: string
@@ -92,6 +94,7 @@ export type Database = {
           check_out?: string
           created_at?: string | null
           discount_amount?: number | null
+          guest_name?: string | null
           guests?: number
           hotel_id?: string
           id?: string

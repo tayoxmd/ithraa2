@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, Users, Hotel, Mail, MessageCircle, Edit } from "lucide-react";
+import { Calendar, Users, Hotel, Mail, MessageCircle, Edit, Share2 } from "lucide-react";
 import { format } from "date-fns";
 
 interface Booking {
@@ -27,6 +27,7 @@ interface Booking {
   amount_paid: number;
   payment_method: string;
   notes: string | null;
+  guest_name?: string;
   created_at: string;
   discount_amount?: number;
   manual_total?: number;
@@ -269,6 +270,48 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     })();
   }, []);
 
+  const shareGeneral = async (booking: Booking) => {
+    const hotelName = language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en;
+    const statusText = t(statusLabels[booking.status]);
+    const paymentStatusText = t(paymentStatusLabels[booking.payment_status]);
+    
+    let paymentInfo = '';
+    if (booking.payment_status === 'partially_paid') {
+      const remaining = booking.total_amount - booking.amount_paid;
+      paymentInfo = `\n${t({ ar: "المبلغ المدفوع:", en: "Amount Paid:" })} ${booking.amount_paid} ${t({ ar: "ر.س", en: "SAR" })}\n${t({ ar: "المبلغ المتبقي:", en: "Remaining Amount:" })} ${remaining} ${t({ ar: "ر.س", en: "SAR" })}`;
+    }
+    
+    const message = `${t({ ar: "تفاصيل الحجز", en: "Booking Details" })}
+
+${t({ ar: "الفندق:", en: "Hotel:" })} ${hotelName}
+${t({ ar: "الموقع:", en: "Location:" })} ${booking.hotels?.location}
+${booking.guest_name ? `${t({ ar: "اسم الضيف:", en: "Guest Name:" })} ${booking.guest_name}\n` : ''}${t({ ar: "تاريخ الوصول:", en: "Check-in:" })} ${format(new Date(booking.check_in), "dd/MM/yyyy")}
+${t({ ar: "تاريخ المغادرة:", en: "Check-out:" })} ${format(new Date(booking.check_out), "dd/MM/yyyy")}
+${t({ ar: "عدد النزلاء:", en: "Guests:" })} ${booking.guests}
+${t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })} ${booking.total_amount} ${t({ ar: "ر.س", en: "SAR" })}
+${t({ ar: "الحالة:", en: "Status:" })} ${statusText}
+${t({ ar: "حالة الدفع:", en: "Payment Status:" })} ${paymentStatusText}${paymentInfo}
+${t({ ar: "طريقة الدفع:", en: "Payment Method:" })} ${booking.payment_method}`;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: t({ ar: "تفاصيل الحجز", en: "Booking Details" }),
+          text: message.trim(),
+        });
+      } catch (error) {
+        console.log('Share cancelled or failed', error);
+      }
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      navigator.clipboard.writeText(message.trim());
+      toast({
+        title: t({ ar: "تم النسخ", en: "Copied" }),
+        description: t({ ar: "تم نسخ التفاصيل إلى الحافظة", en: "Details copied to clipboard" }),
+      });
+    }
+  };
+
   const shareViaWhatsApp = (booking: Booking) => {
     const hotelName = language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en;
     const statusText = t(statusLabels[booking.status]);
@@ -285,7 +328,7 @@ ${t({ ar: "تفاصيل الحجز", en: "Booking Details" })}
 
 ${t({ ar: "الفندق:", en: "Hotel:" })} ${hotelName}
 ${t({ ar: "الموقع:", en: "Location:" })} ${booking.hotels?.location}
-${t({ ar: "تاريخ الوصول:", en: "Check-in:" })} ${format(new Date(booking.check_in), "dd/MM/yyyy")}
+${booking.guest_name ? `${t({ ar: "اسم الضيف:", en: "Guest Name:" })} ${booking.guest_name}\n` : ''}${t({ ar: "تاريخ الوصول:", en: "Check-in:" })} ${format(new Date(booking.check_in), "dd/MM/yyyy")}
 ${t({ ar: "تاريخ المغادرة:", en: "Check-out:" })} ${format(new Date(booking.check_out), "dd/MM/yyyy")}
 ${t({ ar: "عدد النزلاء:", en: "Guests:" })} ${booking.guests}
 ${t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })} ${booking.total_amount} ${t({ ar: "ر.س", en: "SAR" })}
@@ -317,7 +360,7 @@ ${t({ ar: "تفاصيل الحجز", en: "Booking Details" })}
 
 ${t({ ar: "الفندق:", en: "Hotel:" })} ${hotelName}
 ${t({ ar: "الموقع:", en: "Location:" })} ${booking.hotels?.location}
-${t({ ar: "تاريخ الوصول:", en: "Check-in:" })} ${format(new Date(booking.check_in), "dd/MM/yyyy")}
+${booking.guest_name ? `${t({ ar: "اسم الضيف:", en: "Guest Name:" })} ${booking.guest_name}\n` : ''}${t({ ar: "تاريخ الوصول:", en: "Check-in:" })} ${format(new Date(booking.check_in), "dd/MM/yyyy")}
 ${t({ ar: "تاريخ المغادرة:", en: "Check-out:" })} ${format(new Date(booking.check_out), "dd/MM/yyyy")}
 ${t({ ar: "عدد النزلاء:", en: "Guests:" })} ${booking.guests}
 ${t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })} ${booking.total_amount} ${t({ ar: "ر.س", en: "SAR" })}
@@ -363,34 +406,36 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                   </span>
                 </div>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Select
-                    value={booking.status}
-                    onValueChange={(value) => handleStatusChange(booking.id, value as any)}
-                  >
-                    <SelectTrigger className={`w-[140px] h-8 ${statusColors[booking.status]}`}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="new">{t(statusLabels.new)}</SelectItem>
-                      <SelectItem value="pending">{t(statusLabels.pending)}</SelectItem>
-                      <SelectItem value="confirmed">{t(statusLabels.confirmed)}</SelectItem>
-                      <SelectItem value="cancelled">{t(statusLabels.cancelled)}</SelectItem>
-                      <SelectItem value="rejected">{t(statusLabels.rejected)}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    value={booking.payment_status}
-                    onValueChange={(value) => handlePaymentStatusChange(booking.id, value as any)}
-                  >
-                    <SelectTrigger className={`w-[160px] h-8 ${paymentStatusColors[booking.payment_status]}`}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="paid">{t(paymentStatusLabels.paid)}</SelectItem>
-                      <SelectItem value="partially_paid">{t(paymentStatusLabels.partially_paid)}</SelectItem>
-                      <SelectItem value="unpaid">{t(paymentStatusLabels.unpaid)}</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <Select
+                      value={booking.status}
+                      onValueChange={(value) => handleStatusChange(booking.id, value as any)}
+                    >
+                      <SelectTrigger className={`w-[120px] sm:w-[140px] h-8 ${statusColors[booking.status]}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="new">{t(statusLabels.new)}</SelectItem>
+                        <SelectItem value="pending">{t(statusLabels.pending)}</SelectItem>
+                        <SelectItem value="confirmed">{t(statusLabels.confirmed)}</SelectItem>
+                        <SelectItem value="cancelled">{t(statusLabels.cancelled)}</SelectItem>
+                        <SelectItem value="rejected">{t(statusLabels.rejected)}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      value={booking.payment_status}
+                      onValueChange={(value) => handlePaymentStatusChange(booking.id, value as any)}
+                    >
+                      <SelectTrigger className={`w-[140px] sm:w-[160px] h-8 ${paymentStatusColors[booking.payment_status]}`}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="paid">{t(paymentStatusLabels.paid)}</SelectItem>
+                        <SelectItem value="partially_paid">{t(paymentStatusLabels.partially_paid)}</SelectItem>
+                        <SelectItem value="unpaid">{t(paymentStatusLabels.unpaid)}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
               </CardTitle>
             </CardHeader>
@@ -470,6 +515,14 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     >
                       <Edit className="w-4 h-4 ml-1" />
                       {t({ ar: "تعديل", en: "Edit" })}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => shareGeneral(booking)}
+                    >
+                      <Share2 className="w-4 h-4 ml-1" />
+                      {t({ ar: "مشاركة", en: "Share" })}
                     </Button>
                     <Button
                       variant="outline"
