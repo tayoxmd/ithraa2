@@ -843,7 +843,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
               />
             </div>
             <div className="space-y-2">
-              <Label className="font-semibold">{t({ ar: "الإجمالي بعد الخصم", en: "Total After Discount" })}</Label>
+              <Label className="font-semibold">{t({ ar: "الإجمالي بعد الخصم (شامل الضريبة)", en: "Total After Discount (Including Tax)" })}</Label>
               <div className="text-lg font-bold text-primary p-2 bg-muted rounded-md">
                 {(parseFloat(editFormData.manual_total || "0") - parseFloat(editFormData.discount_amount || "0")).toFixed(2)} {t({ ar: "ر.س", en: "SAR" })}
               </div>

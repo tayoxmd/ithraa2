@@ -168,7 +168,7 @@ export default function AdminDashboard() {
   }
 
   const StatCard = ({ title, value, icon: Icon, colorClass }: any) => (
-    <Card className="card-luxury hover-lift transition-all">
+    <Card className="card-luxury hover-lift transition-all rounded-md">
       <CardContent className="pt-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
               <h3 className="text-2xl lg:text-3xl font-bold">{value}</h3>
             </div>
           </div>
-          <div className={`p-3 rounded-xl ${colorClass}`}>
+          <div className={`p-3 rounded-md ${colorClass}`}>
             <Icon className="w-6 h-6 text-white" />
           </div>
         </div>
@@ -266,26 +266,102 @@ export default function AdminDashboard() {
 
             {/* Quick Actions - Mobile Only */}
             <div className="lg:hidden grid grid-cols-2 gap-3 mb-6">
-              <Button onClick={() => navigate('/audit-logs')} variant="outline" className="h-20 flex-col gap-2">
+              <Button onClick={() => navigate('/audit-logs')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
                 <FileText className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "سجل الأحداث", en: "Audit Logs" })}</span>
               </Button>
-              <Button onClick={() => navigate('/manage-employees')} variant="outline" className="h-20 flex-col gap-2">
+              <Button onClick={() => navigate('/manage-employees')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
                 <UserCog className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "الموظفين", en: "Employees" })}</span>
               </Button>
-              <Button onClick={() => navigate('/manage-hotels')} variant="outline" className="h-20 flex-col gap-2">
+              <Button onClick={() => navigate('/manage-hotels')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
                 <Hotel className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "الفنادق", en: "Hotels" })}</span>
               </Button>
-              <Button onClick={() => navigate('/site-settings')} variant="outline" className="h-20 flex-col gap-2">
+              <Button onClick={() => navigate('/site-settings')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
                 <Settings className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "الإعدادات", en: "Settings" })}</span>
               </Button>
-              <Button onClick={() => navigate('/profile')} variant="outline" className="h-20 flex-col gap-2">
+              <Button onClick={() => navigate('/profile')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
                 <User className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "الملف الشخصي", en: "Profile" })}</span>
               </Button>
+            </div>
+
+            {/* Interactive Stats Dashboard - Mobile */}
+            <div className="lg:hidden grid grid-cols-2 gap-3 mb-6">
+              <Card className="rounded-md hover-lift transition-all bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900">
+                <CardContent className="p-4 flex flex-col items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center mb-2">
+                    <DollarSign className="w-8 h-8 text-white" />
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center">{t({ ar: "الأرباح", en: "Profits" })}</p>
+                  <p className="text-sm font-bold text-center">{stats.totalProfits.toLocaleString()}</p>
+                </CardContent>
+              </Card>
+              <Card className="rounded-md hover-lift transition-all bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900">
+                <CardContent className="p-4 flex flex-col items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-purple-500 flex items-center justify-center mb-2">
+                    <FileText className="w-8 h-8 text-white" />
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center">{t({ ar: "الطلبات", en: "Bookings" })}</p>
+                  <p className="text-sm font-bold text-center">{stats.totalBookings.toLocaleString()}</p>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Interactive Stats Dashboard - Desktop */}
+            <div className="hidden lg:grid grid-cols-3 gap-6 mb-8">
+              <Card className="rounded-md hover-lift transition-all bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 dark:from-blue-950 dark:via-blue-900 dark:to-blue-950 border-2 border-blue-200 dark:border-blue-800">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-md bg-blue-500 flex items-center justify-center">
+                      <TrendingUp className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-muted-foreground">{t({ ar: "معدل النمو", en: "Growth Rate" })}</p>
+                      <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">+12.5%</p>
+                    </div>
+                  </div>
+                  <div className="h-2 bg-blue-200 dark:bg-blue-800 rounded-full overflow-hidden">
+                    <div className="h-full w-[75%] bg-blue-500 rounded-full"></div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="rounded-md hover-lift transition-all bg-gradient-to-br from-green-50 via-green-100 to-green-50 dark:from-green-950 dark:via-green-900 dark:to-green-950 border-2 border-green-200 dark:border-green-800">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-md bg-green-500 flex items-center justify-center">
+                      <Users className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-muted-foreground">{t({ ar: "رضا العملاء", en: "Satisfaction" })}</p>
+                      <p className="text-2xl font-bold text-green-600 dark:text-green-400">94%</p>
+                    </div>
+                  </div>
+                  <div className="h-2 bg-green-200 dark:bg-green-800 rounded-full overflow-hidden">
+                    <div className="h-full w-[94%] bg-green-500 rounded-full"></div>
+                  </div>
+                </CardContent>
+              </Card>
+              
+              <Card className="rounded-md hover-lift transition-all bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 dark:from-amber-950 dark:via-amber-900 dark:to-amber-950 border-2 border-amber-200 dark:border-amber-800">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="w-12 h-12 rounded-md bg-amber-500 flex items-center justify-center">
+                      <Clock className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-muted-foreground">{t({ ar: "الاستجابة", en: "Response Time" })}</p>
+                      <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">2.3h</p>
+                    </div>
+                  </div>
+                  <div className="h-2 bg-amber-200 dark:bg-amber-800 rounded-full overflow-hidden">
+                    <div className="h-full w-[85%] bg-amber-500 rounded-full"></div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Stats Grid */}
@@ -341,7 +417,7 @@ export default function AdminDashboard() {
             </div>
 
             {/* Recent Bookings */}
-            <Card className="card-luxury">
+            <Card className="card-luxury rounded-md">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="w-5 h-5" />

@@ -99,7 +99,7 @@ export default function EmployeeDashboard() {
   }
 
   const StatCard = ({ title, value, icon: Icon, change, colorClass }: any) => (
-    <Card className="card-luxury hover-lift transition-all">
+    <Card className="card-luxury hover-lift transition-all rounded-md">
       <CardContent className="pt-6">
         <div className="flex items-start justify-between">
           <div className="space-y-2">
@@ -114,7 +114,7 @@ export default function EmployeeDashboard() {
               )}
             </div>
           </div>
-          <div className={`p-3 rounded-xl ${colorClass}`}>
+          <div className={`p-3 rounded-md ${colorClass}`}>
             <Icon className="w-6 h-6 text-white" />
           </div>
         </div>
@@ -178,14 +178,36 @@ export default function EmployeeDashboard() {
 
             {/* Quick Actions - Mobile Only */}
             <div className="lg:hidden grid grid-cols-2 gap-3 mb-6">
-              <Button onClick={() => navigate('/')} variant="outline" className="h-20 flex-col gap-2">
+              <Button onClick={() => navigate('/')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
                 <Home className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "الرئيسية", en: "Home" })}</span>
               </Button>
-              <Button onClick={() => navigate('/profile')} variant="outline" className="h-20 flex-col gap-2">
+              <Button onClick={() => navigate('/profile')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
                 <User className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "الملف", en: "Profile" })}</span>
               </Button>
+            </div>
+
+            {/* Interactive Stats Dashboard - Mobile */}
+            <div className="lg:hidden grid grid-cols-2 gap-3 mb-6">
+              <Card className="rounded-md hover-lift transition-all bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900">
+                <CardContent className="p-4 flex flex-col items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-orange-500 flex items-center justify-center mb-2">
+                    <Clock className="w-8 h-8 text-white" />
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center">{t({ ar: "قيد الانتظار", en: "Pending" })}</p>
+                  <p className="text-sm font-bold text-center">{stats.pending}</p>
+                </CardContent>
+              </Card>
+              <Card className="rounded-md hover-lift transition-all bg-gradient-to-br from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+                <CardContent className="p-4 flex flex-col items-center justify-center">
+                  <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center mb-2">
+                    <CheckCircle className="w-8 h-8 text-white" />
+                  </div>
+                  <p className="text-xs text-muted-foreground text-center">{t({ ar: "مؤكد", en: "Confirmed" })}</p>
+                  <p className="text-sm font-bold text-center">{stats.confirmed}</p>
+                </CardContent>
+              </Card>
             </div>
 
             {/* Stats Grid */}
@@ -214,7 +236,7 @@ export default function EmployeeDashboard() {
             </div>
 
             {/* Bookings Table */}
-            <Card className="card-luxury">
+            <Card className="card-luxury rounded-md">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <FileText className="w-5 h-5" />

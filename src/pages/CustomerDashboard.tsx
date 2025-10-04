@@ -88,30 +88,30 @@ export default function CustomerDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed':
-        return 'bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400 border-green-500/20';
+        return 'bg-green-600 text-white dark:bg-green-700 dark:text-white';
       case 'pending':
-        return 'bg-yellow-500/10 text-yellow-600 dark:bg-yellow-500/20 dark:text-yellow-400 border-yellow-500/20';
+        return 'bg-yellow-600 text-white dark:bg-yellow-700 dark:text-white';
       case 'new':
-        return 'bg-blue-500/10 text-blue-600 dark:bg-blue-500/20 dark:text-blue-400 border-blue-500/20';
+        return 'bg-blue-600 text-white dark:bg-blue-700 dark:text-white';
       case 'cancelled':
-        return 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400 border-red-500/20';
+        return 'bg-red-600 text-white dark:bg-red-700 dark:text-white';
       case 'rejected':
-        return 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400 border-red-500/20';
+        return 'bg-red-700 text-white dark:bg-red-800 dark:text-white';
       default:
-        return 'bg-gray-500/10 text-gray-600 dark:bg-gray-500/20 dark:text-gray-400 border-gray-500/20';
+        return 'bg-gray-600 text-white dark:bg-gray-700 dark:text-white';
     }
   };
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
       case 'paid':
-        return 'bg-green-500/10 text-green-600 dark:bg-green-500/20 dark:text-green-400 border-green-500/20';
+        return 'bg-amber-600 text-white dark:bg-amber-700 dark:text-white';
       case 'partially_paid':
-        return 'bg-orange-500/10 text-orange-600 dark:bg-orange-500/20 dark:text-orange-400 border-orange-500/20';
+        return 'bg-slate-600 text-white dark:bg-slate-700 dark:text-white';
       case 'unpaid':
-        return 'bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400 border-red-500/20';
+        return 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900';
       default:
-        return 'bg-gray-500/10 text-gray-600 dark:bg-gray-500/20 dark:text-gray-400 border-gray-500/20';
+        return 'bg-gray-600 text-white dark:bg-gray-700 dark:text-white';
     }
   };
 
@@ -191,10 +191,10 @@ export default function CustomerDashboard() {
                         {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
                       </CardTitle>
                       <div className="flex gap-2 flex-wrap items-center">
-                        <Badge className={`${getStatusColor(booking.status)} px-3 py-1.5 min-w-[100px] justify-center border text-xs sm:text-sm`}>
+                        <Badge className={`${getStatusColor(booking.status)} px-3 py-1.5 min-w-[100px] justify-center text-xs sm:text-sm rounded-sm`}>
                           {language === 'ar' ? getStatusText(booking.status).ar : getStatusText(booking.status).en}
                         </Badge>
-                        <Badge className={`${getPaymentStatusColor(booking.payment_status)} px-3 py-1.5 min-w-[100px] justify-center border text-xs sm:text-sm`}>
+                        <Badge className={`${getPaymentStatusColor(booking.payment_status)} px-3 py-1.5 min-w-[100px] justify-center text-xs sm:text-sm rounded-sm`}>
                           {language === 'ar' ? getPaymentStatusText(booking.payment_status).ar : getPaymentStatusText(booking.payment_status).en}
                         </Badge>
                       </div>
