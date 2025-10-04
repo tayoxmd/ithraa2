@@ -261,6 +261,10 @@ export default function AdminDashboard() {
 
             {/* Quick Actions - Mobile Only */}
             <div className="lg:hidden grid grid-cols-2 gap-3 mb-6">
+              <Button onClick={() => navigate('/audit-logs')} variant="outline" className="h-20 flex-col gap-2">
+                <FileText className="w-5 h-5" />
+                <span className="text-xs">{t({ ar: "سجل الأحداث", en: "Audit Logs" })}</span>
+              </Button>
               <Button onClick={() => navigate('/manage-employees')} variant="outline" className="h-20 flex-col gap-2">
                 <UserCog className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "الموظفين", en: "Employees" })}</span>
@@ -281,6 +285,19 @@ export default function AdminDashboard() {
 
             {/* Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6 mb-8">
+              <Card className="card-luxury hover-lift transition-all cursor-pointer" onClick={() => navigate('/audit-logs')}>
+                <CardContent className="pt-6">
+                  <div className="flex items-start justify-between">
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium text-muted-foreground">{t({ ar: "سجل الأحداث", en: "Audit Logs" })}</p>
+                      <p className="text-sm text-muted-foreground">{t({ ar: "عرض جميع الأنشطة والتعديلات", en: "View all activities and changes" })}</p>
+                    </div>
+                    <div className="p-3 rounded-xl bg-gradient-to-br from-indigo-500 to-indigo-600">
+                      <FileText className="w-6 h-6 text-white" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
               <StatCard
                 title={t({ ar: "إجمالي الأرباح", en: "Total Profits" })}
                 value={`${stats.totalProfits.toLocaleString()} ${t({ ar: "ر.س", en: "SAR" })}`}
