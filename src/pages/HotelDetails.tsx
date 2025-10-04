@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Star, MapPin, ArrowRight, Navigation } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { ImageGallery } from "@/components/ImageGallery";
 
 interface Hotel {
   id: string;
@@ -32,6 +33,8 @@ export default function HotelDetails() {
   const { t, language } = useLanguage();
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [loading, setLoading] = useState(true);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryIndex, setGalleryIndex] = useState(0);
 
   // Get search parameters from URL or localStorage
   const searchParams = new URLSearchParams(location.search);
@@ -76,6 +79,10 @@ export default function HotelDetails() {
     ? hotel.images[0] 
     : "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000";
 
+  const hotelImages = hotel.images && Array.isArray(hotel.images) && hotel.images.length > 0 
+    ? hotel.images 
+    : [mainImage];
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -92,11 +99,38 @@ export default function HotelDetails() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div>
-            <img
-              src={mainImage}
-              alt={language === 'ar' ? hotel.name_ar : hotel.name_en}
-              className="w-full h-[400px] object-cover rounded-2xl shadow-luxury"
-            />
+            <div className="relative group">
+              <img
+                src={mainImage}
+                alt={language === 'ar' ? hotel.name_ar : hotel.name_en}
+                className="w-full h-[400px] object-cover rounded-2xl shadow-luxury cursor-pointer"
+                onClick={() => {
+                  setGalleryIndex(0);
+                  setGalleryOpen(true);
+                }}
+              />
+              {hotelImages.length > 1 && (
+                <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
+                  {hotelImages.length} {t({ ar: 'صورة', en: 'images' })}
+                </div>
+              )}
+            </div>
+            {hotelImages.length > 1 && (
+              <div className="grid grid-cols-4 gap-2 mt-2">
+                {hotelImages.slice(1, 5).map((img, idx) => (
+                  <img
+                    key={idx}
+                    src={img}
+                    alt={`${language === 'ar' ? hotel.name_ar : hotel.name_en} ${idx + 2}`}
+                    className="w-full h-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => {
+                      setGalleryIndex(idx + 1);
+                      setGalleryOpen(true);
+                    }}
+                  />
+                ))}
+              </div>
+            )}
           </div>
 
           <div>
@@ -206,6 +240,13 @@ export default function HotelDetails() {
           </div>
         </div>
       </div>
+
+      <ImageGallery
+        images={hotelImages}
+        open={galleryOpen}
+        onClose={() => setGalleryOpen(false)}
+        initialIndex={galleryIndex}
+      />
 
       <Footer />
     </div>

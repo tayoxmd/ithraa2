@@ -62,7 +62,7 @@ interface BookingManagementProps {
 export function BookingManagement({ bookings, onUpdate }: BookingManagementProps) {
   const { t, language } = useLanguage();
   const { user } = useAuth();
-  const [highlightColors, setHighlightColors] = useState<{ owner: string; hotel: string | null }>({ owner: '#87CEEB', hotel: null });
+  const [highlightColors, setHighlightColors] = useState<{ owner: string; hotel: string | null }>({ owner: '#e0f2fe', hotel: null });
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [hotelConfNumber, setHotelConfNumber] = useState<string>("");
@@ -458,12 +458,12 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
                   </span>
                 </div>
-                <div className="flex flex-col sm:flex-row gap-2 w-full">
+                <div className="flex flex-row gap-2 w-full">
                   <Select
                     value={booking.status}
                     onValueChange={(value) => handleStatusChange(booking.id, value as any)}
                   >
-                    <SelectTrigger className={`w-full sm:w-[140px] h-9 ${statusColors[booking.status]}`}>
+                    <SelectTrigger className={`flex-1 md:w-[140px] h-9 ${statusColors[booking.status]}`}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -478,7 +478,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     value={booking.payment_status}
                     onValueChange={(value) => handlePaymentStatusChange(booking.id, value as any)}
                   >
-                    <SelectTrigger className={`w-full sm:w-[160px] h-9 ${paymentStatusColors[booking.payment_status]}`}>
+                    <SelectTrigger className={`flex-1 md:w-[160px] h-9 ${paymentStatusColors[booking.payment_status]}`}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

@@ -12,7 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search, Upload, X, Image as ImageIcon } from "lucide-react";
+import { ImageGallery } from "@/components/ImageGallery";
 
 interface City {
   id: string;
@@ -63,7 +64,11 @@ export default function ManageHotels() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingHotel, setEditingHotel] = useState<Hotel | null>(null);
   const [selectedResponsiblePersons, setSelectedResponsiblePersons] = useState<string[]>([]);
-  const [highlightColors, setHighlightColors] = useState<{ owner: string; hotel: string | null }>({ owner: '#87CEEB', hotel: null });
+  const [highlightColors, setHighlightColors] = useState<{ owner: string; hotel: string | null }>({ owner: '#e0f2fe', hotel: null });
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [hotelImages, setHotelImages] = useState<string[]>([]);
+  const [galleryOpen, setGalleryOpen] = useState(false);
+  const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     name_ar: "",
     name_en: "",
@@ -144,10 +149,68 @@ export default function ManageHotels() {
       .single();
     if (data) {
       setHighlightColors({ 
-        owner: data.owner_room_color || '#87CEEB', 
+        owner: data.owner_room_color || '#e0f2fe', 
         hotel: data.hotel_room_color || null 
       });
     }
+  };
+
+  const uploadHotelImages = async (files: FileList, hotelId?: string): Promise<string[]> => {
+    const uploadedUrls: string[] = [];
+    const hotelFolder = hotelId || `temp-${Date.now()}`;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${hotelFolder}/${Date.now()}-${i}.${fileExt}`;
+
+      const { error: uploadError, data } = await supabase.storage
+        .from('hotel-images')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Error uploading image:', uploadError);
+        continue;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('hotel-images')
+        .getPublicUrl(fileName);
+
+      uploadedUrls.push(publicUrl);
+    }
+
+    return uploadedUrls;
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingImages(true);
+    try {
+      const urls = await uploadHotelImages(files);
+      setHotelImages([...hotelImages, ...urls]);
+      toast({
+        title: t({ ar: "تم الرفع", en: "Uploaded" }),
+        description: t({ ar: "تم رفع الصور بنجاح", en: "Images uploaded successfully" }),
+      });
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setHotelImages(hotelImages.filter((_, i) => i !== index));
   };
 
   const fetchHotels = async () => {
@@ -253,6 +316,7 @@ export default function ManageHotels() {
           total_rooms: parseInt(formData.total_rooms),
           tax_percentage: parseFloat(formData.tax_percentage),
           room_type: formData.room_type,
+          images: hotelImages,
         }])
         .select()
         .single();
@@ -278,6 +342,7 @@ export default function ManageHotels() {
 
       setIsAddDialogOpen(false);
       setSelectedResponsiblePersons([]);
+      setHotelImages([]);
       resetForm();
       fetchHotels();
     } catch (error: any) {
@@ -304,6 +369,7 @@ export default function ManageHotels() {
           total_rooms: parseInt(formData.total_rooms),
           tax_percentage: parseFloat(formData.tax_percentage),
           room_type: formData.room_type,
+          images: hotelImages,
         })
         .eq('id', editingHotel.id);
 
@@ -336,6 +402,7 @@ export default function ManageHotels() {
       setIsEditDialogOpen(false);
       setEditingHotel(null);
       setSelectedResponsiblePersons([]);
+      setHotelImages([]);
       resetForm();
       fetchHotels();
     } catch (error: any) {
@@ -368,6 +435,13 @@ export default function ManageHotels() {
       tax_percentage: (hotel as any).tax_percentage?.toString() || "0",
       room_type: hotel.room_type || 'hotel_rooms',
     });
+
+    // Set existing images
+    if (hotel.images && Array.isArray(hotel.images)) {
+      setHotelImages(hotel.images);
+    } else {
+      setHotelImages([]);
+    }
 
     // Fetch existing responsible persons
     const { data: responsiblePersons } = await supabase
@@ -562,17 +636,32 @@ export default function ManageHotels() {
                         <h3 className="font-semibold mb-2">{t({ ar: "الصور", en: "Images", fr: "Images", es: "Imágenes", ru: "Изображения", id: "Gambar", ms: "Imej" })}</h3>
                         <div className="flex gap-2 flex-wrap">
                           {hotel.images.slice(0, 3).map((img: string, idx: number) => (
-                            <img 
-                              key={idx} 
-                              src={img} 
-                              alt={`${hotel.name_en} ${idx + 1}`}
-                              className="w-20 h-20 object-cover rounded-lg"
-                            />
+                            <button
+                              key={idx}
+                              onClick={() => {
+                                setGalleryImages(hotel.images || []);
+                                setGalleryOpen(true);
+                              }}
+                              className="relative group"
+                            >
+                              <img 
+                                src={img} 
+                                alt={`${hotel.name_en} ${idx + 1}`}
+                                className="w-20 h-20 object-cover rounded-lg hover:opacity-80 transition-opacity cursor-pointer"
+                              />
+                            </button>
                           ))}
                           {hotel.images.length > 3 && (
-                            <div className="w-20 h-20 bg-secondary rounded-lg flex items-center justify-center text-sm">
-                              +{hotel.images.length - 3}
-                            </div>
+                            <button
+                              onClick={() => {
+                                setGalleryImages(hotel.images || []);
+                                setGalleryOpen(true);
+                              }}
+                              className="w-20 h-20 bg-secondary rounded-lg flex items-center justify-center text-sm hover:bg-secondary/80 transition-colors cursor-pointer"
+                            >
+                              <ImageIcon className="w-6 h-6 mb-1" />
+                              <span>+{hotel.images.length - 3}</span>
+                            </button>
                           )}
                         </div>
                       </div>
@@ -603,6 +692,12 @@ export default function ManageHotels() {
             </Card>
           )}
         </div>
+
+        <ImageGallery
+          images={galleryImages}
+          open={galleryOpen}
+          onClose={() => setGalleryOpen(false)}
+        />
 
         {/* Add Hotel Dialog */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
@@ -712,6 +807,54 @@ export default function ManageHotels() {
                       <SelectItem value="owner_rooms">{t({ ar: "غرف مُلّاك", en: "Owner Rooms" })}</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>{t({ ar: "صور الفندق", en: "Hotel Images" })}</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => document.getElementById('hotel-image-upload')?.click()}
+                      disabled={uploadingImages}
+                      className="w-full"
+                    >
+                      <Upload className="w-4 h-4 ml-2" />
+                      {uploadingImages ? t({ ar: "جاري الرفع...", en: "Uploading..." }) : t({ ar: "رفع صور", en: "Upload Images" })}
+                    </Button>
+                    <input
+                      id="hotel-image-upload"
+                      type="file"
+                      multiple
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </div>
+                  {hotelImages.length > 0 && (
+                    <div className="grid grid-cols-4 gap-2">
+                      {hotelImages.map((img, idx) => (
+                        <div key={idx} className="relative group">
+                          <img
+                            src={img}
+                            alt={`صورة ${idx + 1}`}
+                            className="w-full h-20 object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(idx)}
+                            className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {t({ ar: "يمكنك رفع عدد غير محدود من الصور بحجم أقصى 10 ميجابايت لكل صورة", en: "You can upload unlimited images with max 10MB per image" })}
+                  </p>
                 </div>
               </div>
               <div className="space-y-2">
@@ -860,6 +1003,54 @@ export default function ManageHotels() {
                     <SelectItem value="owner_rooms">{t({ ar: "غرف مُلّاك", en: "Owner Rooms" })}</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>{t({ ar: "صور الفندق", en: "Hotel Images" })}</Label>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => document.getElementById('hotel-image-upload-edit')?.click()}
+                      disabled={uploadingImages}
+                      className="w-full"
+                    >
+                      <Upload className="w-4 h-4 ml-2" />
+                      {uploadingImages ? t({ ar: "جاري الرفع...", en: "Uploading..." }) : t({ ar: "رفع صور", en: "Upload Images" })}
+                    </Button>
+                    <input
+                      id="hotel-image-upload-edit"
+                      type="file"
+                      multiple
+                      accept="image/jpeg,image/jpg,image/png,image/webp"
+                      onChange={handleImageUpload}
+                      className="hidden"
+                    />
+                  </div>
+                  {hotelImages.length > 0 && (
+                    <div className="grid grid-cols-4 gap-2">
+                      {hotelImages.map((img, idx) => (
+                        <div key={idx} className="relative group">
+                          <img
+                            src={img}
+                            alt={`صورة ${idx + 1}`}
+                            className="w-full h-20 object-cover rounded-lg"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(idx)}
+                            className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <p className="text-xs text-muted-foreground">
+                    {t({ ar: "يمكنك رفع عدد غير محدود من الصور بحجم أقصى 10 ميجابايت لكل صورة", en: "You can upload unlimited images with max 10MB per image" })}
+                  </p>
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>{t({ ar: "المسؤولون عن الفندق", en: "Hotel Managers" })}</Label>
