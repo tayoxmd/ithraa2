@@ -30,6 +30,10 @@ export default function SiteSettings() {
     email: 'support@ithraa.com',
     phone: '0505731136'
   });
+  const [exceptionColors, setExceptionColors] = useState({
+    owner_room_color: '#e0f2fe',
+    hotel_room_color: '' as string
+  });
 
   useEffect(() => {
     if (!loading && userRole !== 'admin') {
@@ -58,6 +62,10 @@ export default function SiteSettings() {
           email: data.email || 'support@ithraa.com',
           phone: data.phone || '0505731136'
         });
+        setExceptionColors({
+          owner_room_color: data.owner_room_color || '#e0f2fe',
+          hotel_room_color: data.hotel_room_color || ''
+        });
       }
     } catch (error: any) {
       console.error('Error fetching settings:', error);
@@ -71,6 +79,46 @@ export default function SiteSettings() {
       title: t({ ar: "تم الحفظ", en: "Saved" }),
       description: t({ ar: "تم حفظ إعدادات الألوان", en: "Color settings saved" }),
     });
+  };
+
+  const handleSaveExceptionColors = async () => {
+    try {
+      const { data: existingSettings } = await supabase
+        .from('site_settings')
+        .select('id')
+        .single();
+
+      if (existingSettings) {
+        const { error } = await supabase
+          .from('site_settings')
+          .update({
+            owner_room_color: exceptionColors.owner_room_color,
+            hotel_room_color: exceptionColors.hotel_room_color || null,
+          })
+          .eq('id', existingSettings.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('site_settings')
+          .insert({
+            tax_percentage: parseFloat(taxPercentage),
+            owner_room_color: exceptionColors.owner_room_color,
+            hotel_room_color: exceptionColors.hotel_room_color || null,
+          });
+        if (error) throw error;
+      }
+
+      toast({
+        title: t({ ar: 'تم الحفظ', en: 'Saved' }),
+        description: t({ ar: 'تم حفظ الألوان الاستثنائية', en: 'Exceptional colors saved' }),
+      });
+    } catch (error: any) {
+      toast({
+        title: t({ ar: 'خطأ', en: 'Error' }),
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleSaveFonts = () => {
@@ -225,6 +273,58 @@ export default function SiteSettings() {
               </div>
               <Button onClick={handleSaveColors} className="w-full btn-luxury">
                 {t({ ar: 'حفظ الألوان', en: 'Save Colors' })}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Exceptional Colors Section */}
+          <Card className="card-luxury">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="w-5 h-5" />
+                {t({ ar: 'تغيير الألوان الاستثنائية', en: 'Exceptional Colors' })}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label>{t({ ar: 'غرف مُلّاك', en: 'Owner Rooms' })}</Label>
+                  <div className="flex gap-2 mt-2 items-center">
+                    <Input
+                      type="color"
+                      value={exceptionColors.owner_room_color}
+                      onChange={(e) => setExceptionColors({ ...exceptionColors, owner_room_color: e.target.value })}
+                      className="w-20 h-12"
+                    />
+                    <Input
+                      type="text"
+                      value={exceptionColors.owner_room_color}
+                      onChange={(e) => setExceptionColors({ ...exceptionColors, owner_room_color: e.target.value })}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label>{t({ ar: 'غرف فندقية', en: 'Hotel Rooms' })}</Label>
+                  <div className="flex gap-2 mt-2 items-center">
+                    <Input
+                      type="color"
+                      value={exceptionColors.hotel_room_color}
+                      onChange={(e) => setExceptionColors({ ...exceptionColors, hotel_room_color: e.target.value })}
+                      className="w-20 h-12"
+                    />
+                    <Input
+                      type="text"
+                      value={exceptionColors.hotel_room_color}
+                      onChange={(e) => setExceptionColors({ ...exceptionColors, hotel_room_color: e.target.value })}
+                      className="flex-1"
+                    />
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">{t({ ar: 'تُستخدم هذه الألوان لتظليل بطاقات الفنادق والطلبات حسب النوع', en: 'These colors are used to highlight hotel and booking cards by type' })}</p>
+              <Button onClick={handleSaveExceptionColors} className="w-full btn-luxury">
+                {t({ ar: 'حفظ الألوان الاستثنائية', en: 'Save Exceptional Colors' })}
               </Button>
             </CardContent>
           </Card>

@@ -382,8 +382,10 @@ export type Database = {
           created_at: string | null
           email: string | null
           facebook_url: string | null
+          hotel_room_color: string | null
           id: string
           instagram_url: string | null
+          owner_room_color: string | null
           phone: string | null
           tax_percentage: number
           twitter_url: string | null
@@ -394,8 +396,10 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           facebook_url?: string | null
+          hotel_room_color?: string | null
           id?: string
           instagram_url?: string | null
+          owner_room_color?: string | null
           phone?: string | null
           tax_percentage?: number
           twitter_url?: string | null
@@ -406,8 +410,10 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           facebook_url?: string | null
+          hotel_room_color?: string | null
           id?: string
           instagram_url?: string | null
+          owner_room_color?: string | null
           phone?: string | null
           tax_percentage?: number
           twitter_url?: string | null
@@ -512,7 +518,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "employee" | "customer"
-      booking_status: "new" | "pending" | "confirmed" | "cancelled"
+      booking_status: "new" | "pending" | "confirmed" | "cancelled" | "rejected"
       complaint_status: "new" | "pending" | "rejected" | "resolved"
       room_type: "hotel_rooms" | "owner_rooms"
     }
@@ -643,7 +649,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "employee", "customer"],
-      booking_status: ["new", "pending", "confirmed", "cancelled"],
+      booking_status: ["new", "pending", "confirmed", "cancelled", "rejected"],
       complaint_status: ["new", "pending", "rejected", "resolved"],
       room_type: ["hotel_rooms", "owner_rooms"],
     },

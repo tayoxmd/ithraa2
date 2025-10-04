@@ -22,7 +22,7 @@ interface Booking {
   guests: number;
   rooms: number;
   total_amount: number;
-  status: 'new' | 'pending' | 'confirmed' | 'cancelled';
+  status: 'new' | 'pending' | 'confirmed' | 'cancelled' | 'rejected';
   payment_status: string;
   payment_method: string;
   notes: string | null;
@@ -51,6 +51,7 @@ interface BookingManagementProps {
 
 export function BookingManagement({ bookings, onUpdate }: BookingManagementProps) {
   const { t, language } = useLanguage();
+  const [highlightColors, setHighlightColors] = useState<{ owner: string; hotel: string | null }>({ owner: '#e0f2fe', hotel: null });
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
@@ -70,6 +71,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     pending: "bg-yellow-500",
     confirmed: "bg-green-500",
     cancelled: "bg-red-500",
+    rejected: "bg-red-600",
   };
 
   const statusLabels = {
@@ -77,6 +79,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     pending: { ar: "قيد الانتظار", en: "Pending", fr: "En attente", es: "Pendiente", ru: "В ожидании", id: "Tertunda", ms: "Menunggu" },
     confirmed: { ar: "مؤكد", en: "Confirmed", fr: "Confirmé", es: "Confirmado", ru: "Подтверждено", id: "Dikonfirmasi", ms: "Disahkan" },
     cancelled: { ar: "ملغى", en: "Cancelled", fr: "Annulé", es: "Cancelado", ru: "Отменено", id: "Dibatalkan", ms: "Dibatalkan" },
+    rejected: { ar: "مرفوض", en: "Rejected", fr: "Rejeté", es: "Rechazado", ru: "Отклонено", id: "Ditolak", ms: "Ditolak" },
   };
 
   const calculateTotal = (checkIn: string, checkOut: string, guests: number, rooms: number, hotel: Booking['hotels']) => {
@@ -102,7 +105,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     return total;
   };
 
-  const handleStatusChange = async (bookingId: string, newStatus: 'new' | 'pending' | 'confirmed' | 'cancelled') => {
+  const handleStatusChange = async (bookingId: string, newStatus: 'new' | 'pending' | 'confirmed' | 'cancelled' | 'rejected') => {
     try {
       const { error } = await supabase
         .from('bookings')
@@ -197,6 +200,17 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     }
   };
 
+  // Load highlight colors from settings
+  useEffect(() => {
+    (async () => {
+      const { data } = await supabase
+        .from('site_settings')
+        .select('owner_room_color, hotel_room_color')
+        .single();
+      setHighlightColors({ owner: data?.owner_room_color || '#e0f2fe', hotel: data?.hotel_room_color || null });
+    })();
+  }, []);
+
   const shareViaWhatsApp = (booking: Booking) => {
     const hotelName = language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en;
     const statusText = t(statusLabels[booking.status]);
@@ -260,8 +274,9 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
       <div className="grid gap-4">
         {bookings.map((booking) => (
           <Card 
-            key={booking.id} 
-            className={`card-luxury ${booking.hotels?.room_type === 'owner_rooms' ? 'bg-sky-100/50 dark:bg-sky-950/20' : ''}`}
+            key={booking.id}
+            className="card-luxury"
+            style={(booking.hotels?.room_type === 'owner_rooms' ? (highlightColors.owner ? { backgroundColor: highlightColors.owner } : undefined) : (highlightColors.hotel ? { backgroundColor: highlightColors.hotel } : undefined))}
           >
             <CardHeader>
               <CardTitle className="flex items-center justify-between flex-wrap gap-4">
@@ -277,9 +292,9 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
                   </Badge>
                   <Select
                     value={booking.status}
-                    onValueChange={(value) => handleStatusChange(booking.id, value as 'new' | 'pending' | 'confirmed' | 'cancelled')}
+                    onValueChange={(value) => handleStatusChange(booking.id, value as 'new' | 'pending' | 'confirmed' | 'cancelled' | 'rejected')}
                   >
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-[200px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -287,6 +302,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
                       <SelectItem value="pending">{t(statusLabels.pending)}</SelectItem>
                       <SelectItem value="confirmed">{t(statusLabels.confirmed)}</SelectItem>
                       <SelectItem value="cancelled">{t(statusLabels.cancelled)}</SelectItem>
+                      <SelectItem value="rejected">{t(statusLabels.rejected)}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

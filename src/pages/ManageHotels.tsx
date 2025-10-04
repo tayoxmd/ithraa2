@@ -63,6 +63,7 @@ export default function ManageHotels() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingHotel, setEditingHotel] = useState<Hotel | null>(null);
   const [selectedResponsiblePersons, setSelectedResponsiblePersons] = useState<string[]>([]);
+  const [highlightColors, setHighlightColors] = useState<{ owner: string; hotel: string | null }>({ owner: '#e0f2fe', hotel: null });
   const [formData, setFormData] = useState({
     name_ar: "",
     name_en: "",
@@ -90,6 +91,7 @@ export default function ManageHotels() {
       fetchCities();
       fetchEmployees();
       fetchHotels();
+      fetchHighlightColors();
     }
   }, [userRole, loading, navigate]);
 
@@ -444,8 +446,9 @@ export default function ManageHotels() {
         <div className="grid gap-6">
           {filteredHotels.map((hotel) => (
             <Card 
-              key={hotel.id} 
-              className={`card-luxury ${hotel.room_type === 'owner_rooms' ? 'bg-sky-100/50 dark:bg-sky-950/20' : ''}`}
+              key={hotel.id}
+              className="card-luxury"
+              style={(hotel.room_type === 'owner_rooms' ? (highlightColors.owner ? { backgroundColor: highlightColors.owner } : undefined) : (highlightColors.hotel ? { backgroundColor: highlightColors.hotel } : undefined))}
             >
               <CardHeader>
                 <CardTitle className="flex items-center justify-between flex-wrap gap-4">
@@ -641,15 +644,9 @@ export default function ManageHotels() {
                 <Label>{t({ ar: "رابط الموقع", en: "Location URL", fr: "URL de l'emplacement", es: "URL de ubicación", ru: "URL местоположения", id: "URL Lokasi", ms: "URL Lokasi" })}</Label>
                 <Input value={formData.location_url} onChange={(e) => setFormData({...formData, location_url: e.target.value})} placeholder="https://maps.google.com/..." />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>{t({ ar: "رقم الهاتف", en: "Phone", fr: "Téléphone", es: "Teléfono", ru: "Телефон", id: "Telepon", ms: "Telefon" })}</Label>
-                  <Input value={formData.contact_phone} onChange={(e) => setFormData({...formData, contact_phone: e.target.value})} />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t({ ar: "الشخص المسؤول", en: "Contact Person", fr: "Personne de contact", es: "Persona de contacto", ru: "Контактное лицо", id: "Orang yang Dapat Dihubungi", ms: "Orang yang Boleh Dihubungi" })}</Label>
-                  <Input value={formData.contact_person} onChange={(e) => setFormData({...formData, contact_person: e.target.value})} />
-                </div>
+              <div className="space-y-2">
+                <Label>{t({ ar: "رقم الهاتف", en: "Phone", fr: "Téléphone", es: "Teléfono", ru: "Телефон", id: "Telepon", ms: "Telefon" })}</Label>
+                <Input value={formData.contact_phone} onChange={(e) => setFormData({...formData, contact_phone: e.target.value})} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -664,7 +661,7 @@ export default function ManageHotels() {
               <div className="grid grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label>{t({ ar: "عدد الغرف المتاحة", en: "Total Rooms" })}</Label>
-                  <Input type="number" min="1" value={formData.total_rooms || "10"} onChange={(e) => setFormData({...formData, total_rooms: e.target.value})} />
+                  <Input type="number" min="0" value={formData.total_rooms || "10"} onChange={(e) => setFormData({...formData, total_rooms: e.target.value})} />
                 </div>
                 <div className="space-y-2">
                   <Label>{t({ ar: "الحد الأقصى للأشخاص في الغرفة", en: "Max Guests per Room" })}</Label>
@@ -801,15 +798,9 @@ export default function ManageHotels() {
                 <Label>{t({ ar: "رابط الموقع", en: "Location URL", fr: "URL de l'emplacement", es: "URL de ubicación", ru: "URL местоположения", id: "URL Lokasi", ms: "URL Lokasi" })}</Label>
                 <Input value={formData.location_url} onChange={(e) => setFormData({...formData, location_url: e.target.value})} placeholder="https://maps.google.com/..." />
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>{t({ ar: "رقم الهاتف", en: "Phone", fr: "Téléphone", es: "Teléfono", ru: "Телефон", id: "Telepon", ms: "Telefon" })}</Label>
-                  <Input value={formData.contact_phone} onChange={(e) => setFormData({...formData, contact_phone: e.target.value})} />
-                </div>
-                <div className="space-y-2">
-                  <Label>{t({ ar: "الشخص المسؤول", en: "Contact Person", fr: "Personne de contact", es: "Persona de contacto", ru: "Контактное лицо", id: "Orang yang Dapat Dihubungi", ms: "Orang yang Boleh Dihubungi" })}</Label>
-                  <Input value={formData.contact_person} onChange={(e) => setFormData({...formData, contact_person: e.target.value})} />
-                </div>
+              <div className="space-y-2">
+                <Label>{t({ ar: "رقم الهاتف", en: "Phone", fr: "Téléphone", es: "Teléfono", ru: "Телефон", id: "Telepon", ms: "Telefon" })}</Label>
+                <Input value={formData.contact_phone} onChange={(e) => setFormData({...formData, contact_phone: e.target.value})} />
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -834,7 +825,7 @@ export default function ManageHotels() {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>{t({ ar: "عدد الغرف المتاحة", en: "Total Rooms" })}</Label>
-                  <Input type="number" min="1" value={formData.total_rooms || "10"} onChange={(e) => setFormData({...formData, total_rooms: e.target.value})} />
+                  <Input type="number" min="0" value={formData.total_rooms || "10"} onChange={(e) => setFormData({...formData, total_rooms: e.target.value})} />
                 </div>
                 <div className="space-y-2">
                   <Label>{t({ ar: "نسبة الضريبة %", en: "Tax %" })}</Label>
