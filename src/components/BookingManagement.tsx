@@ -15,6 +15,7 @@ import { Calendar, Users, Hotel, Mail, MessageCircle, Edit, Share2, FileText, Do
 import { format } from "date-fns";
 import { downloadBookingPDF, sharePDFViaEmail, sharePDFViaWhatsApp } from "@/utils/pdfGenerator";
 import { generateCustomerPageUrl } from "@/utils/customerLinks";
+import { logAuditEvent } from "@/utils/auditLogger";
 
 interface Booking {
   id: string;
@@ -136,14 +137,20 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
 
   const handleStatusChange = async (bookingId: string, newStatus: 'new' | 'pending' | 'confirmed' | 'cancelled' | 'rejected') => {
     try {
-      const cleanStatus = newStatus.toString().trim().replace(/^["']|["']$/g, '');
-      
       const { error } = await supabase
         .from('bookings')
-        .update({ status: cleanStatus as 'new' | 'pending' | 'confirmed' | 'cancelled' | 'rejected' })
+        .update({ status: newStatus })
         .eq('id', bookingId);
 
       if (error) throw error;
+
+      // Log audit event
+      await logAuditEvent(
+        'update_booking_status',
+        'booking',
+        bookingId,
+        { new_status: newStatus }
+      );
 
       toast({
         title: t({ ar: "تم التحديث", en: "Updated" }),
@@ -178,6 +185,17 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
         .eq('id', bookingId);
 
       if (error) throw error;
+
+      // Log audit event
+      await logAuditEvent(
+        'update_payment_status',
+        'booking',
+        bookingId,
+        { 
+          new_payment_status: newPaymentStatus,
+          amount_paid: updateData.amount_paid
+        }
+      );
 
       toast({
         title: t({ ar: "تم التحديث", en: "Updated" }),
@@ -260,6 +278,23 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
 
       if (error) throw error;
 
+      // Log audit event
+      await logAuditEvent(
+        'update_booking',
+        'booking',
+        selectedBooking.id,
+        { 
+          check_in: editFormData.check_in,
+          check_out: editFormData.check_out,
+          guests: parseInt(editFormData.guests),
+          rooms: parseInt(editFormData.rooms),
+          total_amount: finalTotal,
+          discount_amount: discountAmount,
+          amount_paid: amountPaid,
+          payment_status: paymentStatus
+        }
+      );
+
       toast({
         title: t({ ar: "تم التحديث", en: "Updated" }),
         description: t({ ar: "تم تحديث معلومات الحجز", en: "Booking information updated" }),
@@ -281,10 +316,10 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
   useEffect(() => {
     (async () => {
       const { data } = await supabase
-        .from('site_settings')
-        .select('owner_room_color, hotel_room_color')
-        .single();
-      setHighlightColors({ owner: data?.owner_room_color || '#87CEEB', hotel: data?.hotel_room_color || null });
+        .rpc('get_public_site_settings');
+      if (data && data.length > 0) {
+        setHighlightColors({ owner: data[0]?.owner_room_color || '#87CEEB', hotel: data[0]?.hotel_room_color || null });
+      }
     })();
   }, []);
 

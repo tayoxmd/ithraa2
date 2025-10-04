@@ -14,6 +14,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { logAuditEvent } from "@/utils/auditLogger";
 
 interface UserProfile {
   id: string;
@@ -158,6 +159,14 @@ export default function ManageEmployees() {
           .from('user_roles')
           .update({ role: formData.role })
           .eq('user_id', newUser.id);
+        
+        // Log audit event for role assignment
+        await logAuditEvent(
+          'assign_user_role',
+          'user',
+          newUser.id,
+          { role: formData.role }
+        );
       }
 
       toast({
@@ -201,6 +210,17 @@ export default function ManageEmployees() {
         .eq('user_id', selectedUser.id);
 
       if (roleError) throw roleError;
+
+      // Log audit event for role change
+      await logAuditEvent(
+        'update_user_role',
+        'user',
+        selectedUser.id,
+        { 
+          old_role: selectedUser.role,
+          new_role: formData.role
+        }
+      );
 
       if (formData.password) {
         const { data: { session } } = await supabase.auth.getSession();

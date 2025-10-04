@@ -19,18 +19,17 @@ export function Footer() {
   useEffect(() => {
     async function fetchSettings() {
       const { data } = await supabase
-        .from('site_settings')
-        .select('facebook_url, twitter_url, instagram_url, whatsapp_number, email, phone')
-        .single();
+        .rpc('get_public_site_settings');
       
-      if (data) {
+      if (data && data.length > 0) {
+        const settings_data = data[0];
         setSettings({
-          facebook_url: data.facebook_url || 'https://facebook.com',
-          twitter_url: data.twitter_url || 'https://twitter.com',
-          instagram_url: data.instagram_url || 'https://instagram.com',
-          whatsapp_number: data.whatsapp_number || '+966505731136',
-          email: data.email || 'support@ithraa.com',
-          phone: data.phone || '0505731136'
+          facebook_url: settings_data.facebook_url || 'https://facebook.com',
+          twitter_url: settings_data.twitter_url || 'https://twitter.com',
+          instagram_url: settings_data.instagram_url || 'https://instagram.com',
+          whatsapp_number: settings_data.whatsapp_number || '+966505731136',
+          email: settings_data.email || 'support@ithraa.com',
+          phone: settings_data.phone || '0505731136'
         });
       }
     }
