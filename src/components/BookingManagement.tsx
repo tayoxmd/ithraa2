@@ -27,6 +27,8 @@ interface Booking {
   payment_method: string;
   notes: string | null;
   created_at: string;
+  discount_amount?: number;
+  manual_total?: number;
   profiles?: {
     full_name: string;
     phone: string;
@@ -38,6 +40,7 @@ interface Booking {
     price_per_night: number;
     max_guests_per_room: number;
     extra_guest_price: number;
+    room_type?: 'hotel_rooms' | 'owner_rooms';
   };
 }
 
@@ -57,6 +60,9 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     rooms: "",
     notes: "",
     total_amount: "",
+    discount_amount: "",
+    manual_total: "",
+    room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
   });
 
   const statusColors = {
@@ -129,7 +135,10 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
       guests: booking.guests.toString(),
       rooms: booking.rooms.toString(),
       notes: booking.notes || "",
-      total_amount: calculatedTotal.toString(),
+      total_amount: (booking.manual_total || calculatedTotal).toString(),
+      discount_amount: (booking.discount_amount || 0).toString(),
+      manual_total: (booking.manual_total || calculatedTotal).toString(),
+      room_type: booking.hotels?.room_type || 'hotel_rooms',
     });
     setIsEditDialogOpen(true);
   };
@@ -151,13 +160,9 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     }
 
     try {
-      const calculatedTotal = calculateTotal(
-        editFormData.check_in,
-        editFormData.check_out,
-        parseInt(editFormData.guests),
-        parseInt(editFormData.rooms),
-        selectedBooking.hotels
-      );
+      const discountAmount = parseFloat(editFormData.discount_amount) || 0;
+      const manualTotal = parseFloat(editFormData.manual_total) || 0;
+      const finalTotal = manualTotal - discountAmount;
 
       const { error } = await supabase
         .from('bookings')
@@ -167,7 +172,9 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
           guests: parseInt(editFormData.guests),
           rooms: parseInt(editFormData.rooms),
           notes: editFormData.notes || null,
-          total_amount: calculatedTotal,
+          total_amount: finalTotal,
+          discount_amount: discountAmount,
+          manual_total: manualTotal,
         })
         .eq('id', selectedBooking.id);
 
@@ -252,7 +259,10 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
     <>
       <div className="grid gap-4">
         {bookings.map((booking) => (
-          <Card key={booking.id} className="card-luxury">
+          <Card 
+            key={booking.id} 
+            className={`card-luxury ${booking.hotels?.room_type === 'owner_rooms' ? 'bg-sky-100/50 dark:bg-sky-950/20' : ''}`}
+          >
             <CardHeader>
               <CardTitle className="flex items-center justify-between flex-wrap gap-4">
                 <div className="flex items-center gap-3">
@@ -464,12 +474,68 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:", fr: "Numéro de télépho
               </Select>
             </div>
             <div className="space-y-2">
+              <Label>{t({ ar: "نوع الغرف", en: "Room Type" })}</Label>
+              <Select value={editFormData.room_type} onValueChange={(value: 'hotel_rooms' | 'owner_rooms') => setEditFormData({...editFormData, room_type: value})}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hotel_rooms">{t({ ar: "غرف فندقية", en: "Hotel Rooms" })}</SelectItem>
+                  <SelectItem value="owner_rooms">{t({ ar: "غرف مُلّاك", en: "Owner Rooms" })}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label>{t({ ar: "ملاحظات", en: "Notes", fr: "Notes", es: "Notas", ru: "Заметки", id: "Catatan", ms: "Nota" })}</Label>
               <Textarea
                 value={editFormData.notes}
                 onChange={(e) => setEditFormData({ ...editFormData, notes: e.target.value })}
                 rows={3}
               />
+            </div>
+            <div className="space-y-2">
+              <Label>{t({ ar: "قيمة الخصم", en: "Discount Amount" })}</Label>
+              <Input
+                type="number"
+                min="0"
+                value={editFormData.discount_amount}
+                onChange={(e) => {
+                  const discount = parseFloat(e.target.value) || 0;
+                  const manual = parseFloat(editFormData.manual_total) || 0;
+                  const finalTotal = manual - discount;
+                  setEditFormData({ 
+                    ...editFormData, 
+                    discount_amount: e.target.value,
+                    total_amount: finalTotal.toString()
+                  });
+                }}
+                placeholder="0"
+              />
+              <p className="text-xs text-muted-foreground">
+                {t({ ar: "أدخل قيمة الخصم إن وجدت", en: "Enter discount amount if applicable" })}
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label>{t({ ar: "المبلغ اليدوي", en: "Manual Total" })}</Label>
+              <Input
+                type="number"
+                min="0"
+                value={editFormData.manual_total}
+                onChange={(e) => {
+                  const manual = parseFloat(e.target.value) || 0;
+                  const discount = parseFloat(editFormData.discount_amount) || 0;
+                  const finalTotal = manual - discount;
+                  setEditFormData({ 
+                    ...editFormData, 
+                    manual_total: e.target.value,
+                    total_amount: finalTotal.toString()
+                  });
+                }}
+                placeholder="0"
+              />
+              <p className="text-xs text-muted-foreground">
+                {t({ ar: "أدخل المبلغ يدوياً إذا كنت تريد تعديله", en: "Enter amount manually if you want to modify it" })}
+              </p>
             </div>
             <div className="space-y-2 p-4 bg-muted/50 rounded-lg">
               <div className="flex justify-between items-center">

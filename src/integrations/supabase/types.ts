@@ -19,9 +19,11 @@ export type Database = {
           check_in: string
           check_out: string
           created_at: string | null
+          discount_amount: number | null
           guests: number
           hotel_id: string
           id: string
+          manual_total: number | null
           notes: string | null
           payment_method: string | null
           payment_status: string | null
@@ -35,9 +37,11 @@ export type Database = {
           check_in: string
           check_out: string
           created_at?: string | null
+          discount_amount?: number | null
           guests?: number
           hotel_id: string
           id?: string
+          manual_total?: number | null
           notes?: string | null
           payment_method?: string | null
           payment_status?: string | null
@@ -51,9 +55,11 @@ export type Database = {
           check_in?: string
           check_out?: string
           created_at?: string | null
+          discount_amount?: number | null
           guests?: number
           hotel_id?: string
           id?: string
+          manual_total?: number | null
           notes?: string | null
           payment_method?: string | null
           payment_status?: string | null
@@ -239,6 +245,7 @@ export type Database = {
           price_per_night: number
           rating: number | null
           responsible_person_id: string | null
+          room_type: Database["public"]["Enums"]["room_type"] | null
           tax_percentage: number | null
           total_rooms: number | null
           updated_at: string | null
@@ -262,6 +269,7 @@ export type Database = {
           price_per_night: number
           rating?: number | null
           responsible_person_id?: string | null
+          room_type?: Database["public"]["Enums"]["room_type"] | null
           tax_percentage?: number | null
           total_rooms?: number | null
           updated_at?: string | null
@@ -285,6 +293,7 @@ export type Database = {
           price_per_night?: number
           rating?: number | null
           responsible_person_id?: string | null
+          room_type?: Database["public"]["Enums"]["room_type"] | null
           tax_percentage?: number | null
           total_rooms?: number | null
           updated_at?: string | null
@@ -505,6 +514,7 @@ export type Database = {
       app_role: "admin" | "employee" | "customer"
       booking_status: "new" | "pending" | "confirmed" | "cancelled"
       complaint_status: "new" | "pending" | "rejected" | "resolved"
+      room_type: "hotel_rooms" | "owner_rooms"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -635,6 +645,7 @@ export const Constants = {
       app_role: ["admin", "employee", "customer"],
       booking_status: ["new", "pending", "confirmed", "cancelled"],
       complaint_status: ["new", "pending", "rejected", "resolved"],
+      room_type: ["hotel_rooms", "owner_rooms"],
     },
   },
 } as const

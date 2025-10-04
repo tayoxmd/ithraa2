@@ -38,6 +38,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
   const [customRooms, setCustomRooms] = useState("");
   const [selectedCity, setSelectedCity] = useState<string>(initialValues?.city || "");
   const [cities, setCities] = useState<City[]>([]);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   const nights = dateRange?.from && dateRange?.to 
     ? differenceInDays(dateRange.to, dateRange.from)
@@ -89,6 +90,14 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
     }
   };
 
+  const numberOfDays = dateRange?.from && dateRange?.to 
+    ? differenceInDays(dateRange.to, dateRange.from)
+    : 0;
+
+  const displayDateText = dateRange?.from && dateRange?.to
+    ? `${format(dateRange.from, "dd MMMM yyyy", { locale: ar })} - ${format(dateRange.to, "dd MMMM yyyy", { locale: ar })} ${numberOfDays > 0 ? `(${t({ ar: numberOfDays === 1 ? "يوم واحد" : numberOfDays === 2 ? "يومان" : `${numberOfDays} أيام`, en: `${numberOfDays} ${numberOfDays === 1 ? "day" : "days"}` })})` : ''}`
+    : t({ ar: "اختر التواريخ", en: "Pick dates" });
+
   return (
     <div className="w-full max-w-6xl mx-auto">
       <div className="card-luxury rounded-2xl p-6 md:p-8 animate-scale-in">
@@ -117,7 +126,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
             <label className="text-sm font-medium text-foreground mb-2 block">
               {t('تاريخ الوصول والمغادرة', 'Check-in & Check-out')}
             </label>
-            <Popover>
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -127,17 +136,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                   )}
                 >
                   <CalendarIcon className="ml-2 h-4 w-4" />
-                  {dateRange?.from ? (
-                    dateRange.to ? (
-                      <>
-                        {format(dateRange.from, "PPP", { locale: ar })} - {format(dateRange.to, "PPP", { locale: ar })}
-                      </>
-                    ) : (
-                      format(dateRange.from, "PPP", { locale: ar })
-                    )
-                  ) : (
-                    t("اختر التواريخ", "Pick dates")
-                  )}
+                  {displayDateText}
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -152,11 +151,17 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                     className="pointer-events-auto"
                     numberOfMonths={2}
                   />
-                  {nights > 0 && (
-                    <div className="px-3 pb-3 text-sm text-foreground">
-                      {t('عدد الأيام', 'Number of days')}: <span className="font-semibold">{nights}</span>
-                    </div>
-                  )}
+                  <div className="px-3 pb-3 border-t flex items-center justify-between">
+                    <span className="text-sm">
+                      {t('عدد الأيام', 'Number of days')}: <strong>{numberOfDays}</strong>
+                    </span>
+                    <Button 
+                      size="sm" 
+                      onClick={() => setIsCalendarOpen(false)}
+                    >
+                      {t('موافق', 'OK')}
+                    </Button>
+                  </div>
                 </div>
               </PopoverContent>
             </Popover>

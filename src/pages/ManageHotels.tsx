@@ -46,6 +46,7 @@ interface Hotel {
   bookings_count?: number;
   max_guests_per_room: number;
   extra_guest_price: number;
+  room_type: 'hotel_rooms' | 'owner_rooms';
 }
 
 export default function ManageHotels() {
@@ -79,6 +80,7 @@ export default function ManageHotels() {
     extra_guest_price: "0",
     total_rooms: "10",
     tax_percentage: "15",
+    room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
   });
 
   useEffect(() => {
@@ -235,6 +237,7 @@ export default function ManageHotels() {
           extra_guest_price: parseFloat(formData.extra_guest_price),
           total_rooms: parseInt(formData.total_rooms),
           tax_percentage: parseFloat(formData.tax_percentage),
+          room_type: formData.room_type,
         }])
         .select()
         .single();
@@ -285,6 +288,7 @@ export default function ManageHotels() {
           extra_guest_price: parseFloat(formData.extra_guest_price),
           total_rooms: parseInt(formData.total_rooms),
           tax_percentage: parseFloat(formData.tax_percentage),
+          room_type: formData.room_type,
         })
         .eq('id', editingHotel.id);
 
@@ -347,6 +351,7 @@ export default function ManageHotels() {
       extra_guest_price: hotel.extra_guest_price.toString(),
       total_rooms: (hotel as any).total_rooms?.toString() || "10",
       tax_percentage: (hotel as any).tax_percentage?.toString() || "15",
+      room_type: hotel.room_type || 'hotel_rooms',
     });
 
     // Fetch existing responsible persons
@@ -380,6 +385,7 @@ export default function ManageHotels() {
       extra_guest_price: "0",
       total_rooms: "10",
       tax_percentage: "15",
+      room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
     });
   };
 
@@ -437,7 +443,10 @@ export default function ManageHotels() {
 
         <div className="grid gap-6">
           {filteredHotels.map((hotel) => (
-            <Card key={hotel.id} className="card-luxury">
+            <Card 
+              key={hotel.id} 
+              className={`card-luxury ${hotel.room_type === 'owner_rooms' ? 'bg-sky-100/50 dark:bg-sky-950/20' : ''}`}
+            >
               <CardHeader>
                 <CardTitle className="flex items-center justify-between flex-wrap gap-4">
                   <span>{language === 'ar' ? hotel.name_ar : hotel.name_en}</span>
@@ -681,7 +690,20 @@ export default function ManageHotels() {
                   <Input type="number" min="0" value={formData.extra_guest_price} onChange={(e) => setFormData({...formData, extra_guest_price: e.target.value})} />
                 </div>
                 <div className="space-y-2">
-                  <Label>{t({ ar: "المسؤولون عن الفندق", en: "Hotel Managers" })}</Label>
+                  <Label>{t({ ar: "نوع الغرف", en: "Room Type" })}</Label>
+                  <Select value={formData.room_type} onValueChange={(value: 'hotel_rooms' | 'owner_rooms') => setFormData({...formData, room_type: value})}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="hotel_rooms">{t({ ar: "غرف فندقية", en: "Hotel Rooms" })}</SelectItem>
+                      <SelectItem value="owner_rooms">{t({ ar: "غرف مُلّاك", en: "Owner Rooms" })}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>{t({ ar: "المسؤولون عن الفندق", en: "Hotel Managers" })}</Label>
                   <div className="border rounded-md p-3 max-h-40 overflow-y-auto space-y-2">
                     {employees.length === 0 ? (
                       <p className="text-sm text-muted-foreground">
@@ -714,7 +736,6 @@ export default function ManageHotels() {
                     {t({ ar: "سيتم إرسال الطلبات إلى لوحة التحكم الخاصة بالموظفين المحددين", en: "Requests will be sent to selected employees' dashboards" })}
                   </p>
                 </div>
-              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => { setIsAddDialogOpen(false); resetForm(); }}>
@@ -809,6 +830,28 @@ export default function ManageHotels() {
                   <Label>{t({ ar: "سعر الشخص الإضافي", en: "Extra Guest Price", fr: "Prix par invité supplémentaire", es: "Precio por huésped adicional", ru: "Цена за доп. гостя", id: "Harga Tamu Tambahan", ms: "Harga Tetamu Tambahan" })}</Label>
                   <Input type="number" min="0" value={formData.extra_guest_price} onChange={(e) => setFormData({...formData, extra_guest_price: e.target.value})} />
                 </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "عدد الغرف المتاحة", en: "Total Rooms" })}</Label>
+                  <Input type="number" min="1" value={formData.total_rooms || "10"} onChange={(e) => setFormData({...formData, total_rooms: e.target.value})} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "نسبة الضريبة %", en: "Tax %" })}</Label>
+                  <Input type="number" min="0" max="100" value={formData.tax_percentage || "15"} onChange={(e) => setFormData({...formData, tax_percentage: e.target.value})} />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>{t({ ar: "نوع الغرف", en: "Room Type" })}</Label>
+                <Select value={formData.room_type} onValueChange={(value: 'hotel_rooms' | 'owner_rooms') => setFormData({...formData, room_type: value})}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="hotel_rooms">{t({ ar: "غرف فندقية", en: "Hotel Rooms" })}</SelectItem>
+                    <SelectItem value="owner_rooms">{t({ ar: "غرف مُلّاك", en: "Owner Rooms" })}</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>{t({ ar: "المسؤولون عن الفندق", en: "Hotel Managers" })}</Label>
