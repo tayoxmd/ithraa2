@@ -138,27 +138,47 @@ export default function SearchResults() {
                     {language === 'ar' ? hotel.description_ar : hotel.description_en}
                   </p>
                   <div className="flex items-center justify-between">
-                    <div>
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-2xl font-bold text-primary">{hotel.price_per_night}</span>
-                        <span className="text-sm text-muted-foreground">
-                          {t({ ar: 'ر.س / ليلة', en: 'SAR / night' })}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {t({ ar: 'السعر شامل الضريبة', en: 'Price includes tax' })}
-                      </p>
-                      {checkIn && checkOut && rooms && (
-                        <p className="text-xs text-foreground/80 mt-1 font-medium">
-                          {(() => {
-                            const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
-                            const roomsCount = parseInt(rooms) || 1;
-                            const total = hotel.price_per_night * nights * roomsCount;
-                            return `${t({ ar: 'الإجمالي', en: 'Total' })}: ${total.toLocaleString()} ${t({ ar: 'ر.س', en: 'SAR' })} (${nights} ${t({ ar: 'ليلة', en: 'nights' })} × ${roomsCount} ${t({ ar: 'غرفة', en: 'rooms' })})`;
-                          })()}
-                        </p>
-                      )}
+                  <div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-primary">
+                        {(() => {
+                          const taxRate = (hotel as any).tax_percentage || 15;
+                          const priceWithTax = hotel.price_per_night * (1 + taxRate / 100);
+                          return Math.round(priceWithTax);
+                        })()}
+                      </span>
+                      <span className="text-sm text-muted-foreground">
+                        {t({ ar: 'ر.س / ليلة', en: 'SAR / night' })}
+                      </span>
                     </div>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {t({ ar: 'السعر شامل الضريبة', en: 'Price includes tax' })}
+                    </p>
+                    {checkIn && checkOut && rooms && guests && (
+                      <p className="text-xs text-foreground/80 mt-1 font-medium">
+                        {(() => {
+                          const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
+                          const roomsCount = parseInt(rooms) || 1;
+                          const guestsCount = parseInt(guests) || 2;
+                          const maxGuestsIncluded = ((hotel as any).max_guests_per_room || 2) * roomsCount;
+                          
+                          const taxRate = (hotel as any).tax_percentage || 15;
+                          const priceWithTax = hotel.price_per_night * (1 + taxRate / 100);
+                          let subtotal = priceWithTax * nights * roomsCount;
+                          
+                          // Add extra guests charge
+                          if (guestsCount > maxGuestsIncluded) {
+                            const extraGuests = guestsCount - maxGuestsIncluded;
+                            const extraGuestPrice = (hotel as any).extra_guest_price || 0;
+                            const extraCharge = extraGuests * extraGuestPrice * nights * (1 + taxRate / 100);
+                            subtotal += extraCharge;
+                          }
+                          
+                          return `${t({ ar: 'الإجمالي', en: 'Total' })}: ${Math.round(subtotal).toLocaleString()} ${t({ ar: 'ر.س', en: 'SAR' })} (${nights} ${t({ ar: 'ليلة', en: 'nights' })} × ${roomsCount} ${t({ ar: 'غرفة', en: 'rooms' })})`;
+                        })()}
+                      </p>
+                    )}
+                  </div>
                     <Button 
                       className="btn-luxury"
                       onClick={() => {

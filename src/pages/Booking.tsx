@@ -17,12 +17,16 @@ import { ar } from "date-fns/locale";
 import { bookingSchema } from "@/lib/validations";
 
 const paymentMethods = [
+  { id: 'cash', name: 'نقدي', nameEn: 'Cash' },
+  { id: 'cash-electronic', name: 'نقدي + دفع إلكتروني', nameEn: 'Cash + Electronic Payment' },
+  { id: 'cash-transfer', name: 'نقدي + تحويل بنكي', nameEn: 'Cash + Bank Transfer' },
   { id: 'apple-pay', name: 'Apple Pay', nameEn: 'Apple Pay' },
   { id: 'stc-pay', name: 'STC Pay', nameEn: 'STC Pay' },
   { id: 'google-pay', name: 'Google Pay', nameEn: 'Google Pay' },
   { id: 'mada', name: 'مدى', nameEn: 'Mada' },
   { id: 'visa', name: 'فيزا', nameEn: 'Visa' },
   { id: 'mastercard', name: 'ماستر كارد', nameEn: 'Mastercard' },
+  { id: 'bank-transfer', name: 'تحويل بنكي', nameEn: 'Bank Transfer' },
 ];
 
 export default function Booking() {
@@ -74,22 +78,25 @@ export default function Booking() {
     const roomsCount = parseInt(rooms) || 1;
     const guestsCount = parseInt(guests) || 1;
     
-    // Calculate base room price
-    const subtotal = nights * hotel.price_per_night * roomsCount;
+    // Calculate base room price WITH TAX (price is already inclusive)
+    const taxRate = hotel.tax_percentage || 15;
+    const priceWithTax = hotel.price_per_night * (1 + taxRate / 100);
+    const subtotal = nights * priceWithTax * roomsCount;
     
-    // Calculate extra guests charge
+    // Calculate extra guests charge WITH TAX
     const maxGuestsIncluded = (hotel.max_guests_per_room || 2) * roomsCount;
     let extraGuestCharge = 0;
     let extraGuestsCount = 0;
     
     if (guestsCount > maxGuestsIncluded) {
       extraGuestsCount = guestsCount - maxGuestsIncluded;
-      extraGuestCharge = extraGuestsCount * (hotel.extra_guest_price || 0) * nights;
+      const extraGuestPriceWithTax = (hotel.extra_guest_price || 0) * (1 + taxRate / 100);
+      extraGuestCharge = extraGuestsCount * extraGuestPriceWithTax * nights;
     }
     
-    const totalBeforeTax = subtotal + extraGuestCharge;
-    const tax = totalBeforeTax * ((hotel.tax_percentage || 15) / 100);
-    const total = totalBeforeTax + tax;
+    // Total is already tax-inclusive, so no need to add tax again
+    const total = subtotal + extraGuestCharge;
+    const tax = 0; // Tax is already included in the prices
     
     return { subtotal, extraGuestCharge, tax, total, extraGuestsCount };
   };
@@ -258,10 +265,6 @@ export default function Booking() {
                         <span>+{Math.round(calculateTotal().extraGuestCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
                       </div>
                     )}
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{t({ ar: 'الضرائب والرسوم', en: 'Taxes & Fees' })}</span>
-                      <span>{Math.round(calculateTotal().tax)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
-                    </div>
                     <div className="flex justify-between font-bold text-lg pt-2 border-t">
                       <span>{t({ ar: 'الإجمالي', en: 'Total' })}</span>
                       <span className="text-primary">

@@ -259,7 +259,7 @@ export default function AdminDashboard() {
               </Button>
               <Button onClick={() => navigate('/profile')} variant="outline" className="h-20 flex-col gap-2">
                 <User className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "الملف", en: "Profile" })}</span>
+                <span className="text-xs">{t({ ar: "الملف الشخصي", en: "Profile" })}</span>
               </Button>
             </div>
 

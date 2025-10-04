@@ -65,9 +65,22 @@ export default function ManageEmployees() {
 
       if (rolesError) throw rolesError;
 
-      const { data: { users: authUsers }, error: authError } = await supabase.auth.admin.listUsers();
-      
-      if (authError) throw authError;
+      // Use edge function to list users
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-users`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ action: 'listUsers' })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch users');
+      }
+
+      const { users: authUsers } = await response.json();
 
       const combinedUsers: UserProfile[] = profilesData?.map(profile => {
         const authUser = authUsers?.find((u: any) => u.id === profile.id);
@@ -107,23 +120,36 @@ export default function ManageEmployees() {
 
     setLoading(true);
     try {
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: formData.email,
-        password: formData.password,
-        email_confirm: true,
-        user_metadata: {
-          full_name: formData.full_name,
-          phone: formData.phone
-        }
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-users`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'createUser',
+          email: formData.email,
+          password: formData.password,
+          metadata: {
+            full_name: formData.full_name,
+            phone: formData.phone
+          }
+        })
       });
 
-      if (authError) throw authError;
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create user');
+      }
 
-      if (formData.role !== 'customer' && authData.user) {
+      const { user: newUser } = await response.json();
+
+      if (formData.role !== 'customer' && newUser) {
         await supabase
           .from('user_roles')
           .update({ role: formData.role })
-          .eq('user_id', authData.user.id);
+          .eq('user_id', newUser.id);
       }
 
       toast({
@@ -169,11 +195,24 @@ export default function ManageEmployees() {
       if (roleError) throw roleError;
 
       if (formData.password) {
-        const { error: passwordError } = await supabase.auth.admin.updateUserById(
-          selectedUser.id,
-          { password: formData.password }
-        );
-        if (passwordError) throw passwordError;
+        const { data: { session } } = await supabase.auth.getSession();
+        const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-users`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${session?.access_token}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            action: 'updateUser',
+            userId: selectedUser.id,
+            password: formData.password
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.error || 'Failed to update password');
+        }
       }
 
       toast({
@@ -204,8 +243,23 @@ export default function ManageEmployees() {
 
     setLoading(true);
     try {
-      const { error } = await supabase.auth.admin.deleteUser(userId);
-      if (error) throw error;
+      const { data: { session } } = await supabase.auth.getSession();
+      const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-users`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${session?.access_token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'deleteUser',
+          userId
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to delete user');
+      }
 
       toast({
         title: t({ ar: "نجح", en: "Success" }),

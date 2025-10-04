@@ -74,6 +74,9 @@ export function SearchBox({ initialValues }: { initialValues?: any } = {}) {
     params.set('rooms', rooms === 'custom' ? customRooms : rooms);
 
     navigate(`/search?${params.toString()}`);
+    
+    // Scroll to top after search
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (

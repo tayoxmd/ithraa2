@@ -135,7 +135,11 @@ export default function HotelDetails() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-primary">
-                      {hotel.price_per_night} {t('ر.س', 'SAR')}
+                      {(() => {
+                        const taxRate = (hotel as any).tax_percentage || 15;
+                        const priceWithTax = hotel.price_per_night * (1 + taxRate / 100);
+                        return Math.round(priceWithTax);
+                      })()} {t('ر.س', 'SAR')}
                     </span>
                     <span className="text-muted-foreground">
                       {t('لليلة الواحدة', 'per night')}
@@ -153,8 +157,21 @@ export default function HotelDetails() {
                           const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
                           const roomsCount = parseInt(rooms) || 1;
                           const guestsCount = parseInt(guests) || 2;
-                          const total = hotel.price_per_night * nights * roomsCount;
-                          return `${t('الإجمالي', 'Total')}: ${total.toLocaleString()} ${t('ر.س', 'SAR')} (${nights} ${t('ليلة', 'nights')} × ${roomsCount} ${t('غرفة', 'rooms')})`;
+                          const maxGuestsIncluded = ((hotel as any).max_guests_per_room || 2) * roomsCount;
+                          
+                          const taxRate = (hotel as any).tax_percentage || 15;
+                          const priceWithTax = hotel.price_per_night * (1 + taxRate / 100);
+                          let subtotal = priceWithTax * nights * roomsCount;
+                          
+                          // Add extra guests charge
+                          if (guestsCount > maxGuestsIncluded) {
+                            const extraGuests = guestsCount - maxGuestsIncluded;
+                            const extraGuestPrice = (hotel as any).extra_guest_price || 0;
+                            const extraCharge = extraGuests * extraGuestPrice * nights * (1 + taxRate / 100);
+                            subtotal += extraCharge;
+                          }
+                          
+                          return `${t('الإجمالي', 'Total')}: ${Math.round(subtotal).toLocaleString()} ${t('ر.س', 'SAR')} (${nights} ${t('ليلة', 'nights')} × ${roomsCount} ${t('غرفة', 'rooms')})`;
                         })()}
                       </p>
                     </div>
