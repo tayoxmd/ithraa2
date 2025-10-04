@@ -70,16 +70,16 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
   });
 
   const statusColors = {
-    new: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200",
-    pending: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200",
-    confirmed: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
-    cancelled: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200",
-    rejected: "bg-red-200 text-red-900 dark:bg-red-950 dark:text-red-300",
+    new: "bg-blue-600 text-white dark:bg-blue-700 dark:text-white",
+    pending: "bg-yellow-600 text-white dark:bg-yellow-700 dark:text-white",
+    confirmed: "bg-green-600 text-white dark:bg-green-700 dark:text-white",
+    cancelled: "bg-red-600 text-white dark:bg-red-700 dark:text-white",
+    rejected: "bg-red-700 text-white dark:bg-red-800 dark:text-white",
   };
 
   const paymentStatusColors = {
-    paid: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
-    partially_paid: "bg-slate-100 text-slate-800 dark:bg-slate-900 dark:text-slate-200",
+    paid: "bg-amber-600 text-white dark:bg-amber-700 dark:text-white",
+    partially_paid: "bg-slate-600 text-white dark:bg-slate-700 dark:text-white",
     unpaid: "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900",
   };
 
@@ -421,16 +421,18 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     <span className="font-semibold">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })}</span>
                     <span className="text-primary font-bold ml-2">{booking.total_amount} {t({ ar: "ر.س", en: "SAR" })}</span>
                   </div>
-                  {booking.payment_status === 'partially_paid' && (
+                  {(booking.payment_status === 'partially_paid' || booking.payment_status === 'paid') && (
                     <>
                       <div className="text-sm">
                         <span className="font-semibold">{t({ ar: "المبلغ المدفوع:", en: "Amount Paid:" })}</span>
                         <span className="text-green-600 font-bold ml-2">{booking.amount_paid} {t({ ar: "ر.س", en: "SAR" })}</span>
                       </div>
-                      <div className="text-sm">
-                        <span className="font-semibold">{t({ ar: "المبلغ المتبقي:", en: "Remaining:" })}</span>
-                        <span className="text-red-600 font-bold ml-2">{booking.total_amount - booking.amount_paid} {t({ ar: "ر.س", en: "SAR" })}</span>
-                      </div>
+                      {booking.payment_status === 'partially_paid' && (
+                        <div className="text-sm">
+                          <span className="font-semibold">{t({ ar: "المبلغ المتبقي:", en: "Remaining:" })}</span>
+                          <span className="text-red-600 font-bold ml-2">{booking.total_amount - booking.amount_paid} {t({ ar: "ر.س", en: "SAR" })}</span>
+                        </div>
+                      )}
                     </>
                   )}
                   <div className="text-sm">
@@ -573,19 +575,19 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
               />
             </div>
             <div className="space-y-2">
-              <Label>{t({ ar: "المبلغ الإجمالي", en: "Total Amount" })}</Label>
-              <Input
-                type="number"
-                value={editFormData.manual_total}
-                onChange={(e) => setEditFormData({ ...editFormData, manual_total: e.target.value, total_amount: e.target.value })}
-              />
-            </div>
-            <div className="space-y-2">
               <Label>{t({ ar: "مبلغ الخصم", en: "Discount Amount" })}</Label>
               <Input
                 type="number"
                 value={editFormData.discount_amount}
                 onChange={(e) => setEditFormData({ ...editFormData, discount_amount: e.target.value })}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>{t({ ar: "المبلغ الإجمالي", en: "Total Amount" })}</Label>
+              <Input
+                type="number"
+                value={editFormData.manual_total}
+                onChange={(e) => setEditFormData({ ...editFormData, manual_total: e.target.value, total_amount: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -595,6 +597,12 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                 value={editFormData.amount_paid}
                 onChange={(e) => setEditFormData({ ...editFormData, amount_paid: e.target.value })}
               />
+            </div>
+            <div className="space-y-2">
+              <Label className="font-semibold">{t({ ar: "الإجمالي بعد الخصم", en: "Total After Discount" })}</Label>
+              <div className="text-lg font-bold text-primary p-2 bg-muted rounded-md">
+                {(parseFloat(editFormData.manual_total || "0") - parseFloat(editFormData.discount_amount || "0")).toFixed(2)} {t({ ar: "ر.س", en: "SAR" })}
+              </div>
             </div>
             <div className="space-y-2">
               <Label>{t({ ar: "ملاحظات", en: "Notes" })}</Label>
