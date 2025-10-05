@@ -107,9 +107,6 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
               <span className="text-2xl font-bold text-primary">{price}</span>
               <span className="text-sm text-muted-foreground">ريال / ليلة</span>
             </div>
-            <div className="text-xs text-muted-foreground mt-1">
-              <span className="font-semibold text-foreground">{Math.round(price * 1.15)}</span> ريال <span className="text-[10px]">شامل الضريبة</span>
-            </div>
           </div>
           <Button 
             size="sm" 

@@ -148,28 +148,20 @@ export default function SearchResults() {
                   <div>
                     <div className="flex items-baseline gap-2">
                       <span className="text-2xl font-bold text-primary">
-                        {(() => {
-                          const taxRate = (hotel as any).tax_percentage || 15;
-                          const priceWithTax = hotel.price_per_night * (1 + taxRate / 100);
-                          return Math.round(priceWithTax);
-                        })()}
+                        {Math.round(hotel.price_per_night)}
                       </span>
                       <span className="text-sm text-muted-foreground">
                         {t({ ar: 'ر.س / ليلة', en: 'SAR / night' })}
                       </span>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {t({ ar: 'السعر شامل الضريبة', en: 'Price includes tax' })}
-                    </p>
                     {checkIn && checkOut && rooms && guests && (() => {
                       const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
                       const roomsCount = parseInt(rooms) || 1;
                       const guestsCount = parseInt(guests) || 2;
                       const maxGuestsIncluded = ((hotel as any).max_guests_per_room || 2) * roomsCount;
                       
-                      const taxRate = (hotel as any).tax_percentage || 15;
-                      const priceWithTax = hotel.price_per_night * (1 + taxRate / 100);
-                      let subtotal = priceWithTax * nights * roomsCount;
+                      const taxRate = (hotel as any).tax_percentage || 0;
+                      let subtotal = hotel.price_per_night * nights * roomsCount;
                       
                       let extraGuestCharge = 0;
                       let extraGuests = 0;
@@ -178,9 +170,13 @@ export default function SearchResults() {
                       if (guestsCount > maxGuestsIncluded) {
                         extraGuests = guestsCount - maxGuestsIncluded;
                         const extraGuestPrice = (hotel as any).extra_guest_price || 0;
-                        extraGuestCharge = extraGuests * extraGuestPrice * nights * (1 + taxRate / 100);
+                        extraGuestCharge = extraGuests * extraGuestPrice * nights;
                         subtotal += extraGuestCharge;
                       }
+                      
+                      // Add tax only if tax_percentage > 0
+                      const tax = taxRate > 0 ? subtotal * (taxRate / 100) : 0;
+                      const total = subtotal + tax;
                       
                       return (
                         <>
@@ -190,8 +186,13 @@ export default function SearchResults() {
                             </p>
                           )}
                           <p className="text-xs text-foreground/80 mt-1 font-medium">
-                            {t({ ar: 'الإجمالي', en: 'Total' })}: {Math.round(subtotal).toLocaleString()} {t({ ar: 'ر.س', en: 'SAR' })} ({nights} {t({ ar: 'ليلة', en: 'nights' })} × {roomsCount} {t({ ar: 'غرفة', en: 'rooms' })})
+                            {t({ ar: 'الإجمالي', en: 'Total' })}: {Math.round(total).toLocaleString()} {t({ ar: 'ر.س', en: 'SAR' })} ({nights} {t({ ar: 'ليلة', en: 'nights' })} × {roomsCount} {t({ ar: 'غرفة', en: 'rooms' })})
                           </p>
+                          {taxRate > 0 && (
+                            <p className="text-xs text-muted-foreground mt-0.5">
+                              {t({ ar: 'شامل ضريبة', en: 'Including tax' })} {taxRate}%
+                            </p>
+                          )}
                         </>
                       );
                     })()}
