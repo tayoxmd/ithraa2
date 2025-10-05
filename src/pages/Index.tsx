@@ -118,6 +118,7 @@ const Index = () => {
                   price={Number(hotel.price_per_night)}
                   rating={Number(hotel.rating)}
                   image={hotel.images && hotel.images[0] ? hotel.images[0] : "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000"}
+                  images={hotel.images}
                   featured={index < 2}
                 />
               </div>

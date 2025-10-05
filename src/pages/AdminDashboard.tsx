@@ -167,6 +167,33 @@ export default function AdminDashboard() {
     return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
   }
 
+  const BigStatCard = ({ title, value, icon: Icon, gradient, change, chartData }: any) => (
+    <Card className={`overflow-hidden hover-lift transition-all rounded-xl border-2 ${gradient}`}>
+      <CardContent className="p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div className={`w-14 h-14 rounded-xl flex items-center justify-center ${gradient.replace('border-', 'bg-').replace('from-', 'from-').replace('to-', 'to-')}`}>
+            <Icon className="w-7 h-7 text-white" />
+          </div>
+          {change && (
+            <div className={`flex items-center gap-1 text-sm font-medium px-3 py-1 rounded-full ${change >= 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'}`}>
+              {change >= 0 ? <TrendingUp className="w-4 h-4" /> : <TrendingDown className="w-4 h-4" />}
+              <span>{Math.abs(change)}%</span>
+            </div>
+          )}
+        </div>
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-muted-foreground">{title}</p>
+          <h3 className="text-3xl font-bold">{value}</h3>
+        </div>
+        {chartData && (
+          <div className="mt-4 h-2 bg-muted rounded-full overflow-hidden">
+            <div className={`h-full rounded-full ${gradient.replace('border-', 'bg-gradient-to-r ')}`} style={{ width: `${chartData}%` }}></div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+
   const StatCard = ({ title, value, icon: Icon, colorClass }: any) => (
     <Card className="card-luxury hover-lift transition-all rounded-md">
       <CardContent className="pt-6">
@@ -265,26 +292,30 @@ export default function AdminDashboard() {
             </div>
 
             {/* Quick Actions - Mobile Only */}
-            <div className="lg:hidden grid grid-cols-2 gap-3 mb-6">
-              <Button onClick={() => navigate('/audit-logs')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
-                <FileText className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "سجل الأحداث", en: "Audit Logs" })}</span>
+            <div className="lg:hidden grid grid-cols-2 gap-2 mb-6">
+              <Button onClick={() => navigate('/audit-logs')} variant="outline" className="h-12 flex-col gap-1 rounded-md text-xs">
+                <FileText className="w-4 h-4" />
+                <span>{t({ ar: "سجل الأحداث", en: "Audit Logs" })}</span>
               </Button>
-              <Button onClick={() => navigate('/manage-employees')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
-                <UserCog className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "الموظفين", en: "Employees" })}</span>
+              <Button onClick={() => navigate('/manage-employees')} variant="outline" className="h-12 flex-col gap-1 rounded-md text-xs">
+                <UserCog className="w-4 h-4" />
+                <span>{t({ ar: "الموظفين", en: "Employees" })}</span>
               </Button>
-              <Button onClick={() => navigate('/manage-hotels')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
-                <Hotel className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "الفنادق", en: "Hotels" })}</span>
+              <Button onClick={() => navigate('/manage-hotels')} variant="outline" className="h-12 flex-col gap-1 rounded-md text-xs">
+                <Hotel className="w-4 h-4" />
+                <span>{t({ ar: "الفنادق", en: "Hotels" })}</span>
               </Button>
-              <Button onClick={() => navigate('/site-settings')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
-                <Settings className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "الإعدادات", en: "Settings" })}</span>
+              <Button onClick={() => navigate('/site-settings')} variant="outline" className="h-12 flex-col gap-1 rounded-md text-xs">
+                <Settings className="w-4 h-4" />
+                <span>{t({ ar: "الإعدادات", en: "Settings" })}</span>
               </Button>
-              <Button onClick={() => navigate('/profile')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
-                <User className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "الملف الشخصي", en: "Profile" })}</span>
+              <Button onClick={() => navigate('/pdf-settings')} variant="outline" className="h-12 flex-col gap-1 rounded-md text-xs">
+                <FileText className="w-4 h-4" />
+                <span>{t({ ar: "PDF", en: "PDF" })}</span>
+              </Button>
+              <Button onClick={() => navigate('/profile')} variant="outline" className="h-12 flex-col gap-1 rounded-md text-xs">
+                <User className="w-4 h-4" />
+                <span>{t({ ar: "الملف", en: "Profile" })}</span>
               </Button>
             </div>
 
@@ -310,58 +341,40 @@ export default function AdminDashboard() {
               </Card>
             </div>
 
-            {/* Interactive Stats Dashboard - Desktop */}
-            <div className="hidden lg:grid grid-cols-3 gap-6 mb-8">
-              <Card className="rounded-md hover-lift transition-all bg-gradient-to-br from-blue-50 via-blue-100 to-blue-50 dark:from-blue-950 dark:via-blue-900 dark:to-blue-950 border-2 border-blue-200 dark:border-blue-800">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-md bg-blue-500 flex items-center justify-center">
-                      <TrendingUp className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-muted-foreground">{t({ ar: "معدل النمو", en: "Growth Rate" })}</p>
-                      <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">+12.5%</p>
-                    </div>
-                  </div>
-                  <div className="h-2 bg-blue-200 dark:bg-blue-800 rounded-full overflow-hidden">
-                    <div className="h-full w-[75%] bg-blue-500 rounded-full"></div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="rounded-md hover-lift transition-all bg-gradient-to-br from-green-50 via-green-100 to-green-50 dark:from-green-950 dark:via-green-900 dark:to-green-950 border-2 border-green-200 dark:border-green-800">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-md bg-green-500 flex items-center justify-center">
-                      <Users className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-muted-foreground">{t({ ar: "رضا العملاء", en: "Satisfaction" })}</p>
-                      <p className="text-2xl font-bold text-green-600 dark:text-green-400">94%</p>
-                    </div>
-                  </div>
-                  <div className="h-2 bg-green-200 dark:bg-green-800 rounded-full overflow-hidden">
-                    <div className="h-full w-[94%] bg-green-500 rounded-full"></div>
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="rounded-md hover-lift transition-all bg-gradient-to-br from-amber-50 via-amber-100 to-amber-50 dark:from-amber-950 dark:via-amber-900 dark:to-amber-950 border-2 border-amber-200 dark:border-amber-800">
-                <CardContent className="p-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="w-12 h-12 rounded-md bg-amber-500 flex items-center justify-center">
-                      <Clock className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm text-muted-foreground">{t({ ar: "الاستجابة", en: "Response Time" })}</p>
-                      <p className="text-2xl font-bold text-amber-600 dark:text-amber-400">2.3h</p>
-                    </div>
-                  </div>
-                  <div className="h-2 bg-amber-200 dark:bg-amber-800 rounded-full overflow-hidden">
-                    <div className="h-full w-[85%] bg-amber-500 rounded-full"></div>
-                  </div>
-                </CardContent>
-              </Card>
+            {/* Big Stats Dashboard - Desktop */}
+            <div className="hidden lg:grid grid-cols-4 gap-6 mb-8">
+              <BigStatCard
+                title={t({ ar: 'إجمالي الأرباح', en: 'Total Revenue' })}
+                value={`${stats.totalProfits.toLocaleString()} ${t({ ar: 'ر.س', en: 'SAR' })}`}
+                icon={DollarSign}
+                gradient="border-gradient-to-br from-emerald-400 to-emerald-600 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-950 dark:to-emerald-900"
+                change={12.5}
+                chartData={85}
+              />
+              <BigStatCard
+                title={t({ ar: 'إجمالي الحجوزات', en: 'Total Bookings' })}
+                value={stats.totalBookings.toLocaleString()}
+                icon={FileText}
+                gradient="border-gradient-to-br from-blue-400 to-blue-600 bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-950 dark:to-blue-900"
+                change={8.2}
+                chartData={72}
+              />
+              <BigStatCard
+                title={t({ ar: 'حجوزات معلقة', en: 'Pending Bookings' })}
+                value={stats.pendingBookings}
+                icon={Clock}
+                gradient="border-gradient-to-br from-orange-400 to-orange-600 bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-950 dark:to-orange-900"
+                change={-3.1}
+                chartData={45}
+              />
+              <BigStatCard
+                title={t({ ar: 'إجمالي العملاء', en: 'Total Customers' })}
+                value={stats.totalCustomers}
+                icon={Users}
+                gradient="border-gradient-to-br from-purple-400 to-purple-600 bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-950 dark:to-purple-900"
+                change={15.3}
+                chartData={92}
+              />
             </div>
 
             {/* Stats Grid */}
@@ -416,19 +429,117 @@ export default function AdminDashboard() {
               />
             </div>
 
-            {/* Recent Bookings */}
-            <Card className="card-luxury rounded-md">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
-                  {t({ ar: "الطلبات الأخيرة", en: "Recent Bookings" })}
-                </CardTitle>
+            {/* Task Manager - Bookings Table */}
+            <Card className="card-luxury rounded-xl border-2">
+              <CardHeader className="border-b bg-gradient-to-r from-primary/5 to-transparent">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="flex items-center gap-3 text-xl">
+                    <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary-glow flex items-center justify-center">
+                      <FileText className="w-5 h-5 text-white" />
+                    </div>
+                    {t({ ar: "مدير المهام - الطلبات", en: "Task Manager - Bookings" })}
+                  </CardTitle>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <FileText className="w-4 h-4" />
+                    {t({ ar: 'عرض الكل', en: 'View All' })}
+                  </Button>
+                </div>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-0">
                 {loadingBookings ? (
-                  <p className="text-muted-foreground text-center py-8">{t({ ar: "جاري التحميل...", en: "Loading..." })}</p>
+                  <p className="text-muted-foreground text-center py-12">{t({ ar: "جاري التحميل...", en: "Loading..." })}</p>
+                ) : bookings.length > 0 ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-muted/30">
+                        <tr>
+                          <th className="px-6 py-4 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            {t({ ar: '#', en: '#' })}
+                          </th>
+                          <th className="px-6 py-4 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            {t({ ar: 'رقم الطلب', en: 'Booking #' })}
+                          </th>
+                          <th className="px-6 py-4 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            {t({ ar: 'العميل', en: 'Customer' })}
+                          </th>
+                          <th className="px-6 py-4 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            {t({ ar: 'التاريخ', en: 'Date' })}
+                          </th>
+                          <th className="px-6 py-4 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            {t({ ar: 'حالة الطلب', en: 'Status' })}
+                          </th>
+                          <th className="px-6 py-4 text-right text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                            {t({ ar: 'حالة الدفع', en: 'Payment' })}
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-background divide-y divide-border">
+                        {bookings.slice(0, 10).map((booking, index) => (
+                          <tr key={booking.id} className="hover:bg-muted/20 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                              {index + 1}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <span className="text-sm font-bold text-primary">#{booking.booking_number}</span>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium">{booking.guest_name || booking.profiles?.full_name}</div>
+                              <div className="text-xs text-muted-foreground">{booking.profiles?.phone}</div>
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
+                              {new Date(booking.created_at).toLocaleDateString('ar-SA')}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {booking.status === 'new' && (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-yellow-100 to-yellow-200 text-yellow-800 dark:from-yellow-900 dark:to-yellow-800 dark:text-yellow-200 border border-yellow-300 dark:border-yellow-700">
+                                  {t({ ar: 'جديد', en: 'New' })}
+                                </span>
+                              )}
+                              {booking.status === 'pending' && (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-orange-100 to-orange-200 text-orange-800 dark:from-orange-900 dark:to-orange-800 dark:text-orange-200 border border-orange-300 dark:border-orange-700">
+                                  {t({ ar: 'قيد المعالجة', en: 'Pending' })}
+                                </span>
+                              )}
+                              {booking.status === 'confirmed' && (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-green-100 to-green-200 text-green-800 dark:from-green-900 dark:to-green-800 dark:text-green-200 border border-green-300 dark:border-green-700">
+                                  {t({ ar: 'مؤكد', en: 'Confirmed' })}
+                                </span>
+                              )}
+                              {booking.status === 'cancelled' && (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-red-100 to-red-200 text-red-800 dark:from-red-900 dark:to-red-800 dark:text-red-200 border border-red-300 dark:border-red-700">
+                                  {t({ ar: 'ملغي', en: 'Cancelled' })}
+                                </span>
+                              )}
+                              {booking.status === 'rejected' && (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-gray-100 to-gray-200 text-gray-800 dark:from-gray-900 dark:to-gray-800 dark:text-gray-200 border border-gray-300 dark:border-gray-700">
+                                  {t({ ar: 'مرفوض', en: 'Rejected' })}
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              {booking.payment_status === 'paid' && (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-emerald-100 to-emerald-200 text-emerald-800 dark:from-emerald-900 dark:to-emerald-800 dark:text-emerald-200 border border-emerald-300 dark:border-emerald-700">
+                                  {t({ ar: 'مدفوع', en: 'Paid' })}
+                                </span>
+                              )}
+                              {booking.payment_status === 'partially_paid' && (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-blue-100 to-blue-200 text-blue-800 dark:from-blue-900 dark:to-blue-800 dark:text-blue-200 border border-blue-300 dark:border-blue-700">
+                                  {t({ ar: 'دفع جزئي', en: 'Partial' })}
+                                </span>
+                              )}
+                              {booking.payment_status === 'unpaid' && (
+                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-rose-100 to-rose-200 text-rose-800 dark:from-rose-900 dark:to-rose-800 dark:text-rose-200 border border-rose-300 dark:border-rose-700">
+                                  {t({ ar: 'غير مدفوع', en: 'Unpaid' })}
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
                 ) : (
-                  <BookingManagement bookings={bookings} onUpdate={fetchBookings} />
+                  <p className="text-muted-foreground text-center py-12">{t({ ar: 'لا توجد طلبات', en: 'No bookings' })}</p>
                 )}
               </CardContent>
             </Card>
