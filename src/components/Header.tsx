@@ -161,17 +161,29 @@ export function Header() {
                 </a>
                 {user ? (
                   <>
-                    {(userRole === 'admin' || userRole === 'employee') && (
+                {(userRole === 'admin' || userRole === 'employee') && (
+                  <>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="justify-start gap-2"
+                      onClick={() => navigate(getDashboardPath())}
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      {t('الإدارة', 'Management')}
+                    </Button>
+                    {userRole === 'admin' && (
                       <Button 
                         variant="outline" 
                         size="sm" 
                         className="justify-start gap-2"
-                        onClick={() => navigate(getDashboardPath())}
+                        onClick={() => navigate('/pdf-settings')}
                       >
-                        <LayoutDashboard className="w-4 h-4" />
-                        {t('الإدارة', 'Management')}
+                        {t({ ar: "إعدادات PDF", en: "PDF Settings" })}
                       </Button>
                     )}
+                  </>
+                )}
                     <Button 
                       variant="outline" 
                       size="sm" 

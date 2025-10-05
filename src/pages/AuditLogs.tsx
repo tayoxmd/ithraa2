@@ -112,6 +112,35 @@ export default function AuditLogs() {
     return role && labels[role] ? (language === 'ar' ? labels[role]?.ar : labels[role]?.en) : '-';
   };
 
+  const getActionDescription = (action: string, entityType: string) => {
+    const descriptions: Record<string, { ar: string; en: string }> = {
+      'CREATE_booking': { ar: 'إنشاء حجز جديد', en: 'Created new booking' },
+      'UPDATE_booking': { ar: 'تحديث حجز', en: 'Updated booking' },
+      'DELETE_booking': { ar: 'حذف حجز', en: 'Deleted booking' },
+      'CREATE_hotel': { ar: 'إضافة فندق جديد', en: 'Added new hotel' },
+      'UPDATE_hotel': { ar: 'تحديث معلومات فندق', en: 'Updated hotel info' },
+      'DELETE_hotel': { ar: 'حذف فندق', en: 'Deleted hotel' },
+      'CREATE_user': { ar: 'إنشاء مستخدم جديد', en: 'Created new user' },
+      'UPDATE_user': { ar: 'تحديث بيانات مستخدم', en: 'Updated user data' },
+      'DELETE_user': { ar: 'حذف مستخدم', en: 'Deleted user' },
+      'UPDATE_site_settings': { ar: 'تحديث إعدادات الموقع', en: 'Updated site settings' },
+      'UPDATE_pdf_settings': { ar: 'تحديث إعدادات PDF', en: 'Updated PDF settings' },
+      'CREATE_complaint': { ar: 'إنشاء شكوى جديدة', en: 'Created new complaint' },
+      'UPDATE_complaint': { ar: 'تحديث شكوى', en: 'Updated complaint' },
+      'LOGIN': { ar: 'تسجيل دخول', en: 'User login' },
+      'LOGOUT': { ar: 'تسجيل خروج', en: 'User logout' },
+    };
+
+    const key = `${action}_${entityType}`;
+    const desc = descriptions[key] || descriptions[action];
+    
+    if (desc) {
+      return language === 'ar' ? desc.ar : desc.en;
+    }
+    
+    return `${action} ${entityType}`;
+  };
+
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
   }
@@ -177,7 +206,12 @@ export default function AuditLogs() {
                         </TableCell>
                         <TableCell>{getUserName(log.user_id)}</TableCell>
                         <TableCell>{getRoleLabel(log.user_role)}</TableCell>
-                        <TableCell>{log.action}</TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="font-medium">{getActionDescription(log.action, log.entity_type)}</div>
+                            <code className="text-xs text-muted-foreground">{log.action}</code>
+                          </div>
+                        </TableCell>
                         <TableCell>{log.entity_type}</TableCell>
                         <TableCell className="max-w-xs truncate">
                           {log.details ? JSON.stringify(log.details).substring(0, 50) + '...' : '-'}

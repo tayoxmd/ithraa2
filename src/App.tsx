@@ -24,6 +24,7 @@ import AuditLogs from "./pages/AuditLogs";
 import PDFSettings from "./pages/PDFSettings";
 import SeasonalPricing from "./pages/SeasonalPricing";
 import EmployeeManagement from "./pages/EmployeeManagement";
+import APISettings from "./pages/APISettings";
 
 const queryClient = new QueryClient();
 
@@ -48,8 +49,9 @@ const App = () => (
           <Route path="/manage-employees" element={<ManageEmployees />} />
           <Route path="/profile" element={<Profile />} />
               <Route path="/manage-hotels" element={<ManageHotels />} />
-              <Route path="/seasonal-pricing" element={<SeasonalPricing />} />
-              <Route path="/employee-management" element={<EmployeeManagement />} />
+          <Route path="/seasonal-pricing" element={<SeasonalPricing />} />
+          <Route path="/employee-management" element={<EmployeeManagement />} />
+          <Route path="/api-settings" element={<APISettings />} />
               <Route path="/site-settings" element={<SiteSettings />} />
               <Route path="/pdf-settings" element={<PDFSettings />} />
               <Route path="/audit-logs" element={<AuditLogs />} />

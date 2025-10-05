@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Palette, Type, Languages, Layout, Percent } from "lucide-react";
+import { Palette, Type, Languages, Layout, Percent, Key } from "lucide-react";
 
 export default function SiteSettings() {
   const { t } = useLanguage();
@@ -570,6 +570,26 @@ export default function SiteSettings() {
             </CardContent>
           </Card>
         </div>
+      </div>
+
+      {/* API Settings Link */}
+      <div className="container mx-auto px-4 pb-8">
+        <Card className="card-luxury">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Key className="w-5 h-5" />
+              {t({ ar: "إعدادات API", en: "API Settings" })}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              {t({ ar: "إدارة مفاتيح API والنطاقات المسموحة لربط موقعك بمواقع أخرى", en: "Manage API keys and allowed origins to connect your site with other platforms" })}
+            </p>
+            <Button onClick={() => navigate('/api-settings')} variant="outline">
+              {t({ ar: "إدارة إعدادات API", en: "Manage API Settings" })}
+            </Button>
+          </CardContent>
+        </Card>
       </div>
 
       <Footer />
