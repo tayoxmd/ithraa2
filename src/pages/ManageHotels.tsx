@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search, Upload, X, Image as ImageIcon } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search, Upload, X, Image as ImageIcon, Trash2 } from "lucide-react";
 import { ImageGallery } from "@/components/ImageGallery";
 
 interface City {
@@ -85,9 +85,15 @@ export default function ManageHotels() {
     max_guests_per_room: "2",
     extra_guest_price: "0",
     total_rooms: "10",
-    tax_percentage: "15",
+    tax_percentage: "0",
     room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
   });
+  const [mealPlans, setMealPlans] = useState<Array<{
+    type: string;
+    name_ar: string;
+    name_en: string;
+    price: number;
+  }>>([]);
 
   useEffect(() => {
     if (!loading && userRole !== 'admin') {
@@ -317,6 +323,7 @@ export default function ManageHotels() {
           tax_percentage: parseFloat(formData.tax_percentage),
           room_type: formData.room_type,
           images: hotelImages,
+          meal_plans: mealPlans,
         }])
         .select()
         .single();
@@ -343,6 +350,7 @@ export default function ManageHotels() {
       setIsAddDialogOpen(false);
       setSelectedResponsiblePersons([]);
       setHotelImages([]);
+      setMealPlans([]);
       resetForm();
       fetchHotels();
     } catch (error: any) {
@@ -370,6 +378,7 @@ export default function ManageHotels() {
           tax_percentage: parseFloat(formData.tax_percentage),
           room_type: formData.room_type,
           images: hotelImages,
+          meal_plans: mealPlans,
         })
         .eq('id', editingHotel.id);
 
@@ -403,6 +412,7 @@ export default function ManageHotels() {
       setEditingHotel(null);
       setSelectedResponsiblePersons([]);
       setHotelImages([]);
+      setMealPlans([]);
       resetForm();
       fetchHotels();
     } catch (error: any) {
@@ -441,6 +451,13 @@ export default function ManageHotels() {
       setHotelImages(hotel.images);
     } else {
       setHotelImages([]);
+    }
+
+    // Set existing meal plans
+    if ((hotel as any).meal_plans && Array.isArray((hotel as any).meal_plans)) {
+      setMealPlans((hotel as any).meal_plans);
+    } else {
+      setMealPlans([]);
     }
 
     // Fetch existing responsible persons
@@ -545,6 +562,15 @@ export default function ManageHotels() {
                       {hotel.active ? t({ ar: "نشط", en: "Active", fr: "Actif", es: "Activo", ru: "Активный", id: "Aktif", ms: "Aktif" }) : t({ ar: "غير نشط", en: "Inactive", fr: "Inactif", es: "Inactivo", ru: "Неактивный", id: "Tidak Aktif", ms: "Tidak Aktif" })}
                     </Badge>
                     <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => navigate(`/seasonal-pricing?hotelId=${hotel.id}`)}
+                        className="gap-1"
+                      >
+                        <Calendar className="w-4 h-4" />
+                        {t({ ar: "تخصيص الأسعار", en: "Pricing" })}
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"
@@ -891,6 +917,46 @@ export default function ManageHotels() {
                     {t({ ar: "سيتم إرسال الطلبات إلى لوحة التحكم الخاصة بالموظفين المحددين", en: "Requests will be sent to selected employees' dashboards" })}
                   </p>
                 </div>
+              
+              {/* Meal Plans Section */}
+              <div className="space-y-3 pt-4 border-t">
+                <div className="flex items-center justify-between">
+                  <Label>{t({ ar: "خطط الوجبات", en: "Meal Plans" })}</Label>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setMealPlans([...mealPlans, { type: 'breakfast_only', name_ar: '', name_en: '', price: 0 }])}
+                  >
+                    <Plus className="w-4 h-4 ml-1" />
+                    {t({ ar: "إضافة", en: "Add" })}
+                  </Button>
+                </div>
+                {mealPlans.map((meal, idx) => (
+                  <Card key={idx} className="p-3 space-y-2">
+                    <div className="grid grid-cols-3 gap-2">
+                      <Input placeholder={t({ ar: "الاسم عربي", en: "Name AR" })} value={meal.name_ar} onChange={(e) => {
+                        const updated = [...mealPlans];
+                        updated[idx].name_ar = e.target.value;
+                        setMealPlans(updated);
+                      }} />
+                      <Input placeholder="Name EN" value={meal.name_en} onChange={(e) => {
+                        const updated = [...mealPlans];
+                        updated[idx].name_en = e.target.value;
+                        setMealPlans(updated);
+                      }} />
+                      <Input type="number" placeholder={t({ ar: "السعر", en: "Price" })} value={meal.price} onChange={(e) => {
+                        const updated = [...mealPlans];
+                        updated[idx].price = parseFloat(e.target.value) || 0;
+                        setMealPlans(updated);
+                      }} />
+                    </div>
+                    <Button variant="destructive" size="sm" onClick={() => setMealPlans(mealPlans.filter((_, i) => i !== idx))}>
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </Card>
+                ))}
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => { setIsAddDialogOpen(false); resetForm(); }}>

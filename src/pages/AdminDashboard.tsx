@@ -251,6 +251,11 @@ export default function AdminDashboard() {
               onClick={() => navigate('/manage-employees')}
             />
             <NavItem 
+              icon={Users} 
+              label={t({ ar: "شؤون الموظفين", en: "Employee Affairs" })}
+              onClick={() => navigate('/employee-management')}
+            />
+            <NavItem 
               icon={Hotel} 
               label={t({ ar: "إدارة الفنادق", en: "Manage Hotels" })}
               onClick={() => navigate('/manage-hotels')}

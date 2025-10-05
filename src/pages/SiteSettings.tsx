@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
@@ -34,6 +35,11 @@ export default function SiteSettings() {
     owner_room_color: '#87CEEB',
     hotel_room_color: '' as string
   });
+  const [chatCodes, setChatCodes] = useState({
+    chat_widget_code: '',
+    custom_head_code: '',
+    custom_body_code: ''
+  });
 
   useEffect(() => {
     if (!loading && userRole !== 'admin') {
@@ -53,7 +59,7 @@ export default function SiteSettings() {
       if (error && error.code !== 'PGRST116') throw error;
       
       if (data) {
-        setTaxPercentage(data.tax_percentage?.toString() || "15");
+        setTaxPercentage(data.tax_percentage?.toString() || "0");
         setSocialMedia({
           facebook_url: data.facebook_url || '',
           twitter_url: data.twitter_url || '',
@@ -65,6 +71,11 @@ export default function SiteSettings() {
         setExceptionColors({
           owner_room_color: data.owner_room_color || '#87CEEB',
           hotel_room_color: data.hotel_room_color || ''
+        });
+        setChatCodes({
+          chat_widget_code: data.chat_widget_code || '',
+          custom_head_code: data.custom_head_code || '',
+          custom_body_code: data.custom_body_code || ''
         });
       }
     } catch (error: any) {
@@ -188,6 +199,48 @@ export default function SiteSettings() {
       toast({
         title: t({ ar: "تم الحفظ", en: "Saved" }),
         description: t({ ar: "تم حفظ إعدادات وسائل التواصل", en: "Social media settings saved" }),
+      });
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSaveChatCodes = async () => {
+    try {
+      const { data: existingSettings } = await supabase
+        .from('site_settings')
+        .select('id')
+        .single();
+
+      if (existingSettings) {
+        const { error } = await supabase
+          .from('site_settings')
+          .update({
+            chat_widget_code: chatCodes.chat_widget_code,
+            custom_head_code: chatCodes.custom_head_code,
+            custom_body_code: chatCodes.custom_body_code,
+          })
+          .eq('id', existingSettings.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('site_settings')
+          .insert({
+            ...chatCodes,
+            tax_percentage: parseFloat(taxPercentage)
+          });
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: t({ ar: "تم الحفظ", en: "Saved" }),
+        description: t({ ar: "تم حفظ إعدادات الدردشة والأكواد", en: "Chat & custom code settings saved" }),
       });
     } catch (error: any) {
       toast({
@@ -380,6 +433,63 @@ export default function SiteSettings() {
               <p className="text-muted-foreground mb-4">
                 {t({ ar: 'قريباً - إضافة لغات إضافية', en: 'Coming soon - Add additional languages' })}
               </p>
+            </CardContent>
+          </Card>
+
+          {/* Chat Widget & Custom Code Section */}
+          <Card className="card-luxury lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Layout className="w-5 h-5" />
+                {t({ ar: 'إعدادات الدردشة والأكواد المخصصة', en: 'Chat Widget & Custom Code Settings' })}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <Label>{t({ ar: 'كود الدردشة الحية (Tidio / Tawk.to / etc)', en: 'Live Chat Code (Tidio / Tawk.to / etc)' })}</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {t({ ar: 'الصق كود HTML/JavaScript الخاص بالدردشة هنا', en: 'Paste your chat widget HTML/JavaScript code here' })}
+                </p>
+                <Textarea
+                  value={chatCodes.chat_widget_code}
+                  onChange={(e) => setChatCodes({ ...chatCodes, chat_widget_code: e.target.value })}
+                  placeholder="<!-- كود الدردشة -->"
+                  rows={6}
+                  className="font-mono text-sm"
+                />
+              </div>
+
+              <div>
+                <Label>{t({ ar: 'أكواد مخصصة للـ Head', en: 'Custom Head Code' })}</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {t({ ar: 'أكواد Google Analytics أو Facebook Pixel أو أي أكواد أخرى', en: 'Google Analytics, Facebook Pixel or other codes' })}
+                </p>
+                <Textarea
+                  value={chatCodes.custom_head_code}
+                  onChange={(e) => setChatCodes({ ...chatCodes, custom_head_code: e.target.value })}
+                  placeholder="<!-- أكواد Head -->"
+                  rows={6}
+                  className="font-mono text-sm"
+                />
+              </div>
+
+              <div>
+                <Label>{t({ ar: 'أكواد مخصصة للـ Body', en: 'Custom Body Code' })}</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {t({ ar: 'أكواد تُوضع قبل نهاية علامة body', en: 'Codes to be placed before the closing body tag' })}
+                </p>
+                <Textarea
+                  value={chatCodes.custom_body_code}
+                  onChange={(e) => setChatCodes({ ...chatCodes, custom_body_code: e.target.value })}
+                  placeholder="<!-- أكواد Body -->"
+                  rows={6}
+                  className="font-mono text-sm"
+                />
+              </div>
+
+              <Button onClick={handleSaveChatCodes} className="w-full btn-luxury">
+                {t({ ar: 'حفظ إعدادات الدردشة والأكواد', en: 'Save Chat & Custom Code Settings' })}
+              </Button>
             </CardContent>
           </Card>
 

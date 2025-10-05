@@ -689,7 +689,10 @@ export type Database = {
       }
       site_settings: {
         Row: {
+          chat_widget_code: string | null
           created_at: string | null
+          custom_body_code: string | null
+          custom_head_code: string | null
           email: string | null
           facebook_url: string | null
           hotel_room_color: string | null
@@ -703,7 +706,10 @@ export type Database = {
           whatsapp_number: string | null
         }
         Insert: {
+          chat_widget_code?: string | null
           created_at?: string | null
+          custom_body_code?: string | null
+          custom_head_code?: string | null
           email?: string | null
           facebook_url?: string | null
           hotel_room_color?: string | null
@@ -717,7 +723,10 @@ export type Database = {
           whatsapp_number?: string | null
         }
         Update: {
+          chat_widget_code?: string | null
           created_at?: string | null
+          custom_body_code?: string | null
+          custom_head_code?: string | null
           email?: string | null
           facebook_url?: string | null
           hotel_room_color?: string | null
