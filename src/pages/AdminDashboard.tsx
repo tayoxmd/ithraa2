@@ -14,6 +14,7 @@ import {
   UserCog, 
   Hotel,
   TrendingDown,
+  TrendingUp,
   Settings,
   User,
   Home,
@@ -34,6 +35,10 @@ export default function AdminDashboard() {
     pending: 0,
     confirmed: 0,
     totalCustomers: 0,
+    totalRevenue: 0,
+    profits: 0,
+    losses: 0,
+    totalBookingsValue: 0,
   });
 
   useEffect(() => {
@@ -120,11 +125,42 @@ export default function AdminDashboard() {
         .select('user_id')
         .eq('role', 'customer');
 
+      // Financial stats
+      const { data: allBookings } = await supabase
+        .from('bookings')
+        .select('total_amount, amount_paid, payment_status, status');
+
+      let totalRevenue = 0;
+      let totalBookingsValue = 0;
+      let losses = 0;
+
+      if (allBookings) {
+        allBookings.forEach(booking => {
+          totalBookingsValue += booking.total_amount || 0;
+          
+          if (booking.payment_status === 'paid') {
+            totalRevenue += booking.amount_paid || 0;
+          } else if (booking.payment_status === 'partially_paid') {
+            totalRevenue += booking.amount_paid || 0;
+          }
+          
+          if (booking.status === 'cancelled' || booking.status === 'rejected') {
+            losses += (booking.total_amount - (booking.amount_paid || 0));
+          }
+        });
+      }
+
+      const profits = totalRevenue - losses;
+
       setStats({
         totalBookings: totalCount || 0,
         pending: (newCount || 0) + (pendingCount || 0),
         confirmed: confirmedCount || 0,
         totalCustomers: customerRoles?.length || 0,
+        totalRevenue: Math.round(totalRevenue),
+        profits: Math.round(profits),
+        losses: Math.round(losses),
+        totalBookingsValue: Math.round(totalBookingsValue),
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -269,23 +305,27 @@ export default function AdminDashboard() {
               </Button>
             </div>
 
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            {/* Financial Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <BigStatCard
-                title={t({ ar: "إجمالي الحجوزات", en: "Total Bookings" })}
-                value={stats.totalBookings}
-                icon={Briefcase}
+                title={t({ ar: "إجمالي الإيرادات", en: "Total Revenue" })}
+                value={`${stats.totalRevenue || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
+                icon={DollarSign}
               />
               <BigStatCard
-                title={t({ ar: "في انتظار المراجعة", en: "Pending Review" })}
-                value={stats.pending}
-                icon={Clock}
-                subtitle={t({ ar: "يحتاج للمراجعة", en: "Needs attention" })}
+                title={t({ ar: "الأرباح", en: "Profits" })}
+                value={`${stats.profits || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
+                icon={TrendingUp}
               />
               <BigStatCard
-                title={t({ ar: "الحجوزات المؤكدة", en: "Confirmed Bookings" })}
-                value={stats.confirmed}
-                icon={CheckCircle}
+                title={t({ ar: "الخسائر", en: "Losses" })}
+                value={`${stats.losses || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
+                icon={TrendingDown}
+              />
+              <BigStatCard
+                title={t({ ar: "إجمالي قيمة الطلبات", en: "Total Bookings Value" })}
+                value={`${stats.totalBookingsValue || 0} ${t({ ar: "ر.s", en: "SAR" })}`}
+                icon={FileText}
               />
             </div>
 

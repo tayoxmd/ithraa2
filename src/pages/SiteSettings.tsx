@@ -314,7 +314,7 @@ export default function SiteSettings() {
                     type="color" 
                     value={primaryColor}
                     onChange={(e) => setPrimaryColor(e.target.value)}
-                    className="w-20 h-12"
+                    className="w-20 h-12 cursor-pointer rounded-full border-4 border-primary/20"
                   />
                   <Input 
                     type="text" 
@@ -347,7 +347,7 @@ export default function SiteSettings() {
                       type="color"
                       value={exceptionColors.owner_room_color}
                       onChange={(e) => setExceptionColors({ ...exceptionColors, owner_room_color: e.target.value })}
-                      className="w-20 h-12"
+                      className="w-20 h-12 cursor-pointer rounded-full border-4 border-primary/20"
                     />
                     <Input
                       type="text"
@@ -364,7 +364,7 @@ export default function SiteSettings() {
                       type="color"
                       value={exceptionColors.hotel_room_color}
                       onChange={(e) => setExceptionColors({ ...exceptionColors, hotel_room_color: e.target.value })}
-                      className="w-20 h-12"
+                      className="w-20 h-12 cursor-pointer rounded-full border-4 border-primary/20"
                     />
                     <Input
                       type="text"

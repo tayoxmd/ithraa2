@@ -87,31 +87,31 @@ export default function CustomerDashboard() {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'confirmed':
-        return 'bg-green-500 text-white';
-      case 'pending':
-        return 'bg-orange-500 text-white';
       case 'new':
-        return 'bg-blue-500 text-white';
+        return '#007dff';
+      case 'pending':
+        return '#ffbf00';
+      case 'confirmed':
+        return '#40f086';
       case 'cancelled':
-        return 'bg-red-500 text-white';
+        return '#e71963';
       case 'rejected':
-        return 'bg-red-700 text-white';
+        return '#dc2626';
       default:
-        return 'bg-gray-500 text-white';
+        return '#6b7280';
     }
   };
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
       case 'paid':
-        return 'bg-green-600 text-white';
+        return '#40f086';
       case 'partially_paid':
-        return 'bg-yellow-500 text-white';
+        return '#67606a';
       case 'unpaid':
-        return 'bg-red-600 text-white';
+        return '#000000';
       default:
-        return 'bg-gray-500 text-white';
+        return '#6b7280';
     }
   };
 
@@ -191,10 +191,10 @@ export default function CustomerDashboard() {
                         {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
                       </CardTitle>
                       <div className="flex gap-2 flex-wrap items-center">
-                        <Badge className={`${getStatusColor(booking.status)} px-3 py-1.5 min-w-[100px] justify-center text-xs sm:text-sm rounded-sm`}>
+                        <Badge className="text-white px-3 py-1.5 min-w-[100px] justify-center text-xs sm:text-sm rounded-sm" style={{ backgroundColor: getStatusColor(booking.status) }}>
                           {language === 'ar' ? getStatusText(booking.status).ar : getStatusText(booking.status).en}
                         </Badge>
-                        <Badge className={`${getPaymentStatusColor(booking.payment_status)} px-3 py-1.5 min-w-[100px] justify-center text-xs sm:text-sm rounded-sm`}>
+                        <Badge className="text-white px-3 py-1.5 min-w-[100px] justify-center text-xs sm:text-sm rounded-sm" style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}>
                           {language === 'ar' ? getPaymentStatusText(booking.payment_status).ar : getPaymentStatusText(booking.payment_status).en}
                         </Badge>
                       </div>

@@ -80,18 +80,38 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
   });
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'new': return '#007dff';
+      case 'pending': return '#ffbf00';
+      case 'confirmed': return '#40f086';
+      case 'cancelled': return '#e71963';
+      case 'rejected': return '#dc2626'; // red-700
+      default: return '#000000';
+    }
+  };
+
+  const getPaymentStatusColor = (paymentStatus: string) => {
+    switch (paymentStatus) {
+      case 'paid': return '#40f086';
+      case 'partially_paid': return '#67606a';
+      case 'unpaid': return '#000000';
+      default: return '#000000';
+    }
+  };
+
   const statusColors = {
-    new: "bg-blue-500 text-white",
-    pending: "bg-orange-500 text-white",
-    confirmed: "bg-green-500 text-white",
-    cancelled: "bg-red-500 text-white",
+    new: "text-white",
+    pending: "text-white",
+    confirmed: "text-white",
+    cancelled: "text-white",
     rejected: "bg-red-700 text-white",
   };
 
   const paymentStatusColors = {
-    paid: "bg-green-600 text-white",
-    partially_paid: "bg-yellow-500 text-white",
-    unpaid: "bg-red-600 text-white",
+    paid: "text-white",
+    partially_paid: "text-white",
+    unpaid: "text-white",
   };
 
   const statusLabels = {
@@ -463,7 +483,10 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     value={booking.status}
                     onValueChange={(value) => handleStatusChange(booking.id, value as any)}
                   >
-                    <SelectTrigger className={`flex-1 md:w-[140px] h-9 ${statusColors[booking.status]}`}>
+                    <SelectTrigger 
+                      className={`flex-1 md:w-[140px] h-9 ${statusColors[booking.status]}`}
+                      style={{ backgroundColor: getStatusColor(booking.status) }}
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -478,7 +501,10 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     value={booking.payment_status}
                     onValueChange={(value) => handlePaymentStatusChange(booking.id, value as any)}
                   >
-                    <SelectTrigger className={`flex-1 md:w-[160px] h-9 ${paymentStatusColors[booking.payment_status]}`}>
+                    <SelectTrigger 
+                      className={`flex-1 md:w-[160px] h-9 ${paymentStatusColors[booking.payment_status]}`}
+                      style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}
+                    >
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>

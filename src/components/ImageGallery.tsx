@@ -30,7 +30,7 @@ export function ImageGallery({ images, open, onClose, initialIndex = 0 }: ImageG
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent 
-        className="max-w-7xl w-[95vw] h-[95vh] p-0 border-0 bg-black/95"
+        className="max-w-5xl w-[90vw] h-[85vh] p-0 border-0 bg-black/95"
         onKeyDown={handleKeyDown}
       >
         <div className="relative w-full h-full flex items-center justify-center">
@@ -78,7 +78,7 @@ export function ImageGallery({ images, open, onClose, initialIndex = 0 }: ImageG
 
           {/* Image counter */}
           {images.length > 1 && (
-            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-4 py-2 rounded-full text-sm">
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-black/70 text-white px-3 py-1.5 rounded-full text-xs">
               {currentIndex + 1} / {images.length}
             </div>
           )}
