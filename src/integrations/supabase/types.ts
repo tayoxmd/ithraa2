@@ -14,6 +14,92 @@ export type Database = {
   }
   public: {
     Tables: {
+      api_requests: {
+        Row: {
+          api_key_id: string | null
+          created_at: string | null
+          endpoint: string
+          id: string
+          ip_address: string | null
+          method: string
+          request_body: Json | null
+          response_body: Json | null
+          response_status: number | null
+          user_agent: string | null
+        }
+        Insert: {
+          api_key_id?: string | null
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          ip_address?: string | null
+          method: string
+          request_body?: Json | null
+          response_body?: Json | null
+          response_status?: number | null
+          user_agent?: string | null
+        }
+        Update: {
+          api_key_id?: string | null
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          ip_address?: string | null
+          method?: string
+          request_body?: Json | null
+          response_body?: Json | null
+          response_status?: number | null
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "api_requests_api_key_id_fkey"
+            columns: ["api_key_id"]
+            isOneToOne: false
+            referencedRelation: "api_settings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      api_settings: {
+        Row: {
+          allowed_origins: Json | null
+          api_key: string
+          api_secret: string
+          created_at: string | null
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          rate_limit: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          allowed_origins?: Json | null
+          api_key: string
+          api_secret: string
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          rate_limit?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          allowed_origins?: Json | null
+          api_key?: string
+          api_secret?: string
+          created_at?: string | null
+          created_by?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          rate_limit?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -206,6 +292,78 @@ export type Database = {
           },
         ]
       }
+      employee_attendance: {
+        Row: {
+          attendance_date: string
+          check_in: string
+          check_out: string | null
+          created_at: string | null
+          employee_id: string
+          id: string
+          notes: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          attendance_date?: string
+          check_in: string
+          check_out?: string | null
+          created_at?: string | null
+          employee_id: string
+          id?: string
+          notes?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          attendance_date?: string
+          check_in?: string
+          check_out?: string | null
+          created_at?: string | null
+          employee_id?: string
+          id?: string
+          notes?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      employee_salaries: {
+        Row: {
+          bonus: number | null
+          created_at: string | null
+          deductions: number | null
+          employee_id: string
+          id: string
+          monthly_salary: number
+          notes: string | null
+          payment_date: string
+          payment_status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          bonus?: number | null
+          created_at?: string | null
+          deductions?: number | null
+          employee_id: string
+          id?: string
+          monthly_salary?: number
+          notes?: string | null
+          payment_date: string
+          payment_status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          bonus?: number | null
+          created_at?: string | null
+          deductions?: number | null
+          employee_id?: string
+          id?: string
+          monthly_salary?: number
+          notes?: string | null
+          payment_date?: string
+          payment_status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       financial_transactions: {
         Row: {
           amount: number
@@ -270,6 +428,53 @@ export type Database = {
           },
         ]
       }
+      hotel_seasonal_pricing: {
+        Row: {
+          created_at: string | null
+          end_date: string
+          hotel_id: string
+          id: string
+          is_available: boolean | null
+          price_per_night: number
+          season_name_ar: string
+          season_name_en: string
+          start_date: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          end_date: string
+          hotel_id: string
+          id?: string
+          is_available?: boolean | null
+          price_per_night: number
+          season_name_ar: string
+          season_name_en: string
+          start_date: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          end_date?: string
+          hotel_id?: string
+          id?: string
+          is_available?: boolean | null
+          price_per_night?: number
+          season_name_ar?: string
+          season_name_en?: string
+          start_date?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hotel_seasonal_pricing_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hotels: {
         Row: {
           active: boolean | null
@@ -285,6 +490,7 @@ export type Database = {
           location: string | null
           location_url: string | null
           max_guests_per_room: number
+          meal_plans: Json | null
           name_ar: string
           name_en: string
           price_per_night: number
@@ -309,6 +515,7 @@ export type Database = {
           location?: string | null
           location_url?: string | null
           max_guests_per_room?: number
+          meal_plans?: Json | null
           name_ar: string
           name_en: string
           price_per_night: number
@@ -333,6 +540,7 @@ export type Database = {
           location?: string | null
           location_url?: string | null
           max_guests_per_room?: number
+          meal_plans?: Json | null
           name_ar?: string
           name_en?: string
           price_per_night?: number
@@ -577,6 +785,10 @@ export type Database = {
           contact_phone: string
         }[]
       }
+      get_hotel_price_for_date: {
+        Args: { p_check_in_date: string; p_hotel_id: string }
+        Returns: number
+      }
       get_public_hotel: {
         Args: { p_hotel_id: string }
         Returns: {
@@ -677,6 +889,12 @@ export type Database = {
       app_role: "admin" | "employee" | "customer"
       booking_status: "new" | "pending" | "confirmed" | "cancelled" | "rejected"
       complaint_status: "new" | "pending" | "rejected" | "resolved"
+      meal_plan_type:
+        | "breakfast_only"
+        | "half_board"
+        | "full_board"
+        | "all_inclusive"
+        | "no_meals"
       payment_status: "paid" | "partially_paid" | "unpaid"
       room_type: "hotel_rooms" | "owner_rooms"
     }
@@ -809,6 +1027,13 @@ export const Constants = {
       app_role: ["admin", "employee", "customer"],
       booking_status: ["new", "pending", "confirmed", "cancelled", "rejected"],
       complaint_status: ["new", "pending", "rejected", "resolved"],
+      meal_plan_type: [
+        "breakfast_only",
+        "half_board",
+        "full_board",
+        "all_inclusive",
+        "no_meals",
+      ],
       payment_status: ["paid", "partially_paid", "unpaid"],
       room_type: ["hotel_rooms", "owner_rooms"],
     },
