@@ -178,19 +178,17 @@ export default function AdminDashboard() {
     return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
   }
 
-  const BigStatCard = ({ title, value, icon: Icon, subtitle, colorClass }: any) => (
+  // BigStatCard Component for main financial stats
+  const BigStatCard = ({ title, value, icon: Icon, colorClass }: any) => (
     <Card className="card-luxury hover-lift transition-all">
       <CardContent className="pt-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm font-medium text-muted-foreground mb-2">{title}</p>
-            <div className="flex items-center gap-3">
-              <div className={`p-2 rounded-lg ${colorClass}`}>
-                <Icon className="w-5 h-5 text-white" />
-              </div>
-              <h3 className="text-3xl font-bold">{value}</h3>
-            </div>
-            {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
+        <div className="flex items-start justify-between">
+          <div className={`p-4 rounded-lg ${colorClass}`}>
+            <Icon className="w-8 h-8 text-white" />
+          </div>
+          <div className="space-y-2 flex-1 mr-4">
+            <p className="text-sm font-medium text-muted-foreground">{title}</p>
+            <h3 className="text-3xl font-bold">{value}</h3>
           </div>
         </div>
       </CardContent>
@@ -328,25 +326,25 @@ export default function AdminDashboard() {
                 title={t({ ar: "الأرباح", en: "Profits" })}
                 value={`${stats.profits || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
                 icon={TrendingUp}
-                colorClass="bg-gradient-to-br from-green-500 to-green-600"
+                colorClass="bg-gradient-to-br from-emerald-500 to-emerald-600"
               />
               <BigStatCard
                 title={t({ ar: "في انتظار الدفع", en: "Pending Payment" })}
                 value={`${stats.pendingPayments || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
                 icon={Clock}
-                colorClass="bg-gradient-to-br from-orange-500 to-orange-600"
+                colorClass="bg-gradient-to-br from-amber-500 to-amber-600"
               />
               <BigStatCard
                 title={t({ ar: "إجمالي قيمة الطلبات", en: "Total Bookings Value" })}
                 value={`${stats.totalBookingsValue || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
                 icon={FileText}
-                colorClass="bg-gradient-to-br from-blue-500 to-blue-600"
+                colorClass="bg-gradient-to-br from-sky-500 to-sky-600"
               />
               <BigStatCard
                 title={t({ ar: "الخسائر", en: "Losses" })}
                 value={`${stats.losses || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
                 icon={TrendingDown}
-                colorClass="bg-gradient-to-br from-red-500 to-red-600"
+                colorClass="bg-gradient-to-br from-rose-500 to-rose-600"
               />
             </div>
 
