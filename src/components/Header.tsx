@@ -78,37 +78,40 @@ export function Header() {
 
               {user ? (
                 <>
-                  {(userRole === 'admin' || userRole === 'employee') && (
+                  <div className="hidden sm:flex items-center gap-2">
+                    {(userRole === 'admin' || userRole === 'employee') && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2"
+                        style={{ backgroundColor: '#237bff', color: 'white', borderColor: '#237bff' }}
+                        onClick={() => navigate(getDashboardPath())}
+                      >
+                        <LayoutDashboard className="w-4 h-4" />
+                        {t('الإدارة', 'Management')}
+                      </Button>
+                    )}
+                    
                     <Button
                       variant="outline"
                       size="sm"
-                      className="hidden sm:inline-flex gap-2"
-                      onClick={() => navigate(getDashboardPath())}
+                      className="gap-2"
+                      onClick={() => navigate('/dashboard')}
                     >
                       <LayoutDashboard className="w-4 h-4" />
-                      {t('الإدارة', 'Management')}
+                      {t({ ar: "الحجوزات ولوحة التحكم", en: "Bookings & Dashboard" })}
                     </Button>
-                  )}
-                  
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="hidden sm:inline-flex gap-2"
-                    onClick={() => navigate('/dashboard')}
-                  >
-                    <LayoutDashboard className="w-4 h-4" />
-                    {t({ ar: "الحجوزات ولوحة التحكم", en: "Bookings & Dashboard" })}
-                  </Button>
 
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="hidden sm:inline-flex gap-2"
-                    onClick={() => signOut()}
-                  >
-                    <LogOut className="w-4 h-4" />
-                    {t('تسجيل الخروج', 'Sign Out')}
-                  </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
+                      onClick={() => signOut()}
+                    >
+                      <LogOut className="w-4 h-4" />
+                      {t('تسجيل الخروج', 'Sign Out')}
+                    </Button>
+                  </div>
                 </>
               ) : (
                 <>
@@ -161,38 +164,52 @@ export function Header() {
                 </a>
                 {user ? (
                   <>
-                {(userRole === 'admin' || userRole === 'employee') && (
-                  <>
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="justify-start gap-2"
-                      onClick={() => navigate(getDashboardPath())}
-                    >
-                      <LayoutDashboard className="w-4 h-4" />
-                      {t('الإدارة', 'Management')}
-                    </Button>
-                    {userRole === 'admin' && (
+                    {(userRole === 'admin' || userRole === 'employee') && (
+                      <>
+                        <div className="grid grid-cols-2 gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="justify-start gap-2"
+                            style={{ backgroundColor: '#237bff', color: 'white', borderColor: '#237bff' }}
+                            onClick={() => navigate(getDashboardPath())}
+                          >
+                            <LayoutDashboard className="w-4 h-4" />
+                            {t('الإدارة', 'Management')}
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="justify-start gap-2"
+                            onClick={() => navigate('/dashboard')}
+                          >
+                            <LayoutDashboard className="w-4 h-4" />
+                            {t({ ar: "الحجوزات", en: "Bookings" })}
+                          </Button>
+                        </div>
+                        {userRole === 'admin' && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="justify-start gap-2"
+                            onClick={() => navigate('/pdf-settings')}
+                          >
+                            {t({ ar: "إعدادات PDF", en: "PDF Settings" })}
+                          </Button>
+                        )}
+                      </>
+                    )}
+                    {!(userRole === 'admin' || userRole === 'employee') && (
                       <Button 
                         variant="outline" 
                         size="sm" 
                         className="justify-start gap-2"
-                        onClick={() => navigate('/pdf-settings')}
+                        onClick={() => navigate('/dashboard')}
                       >
-                        {t({ ar: "إعدادات PDF", en: "PDF Settings" })}
+                        <LayoutDashboard className="w-4 h-4" />
+                        {t({ ar: "الحجوزات ولوحة التحكم", en: "Bookings & Dashboard" })}
                       </Button>
                     )}
-                  </>
-                )}
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="justify-start gap-2"
-                      onClick={() => navigate('/dashboard')}
-                    >
-                      <LayoutDashboard className="w-4 h-4" />
-                      {t({ ar: "الحجوزات ولوحة التحكم", en: "Bookings & Dashboard" })}
-                    </Button>
                     <Button 
                       variant="outline" 
                       size="sm" 
@@ -228,18 +245,21 @@ export function Header() {
         </div>
       </header>
 
-      {/* Fixed Booking Button for Mobile/Tablet - Only show for logged in users */}
-      {user && isMobileOrTablet && location.pathname !== '/dashboard' && (
+      {/* Fixed Booking Button for Mobile/Tablet - Only show for logged in users and not in dashboard pages */}
+      {user && isMobileOrTablet && 
+       !location.pathname.includes('/dashboard') && 
+       !location.pathname.includes('/admin') && 
+       !location.pathname.includes('/employee') && (
         <div 
-          className={`fixed ${isScrolled ? 'top-24' : 'top-20'} ${language === 'ar' ? 'right-4' : 'left-4'} z-40 transition-all duration-300 lg:hidden`}
-          style={{ width: '60%', maxWidth: '250px' }}
+          className={`fixed ${isScrolled ? 'top-24' : 'top-20'} ${language === 'ar' ? 'right-2' : 'left-2'} z-40 transition-all duration-300 lg:hidden`}
         >
           <Button
             onClick={() => navigate('/dashboard')}
-            className="w-full h-12 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground font-semibold shadow-lg hover:shadow-xl transition-all text-sm"
+            size="sm"
+            className="h-8 px-2 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-lg hover:shadow-xl transition-all text-xs"
           >
-            <LayoutDashboard className="w-4 h-4 ml-2" />
-            {t({ ar: "الحجوزات ولوحة التحكم", en: "Bookings & Dashboard" })}
+            <LayoutDashboard className="w-3 h-3 ml-1" />
+            {t({ ar: "الحجوزات", en: "Bookings" })}
           </Button>
         </div>
       )}

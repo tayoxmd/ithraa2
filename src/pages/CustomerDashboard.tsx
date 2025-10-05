@@ -88,30 +88,30 @@ export default function CustomerDashboard() {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'confirmed':
-        return 'bg-green-600 text-white dark:bg-green-700 dark:text-white';
+        return 'bg-green-500 text-white';
       case 'pending':
-        return 'bg-yellow-600 text-white dark:bg-yellow-700 dark:text-white';
+        return 'bg-orange-500 text-white';
       case 'new':
-        return 'bg-blue-600 text-white dark:bg-blue-700 dark:text-white';
+        return 'bg-blue-500 text-white';
       case 'cancelled':
-        return 'bg-red-600 text-white dark:bg-red-700 dark:text-white';
+        return 'bg-red-500 text-white';
       case 'rejected':
-        return 'bg-red-700 text-white dark:bg-red-800 dark:text-white';
+        return 'bg-red-700 text-white';
       default:
-        return 'bg-gray-600 text-white dark:bg-gray-700 dark:text-white';
+        return 'bg-gray-500 text-white';
     }
   };
 
   const getPaymentStatusColor = (status: string) => {
     switch (status) {
       case 'paid':
-        return 'bg-amber-600 text-white dark:bg-amber-700 dark:text-white';
+        return 'bg-green-600 text-white';
       case 'partially_paid':
-        return 'bg-slate-600 text-white dark:bg-slate-700 dark:text-white';
+        return 'bg-yellow-500 text-white';
       case 'unpaid':
-        return 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900';
+        return 'bg-red-600 text-white';
       default:
-        return 'bg-gray-600 text-white dark:bg-gray-700 dark:text-white';
+        return 'bg-gray-500 text-white';
     }
   };
 
@@ -216,7 +216,7 @@ export default function CustomerDashboard() {
                         <span className="font-medium">{format(new Date(booking.check_in), 'yyyy-MM-dd')}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезد:", id: "Check-out:", ms: "Daftar keluar:" })}</span>
+                        <span className="text-muted-foreground">{t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })}</span>
                         <span className="font-medium">{format(new Date(booking.check_out), 'yyyy-MM-dd')}</span>
                       </div>
                       <div className="flex justify-between">
