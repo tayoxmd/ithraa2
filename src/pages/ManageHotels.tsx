@@ -299,6 +299,34 @@ export default function ManageHotels() {
     }
   };
 
+  const handleDeleteHotel = async (hotelId: string) => {
+    if (!confirm(t({ ar: "هل أنت متأكد من حذف هذا الفندق؟ سيتم حذف جميع البيانات المرتبطة به.", en: "Are you sure you want to delete this hotel? All associated data will be deleted." }))) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('hotels')
+        .delete()
+        .eq('id', hotelId);
+
+      if (error) throw error;
+
+      toast({
+        title: t({ ar: "تم الحذف", en: "Deleted" }),
+        description: t({ ar: "تم حذف الفندق بنجاح", en: "Hotel deleted successfully" }),
+      });
+
+      fetchHotels();
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleAddHotel = async () => {
     try {
       if (!formData.city_id) {
@@ -560,7 +588,7 @@ export default function ManageHotels() {
                   
                   {/* Mobile/Tablet Layout */}
                   <div className="flex flex-col gap-2 lg:hidden">
-                    {/* Row 1: Status Badge and Activate/Deactivate Button */}
+                    {/* Row 1: Status Badge, Activate/Deactivate and Delete Buttons */}
                     <div className="flex items-center gap-2">
                       <Badge 
                         style={{ 
@@ -576,6 +604,13 @@ export default function ManageHotels() {
                         onClick={() => toggleHotelStatus(hotel.id, hotel.active)}
                       >
                         {hotel.active ? t({ ar: "إيقاف", en: "Deactivate" }) : t({ ar: "تفعيل", en: "Activate" })}
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDeleteHotel(hotel.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                     
@@ -639,6 +674,13 @@ export default function ManageHotels() {
                           onClick={() => toggleHotelStatus(hotel.id, hotel.active)}
                         >
                           {hotel.active ? t({ ar: "إيقاف", en: "Deactivate" }) : t({ ar: "تفعيل", en: "Activate" })}
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDeleteHotel(hotel.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>

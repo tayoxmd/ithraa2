@@ -246,8 +246,29 @@ export default function SeasonalPricing() {
               <div className="space-y-4">
                 {prices.map((price) => (
                   <Card key={price.id} className="p-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+                      {/* Header with title and action buttons */}
+                      <div className="flex items-start justify-between lg:hidden">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-lg font-bold">
+                            {language === 'ar' ? price.season_name_ar : price.season_name_en}
+                          </h3>
+                          {!price.is_available && (
+                            <Badge variant="secondary">{t({ ar: "غير متاح", en: "Unavailable" })}</Badge>
+                          )}
+                        </div>
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" onClick={() => openEditDialog(price)}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                          <Button size="sm" variant="destructive" onClick={() => handleDelete(price.id)}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </div>
+
+                      {/* Desktop title */}
+                      <div className="hidden lg:block flex-1">
                         <div className="flex items-center gap-2 mb-2">
                           <h3 className="text-lg font-bold">
                             {language === 'ar' ? price.season_name_ar : price.season_name_en}
@@ -269,7 +290,23 @@ export default function SeasonalPricing() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex gap-2">
+
+                      {/* Mobile dates and price */}
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground lg:hidden">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          <span>{format(new Date(price.start_date), 'yyyy-MM-dd')}</span>
+                        </div>
+                        <span>→</span>
+                        <span>{format(new Date(price.end_date), 'yyyy-MM-dd')}</span>
+                        <span className="mr-4">|</span>
+                        <span className="text-primary font-bold">
+                          {price.price_per_night} {t({ ar: 'ر.س / ليلة', en: 'SAR / night' })}
+                        </span>
+                      </div>
+
+                      {/* Desktop action buttons */}
+                      <div className="hidden lg:flex gap-2">
                         <Button size="sm" variant="outline" onClick={() => openEditDialog(price)}>
                           <Edit className="w-4 h-4" />
                         </Button>

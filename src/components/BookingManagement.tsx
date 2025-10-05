@@ -484,7 +484,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     onValueChange={(value) => handleStatusChange(booking.id, value as any)}
                   >
                     <SelectTrigger 
-                      className={`flex-1 md:w-[140px] h-9 ${statusColors[booking.status]}`}
+                      className={`flex-1 lg:w-[140px] h-9 ${statusColors[booking.status]}`}
                       style={{ backgroundColor: getStatusColor(booking.status) }}
                     >
                       <SelectValue />
@@ -502,7 +502,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     onValueChange={(value) => handlePaymentStatusChange(booking.id, value as any)}
                   >
                     <SelectTrigger 
-                      className={`flex-1 md:w-[160px] h-9 ${paymentStatusColors[booking.payment_status]}`}
+                      className={`flex-1 lg:w-[140px] h-9 ${paymentStatusColors[booking.payment_status]}`}
                       style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}
                     >
                       <SelectValue />

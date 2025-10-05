@@ -39,6 +39,7 @@ export default function AdminDashboard() {
     profits: 0,
     losses: 0,
     totalBookingsValue: 0,
+    pendingPayments: 0,
   });
 
   useEffect(() => {
@@ -133,6 +134,7 @@ export default function AdminDashboard() {
       let totalRevenue = 0;
       let totalBookingsValue = 0;
       let losses = 0;
+      let pendingPayments = 0;
 
       if (allBookings) {
         allBookings.forEach(booking => {
@@ -142,6 +144,10 @@ export default function AdminDashboard() {
             totalRevenue += booking.amount_paid || 0;
           } else if (booking.payment_status === 'partially_paid') {
             totalRevenue += booking.amount_paid || 0;
+            // Calculate pending payment (remaining amount)
+            pendingPayments += (booking.total_amount - (booking.amount_paid || 0));
+          } else if (booking.payment_status === 'unpaid') {
+            pendingPayments += booking.total_amount || 0;
           }
           
           if (booking.status === 'cancelled' || booking.status === 'rejected') {
@@ -161,6 +167,7 @@ export default function AdminDashboard() {
         profits: Math.round(profits),
         losses: Math.round(losses),
         totalBookingsValue: Math.round(totalBookingsValue),
+        pendingPayments: Math.round(pendingPayments),
       });
     } catch (error) {
       console.error('Error fetching stats:', error);
@@ -171,17 +178,19 @@ export default function AdminDashboard() {
     return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
   }
 
-  const BigStatCard = ({ title, value, icon: Icon, subtitle }: any) => (
-    <Card className="card-luxury">
+  const BigStatCard = ({ title, value, icon: Icon, subtitle, colorClass }: any) => (
+    <Card className="card-luxury hover-lift transition-all">
       <CardContent className="pt-6">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-muted-foreground mb-2">{title}</p>
-            <h3 className="text-3xl font-bold">{value}</h3>
+            <div className="flex items-center gap-3">
+              <div className={`p-2 rounded-lg ${colorClass}`}>
+                <Icon className="w-5 h-5 text-white" />
+              </div>
+              <h3 className="text-3xl font-bold">{value}</h3>
+            </div>
             {subtitle && <p className="text-xs text-muted-foreground mt-1">{subtitle}</p>}
-          </div>
-          <div className="p-3 rounded-lg bg-gradient-primary">
-            <Icon className="w-6 h-6 text-white" />
           </div>
         </div>
       </CardContent>
@@ -303,29 +312,41 @@ export default function AdminDashboard() {
                 <Briefcase className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "شؤون الموظفين", en: "Employees" })}</span>
               </Button>
+              <Button onClick={() => navigate('/site-settings')} variant="outline" className="h-20 flex-col gap-2">
+                <Settings className="w-5 h-5" />
+                <span className="text-xs">{t({ ar: "الإعدادات", en: "Settings" })}</span>
+              </Button>
+              <Button onClick={() => navigate('/audit-logs')} variant="outline" className="h-20 flex-col gap-2">
+                <FileText className="w-5 h-5" />
+                <span className="text-xs">{t({ ar: "السجلات", en: "Logs" })}</span>
+              </Button>
             </div>
 
             {/* Financial Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <BigStatCard
-                title={t({ ar: "إجمالي الإيرادات", en: "Total Revenue" })}
-                value={`${stats.totalRevenue || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
-                icon={DollarSign}
-              />
-              <BigStatCard
                 title={t({ ar: "الأرباح", en: "Profits" })}
                 value={`${stats.profits || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
                 icon={TrendingUp}
+                colorClass="bg-gradient-to-br from-green-500 to-green-600"
+              />
+              <BigStatCard
+                title={t({ ar: "في انتظار الدفع", en: "Pending Payment" })}
+                value={`${stats.pendingPayments || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
+                icon={Clock}
+                colorClass="bg-gradient-to-br from-orange-500 to-orange-600"
+              />
+              <BigStatCard
+                title={t({ ar: "إجمالي قيمة الطلبات", en: "Total Bookings Value" })}
+                value={`${stats.totalBookingsValue || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
+                icon={FileText}
+                colorClass="bg-gradient-to-br from-blue-500 to-blue-600"
               />
               <BigStatCard
                 title={t({ ar: "الخسائر", en: "Losses" })}
                 value={`${stats.losses || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
                 icon={TrendingDown}
-              />
-              <BigStatCard
-                title={t({ ar: "إجمالي قيمة الطلبات", en: "Total Bookings Value" })}
-                value={`${stats.totalBookingsValue || 0} ${t({ ar: "ر.s", en: "SAR" })}`}
-                icon={FileText}
+                colorClass="bg-gradient-to-br from-red-500 to-red-600"
               />
             </div>
 
