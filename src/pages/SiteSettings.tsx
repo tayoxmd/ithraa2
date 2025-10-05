@@ -431,7 +431,10 @@ export default function SiteSettings() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground mb-4">
-                {t({ ar: 'قريباً - إضافة لغات إضافية', en: 'Coming soon - Add additional languages' })}
+                {t({ ar: 'اللغات المدعومة حالياً: العربية والإنجليزية', en: 'Currently supported languages: Arabic and English' })}
+              </p>
+              <p className="text-sm text-muted-foreground">
+                {t({ ar: 'نظام الترجمة نشط ويعمل على جميع صفحات الموقع', en: 'Translation system is active and working across all site pages' })}
               </p>
             </CardContent>
           </Card>

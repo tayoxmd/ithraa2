@@ -81,17 +81,17 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
   });
 
   const statusColors = {
-    new: "bg-blue-600 text-white dark:bg-blue-700 dark:text-white",
-    pending: "bg-yellow-600 text-white dark:bg-yellow-700 dark:text-white",
-    confirmed: "bg-green-600 text-white dark:bg-green-700 dark:text-white",
-    cancelled: "bg-red-600 text-white dark:bg-red-700 dark:text-white",
-    rejected: "bg-red-700 text-white dark:bg-red-800 dark:text-white",
+    new: "bg-blue-500 text-white",
+    pending: "bg-orange-500 text-white",
+    confirmed: "bg-green-500 text-white",
+    cancelled: "bg-red-500 text-white",
+    rejected: "bg-red-700 text-white",
   };
 
   const paymentStatusColors = {
-    paid: "bg-amber-600 text-white dark:bg-amber-700 dark:text-white",
-    partially_paid: "bg-slate-600 text-white dark:bg-slate-700 dark:text-white",
-    unpaid: "bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900",
+    paid: "bg-green-600 text-white",
+    partially_paid: "bg-yellow-500 text-white",
+    unpaid: "bg-red-600 text-white",
   };
 
   const statusLabels = {

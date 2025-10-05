@@ -200,43 +200,38 @@ export default function AdminDashboard() {
           <nav className="flex-1 p-4 space-y-2">
             <NavItem 
               icon={Home} 
-              label={t({ ar: "الرئيسية", en: "Home" })}
-              onClick={() => navigate('/')}
-            />
-            <NavItem 
-              icon={UserCog} 
-              label={t({ ar: "إدارة الموظفين", en: "Manage Employees" })}
-              onClick={() => navigate('/manage-employees')}
-            />
-            <NavItem 
-              icon={Users} 
-              label={t({ ar: "شؤون الموظفين", en: "Employee Affairs" })}
-              onClick={() => navigate('/employee-management')}
+              label={t({ ar: "الصفحة الرئيسية", en: "Home" })} 
+              onClick={() => navigate('/')} 
             />
             <NavItem 
               icon={Hotel} 
-              label={t({ ar: "إدارة الفنادق", en: "Manage Hotels" })}
-              onClick={() => navigate('/manage-hotels')}
+              label={t({ ar: "إدارة الفنادق", en: "Manage Hotels" })} 
+              onClick={() => navigate('/manage-hotels')} 
+            />
+            <NavItem 
+              icon={UserCog} 
+              label={t({ ar: "إدارة المستخدمين", en: "Manage Users" })} 
+              onClick={() => navigate('/manage-employees')} 
+            />
+            <NavItem 
+              icon={Briefcase} 
+              label={t({ ar: "شؤون الموظفين", en: "Employee Management" })} 
+              onClick={() => navigate('/employee-management')} 
             />
             <NavItem 
               icon={FileText} 
-              label={t({ ar: "سجل الأحداث", en: "Audit Logs" })}
-              onClick={() => navigate('/audit-logs')}
+              label={t({ ar: "إعدادات PDF", en: "PDF Settings" })} 
+              onClick={() => navigate('/pdf-settings')} 
             />
             <NavItem 
               icon={Settings} 
-              label={t({ ar: "إعدادات الموقع", en: "Site Settings" })}
-              onClick={() => navigate('/site-settings')}
-            />
-            <NavItem 
-              icon={FileText} 
-              label={t({ ar: "إعدادات PDF", en: "PDF Settings" })}
-              onClick={() => navigate('/pdf-settings')}
+              label={t({ ar: "الإعدادات", en: "Settings" })} 
+              onClick={() => navigate('/site-settings')} 
             />
             <NavItem 
               icon={User} 
-              label={t({ ar: "الملف الشخصي", en: "Profile" })}
-              onClick={() => navigate('/profile')}
+              label={t({ ar: "الملف الشخصي", en: "Profile" })} 
+              onClick={() => navigate('/profile')} 
             />
           </nav>
         </aside>
@@ -264,13 +259,13 @@ export default function AdminDashboard() {
                 <Hotel className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "الفنادق", en: "Hotels" })}</span>
               </Button>
-              <Button onClick={() => navigate('/audit-logs')} variant="outline" className="h-20 flex-col gap-2">
-                <FileText className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "السجلات", en: "Logs" })}</span>
+              <Button onClick={() => navigate('/manage-employees')} variant="outline" className="h-20 flex-col gap-2">
+                <UserCog className="w-5 h-5" />
+                <span className="text-xs">{t({ ar: "المستخدمين", en: "Users" })}</span>
               </Button>
-              <Button onClick={() => navigate('/site-settings')} variant="outline" className="h-20 flex-col gap-2">
-                <Settings className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "الإعدادات", en: "Settings" })}</span>
+              <Button onClick={() => navigate('/employee-management')} variant="outline" className="h-20 flex-col gap-2">
+                <Briefcase className="w-5 h-5" />
+                <span className="text-xs">{t({ ar: "شؤون الموظفين", en: "Employees" })}</span>
               </Button>
             </div>
 

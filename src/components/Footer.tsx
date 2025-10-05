@@ -65,7 +65,7 @@ export function Footer() {
         </div>
 
         {/* Support and Contact - Side by Side */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-2 md:grid-cols-2 gap-8 mb-8 max-w-4xl mx-auto">
           {/* Support - Right */}
           <div className="text-center md:text-right">
             <h3 className="text-lg font-bold text-white mb-4">
@@ -73,17 +73,17 @@ export function Footer() {
             </h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors">
+                <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors text-sm md:text-base">
                   {t('مركز المساعدة', 'Help Center')}
                 </a>
               </li>
               <li>
-                <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors">
+                <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors text-sm md:text-base">
                   {t('سياسة الإلغاء', 'Cancellation Policy')}
                 </a>
               </li>
               <li>
-                <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors">
+                <a href="#" className="text-secondary-foreground/80 hover:text-primary transition-colors text-sm md:text-base">
                   {t('سياسة الخصوصية', 'Privacy Policy')}
                 </a>
               </li>
@@ -96,31 +96,31 @@ export function Footer() {
               {t('تواصل معنا', 'Contact Us')}
             </h3>
             <div className="space-y-3 flex flex-col items-center md:items-start">
-              <div className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-primary" />
+              <div className="flex items-center gap-2">
+                <Phone className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                 <a 
                   href={`tel:${settings.phone}`}
-                  className="text-secondary-foreground/80 hover:text-primary transition-colors"
+                  className="text-secondary-foreground/80 hover:text-primary transition-colors text-sm md:text-base"
                 >
                   {settings.phone}
                 </a>
               </div>
-              <div className="flex items-center gap-3">
-                <MessageCircle className="w-5 h-5 text-primary" />
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                 <a 
                   href={`https://wa.me/${settings.whatsapp_number.replace(/[^0-9]/g, '')}`}
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="text-secondary-foreground/80 hover:text-primary transition-colors"
+                  className="text-secondary-foreground/80 hover:text-primary transition-colors text-sm md:text-base"
                 >
                   {t('واتساب', 'WhatsApp')}
                 </a>
               </div>
-              <div className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-primary" />
+              <div className="flex items-center gap-2">
+                <Mail className="w-4 h-4 md:w-5 md:h-5 text-primary" />
                 <a 
                   href={`mailto:${settings.email}`}
-                  className="text-secondary-foreground/80 hover:text-primary transition-colors"
+                  className="text-secondary-foreground/80 hover:text-primary transition-colors text-sm md:text-base"
                 >
                   {settings.email}
                 </a>

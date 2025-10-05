@@ -555,18 +555,38 @@ export default function ManageHotels() {
               style={(hotel.room_type === 'owner_rooms' ? (highlightColors.owner ? { backgroundColor: highlightColors.owner } : undefined) : (highlightColors.hotel ? { backgroundColor: highlightColors.hotel } : undefined))}
             >
               <CardHeader>
-                <CardTitle className="flex items-center justify-between flex-wrap gap-4">
+                <CardTitle className="flex flex-col gap-4">
                   <span>{language === 'ar' ? hotel.name_ar : hotel.name_en}</span>
-                  <div className="flex items-center gap-2">
-                    <Badge variant={hotel.active ? "default" : "secondary"}>
-                      {hotel.active ? t({ ar: "نشط", en: "Active", fr: "Actif", es: "Activo", ru: "Активный", id: "Aktif", ms: "Aktif" }) : t({ ar: "غير نشط", en: "Inactive", fr: "Inactif", es: "Inactivo", ru: "Неактивный", id: "Tidak Aktif", ms: "Tidak Aktif" })}
-                    </Badge>
+                  
+                  {/* Mobile/Tablet Layout */}
+                  <div className="flex flex-col gap-2 lg:hidden">
+                    {/* Row 1: Status Badge and Activate/Deactivate Button */}
+                    <div className="flex items-center gap-2">
+                      <Badge 
+                        style={{ 
+                          backgroundColor: hotel.active ? '#40f086' : '#000000',
+                          color: 'white'
+                        }}
+                      >
+                        {hotel.active ? t({ ar: "نشط", en: "Active" }) : t({ ar: "غير نشط", en: "Inactive" })}
+                      </Badge>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => toggleHotelStatus(hotel.id, hotel.active)}
+                      >
+                        {hotel.active ? t({ ar: "إيقاف", en: "Deactivate" }) : t({ ar: "تفعيل", en: "Activate" })}
+                      </Button>
+                    </div>
+                    
+                    {/* Row 2: Pricing and Edit Buttons */}
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => navigate(`/seasonal-pricing?hotelId=${hotel.id}`)}
-                        className="gap-1"
+                        className="flex-1 gap-1"
+                        style={{ backgroundColor: '#38b6ff', color: 'white', borderColor: '#38b6ff' }}
                       >
                         <Calendar className="w-4 h-4" />
                         {t({ ar: "تخصيص الأسعار", en: "Pricing" })}
@@ -575,17 +595,52 @@ export default function ManageHotels() {
                         variant="outline"
                         size="sm"
                         onClick={() => openEditDialog(hotel)}
+                        className="flex-1"
                       >
                         <Edit className="w-4 h-4 ml-1" />
-                        {t({ ar: "تعديل", en: "Edit", fr: "Modifier", es: "Editar", ru: "Редактировать", id: "Edit", ms: "Edit" })}
+                        {t({ ar: "تعديل", en: "Edit" })}
                       </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => toggleHotelStatus(hotel.id, hotel.active)}
+                    </div>
+                  </div>
+
+                  {/* Desktop Layout */}
+                  <div className="hidden lg:flex items-center justify-between flex-wrap gap-4">
+                    <div className="flex items-center gap-2">
+                      <Badge 
+                        style={{ 
+                          backgroundColor: hotel.active ? '#40f086' : '#000000',
+                          color: 'white'
+                        }}
                       >
-                        {hotel.active ? t({ ar: "إيقاف", en: "Deactivate", fr: "Désactiver", es: "Desactivar", ru: "Деактивировать", id: "Nonaktifkan", ms: "Nyahaktifkan" }) : t({ ar: "تفعيل", en: "Activate", fr: "Activer", es: "Activar", ru: "Активировать", id: "Aktifkan", ms: "Aktifkan" })}
-                      </Button>
+                        {hotel.active ? t({ ar: "نشط", en: "Active" }) : t({ ar: "غير نشط", en: "Inactive" })}
+                      </Badge>
+                      <div className="flex gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/seasonal-pricing?hotelId=${hotel.id}`)}
+                          className="gap-1"
+                          style={{ backgroundColor: '#38b6ff', color: 'white', borderColor: '#38b6ff' }}
+                        >
+                          <Calendar className="w-4 h-4" />
+                          {t({ ar: "تخصيص الأسعار", en: "Pricing" })}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => openEditDialog(hotel)}
+                        >
+                          <Edit className="w-4 h-4 ml-1" />
+                          {t({ ar: "تعديل", en: "Edit" })}
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => toggleHotelStatus(hotel.id, hotel.active)}
+                        >
+                          {hotel.active ? t({ ar: "إيقاف", en: "Deactivate" }) : t({ ar: "تفعيل", en: "Activate" })}
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardTitle>
