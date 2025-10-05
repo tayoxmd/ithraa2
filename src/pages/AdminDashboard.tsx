@@ -183,12 +183,12 @@ export default function AdminDashboard() {
     <Card className="card-luxury hover-lift transition-all">
       <CardContent className="pt-6">
         <div className="flex items-start justify-between">
-          <div className={`p-4 rounded-lg ${colorClass}`}>
-            <Icon className="w-8 h-8 text-white" />
-          </div>
-          <div className="space-y-2 flex-1 mr-4">
+          <div className="space-y-2 flex-1">
             <p className="text-sm font-medium text-muted-foreground">{title}</p>
             <h3 className="text-3xl font-bold">{value}</h3>
+          </div>
+          <div className={`p-4 rounded-lg ${colorClass}`}>
+            <Icon className="w-8 h-8 text-white" />
           </div>
         </div>
       </CardContent>
