@@ -74,8 +74,8 @@ const Index = () => {
               <Sparkles className="w-4 h-4 ml-1" />
               تجربة فاخرة في الحجز الفندقي
             </Badge>
-            <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg">
-                      الحنيذ يا معلم... الجووووع
+<h1 className="text-4xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg">
+              اكتشف وجهتك المثالية
             </h1>
             <p className="text-xl text-white/90 max-w-2xl mx-auto drop-shadow-md">
               احجز أفضل الفنادق والشقق الفندقية بأسعار تنافسية وخدمة استثنائية
