@@ -37,7 +37,7 @@ export function Footer() {
   }, []);
   
   return (
-    <footer className="bg-secondary text-secondary-foreground mt-20">
+    <footer className="bg-card/20 backdrop-blur-sm border-t border-white/10 mt-20">
       <div className="container mx-auto px-4 py-12">
         {/* Company Info - Center */}
         <div className="flex flex-col items-center justify-center text-center mb-8">

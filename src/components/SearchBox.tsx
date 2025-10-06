@@ -103,16 +103,16 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <div className="card-luxury rounded-2xl p-6 md:p-8 animate-scale-in">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="glass-effect rounded-3xl p-4 md:p-6 animate-scale-in shadow-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
           {/* Location */}
           <div className="relative">
-            <label className="text-sm font-medium text-foreground mb-2 block">
-              {t('الوجهة', 'Destination')}
+            <label className="text-xs font-medium text-white mb-1.5 block">
+              {t('الموقع', 'Location')}
             </label>
             <Select value={selectedCity} onValueChange={setSelectedCity}>
-              <SelectTrigger className="h-12 bg-background/50">
-                <SelectValue placeholder={t('اختر المدينة', 'Select City')} />
+              <SelectTrigger className="h-11 bg-white/10 border-white/20 text-white placeholder:text-white/60">
+                <SelectValue placeholder={t('إلى أين أنت ذاهب؟', 'Where are you going?')} />
               </SelectTrigger>
               <SelectContent>
                 {cities.map((city) => (
@@ -125,21 +125,23 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
           </div>
 
           {/* Date Range */}
-          <div className="lg:col-span-2">
-            <label className="text-sm font-medium text-foreground mb-2 block">
-              {t('تاريخ الوصول والمغادرة', 'Check-in & Check-out')}
+          <div>
+            <label className="text-xs font-medium text-white mb-1.5 block">
+              {t('تاريخ الوصول', 'Check in')}
             </label>
             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full h-12 justify-start text-right font-normal bg-background/50",
-                    !dateRange && "text-muted-foreground"
+                    "w-full h-11 justify-start text-right font-normal bg-white/10 border-white/20 text-white",
+                    !dateRange && "text-white/60"
                   )}
                 >
                   <CalendarIcon className="ml-2 h-4 w-4" />
-                  {displayDateText}
+                  <span className="text-xs">
+                    {dateRange?.from ? format(dateRange.from, "dd/MM/yyyy") : t('إضافة تواريخ', 'Add dates')}
+                  </span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
@@ -170,42 +172,34 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
               </PopoverContent>
             </Popover>
           </div>
-
-          {/* Rooms - Now before Guests */}
+          
+          {/* Check out */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">
-              {t('عدد الغرف', 'Rooms')}
+            <label className="text-xs font-medium text-white mb-1.5 block">
+              {t('تاريخ المغادرة', 'Check out')}
             </label>
-            <Select value={rooms} onValueChange={setRooms}>
-              <SelectTrigger className="h-12 bg-background/50">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                  <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
-                ))}
-                <SelectItem value="custom">{t('أكثر', 'More')}</SelectItem>
-              </SelectContent>
-            </Select>
-            {rooms === 'custom' && (
-              <Input
-                type="number"
-                min="1"
-                value={customRooms}
-                onChange={(e) => setCustomRooms(e.target.value)}
-                placeholder={t('أدخل العدد', 'Enter number')}
-                className="mt-2 h-12"
-              />
-            )}
+            <Button
+              variant="outline"
+              className={cn(
+                "w-full h-11 justify-start text-right font-normal bg-white/10 border-white/20 text-white",
+                !dateRange?.to && "text-white/60"
+              )}
+              onClick={() => setIsCalendarOpen(true)}
+            >
+              <CalendarIcon className="ml-2 h-4 w-4" />
+              <span className="text-xs">
+                {dateRange?.to ? format(dateRange.to, "dd/MM/yyyy") : t('إضافة تواريخ', 'Add dates')}
+              </span>
+            </Button>
           </div>
 
-          {/* Guests - Now after Rooms */}
+          {/* Guests */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">
-              {t('عدد الضيوف', 'Guests')}
+            <label className="text-xs font-medium text-white mb-1.5 block">
+              {t('الضيوف', 'Guests')}
             </label>
             <Select value={guests} onValueChange={setGuests}>
-              <SelectTrigger className="h-12 bg-background/50">
+              <SelectTrigger className="h-11 bg-white/10 border-white/20 text-white">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -222,17 +216,17 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                 value={customGuests}
                 onChange={(e) => setCustomGuests(e.target.value)}
                 placeholder={t('أدخل العدد', 'Enter number')}
-                className="mt-2 h-12"
+                className="mt-2 h-11 bg-white/10 border-white/20 text-white"
               />
             )}
           </div>
         </div>
 
         {/* Search Button */}
-        <div className="mt-6">
-          <Button onClick={handleSearch} className="w-full h-14 text-lg btn-luxury">
-            <Search className="ml-2 w-5 h-5" />
-            {t('ابحث الآن', 'Search Now')}
+        <div className="mt-4">
+          <Button onClick={handleSearch} className="w-full h-12 md:h-14 text-base md:text-lg btn-luxury rounded-full">
+            <Search className="ml-2 w-4 h-4 md:w-5 md:h-5" />
+            {t('ابحث', 'Search')}
           </Button>
         </div>
       </div>

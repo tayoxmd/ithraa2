@@ -206,7 +206,7 @@ export default function Booking() {
       <Header />
       
       <div className="container mx-auto px-4 py-8 pt-24">
-        <h1 className="text-3xl font-bold mb-8">
+        <h1 className="text-2xl md:text-3xl font-bold mb-8 text-white">
           {t({ ar: 'إكمال الحجز', en: 'Complete Booking', fr: 'Finaliser la réservation', es: 'Completar reserva', ru: 'Завершить бронирование', id: 'Selesaikan Pemesanan', ms: 'Lengkapkan Tempahan' })}
         </h1>
 

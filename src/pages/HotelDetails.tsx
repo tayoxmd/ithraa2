@@ -91,7 +91,7 @@ export default function HotelDetails() {
         <Button 
           variant="ghost" 
           onClick={() => navigate(-1)}
-          className="mb-4"
+          className="mb-4 text-white hover:text-primary"
         >
           <ArrowRight className="ml-2 w-4 h-4" />
           {t('العودة', 'Back')}
@@ -110,19 +110,19 @@ export default function HotelDetails() {
                 }}
               />
               {hotelImages.length > 1 && (
-                <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
+                <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1.5 rounded-full text-sm backdrop-blur-sm">
                   {hotelImages.length} {t({ ar: 'صورة', en: 'images' })}
                 </div>
               )}
             </div>
             {hotelImages.length > 1 && (
-              <div className="grid grid-cols-4 gap-2 mt-2">
+              <div className="grid grid-cols-4 gap-2 mt-3">
                 {hotelImages.slice(1, 5).map((img, idx) => (
                   <img
                     key={idx}
                     src={img}
                     alt={`${language === 'ar' ? hotel.name_ar : hotel.name_en} ${idx + 2}`}
-                    className="w-full h-20 object-cover rounded-lg cursor-pointer hover:opacity-80 transition-opacity"
+                    className="w-full h-20 object-cover rounded-xl cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={() => {
                       setGalleryIndex(idx + 1);
                       setGalleryOpen(true);
@@ -134,25 +134,25 @@ export default function HotelDetails() {
           </div>
 
           <div>
-            <h1 className="text-4xl font-bold mb-4">
+            <h1 className="text-3xl md:text-4xl font-bold mb-4 text-white">
               {language === 'ar' ? hotel.name_ar : hotel.name_en}
             </h1>
             
-            <div className="flex items-center gap-4 mb-4">
-              <div className="flex items-center">
-                <Star className="w-5 h-5 text-primary fill-primary ml-1" />
-                <span className="font-semibold">{hotel.rating}</span>
+            <div className="flex items-center gap-4 mb-4 flex-wrap">
+              <div className="flex items-center bg-white/10 px-3 py-1.5 rounded-full">
+                <Star className="w-4 h-4 text-primary fill-primary ml-1" />
+                <span className="font-semibold text-white text-sm">{hotel.rating}</span>
               </div>
               <div className="flex items-center text-muted-foreground">
                 <MapPin className="w-4 h-4 ml-1" />
-                <span>{hotel.location}</span>
+                <span className="text-sm">{hotel.location}</span>
               </div>
               {hotel.location_url && (
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={() => window.open(hotel.location_url, '_blank')}
-                  className="gap-2"
+                  className="gap-2 bg-white/10 border-white/20 text-white hover:bg-white/20"
                 >
                   <Navigation className="w-4 h-4" />
                   {t('عرض الموقع', 'View Location')}
@@ -160,12 +160,12 @@ export default function HotelDetails() {
               )}
             </div>
 
-            <p className="text-muted-foreground mb-6 leading-relaxed">
+            <p className="text-sm md:text-base text-muted-foreground mb-6 leading-relaxed">
               {language === 'ar' ? hotel.description_ar : hotel.description_en}
             </p>
 
             <Card className="card-luxury mb-6">
-              <CardContent className="p-6">
+              <CardContent className="p-4 md:p-6">
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-primary">
