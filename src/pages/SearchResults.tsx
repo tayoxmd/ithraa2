@@ -80,17 +80,17 @@ export default function SearchResults() {
           <Collapsible open={isSearchOpen} onOpenChange={setIsSearchOpen}>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold mb-2 text-white">
+                <h1 className="text-3xl font-bold mb-2">
                   {t({ ar: 'نتائج البحث', en: 'Search Results', fr: 'Résultats de recherche', es: 'Resultados de búsqueda', ru: 'Результаты поиска', id: 'Hasil Pencarian', ms: 'Hasil Carian' })}
                 </h1>
-                <p className="text-sm md:text-base text-muted-foreground">
+                <p className="text-muted-foreground">
                   {t({ ar: `تم العثور على ${hotels.length} فندق`, en: `Found ${hotels.length} hotels`, fr: `${hotels.length} hôtels trouvés`, es: `Se encontraron ${hotels.length} hoteles`, ru: `Найдено отелей: ${hotels.length}`, id: `Ditemukan ${hotels.length} hotel`, ms: `Ditemui ${hotels.length} hotel` })}
                 </p>
               </div>
               <CollapsibleTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2 bg-white/10 border-white/20 text-white">
+                <Button variant="outline" className="flex items-center gap-2">
                   {isSearchOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  {t({ ar: 'تعديل البحث', en: 'Edit Search' })}
+                  {t({ ar: 'تعديل خيارات البحث', en: 'Edit Search Options' })}
                 </Button>
               </CollapsibleTrigger>
             </div>
@@ -121,36 +121,36 @@ export default function SearchResults() {
               : "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000";
 
             return (
-              <Card key={hotel.id} className="card-luxury hover-lift cursor-pointer overflow-hidden rounded-2xl group">
-                <div className="relative h-56">
+              <Card key={hotel.id} className="card-luxury hover-lift cursor-pointer overflow-hidden">
+                <div className="relative h-48">
                   <img
                     src={mainImage}
                     alt={language === 'ar' ? hotel.name_ar : hotel.name_en}
-                    className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+                    className="w-full h-full object-cover"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <Badge className="absolute top-3 right-3 bg-white/20 backdrop-blur-sm border-0 text-white">
-                    <Star className="w-3 h-3 ml-1 fill-primary text-primary" />
+                  <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">
+                    <Star className="w-3 h-3 ml-1 fill-current" />
                     {hotel.rating}
                   </Badge>
-                  <div className="absolute bottom-3 left-3 right-3">
-                    <h3 className="text-base md:text-lg font-bold text-white mb-1">
-                      {language === 'ar' ? hotel.name_ar : hotel.name_en}
-                    </h3>
-                    <div className="flex items-center text-white/90 text-sm">
-                      <MapPin className="w-3 h-3 ml-1" />
-                      <span>{hotel.location}</span>
-                    </div>
-                  </div>
                 </div>
                 <CardContent className="p-4">
+                  <h3 className="text-xl font-bold mb-2">
+                    {language === 'ar' ? hotel.name_ar : hotel.name_en}
+                  </h3>
+                  <div className="flex items-center text-muted-foreground mb-3">
+                    <MapPin className="w-4 h-4 ml-1" />
+                    <span className="text-sm">{hotel.location}</span>
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
+                    {language === 'ar' ? hotel.description_ar : hotel.description_en}
+                  </p>
                   <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-xl md:text-2xl font-bold text-white">
+                  <div>
+                    <div className="flex items-baseline gap-2">
+                      <span className="text-2xl font-bold text-primary">
                         {Math.round(hotel.price_per_night)}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className="text-sm text-muted-foreground">
                         {t({ ar: 'ر.س / ليلة', en: 'SAR / night' })}
                       </span>
                     </div>
@@ -181,11 +181,11 @@ export default function SearchResults() {
                       return (
                         <>
                           {extraGuests > 0 && (
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="text-xs text-foreground/70 mt-1">
                               +{Math.round(extraGuestCharge)} {t({ ar: 'ريال', en: 'SAR' })} ({extraGuests} {extraGuests === 1 ? t({ ar: 'شخص إضافي', en: 'extra guest' }) : t({ ar: 'أشخاص إضافيين', en: 'extra guests' })})
                             </p>
                           )}
-                          <p className="text-xs text-muted-foreground mt-1 font-medium">
+                          <p className="text-xs text-foreground/80 mt-1 font-medium">
                             {t({ ar: 'الإجمالي', en: 'Total' })}: {Math.round(total).toLocaleString()} {t({ ar: 'ر.س', en: 'SAR' })} ({nights} {t({ ar: 'ليلة', en: 'nights' })} × {roomsCount} {t({ ar: 'غرفة', en: 'rooms' })})
                           </p>
                           {taxRate > 0 && (
@@ -198,8 +198,7 @@ export default function SearchResults() {
                     })()}
                   </div>
                     <Button 
-                      size="sm"
-                      className="btn-luxury rounded-lg"
+                      className="btn-luxury"
                       onClick={() => {
                         const params = new URLSearchParams();
                         if (checkIn) params.set('checkIn', checkIn);
@@ -209,7 +208,7 @@ export default function SearchResults() {
                         navigate(`/hotel/${hotel.id}?${params.toString()}`);
                       }}
                     >
-                      {t({ ar: 'احجز', en: 'Book' })}
+                      {t({ ar: 'عرض التفاصيل', en: 'View Details', fr: 'Voir les détails', es: 'Ver detalles', ru: 'Подробности', id: 'Lihat Detail', ms: 'Lihat Butiran' })}
                     </Button>
                   </div>
                 </CardContent>
@@ -220,7 +219,7 @@ export default function SearchResults() {
 
         {hotels.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-muted-foreground text-base md:text-lg">
+            <p className="text-muted-foreground text-lg">
               {t({ ar: 'لم يتم العثور على نتائج', en: 'No results found', fr: 'Aucun résultat trouvé', es: 'No se encontraron resultados', ru: 'Результаты не найдены', id: 'Tidak ada hasil ditemukan', ms: 'Tiada hasil ditemui' })}
             </p>
           </div>

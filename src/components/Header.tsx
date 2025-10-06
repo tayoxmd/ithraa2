@@ -1,32 +1,21 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, LayoutDashboard, Apple, Smartphone } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { toast } from "sonner";
 import logo from "@/assets/logo.svg";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [deviceOS, setDeviceOS] = useState<'ios' | 'android' | 'other'>('other');
   const { user, signOut, userRole } = useAuth();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobileOrTablet = useIsMobile() || (typeof window !== 'undefined' && window.innerWidth <= 1024);
-
-  useEffect(() => {
-    const userAgent = navigator.userAgent || navigator.vendor;
-    if (/iPad|iPhone|iPod/.test(userAgent)) {
-      setDeviceOS('ios');
-    } else if (/android/i.test(userAgent)) {
-      setDeviceOS('android');
-    }
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -44,9 +33,9 @@ export function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-lg border-b border-white/10">
+      <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-b border-border shadow-elegant">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16 md:h-20">
+          <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3">
               <img 
@@ -173,38 +162,6 @@ export function Header() {
                 <a href="/#about" className="text-foreground hover:text-primary transition-colors font-medium py-2">
                   {t('من نحن', 'About')}
                 </a>
-                
-                {/* App Download Buttons */}
-                <div className="border-t border-border pt-4 mt-2">
-                  <p className="text-xs text-muted-foreground mb-3 text-center">
-                    {t('حمّل التطبيق', 'Download App')}
-                  </p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-2 justify-start"
-                      onClick={() => {
-                        toast.info(t('التطبيق قيد التطوير - سيتوفر قريباً', 'App under development - Coming soon'));
-                      }}
-                    >
-                      <Apple className="w-4 h-4" />
-                      <span className="text-xs">iOS</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-2 justify-start"
-                      onClick={() => {
-                        toast.info(t('التطبيق قيد التطوير - سيتوفر قريباً', 'App under development - Coming soon'));
-                      }}
-                    >
-                      <Smartphone className="w-4 h-4" />
-                      <span className="text-xs">Android</span>
-                    </Button>
-                  </div>
-                </div>
-
                 {user ? (
                   <>
                     {(userRole === 'admin' || userRole === 'employee') && (

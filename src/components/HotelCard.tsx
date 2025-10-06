@@ -36,47 +36,84 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
   return (
     <Card className="card-luxury overflow-hidden hover-lift cursor-pointer group animate-fade-in">
       {/* Image */}
-      <div className="relative h-64 overflow-hidden rounded-t-2xl" onClick={() => navigate(`/hotel/${id}`)}>
+      <div className="relative h-56 overflow-hidden" onClick={() => navigate(`/hotel/${id}`)}>
         <img
           src={hotelImages[currentImageIndex]}
           alt={name}
-          className="w-full h-full object-cover transition-all duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover transition-all duration-300"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-        <div className="absolute bottom-4 left-4 right-4">
-          <div className="flex items-center justify-between text-white">
-            <div>
-              <h3 className="text-lg font-bold mb-0.5">{name}</h3>
-              <div className="flex items-center gap-1 text-sm">
-                <MapPin className="w-3 h-3" />
-                <span>{location}</span>
-              </div>
-            </div>
-            <div className="bg-white/20 backdrop-blur-sm px-2.5 py-1 rounded-full flex items-center gap-1">
-              <Star className="w-3.5 h-3.5 fill-primary text-primary" />
-              <span className="text-sm font-bold">{rating}</span>
-            </div>
-          </div>
+        {featured && (
+          <Badge className="absolute top-4 right-4 bg-gradient-luxury border-0 shadow-luxury">
+            عرض مميز
+          </Badge>
+        )}
+        <div className="absolute top-4 left-4 bg-card/95 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1">
+          <Star className="w-4 h-4 fill-primary text-primary" />
+          <span className="text-sm font-bold">{rating}</span>
         </div>
         
+        {/* Navigation Arrows */}
+        {hotelImages.length > 1 && (
+          <>
+            <Button
+              size="icon"
+              variant="secondary"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-card/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={handlePrevImage}
+            >
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+            <Button
+              size="icon"
+              variant="secondary"
+              className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-card/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
+              onClick={handleNextImage}
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </Button>
+            
+            {/* Image Counter */}
+            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 text-white px-2 py-1 rounded-full text-xs">
+              {currentImageIndex + 1} / {hotelImages.length}
+            </div>
+          </>
+        )}
       </div>
 
-      <CardContent className="p-4">
+      <CardContent className="p-5">
+        {/* Title */}
+        <div className="mb-3">
+          <h3 className="text-xl font-bold text-foreground mb-1">{name}</h3>
+          <p className="text-sm text-muted-foreground">{nameEn}</p>
+        </div>
+
+        {/* Location */}
+        <div className="flex items-center gap-2 text-muted-foreground mb-4">
+          <MapPin className="w-4 h-4" />
+          <span className="text-sm">{location}</span>
+        </div>
+
+        {/* Amenities */}
+        <div className="flex items-center gap-3 mb-4">
+          <Wifi className="w-4 h-4 text-muted-foreground" />
+          <Coffee className="w-4 h-4 text-muted-foreground" />
+          <Utensils className="w-4 h-4 text-muted-foreground" />
+        </div>
+
         {/* Price & CTA */}
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <div className="flex items-baseline gap-1.5 mb-1">
-              <span className="text-sm text-muted-foreground">AED</span>
-              <span className="text-2xl font-bold text-white">{price}</span>
+        <div className="flex items-center justify-between pt-4 border-t border-border">
+          <div>
+            <div className="flex items-baseline gap-2">
+              <span className="text-2xl font-bold text-primary">{price}</span>
+              <span className="text-sm text-muted-foreground">ريال / ليلة</span>
             </div>
-            <p className="text-xs text-muted-foreground">{nameEn}</p>
           </div>
           <Button 
             size="sm" 
-            className="btn-luxury rounded-lg px-4"
+            className="btn-luxury"
             onClick={() => navigate(`/hotel/${id}`)}
           >
-            احجز
+            احجز الآن
           </Button>
         </div>
       </CardContent>
