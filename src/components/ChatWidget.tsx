@@ -9,7 +9,8 @@ export const ChatWidget = () => {
       try {
         const { data, error } = await supabase
           .from('site_settings')
-          .select('chat_widget_code')
+          .select('chat_widget_code, created_at, updated_at')
+          .order('created_at', { ascending: false })
           .order('updated_at', { ascending: false })
           .limit(1)
           .maybeSingle();

@@ -23,7 +23,8 @@ export function ThemeProvider({ children, isAdmin = false }: { children: ReactNo
     async function loadThemes() {
       const { data } = await supabase
         .from('site_settings')
-        .select('user_theme, admin_theme, updated_at')
+        .select('user_theme, admin_theme, created_at, updated_at')
+        .order('created_at', { ascending: false })
         .order('updated_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -45,9 +46,12 @@ export function ThemeProvider({ children, isAdmin = false }: { children: ReactNo
     
     // Remove all theme classes
     document.documentElement.classList.remove('theme-design1', 'theme-design2', 'theme-design3', 'admin-design2');
+    document.body.classList.remove('theme-design1', 'theme-design2', 'theme-design3', 'admin-design2');
     
-    // Add current theme class
-    document.documentElement.classList.add(currentTheme.startsWith('admin-') ? currentTheme : `theme-${currentTheme}`);
+    // Add current theme class to html and body for full cascade
+    const themeClass = currentTheme.startsWith('admin-') ? currentTheme : `theme-${currentTheme}`;
+    document.documentElement.classList.add(themeClass);
+    document.body.classList.add(themeClass);
   }, [userTheme, adminTheme, isAdmin, loading]);
 
   const setUserTheme = (theme: ThemeType) => {

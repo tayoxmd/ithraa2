@@ -90,6 +90,7 @@ export default function SiteSettings() {
       const { data, error } = await supabase
         .from('site_settings')
         .select('*')
+        .order('created_at', { ascending: false })
         .order('updated_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -179,6 +180,7 @@ export default function SiteSettings() {
       const { data: existingSettings } = await supabase
         .from('site_settings')
         .select('id')
+        .order('created_at', { ascending: false })
         .order('updated_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -228,6 +230,7 @@ export default function SiteSettings() {
       const { data: existingSettings } = await supabase
         .from('site_settings')
         .select('id')
+        .order('created_at', { ascending: false })
         .order('updated_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -265,6 +268,7 @@ export default function SiteSettings() {
       const { data: existingSettings } = await supabase
         .from('site_settings')
         .select('id')
+        .order('created_at', { ascending: false })
         .order('updated_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -302,6 +306,7 @@ export default function SiteSettings() {
       const { data: existingSettings } = await supabase
         .from('site_settings')
         .select('id')
+        .order('created_at', { ascending: false })
         .order('updated_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -346,6 +351,7 @@ export default function SiteSettings() {
       const { data: existingSettings } = await supabase
         .from('site_settings')
         .select('id')
+        .order('created_at', { ascending: false })
         .order('updated_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -454,6 +460,7 @@ export default function SiteSettings() {
       const { data: existingSettings } = await supabase
         .from('site_settings')
         .select('id')
+        .order('created_at', { ascending: false })
         .order('updated_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -504,6 +511,7 @@ export default function SiteSettings() {
       const { data: settingsData } = await supabase
         .from('site_settings')
         .select('backup_created_at, backup_version')
+        .order('created_at', { ascending: false })
         .order('updated_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -538,6 +546,7 @@ export default function SiteSettings() {
       const { data, error } = await supabase
         .from('site_settings')
         .select('backup_data, backup_created_at, backup_version')
+        .order('created_at', { ascending: false })
         .order('updated_at', { ascending: false })
         .limit(1)
         .maybeSingle();
@@ -895,6 +904,7 @@ export default function SiteSettings() {
                   const { data: existingSettings } = await supabase
                     .from('site_settings')
                     .select('id')
+                    .order('created_at', { ascending: false })
                     .order('updated_at', { ascending: false })
                     .limit(1)
                     .maybeSingle();
