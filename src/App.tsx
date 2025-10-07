@@ -8,6 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ChatWidget } from "@/components/ChatWidget";
+import { LiveChatSupport } from "@/components/LiveChatSupport";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -35,6 +36,7 @@ import Coupons from "./pages/Coupons";
 import LoyaltyProgram from "./pages/LoyaltyProgram";
 import HotelComparison from "./pages/HotelComparison";
 import SpecialOffers from "./pages/SpecialOffers";
+import LiveChatManagement from "./pages/LiveChatManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -49,6 +51,7 @@ const RouterWithTheme = () => {
         <Toaster />
         <Sonner />
         <ChatWidget />
+        <LiveChatSupport />
         <LanguageProvider>
           <AuthProvider>
             <Routes>
@@ -71,6 +74,7 @@ const RouterWithTheme = () => {
               <Route path="/loyalty-program" element={<LoyaltyProgram />} />
               <Route path="/hotel-comparison" element={<HotelComparison />} />
               <Route path="/special-offers" element={<SpecialOffers />} />
+              <Route path="/live-chat-management" element={<ProtectedRoute><LiveChatManagement /></ProtectedRoute>} />
               <Route path="/manage-hotels" element={<ProtectedRoute><ManageHotels /></ProtectedRoute>} />
               <Route path="/seasonal-pricing" element={<ProtectedRoute><SeasonalPricing /></ProtectedRoute>} />
               <Route path="/employee-management" element={<ProtectedRoute><EmployeeManagement /></ProtectedRoute>} />
