@@ -11,6 +11,7 @@ import { Star, MapPin, ArrowRight, Navigation } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ImageGallery } from "@/components/ImageGallery";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { calculateSeasonalPrice } from "@/utils/seasonalPricing";
 
 interface Hotel {
   id: string;
@@ -39,6 +40,7 @@ export default function HotelDetails() {
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
   const [mealBadgeSettings, setMealBadgeSettings] = useState<any>(null);
+  const [avgPricePerNight, setAvgPricePerNight] = useState<number | null>(null);
 
   // Get search parameters from URL or localStorage
   const searchParams = new URLSearchParams(location.search);
@@ -57,7 +59,20 @@ export default function HotelDetails() {
         console.error('Error fetching hotel:', error);
       }
       
-      if (data && data.length > 0) setHotel(data[0]);
+      if (data && data.length > 0) {
+        setHotel(data[0]);
+        
+        // Calculate seasonal pricing
+        const checkInDate = new Date(checkIn);
+        const checkOutDate = new Date(checkOut);
+        const avgPrice = await calculateSeasonalPrice(
+          id!,
+          checkInDate,
+          checkOutDate,
+          data[0].price_per_night
+        );
+        setAvgPricePerNight(avgPrice);
+      }
       setLoading(false);
     }
     
@@ -74,7 +89,7 @@ export default function HotelDetails() {
     
     fetchHotel();
     fetchMealBadgeSettings();
-  }, [id]);
+  }, [id, checkIn, checkOut]);
 
   if (loading) {
     return (
@@ -225,7 +240,7 @@ export default function HotelDetails() {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-2xl font-bold text-primary">
-                      {hotel.price_per_night} {t('ر.س', 'SAR')}
+                      {avgPricePerNight !== null ? Math.round(avgPricePerNight) : hotel.price_per_night} {t('ر.س', 'SAR')}
                     </span>
                     <span className="text-muted-foreground">
                       {t('لليلة الواحدة', 'per night')}
@@ -241,8 +256,9 @@ export default function HotelDetails() {
                     // Get tax rate (0 means no tax)
                     const taxRate = ((hotel as any).tax_percentage && (hotel as any).tax_percentage > 0) ? (hotel as any).tax_percentage : 0;
                     
-                    // Calculate base price
-                    let subtotal = hotel.price_per_night * nights * roomsCount;
+                    // Calculate base price using seasonal pricing
+                    const pricePerNight = avgPricePerNight !== null ? avgPricePerNight : hotel.price_per_night;
+                    let subtotal = pricePerNight * nights * roomsCount;
                     
                     let extraGuestCharge = 0;
                     let extraGuests = 0;

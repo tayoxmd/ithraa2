@@ -20,6 +20,7 @@ import { BookingAuthDialog } from "@/components/BookingAuthDialog";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useRef } from "react";
 import { countries } from "@/data/countries";
+import { calculateSeasonalPrice } from "@/utils/seasonalPricing";
 
 const paymentMethods = [
   { id: 'cash', name: 'نقدي', nameEn: 'Cash' },
@@ -65,6 +66,7 @@ export default function Booking() {
   const [savedGuests, setSavedGuests] = useState<any[]>([]);
   const [selectedGuestId, setSelectedGuestId] = useState<string>("");
   const [showNewGuestInput, setShowNewGuestInput] = useState(false);
+  const [avgPricePerNight, setAvgPricePerNight] = useState<number | null>(null);
 
   useEffect(() => {
     // إزالة التحقق من المصادقة - السماح للضيوف بالوصول
@@ -77,7 +79,18 @@ export default function Booking() {
         console.error('Error fetching hotel:', error);
       }
       
-      if (data && data.length > 0) setHotel(data[0]);
+      if (data && data.length > 0) {
+        setHotel(data[0]);
+        
+        // Calculate seasonal pricing
+        const avgPrice = await calculateSeasonalPrice(
+          id!,
+          checkIn,
+          checkOut,
+          data[0].price_per_night
+        );
+        setAvgPricePerNight(avgPrice);
+      }
     }
     
     async function fetchSavedGuests() {
@@ -96,7 +109,7 @@ export default function Booking() {
     
     fetchHotel();
     fetchSavedGuests();
-  }, [id, user]);
+  }, [id, user, checkIn, checkOut]);
 
   const calculateTotal = () => {
     if (!hotel) return { subtotal: 0, extraGuestCharge: 0, extraMealCharge: 0, tax: 0, total: 0, extraGuestsCount: 0 };
@@ -111,8 +124,9 @@ export default function Booking() {
     // Get tax rate (0 means no tax)
     const taxRate = (hotel.tax_percentage && hotel.tax_percentage > 0) ? hotel.tax_percentage : 0;
     
-    // Calculate base room price
-    const basePrice = hotel.price_per_night * nights * roomsCount;
+    // Calculate base room price using seasonal pricing if available
+    const pricePerNight = avgPricePerNight !== null ? avgPricePerNight : hotel.price_per_night;
+    const basePrice = pricePerNight * nights * roomsCount;
     
     // Calculate extra guests charge
     const maxGuestsIncluded = (hotel.max_guests_per_room || 2) * roomsCount;
