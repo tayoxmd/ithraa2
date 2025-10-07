@@ -5,16 +5,19 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Apple, Chrome } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { authSchema } from "@/lib/validations";
+import { supabase } from "@/integrations/supabase/client";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { Separator } from "@/components/ui/separator";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
   const redirectUrl = searchParams.get('redirect');
   const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'signup');
-  const [email, setEmail] = useState("");
+  const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [phone, setPhone] = useState("");
@@ -29,48 +32,117 @@ export default function Auth() {
     }
   }, [user, navigate]);
 
+  const handleGoogleSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}${redirectUrl || '/'}`,
+      }
+    });
+    
+    if (error) {
+      toast({
+        title: "خطأ",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleAppleSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'apple',
+      options: {
+        redirectTo: `${window.location.origin}${redirectUrl || '/'}`,
+      }
+    });
+    
+    if (error) {
+      toast({
+        title: "خطأ",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
-      // التحقق من صحة المدخلات
-      const validationData = isLogin 
-        ? { email, password }
-        : { email, password, fullName, phone };
-      
-      const validationResult = authSchema.safeParse(validationData);
-
-      if (!validationResult.success) {
-        const firstError = validationResult.error.errors[0];
-        toast({
-          title: "خطأ في البيانات",
-          description: firstError.message,
-          variant: "destructive",
-        });
-        setLoading(false);
-        return;
-      }
-
       if (isLogin) {
-        const { error } = await signIn(
-          validationResult.data.email, 
-          validationResult.data.password,
-          redirectUrl || undefined
-        );
-        if (error) {
-          toast({
-            title: "خطأ في تسجيل الدخول",
-            description: error.message,
-            variant: "destructive",
-          });
+        // Determine if input is email or phone
+        const isEmail = emailOrPhone.includes('@');
+        
+        if (isEmail) {
+          // Login with email
+          const { error } = await signIn(emailOrPhone, password, redirectUrl || undefined);
+          if (error) {
+            toast({
+              title: "خطأ في تسجيل الدخول",
+              description: error.message,
+              variant: "destructive",
+            });
+          } else {
+            toast({
+              title: "تم تسجيل الدخول بنجاح",
+              description: "مرحباً بك في إثراء",
+            });
+          }
         } else {
-          toast({
-            title: "تم تسجيل الدخول بنجاح",
-            description: "مرحباً بك في إثراء",
-          });
+          // Login with phone - find user by phone in profiles
+          const { data: profileData, error: profileError } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('phone', emailOrPhone)
+            .single();
+          
+          if (profileError || !profileData) {
+            toast({
+              title: "خطأ في تسجيل الدخول",
+              description: "رقم الهاتف غير مسجل",
+              variant: "destructive",
+            });
+            setLoading(false);
+            return;
+          }
+
+          // Get user email from auth
+          const { data: userData } = await supabase.auth.admin.getUserById(profileData.id);
+          
+          if (userData?.user?.email) {
+            const { error } = await signIn(userData.user.email, password, redirectUrl || undefined);
+            if (error) {
+              toast({
+                title: "خطأ في تسجيل الدخول",
+                description: error.message,
+                variant: "destructive",
+              });
+            } else {
+              toast({
+                title: "تم تسجيل الدخول بنجاح",
+                description: "مرحباً بك في إثراء",
+              });
+            }
+          }
         }
       } else {
+        // Sign up - email is required in signup
+        const validationData = { email: emailOrPhone, password, fullName, phone };
+        const validationResult = authSchema.safeParse(validationData);
+
+        if (!validationResult.success) {
+          const firstError = validationResult.error.errors[0];
+          toast({
+            title: "خطأ في البيانات",
+            description: firstError.message,
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+
         const { error } = await signUp(
           validationResult.data.email, 
           validationResult.data.password, 
@@ -78,6 +150,7 @@ export default function Auth() {
           validationResult.data.phone || '',
           redirectUrl || undefined
         );
+        
         if (error) {
           toast({
             title: "خطأ في التسجيل",
@@ -89,8 +162,6 @@ export default function Auth() {
             title: "تم التسجيل بنجاح",
             description: "تم إنشاء حسابك بنجاح",
           });
-          // If there's a redirect URL, user will be redirected after signup
-          // Otherwise, switch to login mode
           if (!redirectUrl) {
             setIsLogin(true);
           }
@@ -124,11 +195,11 @@ export default function Auth() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3">
             {!isLogin && (
               <>
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">الاسم الكامل</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="fullName" className="text-sm">الاسم الكامل</Label>
                   <Input
                     id="fullName"
                     type="text"
@@ -136,10 +207,11 @@ export default function Auth() {
                     onChange={(e) => setFullName(e.target.value)}
                     required={!isLogin}
                     placeholder="أدخل اسمك الكامل"
+                    className="h-10"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="phone">رقم الجوال</Label>
+                <div className="space-y-1.5">
+                  <Label htmlFor="phone" className="text-sm">رقم الجوال</Label>
                   <Input
                     id="phone"
                     type="tel"
@@ -147,23 +219,27 @@ export default function Auth() {
                     onChange={(e) => setPhone(e.target.value)}
                     required={!isLogin}
                     placeholder="+966 5XX XXX XXX"
+                    className="h-10"
                   />
                 </div>
               </>
             )}
-            <div className="space-y-2">
-              <Label htmlFor="email">البريد الإلكتروني</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="emailOrPhone" className="text-sm">
+                {isLogin ? "البريد الإلكتروني أو رقم الجوال" : "البريد الإلكتروني"}
+              </Label>
               <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                id="emailOrPhone"
+                type={isLogin ? "text" : "email"}
+                value={emailOrPhone}
+                onChange={(e) => setEmailOrPhone(e.target.value)}
                 required
-                placeholder="example@email.com"
+                placeholder={isLogin ? "example@email.com أو +966XXXXXXXXX" : "example@email.com"}
+                className="h-10"
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">كلمة المرور</Label>
+            <div className="space-y-1.5">
+              <Label htmlFor="password" className="text-sm">كلمة المرور</Label>
               <Input
                 id="password"
                 type="password"
@@ -172,17 +248,53 @@ export default function Auth() {
                 required
                 placeholder="••••••••"
                 minLength={6}
+                className="h-10"
               />
             </div>
             <Button
               type="submit"
-              className="w-full btn-luxury"
+              className="w-full btn-luxury h-11"
               disabled={loading}
             >
-              {loading && <Loader2 className="ml-2 h-4 w-4 animate-spin" />}
-              {isLogin ? "تسجيل الدخول" : "إنشاء حساب"}
+              {loading ? <LoadingSpinner size="sm" /> : (isLogin ? "تسجيل الدخول" : "إنشاء حساب")}
             </Button>
           </form>
+
+          <div className="mt-6">
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <Separator className="w-full" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  أو
+                </span>
+              </div>
+            </div>
+
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGoogleSignIn}
+                disabled={loading}
+                className="h-11"
+              >
+                <Chrome className="w-5 h-5 ml-2" />
+                Google
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleAppleSignIn}
+                disabled={loading}
+                className="h-11"
+              >
+                <Apple className="w-5 h-5 ml-2" />
+                Apple
+              </Button>
+            </div>
+          </div>
           <div className="mt-4 text-center">
             <button
               type="button"

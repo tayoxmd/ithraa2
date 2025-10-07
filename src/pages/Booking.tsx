@@ -17,6 +17,8 @@ import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { bookingSchema } from "@/lib/validations";
 import { BookingAuthDialog } from "@/components/BookingAuthDialog";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { useRef } from "react";
 
 const paymentMethods = [
   { id: 'cash', name: 'نقدي', nameEn: 'Cash' },
@@ -55,6 +57,9 @@ export default function Booking() {
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [guestPhone, setGuestPhone] = useState("");
   const [guestCountryCode, setGuestCountryCode] = useState("+966");
+  const [fieldErrors, setFieldErrors] = useState<{[key: string]: boolean}>({});
+  const guestNameRef = useRef<HTMLInputElement>(null);
+  const paymentMethodRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     // إزالة التحقق من المصادقة - السماح للضيوف بالوصول
@@ -112,6 +117,7 @@ export default function Booking() {
 
   const initiateBooking = (e: React.FormEvent) => {
     e.preventDefault();
+    setFieldErrors({});
     
     // Validate dates
     if (checkOut <= checkIn) {
@@ -124,20 +130,31 @@ export default function Booking() {
     }
     
     if (!guestName.trim()) {
+      setFieldErrors({ guestName: true });
       toast({
         title: t({ ar: "خطأ", en: "Error" }),
         description: t({ ar: "يرجى إدخال اسم الضيف", en: "Please enter guest name" }),
         variant: "destructive",
       });
+      // Scroll to the error field
+      setTimeout(() => {
+        guestNameRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        guestNameRef.current?.focus();
+      }, 100);
       return;
     }
     
     if (!paymentMethod) {
+      setFieldErrors({ paymentMethod: true });
       toast({
         title: t({ ar: "خطأ", en: "Error" }),
         description: t({ ar: "يرجى اختيار طريقة الدفع", en: "Please select payment method" }),
         variant: "destructive",
       });
+      // Scroll to the error field
+      setTimeout(() => {
+        paymentMethodRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
       return;
     }
 
@@ -153,10 +170,13 @@ export default function Booking() {
   const handleGuestContinue = (phone: string, countryCode: string) => {
     setGuestPhone(phone);
     setGuestCountryCode(countryCode);
-    handleSubmit();
+    // Use setTimeout to ensure state is updated before submission
+    setTimeout(() => {
+      handleSubmit(phone, countryCode);
+    }, 0);
   };
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (phone?: string, countryCode?: string) => {
     setLoading(true);
 
     const totalData = calculateTotal();
@@ -184,9 +204,15 @@ export default function Booking() {
     // إضافة معلومات المستخدم أو الضيف
     if (user) {
       bookingData.user_id = user.id;
-    } else if (guestPhone) {
-      bookingData.guest_phone = guestPhone;
-      bookingData.guest_country_code = guestCountryCode;
+    } else {
+      // Use parameters if provided (from handleGuestContinue), otherwise use state
+      const phoneToUse = phone || guestPhone;
+      const countryCodeToUse = countryCode || guestCountryCode;
+      
+      if (phoneToUse) {
+        bookingData.guest_phone = phoneToUse;
+        bookingData.guest_country_code = countryCodeToUse;
+      }
     }
     
     const { data, error } = await supabase
@@ -226,7 +252,7 @@ export default function Booking() {
   if (!hotel) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        {t({ ar: 'جاري التحميل...', en: 'Loading...', fr: 'Chargement...', es: 'Cargando...', ru: 'Загрузка...', id: 'Memuat...', ms: 'Memuatkan...' })}
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
@@ -383,11 +409,18 @@ export default function Booking() {
                     </label>
                   </div>
                   <Input
+                    ref={guestNameRef}
                     value={guestName}
-                    onChange={(e) => setGuestName(e.target.value)}
+                    onChange={(e) => {
+                      setGuestName(e.target.value);
+                      if (fieldErrors.guestName) {
+                        setFieldErrors({ ...fieldErrors, guestName: false });
+                      }
+                    }}
                     placeholder={t({ ar: 'أدخل اسم الضيف', en: 'Enter guest name' })}
                     required
                     disabled={useCustomerName}
+                    className={fieldErrors.guestName ? "border-2 border-destructive focus-visible:ring-destructive" : ""}
                   />
                 </CardContent>
               </Card>
@@ -416,8 +449,20 @@ export default function Booking() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Select value={paymentMethod} onValueChange={setPaymentMethod} required>
-                    <SelectTrigger>
+                  <Select 
+                    value={paymentMethod} 
+                    onValueChange={(value) => {
+                      setPaymentMethod(value);
+                      if (fieldErrors.paymentMethod) {
+                        setFieldErrors({ ...fieldErrors, paymentMethod: false });
+                      }
+                    }} 
+                    required
+                  >
+                    <SelectTrigger 
+                      ref={paymentMethodRef}
+                      className={fieldErrors.paymentMethod ? "border-2 border-destructive focus:ring-destructive" : ""}
+                    >
                       <SelectValue placeholder={t({ ar: 'اختر طريقة الدفع', en: 'Select payment method', fr: 'Sélectionner le mode de paiement', es: 'Seleccionar método de pago', ru: 'Выберите способ оплаты', id: 'Pilih metode pembayaran', ms: 'Pilih kaedah pembayaran' })} />
                     </SelectTrigger>
                     <SelectContent>
@@ -437,7 +482,11 @@ export default function Booking() {
                 className="w-full btn-luxury h-14 text-lg"
                 disabled={loading}
               >
-                {loading ? t({ ar: 'جاري المعالجة...', en: 'Processing...' }) : t({ ar: 'تأكيد الحجز', en: 'Confirm Booking' })}
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <LoadingSpinner size="sm" className="text-white" />
+                  </div>
+                ) : t({ ar: 'تأكيد الحجز', en: 'Confirm Booking' })}
               </Button>
             </form>
           </div>
