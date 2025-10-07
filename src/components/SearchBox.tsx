@@ -3,7 +3,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { CalendarIcon, MapPin, Search, Users, Bed } from "lucide-react";
+import { CalendarIcon, Search, Users, Minus, Plus } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { format, differenceInDays } from "date-fns";
@@ -32,13 +32,13 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
     }
     return undefined;
   });
-  const [guests, setGuests] = useState(initialValues?.guests || "2");
-  const [customGuests, setCustomGuests] = useState("");
-  const [rooms, setRooms] = useState(initialValues?.rooms || "1");
-  const [customRooms, setCustomRooms] = useState("");
+  const [rooms, setRooms] = useState(parseInt(initialValues?.rooms) || 1);
+  const [adults, setAdults] = useState(parseInt(initialValues?.guests) || 2);
+  const [children, setChildren] = useState(0);
   const [selectedCity, setSelectedCity] = useState<string>(initialValues?.city || "");
   const [cities, setCities] = useState<City[]>([]);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isGuestsOpen, setIsGuestsOpen] = useState(false);
 
   const nights = dateRange?.from && dateRange?.to 
     ? differenceInDays(dateRange.to, dateRange.from)
@@ -79,8 +79,8 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
     params.set('city', selectedCity);
     if (dateRange?.from) params.set('checkIn', format(dateRange.from, 'yyyy-MM-dd'));
     if (dateRange?.to) params.set('checkOut', format(dateRange.to, 'yyyy-MM-dd'));
-    params.set('guests', guests === 'custom' ? customGuests : guests);
-    params.set('rooms', rooms === 'custom' ? customRooms : rooms);
+    params.set('guests', (adults + children).toString());
+    params.set('rooms', rooms.toString());
 
     // Close calendar if open
     setIsCalendarOpen(false);
@@ -101,20 +101,22 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
     ? `${format(dateRange.from, "dd MMMM yyyy", { locale: ar })} - ${format(dateRange.to, "dd MMMM yyyy", { locale: ar })} ${numberOfDays > 0 ? `(${t({ ar: numberOfDays === 1 ? "يوم واحد" : numberOfDays === 2 ? "يومان" : `${numberOfDays} أيام`, en: `${numberOfDays} ${numberOfDays === 1 ? "day" : "days"}` })})` : ''}`
     : t({ ar: "اختر التواريخ", en: "Pick dates" });
 
+  const guestsDisplay = `${rooms} ${t({ ar: rooms === 1 ? "غرفة" : "غرف", en: rooms === 1 ? "Room" : "Rooms" })} - ${adults} ${t({ ar: adults === 1 ? "بالغ" : "بالغين", en: adults === 1 ? "Adult" : "Adults" })}${children > 0 ? ` - ${children} ${t({ ar: children === 1 ? "طفل" : "أطفال", en: children === 1 ? "Child" : "Children" })}` : ""}`;
+
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <div className="card-luxury rounded-2xl p-6 md:p-8 animate-scale-in">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+      <div className="card-luxury rounded-[40px] p-4 md:p-6 animate-scale-in">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {/* Location */}
           <div className="relative">
-            <label className="text-sm font-medium text-foreground mb-2 block">
+            <label className="text-sm font-medium text-foreground mb-1.5 block">
               {t('الوجهة', 'Destination')}
             </label>
             <Select value={selectedCity} onValueChange={setSelectedCity}>
-              <SelectTrigger className="h-12 bg-background/50">
+              <SelectTrigger className="h-12 bg-background/50 rounded-[40px]">
                 <SelectValue placeholder={t('اختر المدينة', 'Select City')} />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="rounded-[40px]">
                 {cities.map((city) => (
                   <SelectItem key={city.id} value={city.id}>
                     {city.name_ar}
@@ -125,8 +127,8 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
           </div>
 
           {/* Date Range */}
-          <div className="lg:col-span-2">
-            <label className="text-sm font-medium text-foreground mb-2 block">
+          <div>
+            <label className="text-sm font-medium text-foreground mb-1.5 block">
               {t('تاريخ الوصول والمغادرة', 'Check-in & Check-out')}
             </label>
             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
@@ -134,7 +136,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full h-12 justify-start text-right font-normal bg-background/50",
+                    "w-full h-12 justify-start text-right font-normal bg-background/50 rounded-[40px]",
                     !dateRange && "text-muted-foreground"
                   )}
                 >
@@ -142,7 +144,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                   {displayDateText}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
+              <PopoverContent className="w-auto p-0 rounded-[40px]" align="start">
                 <div>
                   <Calendar
                     mode="range"
@@ -160,7 +162,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                     </span>
                     <Button 
                       size="default"
-                      className="min-w-28 h-10 px-6 text-base"
+                      className="min-w-28 h-10 px-6 text-base rounded-[40px]"
                       onClick={() => setIsCalendarOpen(false)}
                     >
                       {t('موافق', 'OK')}
@@ -171,66 +173,113 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
             </Popover>
           </div>
 
-          {/* Rooms - Now before Guests */}
+          {/* Rooms and Guests Combined */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">
-              {t('عدد الغرف', 'Rooms')}
+            <label className="text-sm font-medium text-foreground mb-1.5 block">
+              {t('الغرف والضيوف', 'Rooms & Guests')}
             </label>
-            <Select value={rooms} onValueChange={setRooms}>
-              <SelectTrigger className="h-12 bg-background/50">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                  <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
-                ))}
-                <SelectItem value="custom">{t('أكثر', 'More')}</SelectItem>
-              </SelectContent>
-            </Select>
-            {rooms === 'custom' && (
-              <Input
-                type="number"
-                min="1"
-                value={customRooms}
-                onChange={(e) => setCustomRooms(e.target.value)}
-                placeholder={t('أدخل العدد', 'Enter number')}
-                className="mt-2 h-12"
-              />
-            )}
-          </div>
+            <Popover open={isGuestsOpen} onOpenChange={setIsGuestsOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full h-12 justify-start text-right font-normal bg-background/50 rounded-[40px]"
+                >
+                  <Users className="ml-2 h-4 w-4" />
+                  {guestsDisplay}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-4 rounded-[40px]" align="start">
+                <div className="space-y-4">
+                  {/* Rooms */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">{t('الغرف', 'Rooms')}</span>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                        onClick={() => setRooms(Math.max(1, rooms - 1))}
+                        disabled={rooms <= 1}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="w-8 text-center font-medium">{rooms}</span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                        onClick={() => setRooms(rooms + 1)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
 
-          {/* Guests - Now after Rooms */}
-          <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">
-              {t('عدد الضيوف', 'Guests')}
-            </label>
-            <Select value={guests} onValueChange={setGuests}>
-              <SelectTrigger className="h-12 bg-background/50">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {[1, 2, 3, 4, 5, 6].map(num => (
-                  <SelectItem key={num} value={num.toString()}>{num}</SelectItem>
-                ))}
-                <SelectItem value="custom">{t('أخرى', 'Other')}</SelectItem>
-              </SelectContent>
-            </Select>
-            {guests === 'custom' && (
-              <Input
-                type="number"
-                min="1"
-                value={customGuests}
-                onChange={(e) => setCustomGuests(e.target.value)}
-                placeholder={t('أدخل العدد', 'Enter number')}
-                className="mt-2 h-12"
-              />
-            )}
+                  {/* Adults */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">{t('البالغين', 'Adults')}</span>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                        onClick={() => setAdults(Math.max(1, adults - 1))}
+                        disabled={adults <= 1}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="w-8 text-center font-medium">{adults}</span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                        onClick={() => setAdults(adults + 1)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Children */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm font-medium">{t('الأطفال', 'Children')}</span>
+                    <div className="flex items-center gap-3">
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                        onClick={() => setChildren(Math.max(0, children - 1))}
+                        disabled={children <= 0}
+                      >
+                        <Minus className="h-4 w-4" />
+                      </Button>
+                      <span className="w-8 text-center font-medium">{children}</span>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 rounded-full"
+                        onClick={() => setChildren(children + 1)}
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+
+                  <Button 
+                    className="w-full rounded-[40px]"
+                    onClick={() => setIsGuestsOpen(false)}
+                  >
+                    {t('تم', 'Done')}
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
         {/* Search Button */}
-        <div className="mt-6">
-          <Button onClick={handleSearch} className="w-full h-14 text-lg btn-luxury">
+        <div className="mt-4">
+          <Button onClick={handleSearch} className="w-full h-14 text-lg btn-luxury rounded-[40px]">
             <Search className="ml-2 w-5 h-5" />
             {t('ابحث الآن', 'Search Now')}
           </Button>
