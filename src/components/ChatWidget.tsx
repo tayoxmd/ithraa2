@@ -10,7 +10,7 @@ export const ChatWidget = () => {
         const { data, error } = await supabase
           .from('site_settings')
           .select('chat_widget_code')
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('Error fetching chat code:', error);

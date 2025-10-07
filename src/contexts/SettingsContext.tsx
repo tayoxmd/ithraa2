@@ -34,7 +34,7 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       const { data } = await supabase
         .from('site_settings')
         .select('disable_animations, animation_speed_multiplier, loader_enabled, loader_speed_ms, loader_type, loader_custom_html, loader_custom_css, loader_custom_js')
-        .single();
+        .maybeSingle();
 
       if (!mounted) return;
 

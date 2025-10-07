@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Palette, Type, Languages, Layout, Percent, Key, Loader2, Code, Utensils, MessageCircle } from "lucide-react";
+import { Palette, Type, Languages, Layout, Percent, Key, Loader2, Code, Utensils, MessageCircle, Download, Database, Save } from "lucide-react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Switch } from "@/components/ui/switch";
 
@@ -67,6 +67,11 @@ export default function SiteSettings() {
     group_link: '',
     no_booking_alert_hours: 24
   });
+  const [backupLoading, setBackupLoading] = useState(false);
+  const [backupInfo, setBackupInfo] = useState<{
+    created_at: string | null;
+    version: number | null;
+  }>({ created_at: null, version: null });
 
   useEffect(() => {
     if (!loading && userRole !== 'admin') {
@@ -137,6 +142,14 @@ export default function SiteSettings() {
           send_to_group: whatsappData.send_to_group ?? true,
           group_link: whatsappData.group_link || '',
           no_booking_alert_hours: whatsappData.no_booking_alert_hours || 24
+        });
+      }
+
+      // Fetch backup info
+      if (data) {
+        setBackupInfo({
+          created_at: data.backup_created_at || null,
+          version: data.backup_version || null
         });
       }
     } catch (error: any) {
@@ -408,6 +421,94 @@ export default function SiteSettings() {
       toast({
         title: t({ ar: "تم الحفظ", en: "Saved" }),
         description: t({ ar: "تم حفظ إعدادات WhatsApp", en: "WhatsApp settings saved" }),
+      });
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCreateBackup = async () => {
+    setBackupLoading(true);
+    try {
+      const { data, error } = await supabase.rpc('create_system_backup');
+      
+      if (error) throw error;
+
+      // Fetch updated backup info
+      const { data: settingsData } = await supabase
+        .from('site_settings')
+        .select('backup_created_at, backup_version')
+        .single();
+
+      if (settingsData) {
+        setBackupInfo({
+          created_at: settingsData.backup_created_at,
+          version: settingsData.backup_version
+        });
+      }
+
+      toast({
+        title: t({ ar: "تم إنشاء النسخة الاحتياطية", en: "Backup Created" }),
+        description: t({ 
+          ar: "تم إنشاء وحفظ النسخة الاحتياطية بنجاح", 
+          en: "Backup created and saved successfully" 
+        }),
+      });
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setBackupLoading(false);
+    }
+  };
+
+  const handleDownloadBackup = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('site_settings')
+        .select('backup_data, backup_created_at, backup_version')
+        .single();
+
+      if (error) throw error;
+
+      if (!data?.backup_data) {
+        toast({
+          title: t({ ar: "لا توجد نسخة احتياطية", en: "No Backup Available" }),
+          description: t({ 
+            ar: "يجب إنشاء نسخة احتياطية أولاً", 
+            en: "Please create a backup first" 
+          }),
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create download link
+      const dataStr = JSON.stringify(data.backup_data, null, 2);
+      const dataBlob = new Blob([dataStr], { type: 'application/json' });
+      const url = URL.createObjectURL(dataBlob);
+      const link = document.createElement('a');
+      link.href = url;
+      const date = new Date(data.backup_created_at).toISOString().split('T')[0];
+      link.download = `backup-v${data.backup_version}-${date}.json`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: t({ ar: "تم التحميل", en: "Downloaded" }),
+        description: t({ 
+          ar: "تم تحميل النسخة الاحتياطية بنجاح", 
+          en: "Backup downloaded successfully" 
+        }),
       });
     } catch (error: any) {
       toast({
@@ -1104,6 +1205,84 @@ export default function SiteSettings() {
             <Button onClick={() => navigate('/api-settings')} variant="outline">
               {t({ ar: "إدارة إعدادات API", en: "Manage API Settings" })}
             </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Backup System */}
+      <div className="container mx-auto px-4 pb-8">
+        <Card className="card-luxury">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="w-5 h-5" />
+              {t({ ar: "النسخ الاحتياطي", en: "Backup System" })}
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">
+              {t({ 
+                ar: "قم بإنشاء نسخة احتياطية كاملة من جميع البيانات المهمة في الموقع", 
+                en: "Create a complete backup of all important site data" 
+              })}
+            </p>
+
+            {backupInfo.created_at && (
+              <div className="p-4 bg-muted rounded-lg space-y-2">
+                <div className="flex items-center gap-2 text-sm">
+                  <Save className="w-4 h-4" />
+                  <span className="font-medium">
+                    {t({ ar: "آخر نسخة احتياطية:", en: "Last Backup:" })}
+                  </span>
+                  <span className="text-muted-foreground">
+                    {new Date(backupInfo.created_at).toLocaleString(t({ ar: 'ar-SA', en: 'en-US' }))}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="font-medium">
+                    {t({ ar: "الإصدار:", en: "Version:" })}
+                  </span>
+                  <span className="text-muted-foreground">v{backupInfo.version}</span>
+                </div>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Button 
+                onClick={handleCreateBackup} 
+                disabled={backupLoading}
+                className="btn-luxury"
+              >
+                {backupLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    {t({ ar: "جاري الإنشاء...", en: "Creating..." })}
+                  </>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4 mr-2" />
+                    {t({ ar: "إنشاء نسخة احتياطية جديدة", en: "Create New Backup" })}
+                  </>
+                )}
+              </Button>
+
+              <Button 
+                onClick={handleDownloadBackup}
+                variant="outline"
+                disabled={!backupInfo.created_at}
+              >
+                <Download className="w-4 h-4 mr-2" />
+                {t({ ar: "تحميل النسخة الاحتياطية", en: "Download Backup" })}
+              </Button>
+            </div>
+
+            <div className="p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
+              <p className="text-xs text-blue-900 dark:text-blue-100">
+                {t({ 
+                  ar: "تشمل النسخة الاحتياطية: المدن، الفنادق، الأسعار الموسمية، القسائم، والإعدادات. يتم حفظ نسخة في قاعدة البيانات ويمكنك تحميلها كملف JSON.", 
+                  en: "Backup includes: cities, hotels, seasonal pricing, coupons, and settings. A copy is saved in the database and can be downloaded as a JSON file." 
+                })}
+              </p>
+            </div>
           </CardContent>
         </Card>
       </div>

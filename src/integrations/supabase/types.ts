@@ -992,6 +992,9 @@ export type Database = {
       site_settings: {
         Row: {
           animation_speed_multiplier: number
+          backup_created_at: string | null
+          backup_data: Json | null
+          backup_version: number | null
           chat_widget_code: string | null
           created_at: string | null
           custom_body_code: string | null
@@ -1022,6 +1025,9 @@ export type Database = {
         }
         Insert: {
           animation_speed_multiplier?: number
+          backup_created_at?: string | null
+          backup_data?: Json | null
+          backup_version?: number | null
           chat_widget_code?: string | null
           created_at?: string | null
           custom_body_code?: string | null
@@ -1052,6 +1058,9 @@ export type Database = {
         }
         Update: {
           animation_speed_multiplier?: number
+          backup_created_at?: string | null
+          backup_data?: Json | null
+          backup_version?: number | null
           chat_widget_code?: string | null
           created_at?: string | null
           custom_body_code?: string | null
@@ -1193,6 +1202,10 @@ export type Database = {
           p_rooms_needed: number
         }
         Returns: boolean
+      }
+      create_system_backup: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       employee_has_assigned_customer: {
         Args: { customer_id: string; employee_id: string }
