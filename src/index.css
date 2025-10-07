@@ -49,7 +49,7 @@ All colors MUST be HSL.
     --status-confirmed: 142 71% 45%;
     --status-cancelled: 0 84% 60%;
 
-    --radius: 0.75rem;
+    --radius: 0.25rem;
 
     /* Luxury Gradients */
     --gradient-luxury: linear-gradient(135deg, hsl(38 92% 50%), hsl(42 100% 65%));

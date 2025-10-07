@@ -105,7 +105,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <div className="card-luxury rounded-[40px] p-4 md:p-6 animate-scale-in">
+      <div className="card-luxury rounded-lg p-4 md:p-6 animate-scale-in">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {/* Location */}
           <div className="relative">
@@ -113,10 +113,10 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
               {t('الوجهة', 'Destination')}
             </label>
             <Select value={selectedCity} onValueChange={setSelectedCity}>
-              <SelectTrigger className="h-12 bg-background/50 rounded-[40px]">
+              <SelectTrigger className="h-12 bg-background/50 rounded-lg">
                 <SelectValue placeholder={t('اختر المدينة', 'Select City')} />
               </SelectTrigger>
-              <SelectContent className="rounded-[40px]">
+              <SelectContent className="rounded-lg">
                 {cities.map((city) => (
                   <SelectItem key={city.id} value={city.id}>
                     {city.name_ar}
@@ -136,7 +136,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full h-12 justify-start text-right font-normal bg-background/50 rounded-[40px]",
+                    "w-full h-12 justify-start text-right font-normal bg-background/50 rounded-lg",
                     !dateRange && "text-muted-foreground"
                   )}
                 >
@@ -144,7 +144,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                   {displayDateText}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 rounded-[40px]" align="start">
+              <PopoverContent className="w-auto p-0 rounded-lg" align="start">
                 <div>
                   <Calendar
                     mode="range"
@@ -162,7 +162,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                     </span>
                     <Button 
                       size="default"
-                      className="min-w-28 h-10 px-6 text-base rounded-[40px]"
+                      className="min-w-28 h-10 px-6 text-base rounded-lg"
                       onClick={() => setIsCalendarOpen(false)}
                     >
                       {t('موافق', 'OK')}
@@ -182,13 +182,13 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full h-12 justify-start text-right font-normal bg-background/50 rounded-[40px]"
+                  className="w-full h-12 justify-start text-right font-normal bg-background/50 rounded-lg"
                 >
                   <Users className="ml-2 h-4 w-4" />
                   {guestsDisplay}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-80 p-4 rounded-[40px]" align="start">
+              <PopoverContent className="w-80 p-4 rounded-lg" align="start">
                 <div className="space-y-4">
                   {/* Rooms */}
                   <div className="flex items-center justify-between">
@@ -266,7 +266,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                   </div>
 
                   <Button 
-                    className="w-full rounded-[40px]"
+                    className="w-full rounded-lg"
                     onClick={() => setIsGuestsOpen(false)}
                   >
                     {t('تم', 'Done')}
@@ -279,7 +279,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
         {/* Search Button */}
         <div className="mt-4">
-          <Button onClick={handleSearch} className="w-full h-14 text-lg btn-luxury rounded-[40px]">
+          <Button onClick={handleSearch} className="w-full h-14 text-lg btn-luxury rounded-lg">
             <Search className="ml-2 w-5 h-5" />
             {t('ابحث الآن', 'Search Now')}
           </Button>
