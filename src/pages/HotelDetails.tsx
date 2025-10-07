@@ -25,6 +25,8 @@ interface Hotel {
   images: any;
   city_name_ar?: string;
   city_name_en?: string;
+  meal_plans?: any;
+  amenities?: any;
 }
 
 export default function HotelDetails() {
@@ -36,6 +38,7 @@ export default function HotelDetails() {
   const [loading, setLoading] = useState(true);
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
+  const [mealBadgeSettings, setMealBadgeSettings] = useState<any>(null);
 
   // Get search parameters from URL or localStorage
   const searchParams = new URLSearchParams(location.search);
@@ -57,7 +60,20 @@ export default function HotelDetails() {
       if (data && data.length > 0) setHotel(data[0]);
       setLoading(false);
     }
+    
+    async function fetchMealBadgeSettings() {
+      const { data } = await supabase
+        .from('site_settings')
+        .select('meal_badge_color, meal_badge_width, meal_badge_height, meal_badge_font_size, meal_badge_border_radius')
+        .single();
+      
+      if (data) {
+        setMealBadgeSettings(data);
+      }
+    }
+    
     fetchHotel();
+    fetchMealBadgeSettings();
   }, [id]);
 
   if (loading) {
@@ -110,6 +126,24 @@ export default function HotelDetails() {
                   setGalleryOpen(true);
                 }}
               />
+              {hotel.meal_plans && mealBadgeSettings && (
+                <div 
+                  className="absolute top-4 px-3 py-1 text-white font-semibold shadow-lg"
+                  style={{
+                    [language === 'ar' ? 'left' : 'right']: '16px',
+                    backgroundColor: mealBadgeSettings.meal_badge_color || '#007dff',
+                    width: `${mealBadgeSettings.meal_badge_width || 150}px`,
+                    height: `${mealBadgeSettings.meal_badge_height || 32}px`,
+                    fontSize: `${mealBadgeSettings.meal_badge_font_size || 12}px`,
+                    borderRadius: `${mealBadgeSettings.meal_badge_border_radius || 8}px`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                  }}
+                >
+                  {language === 'ar' ? hotel.meal_plans.regular_ar : hotel.meal_plans.regular_en}
+                </div>
+              )}
               {hotelImages.length > 1 && (
                 <div className="absolute bottom-4 right-4 bg-black/70 text-white px-3 py-1 rounded-full text-sm">
                   {hotelImages.length} {t({ ar: 'صورة', en: 'images' })}
@@ -164,6 +198,27 @@ export default function HotelDetails() {
             <p className="text-muted-foreground mb-6 leading-relaxed">
               {language === 'ar' ? hotel.description_ar : hotel.description_en}
             </p>
+
+            {hotel.meal_plans && mealBadgeSettings && (
+              <div 
+                className="mb-4 px-4 py-2 text-white font-medium rounded-lg inline-block"
+                style={{
+                  backgroundColor: mealBadgeSettings.meal_badge_color || '#007dff',
+                  fontSize: `${(mealBadgeSettings.meal_badge_font_size || 12) + 2}px`,
+                }}
+              >
+                {language === 'ar' ? hotel.meal_plans.regular_ar : hotel.meal_plans.regular_en}
+                {hotel.meal_plans.max_persons && (
+                  <span className="mr-2">
+                    {' • '}
+                    {t({ 
+                      ar: `يشمل ${hotel.meal_plans.max_persons === 1 ? 'شخص واحد' : hotel.meal_plans.max_persons === 2 ? 'شخصين' : `${hotel.meal_plans.max_persons} أشخاص`}`, 
+                      en: `Includes ${hotel.meal_plans.max_persons} ${hotel.meal_plans.max_persons === 1 ? 'person' : 'persons'}`
+                    })}
+                  </span>
+                )}
+              </div>
+            )}
 
             <Card className="card-luxury mb-6">
               <CardContent className="p-6">
