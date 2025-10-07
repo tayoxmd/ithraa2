@@ -19,6 +19,7 @@ import { bookingSchema } from "@/lib/validations";
 import { BookingAuthDialog } from "@/components/BookingAuthDialog";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useRef } from "react";
+import { countries } from "@/data/countries";
 
 const paymentMethods = [
   { id: 'cash', name: 'نقدي', nameEn: 'Cash' },
@@ -52,7 +53,7 @@ export default function Booking() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [notes, setNotes] = useState("");
   const [guestName, setGuestName] = useState("");
-  const [useCustomerName, setUseCustomerName] = useState(false);
+  const [useCustomerName, setUseCustomerName] = useState(user ? true : false);
   const [loading, setLoading] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [guestPhone, setGuestPhone] = useState("");
@@ -61,6 +62,9 @@ export default function Booking() {
   const guestNameRef = useRef<HTMLInputElement>(null);
   const paymentMethodRef = useRef<HTMLButtonElement>(null);
   const [extraMeals, setExtraMeals] = useState(0);
+  const [savedGuests, setSavedGuests] = useState<any[]>([]);
+  const [selectedGuestId, setSelectedGuestId] = useState<string>("");
+  const [showNewGuestInput, setShowNewGuestInput] = useState(false);
 
   useEffect(() => {
     // إزالة التحقق من المصادقة - السماح للضيوف بالوصول
@@ -75,8 +79,24 @@ export default function Booking() {
       
       if (data && data.length > 0) setHotel(data[0]);
     }
+    
+    async function fetchSavedGuests() {
+      if (user) {
+        const { data, error } = await supabase
+          .from('user_guests')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+        
+        if (!error && data) {
+          setSavedGuests(data);
+        }
+      }
+    }
+    
     fetchHotel();
-  }, [id]);
+    fetchSavedGuests();
+  }, [id, user]);
 
   const calculateTotal = () => {
     if (!hotel) return { subtotal: 0, extraGuestCharge: 0, extraMealCharge: 0, tax: 0, total: 0, extraGuestsCount: 0 };
@@ -474,47 +494,139 @@ export default function Booking() {
                   <CardTitle>{t({ ar: 'اسم الضيف', en: 'Guest Name' })}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id="use-customer-name"
-                      checked={useCustomerName}
-                      onChange={(e) => {
-                        setUseCustomerName(e.target.checked);
-                        if (e.target.checked && user) {
-                          // Get customer name from profile
-                          supabase
-                            .from('profiles')
-                            .select('full_name')
-                            .eq('id', user.id)
-                            .single()
-                            .then(({ data }) => {
-                              if (data?.full_name) {
-                                setGuestName(data.full_name);
-                              }
-                            });
-                        }
-                      }}
-                      className="w-4 h-4"
-                    />
-                    <label htmlFor="use-customer-name" className="text-sm text-muted-foreground cursor-pointer">
-                      {t({ ar: 'هل اسم العميل هو نفسه اسم الضيف؟', en: 'Is the customer name the same as the guest name?' })}
-                    </label>
-                  </div>
-                  <Input
-                    ref={guestNameRef}
-                    value={guestName}
-                    onChange={(e) => {
-                      setGuestName(e.target.value);
-                      if (fieldErrors.guestName) {
-                        setFieldErrors({ ...fieldErrors, guestName: false });
-                      }
-                    }}
-                    placeholder={t({ ar: 'أدخل اسم الضيف', en: 'Enter guest name' })}
-                    required
-                    disabled={useCustomerName}
-                    className={fieldErrors.guestName ? "border-2 border-destructive focus-visible:ring-destructive" : ""}
-                  />
+                  {user && (
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        id="use-customer-name"
+                        checked={useCustomerName}
+                        onChange={(e) => {
+                          setUseCustomerName(e.target.checked);
+                          setShowNewGuestInput(false);
+                          setSelectedGuestId("");
+                          if (e.target.checked) {
+                            // Get customer name from profile
+                            supabase
+                              .from('profiles')
+                              .select('full_name')
+                              .eq('id', user.id)
+                              .single()
+                              .then(({ data }) => {
+                                if (data?.full_name) {
+                                  setGuestName(data.full_name);
+                                }
+                              });
+                          } else {
+                            setGuestName("");
+                          }
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <label htmlFor="use-customer-name" className="text-sm text-muted-foreground cursor-pointer">
+                        {t({ ar: 'هل اسم العميل هو نفسه اسم الضيف؟', en: 'Is the customer name the same as the guest name?' })}
+                      </label>
+                    </div>
+                  )}
+                  
+                  {user && !useCustomerName && savedGuests.length > 0 && (
+                    <div className="space-y-2">
+                      <Label>{t({ ar: 'اختر ضيف', en: 'Select Guest' })}</Label>
+                      <Select
+                        value={selectedGuestId}
+                        onValueChange={(value) => {
+                          if (value === "new") {
+                            setShowNewGuestInput(true);
+                            setSelectedGuestId("");
+                            setGuestName("");
+                          } else {
+                            setShowNewGuestInput(false);
+                            setSelectedGuestId(value);
+                            const guest = savedGuests.find(g => g.id === value);
+                            if (guest) {
+                              setGuestName(guest.guest_name);
+                              setGuestPhone(guest.guest_phone || "");
+                              setGuestCountryCode(guest.guest_country_code || "+966");
+                            }
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={t({ ar: 'اختر ضيف', en: 'Select guest' })} />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {savedGuests.map((guest) => (
+                            <SelectItem key={guest.id} value={guest.id}>
+                              {guest.guest_name}
+                            </SelectItem>
+                          ))}
+                          <SelectItem value="new">
+                            {t({ ar: '+ إضافة ضيف جديد', en: '+ Add new guest' })}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                  
+                  {(!user || !useCustomerName) && (user ? showNewGuestInput || savedGuests.length === 0 : true) && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="guestName">
+                          {t({ ar: 'اسم الضيف', en: 'Guest Name' })}
+                        </Label>
+                        <Input
+                          ref={guestNameRef}
+                          id="guestName"
+                          value={guestName}
+                          onChange={(e) => {
+                            setGuestName(e.target.value);
+                            if (fieldErrors.guestName) {
+                              setFieldErrors({ ...fieldErrors, guestName: false });
+                            }
+                          }}
+                          placeholder={t({ ar: 'أدخل اسم الضيف', en: 'Enter guest name' })}
+                          required
+                          className={fieldErrors.guestName ? "border-2 border-destructive focus-visible:ring-destructive" : ""}
+                        />
+                      </div>
+                      
+                      {user && (
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor="guestPhone">
+                              {t({ ar: 'رقم جوال الضيف', en: 'Guest Phone Number' })}
+                            </Label>
+                            <span className="text-xs text-muted-foreground">
+                              ({t({ ar: 'اختياري', en: 'Optional' })})
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-2">
+                            <Select
+                              value={guestCountryCode}
+                              onValueChange={setGuestCountryCode}
+                            >
+                              <SelectTrigger className="col-span-1">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {countries.map((country) => (
+                                  <SelectItem key={country.dialCode} value={country.dialCode}>
+                                    {country.dialCode}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <Input
+                              id="guestPhone"
+                              className="col-span-2"
+                              value={guestPhone}
+                              onChange={(e) => setGuestPhone(e.target.value)}
+                              placeholder={t({ ar: 'رقم الجوال', en: 'Phone number' })}
+                            />
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
                 </CardContent>
               </Card>
 

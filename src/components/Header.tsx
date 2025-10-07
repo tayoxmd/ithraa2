@@ -150,6 +150,34 @@ export function Header() {
           {mobileMenuOpen && (
             <div className="md:hidden py-4 animate-fade-in">
               <nav className="flex flex-col gap-4">
+                {/* Language Selector for Mobile - placed at top */}
+                <div className="pb-2 border-b border-border">
+                  <LanguageSelector />
+                </div>
+
+                {user && (
+                  <div className="grid grid-cols-2 gap-2 pb-2 border-b border-border">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="justify-start gap-2"
+                      onClick={() => navigate('/customer-dashboard')}
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      {t({ ar: "الحجوزات", en: "Bookings" })}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="justify-start gap-2"
+                      onClick={() => navigate('/dashboard')}
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      {t({ ar: "لوحة التحكم", en: "Dashboard" })}
+                    </Button>
+                  </div>
+                )}
+                
                 <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium py-2">
                   {t('الرئيسية', 'Home')}
                 </Link>
@@ -165,37 +193,15 @@ export function Header() {
                 {user ? (
                   <>
                     {(userRole === 'admin' || userRole === 'employee') && (
-                      <div className="grid grid-cols-2 gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="justify-start gap-2"
-                          style={{ backgroundColor: '#237bff', color: 'white', borderColor: '#237bff' }}
-                          onClick={() => navigate(getDashboardPath())}
-                        >
-                          <LayoutDashboard className="w-4 h-4" />
-                          {t('الإدارة', 'Management')}
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="justify-start gap-2"
-                          onClick={() => navigate('/dashboard')}
-                        >
-                          <LayoutDashboard className="w-4 h-4" />
-                          {t({ ar: "الحجوزات", en: "Bookings" })}
-                        </Button>
-                      </div>
-                    )}
-                    {!(userRole === 'admin' || userRole === 'employee') && (
                       <Button 
                         variant="outline" 
                         size="sm" 
                         className="justify-start gap-2"
-                        onClick={() => navigate('/dashboard')}
+                        style={{ backgroundColor: '#237bff', color: 'white', borderColor: '#237bff' }}
+                        onClick={() => navigate(getDashboardPath())}
                       >
                         <LayoutDashboard className="w-4 h-4" />
-                        {t({ ar: "الحجوزات ولوحة التحكم", en: "Bookings & Dashboard" })}
+                        {t('الإدارة', 'Management')}
                       </Button>
                     )}
                     <Button 

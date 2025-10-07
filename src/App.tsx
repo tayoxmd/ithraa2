@@ -28,6 +28,7 @@ import PDFSettings from "./pages/PDFSettings";
 import SeasonalPricing from "./pages/SeasonalPricing";
 import EmployeeManagement from "./pages/EmployeeManagement";
 import APISettings from "./pages/APISettings";
+import UserDashboard from "./pages/UserDashboard";
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => (
               <Route path="/customer-dashboard" element={<CustomerDashboard />} />
               <Route path="/guest-dashboard" element={<GuestDashboard />} />
               <Route path="/dashboard/:phoneAndOrder" element={<GuestDashboard />} />
+              <Route path="/dashboard" element={<UserDashboard />} />
               <Route path="/manage-employees" element={<ManageEmployees />} />
           <Route path="/profile" element={<Profile />} />
               <Route path="/manage-hotels" element={<ManageHotels />} />
