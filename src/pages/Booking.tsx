@@ -695,12 +695,12 @@ export default function Booking() {
                               ({t({ ar: 'اختياري', en: 'Optional' })})
                             </span>
                           </div>
-                          <div className="grid grid-cols-3 gap-2">
+                          <div className="flex gap-2" dir="ltr">
                             <Select
                               value={guestCountryCode}
                               onValueChange={setGuestCountryCode}
                             >
-                              <SelectTrigger className="col-span-1">
+                              <SelectTrigger className="w-[120px]">
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
@@ -713,7 +713,7 @@ export default function Booking() {
                             </Select>
                             <Input
                               id="guestPhone"
-                              className="col-span-2"
+                              className="flex-1"
                               value={guestPhone}
                               onChange={(e) => setGuestPhone(e.target.value)}
                               placeholder={t({ ar: 'رقم الجوال', en: 'Phone number' })}

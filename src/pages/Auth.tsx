@@ -242,34 +242,34 @@ export default function Auth() {
                   />
                 </div>
                 
-                <div className="space-y-1.5">
-                  <Label htmlFor="phone" className="text-sm">
-                    {t({ ar: "رقم الجوال", en: "Phone Number" })} *
-                  </Label>
-                  <div className="grid grid-cols-3 gap-2">
-                    <Select value={countryCode} onValueChange={setCountryCode}>
-                      <SelectTrigger className="col-span-1">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {countries.map((country) => (
-                          <SelectItem key={country.dialCode} value={country.dialCode}>
-                            {country.dialCode}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      className="col-span-2"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      required
-                      placeholder={t({ ar: "5XX XXX XXX", en: "5XX XXX XXX" })}
-                    />
-                  </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="phone" className="text-sm">
+                  {t({ ar: "رقم الجوال", en: "Phone Number" })} *
+                </Label>
+                <div className="flex gap-2" dir="ltr">
+                  <Select value={countryCode} onValueChange={setCountryCode}>
+                    <SelectTrigger className="w-[120px]">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {countries.map((country) => (
+                        <SelectItem key={country.dialCode} value={country.dialCode}>
+                          {country.dialCode}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    className="flex-1"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    placeholder={t({ ar: "5XX XXX XXX", en: "5XX XXX XXX" })}
+                  />
                 </div>
+              </div>
 
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between">
@@ -297,9 +297,9 @@ export default function Auth() {
                 <Label htmlFor="loginPhone" className="text-sm">
                   {t({ ar: "رقم الجوال", en: "Phone Number" })}
                 </Label>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="flex gap-2" dir="ltr">
                   <Select value={countryCode} onValueChange={setCountryCode}>
-                    <SelectTrigger className="col-span-1">
+                    <SelectTrigger className="w-[120px]">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -313,7 +313,7 @@ export default function Auth() {
                   <Input
                     id="loginPhone"
                     type="tel"
-                    className="col-span-2"
+                    className="flex-1"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     required

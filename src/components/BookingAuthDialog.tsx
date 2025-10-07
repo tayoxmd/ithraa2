@@ -248,49 +248,47 @@ export function BookingAuthDialog({ open, onClose, onGuestContinue }: BookingAut
           {mode === 'guest' && (
             <>
               <div className="space-y-2">
-                <Label>{t({ ar: "كود الدولة", en: "Country Code" })}</Label>
-                <Select value={countryCode} onValueChange={setCountryCode}>
-                  <SelectTrigger>
-                    <SelectValue>
-                      {selectedCountry.dialCode} - {language === 'ar' ? selectedCountry.nameAr : selectedCountry.name}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <div className="p-2 sticky top-0 bg-background z-10">
-                      <div className="relative">
-                        <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          placeholder={t({ ar: "بحث...", en: "Search..." })}
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          className="pl-8"
-                        />
-                      </div>
-                    </div>
-                    {filteredCountries.map((country) => (
-                      <SelectItem key={country.code} value={country.dialCode}>
-                        {country.dialCode} - {language === 'ar' ? country.nameAr : country.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
                 <Label>{t({ ar: "رقم الهاتف", en: "Phone Number" })}</Label>
-                <Input
-                  type="tel"
-                  value={phoneNumber}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '');
-                    if (value.length <= selectedCountry.maxLength) {
-                      setPhoneNumber(value);
-                    }
-                  }}
-                  placeholder={selectedCountry.placeholder}
-                  maxLength={selectedCountry.maxLength}
-                  dir="ltr"
-                />
+                <div className="flex gap-2" dir="ltr">
+                  <Select value={countryCode} onValueChange={setCountryCode}>
+                    <SelectTrigger className="w-[140px]">
+                      <SelectValue>
+                        {selectedCountry.dialCode}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      <div className="p-2 sticky top-0 bg-background z-10">
+                        <div className="relative">
+                          <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            placeholder={t({ ar: "بحث...", en: "Search..." })}
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="pl-8"
+                          />
+                        </div>
+                      </div>
+                      {filteredCountries.map((country) => (
+                        <SelectItem key={country.code} value={country.dialCode}>
+                          {country.dialCode} - {language === 'ar' ? country.nameAr : country.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Input
+                    type="tel"
+                    className="flex-1"
+                    value={phoneNumber}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/\D/g, '');
+                      if (value.length <= selectedCountry.maxLength) {
+                        setPhoneNumber(value);
+                      }
+                    }}
+                    placeholder={selectedCountry.placeholder}
+                    maxLength={selectedCountry.maxLength}
+                  />
+                </div>
                 <p className="text-xs text-muted-foreground">
                   {t({ 
                     ar: `يجب أن يكون ${selectedCountry.maxLength} رقم بدون الصفر`, 

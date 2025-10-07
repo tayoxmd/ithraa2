@@ -156,31 +156,29 @@ export function GuestOTPVerification({ onVerified }: GuestOTPVerificationProps) 
         {step === "phone" ? (
           <>
             <div className="space-y-2">
-              <Label htmlFor="country-code">كود الدولة</Label>
-              <Select value={countryCode} onValueChange={setCountryCode}>
-                <SelectTrigger id="country-code">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {countries.map((country) => (
-                    <SelectItem key={country.code} value={country.code}>
-                      {country.name} ({country.code})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label htmlFor="phone">رقم الهاتف</Label>
-              <Input
-                id="phone"
-                type="tel"
-                placeholder="5xxxxxxxx"
-                value={phoneNumber}
-                onChange={(e) => setPhoneNumber(e.target.value)}
-                dir="ltr"
-              />
+              <div className="flex gap-2" dir="ltr">
+                <Select value={countryCode} onValueChange={setCountryCode}>
+                  <SelectTrigger className="w-[120px]">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((country) => (
+                      <SelectItem key={country.dialCode} value={country.dialCode}>
+                        {country.dialCode}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  id="phone"
+                  type="tel"
+                  className="flex-1"
+                  placeholder="5xxxxxxxx"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                />
+              </div>
             </div>
 
             <Button 

@@ -100,7 +100,9 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
         )}
         
         {/* Meal Badge */}
-        {meal_plans && meal_plans.regular_ar && meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
+        {meal_plans && meal_plans.regular_ar && meal_plans.regular_en && 
+         meal_plans.regular_ar.trim() !== "" && meal_plans.regular_en.trim() !== "" &&
+         meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
           <div 
             className={`absolute ${language === 'ar' ? 'left-4' : 'right-4'} top-16`}
             style={{
@@ -149,7 +151,9 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
             <p className="text-sm text-muted-foreground">{nameEn}</p>
           </div>
           {/* Small Meal Badge - Next to hotel name */}
-          {meal_plans && meal_plans.regular_ar && meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
+          {meal_plans && meal_plans.regular_ar && meal_plans.regular_en && 
+           meal_plans.regular_ar.trim() !== "" && meal_plans.regular_en.trim() !== "" &&
+           meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
             <div 
               className={`px-2 py-1 rounded text-white text-xs font-semibold whitespace-nowrap shrink-0 flex items-center gap-1 ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}
               style={{ backgroundColor: mealBadgeSettings.color }}
