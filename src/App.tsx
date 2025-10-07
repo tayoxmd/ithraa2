@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
@@ -36,51 +36,60 @@ import LoyaltyProgram from "./pages/LoyaltyProgram";
 
 const queryClient = new QueryClient();
 
+const RouterWithTheme = () => {
+  const location = useLocation();
+  const adminPaths = ['/admin', '/admin-dashboard', '/manage', '/employee', '/api-settings', '/site-settings', '/pdf-settings', '/audit-logs'];
+  const isAdmin = adminPaths.some((p) => location.pathname.startsWith(p));
+  return (
+    <ThemeProvider isAdmin={isAdmin}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <ChatWidget />
+        <LanguageProvider>
+          <AuthProvider>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/search" element={<SearchResults />} />
+              <Route path="/no-results" element={<NoResults />} />
+              <Route path="/hotel/:id" element={<HotelDetails />} />
+              <Route path="/booking/:id" element={<Booking />} />
+              <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/employee" element={<EmployeeDashboard />} />
+              <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+              <Route path="/guest-dashboard" element={<GuestDashboard />} />
+              <Route path="/dashboard/:phoneAndOrder" element={<GuestDashboard />} />
+              <Route path="/dashboard" element={<UserDashboard />} />
+              <Route path="/manage-employees" element={<ManageEmployees />} />
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/manage-hotels" element={<ManageHotels />} />
+              <Route path="/seasonal-pricing" element={<SeasonalPricing />} />
+              <Route path="/employee-management" element={<EmployeeManagement />} />
+              <Route path="/api-settings" element={<APISettings />} />
+              <Route path="/site-settings" element={<SiteSettings />} />
+              <Route path="/pdf-settings" element={<PDFSettings />} />
+              <Route path="/audit-logs" element={<AuditLogs />} />
+              <Route path="/reviews" element={<Reviews />} />
+              <Route path="/coupons" element={<Coupons />} />
+              <Route path="/loyalty-program" element={<LoyaltyProgram />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </AuthProvider>
+        </LanguageProvider>
+      </TooltipProvider>
+    </ThemeProvider>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <SettingsProvider>
-      <ThemeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <ChatWidget />
-          <BrowserRouter>
-            <LanguageProvider>
-              <AuthProvider>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/search" element={<SearchResults />} />
-                <Route path="/no-results" element={<NoResults />} />
-                <Route path="/hotel/:id" element={<HotelDetails />} />
-                <Route path="/booking/:id" element={<Booking />} />
-                <Route path="/admin" element={<AdminDashboard />} />
-                <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                <Route path="/employee" element={<EmployeeDashboard />} />
-                <Route path="/customer-dashboard" element={<CustomerDashboard />} />
-                <Route path="/guest-dashboard" element={<GuestDashboard />} />
-                <Route path="/dashboard/:phoneAndOrder" element={<GuestDashboard />} />
-                <Route path="/dashboard" element={<UserDashboard />} />
-                <Route path="/manage-employees" element={<ManageEmployees />} />
-                <Route path="/profile" element={<Profile />} />
-                <Route path="/manage-hotels" element={<ManageHotels />} />
-                <Route path="/seasonal-pricing" element={<SeasonalPricing />} />
-                <Route path="/employee-management" element={<EmployeeManagement />} />
-                <Route path="/api-settings" element={<APISettings />} />
-                <Route path="/site-settings" element={<SiteSettings />} />
-                <Route path="/pdf-settings" element={<PDFSettings />} />
-                <Route path="/audit-logs" element={<AuditLogs />} />
-                <Route path="/reviews" element={<Reviews />} />
-                <Route path="/coupons" element={<Coupons />} />
-                <Route path="/loyalty-program" element={<LoyaltyProgram />} />
-                <Route path="/reset-password" element={<ResetPassword />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-              </AuthProvider>
-            </LanguageProvider>
-          </BrowserRouter>
-        </TooltipProvider>
-      </ThemeProvider>
+      <BrowserRouter>
+        <RouterWithTheme />
+      </BrowserRouter>
     </SettingsProvider>
   </QueryClientProvider>
 );

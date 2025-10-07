@@ -15,11 +15,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { Palette, Type, Languages, Layout, Percent, Key, Loader2, Code, Utensils, MessageCircle, Download, Database, Save } from "lucide-react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Switch } from "@/components/ui/switch";
+import { useTheme } from "@/contexts/ThemeContext";
 
 export default function SiteSettings() {
   const { t } = useLanguage();
   const { userRole, loading } = useAuth();
   const navigate = useNavigate();
+  const { setUserTheme: applyUserTheme, setAdminTheme: applyAdminTheme } = useTheme();
   const [primaryColor, setPrimaryColor] = useState("#F59E0B");
   const [fontFamily, setFontFamily] = useState("Cairo");
   const [fontSize, setFontSize] = useState("16");
@@ -72,8 +74,8 @@ export default function SiteSettings() {
     created_at: string | null;
     version: number | null;
   }>({ created_at: null, version: null });
-  const [userTheme, setUserTheme] = useState('design-1');
-  const [adminTheme, setAdminTheme] = useState('design-1');
+  const [userTheme, setUserTheme] = useState('design1');
+  const [adminTheme, setAdminTheme] = useState('design1');
 
   useEffect(() => {
     if (!loading && userRole !== 'admin') {
@@ -454,12 +456,13 @@ export default function SiteSettings() {
         if (error) throw error;
       }
 
-      // Reload the page to apply new theme
-      window.location.reload();
+      // Apply immediately without reload
+      applyUserTheme(userTheme as any);
+      applyAdminTheme(adminTheme as any);
 
       toast({
         title: t({ ar: "تم الحفظ", en: "Saved" }),
-        description: t({ ar: "تم حفظ إعدادات التصاميم", en: "Theme settings saved" }),
+        description: t({ ar: "تم حفظ وتطبيق إعدادات التصاميم فوراً", en: "Theme settings saved and applied immediately" }),
       });
     } catch (error: any) {
       toast({
