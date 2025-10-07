@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search, Upload, X, Image as ImageIcon, Trash2 } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search, Upload, X, Image as ImageIcon, Trash2, Wifi, Coffee, Utensils, Users, Hotel as HotelIcon } from "lucide-react";
 import { ImageGallery } from "@/components/ImageGallery";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
@@ -88,6 +88,15 @@ export default function ManageHotels() {
     total_rooms: "10",
     tax_percentage: "0",
     room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
+  });
+  const [amenities, setAmenities] = useState({
+    wifi: true,
+    cafe: false,
+    restaurant: false,
+    parking: false,
+    shuttle: false,
+    walking_distance: "",
+    walking_distance_unit: "m" as 'm' | 'km',
   });
   const [mealPlans, setMealPlans] = useState<Array<{
     type: string;
@@ -353,6 +362,10 @@ export default function ManageHotels() {
           room_type: formData.room_type,
           images: hotelImages,
           meal_plans: mealPlans,
+          amenities: {
+            ...amenities,
+            walking_distance: amenities.walking_distance ? parseFloat(amenities.walking_distance) : null,
+          },
         }])
         .select()
         .single();
@@ -408,6 +421,10 @@ export default function ManageHotels() {
           room_type: formData.room_type,
           images: hotelImages,
           meal_plans: mealPlans,
+          amenities: {
+            ...amenities,
+            walking_distance: amenities.walking_distance ? parseFloat(amenities.walking_distance) : null,
+          },
         })
         .eq('id', editingHotel.id);
 
@@ -487,6 +504,30 @@ export default function ManageHotels() {
       setMealPlans((hotel as any).meal_plans);
     } else {
       setMealPlans([]);
+    }
+
+    // Set existing amenities
+    if ((hotel as any).amenities) {
+      const hotelAmenities = (hotel as any).amenities;
+      setAmenities({
+        wifi: hotelAmenities.wifi ?? true,
+        cafe: hotelAmenities.cafe ?? false,
+        restaurant: hotelAmenities.restaurant ?? false,
+        parking: hotelAmenities.parking ?? false,
+        shuttle: hotelAmenities.shuttle ?? false,
+        walking_distance: hotelAmenities.walking_distance?.toString() || "",
+        walking_distance_unit: hotelAmenities.walking_distance_unit || "m",
+      });
+    } else {
+      setAmenities({
+        wifi: true,
+        cafe: false,
+        restaurant: false,
+        parking: false,
+        shuttle: false,
+        walking_distance: "",
+        walking_distance_unit: "m",
+      });
     }
 
     // Fetch existing responsible persons
@@ -1016,6 +1057,102 @@ export default function ManageHotels() {
                   </p>
                 </div>
               
+              {/* Amenities Section */}
+              <div className="space-y-4 pt-4 border-t">
+                <Label className="text-base font-semibold">{t({ ar: "المرافق والخدمات", en: "Amenities & Services" })}</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="wifi"
+                      checked={amenities.wifi}
+                      onChange={(e) => setAmenities({ ...amenities, wifi: e.target.checked })}
+                      className="w-4 h-4 rounded border-border"
+                    />
+                    <Label htmlFor="wifi" className="cursor-pointer flex items-center gap-2">
+                      <Wifi className="w-4 h-4" />
+                      {t({ ar: "واي فاي", en: "WiFi" })}
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="cafe"
+                      checked={amenities.cafe}
+                      onChange={(e) => setAmenities({ ...amenities, cafe: e.target.checked })}
+                      className="w-4 h-4 rounded border-border"
+                    />
+                    <Label htmlFor="cafe" className="cursor-pointer flex items-center gap-2">
+                      <Coffee className="w-4 h-4" />
+                      {t({ ar: "مقهى", en: "Cafe" })}
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="restaurant"
+                      checked={amenities.restaurant}
+                      onChange={(e) => setAmenities({ ...amenities, restaurant: e.target.checked })}
+                      className="w-4 h-4 rounded border-border"
+                    />
+                    <Label htmlFor="restaurant" className="cursor-pointer flex items-center gap-2">
+                      <Utensils className="w-4 h-4" />
+                      {t({ ar: "مطعم", en: "Restaurant" })}
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="parking"
+                      checked={amenities.parking}
+                      onChange={(e) => setAmenities({ ...amenities, parking: e.target.checked })}
+                      className="w-4 h-4 rounded border-border"
+                    />
+                    <Label htmlFor="parking" className="cursor-pointer flex items-center gap-2">
+                      <HotelIcon className="w-4 h-4" />
+                      {t({ ar: "مواقف سيارات", en: "Parking" })}
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="shuttle"
+                      checked={amenities.shuttle}
+                      onChange={(e) => setAmenities({ ...amenities, shuttle: e.target.checked })}
+                      className="w-4 h-4 rounded border-border"
+                    />
+                    <Label htmlFor="shuttle" className="cursor-pointer flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      {t({ ar: "مواصلات", en: "Shuttle" })}
+                    </Label>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "المسافة إلى المنطقة المركزية", en: "Walking Distance to Center" })}</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder={t({ ar: "المسافة", en: "Distance" })}
+                      value={amenities.walking_distance}
+                      onChange={(e) => setAmenities({ ...amenities, walking_distance: e.target.value })}
+                      className="flex-1"
+                    />
+                    <Select
+                      value={amenities.walking_distance_unit}
+                      onValueChange={(value: 'm' | 'km') => setAmenities({ ...amenities, walking_distance_unit: value })}
+                    >
+                      <SelectTrigger className="w-24">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="m">{t({ ar: "متر", en: "m" })}</SelectItem>
+                        <SelectItem value="km">{t({ ar: "كم", en: "km" })}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
               {/* Meal Plans Section */}
               <div className="space-y-3 pt-4 border-t">
                 <div className="flex items-center justify-between">
@@ -1249,6 +1386,102 @@ export default function ManageHotels() {
                 <p className="text-xs text-muted-foreground">
                   {t({ ar: "سيتم إرسال الطلبات إلى لوحة التحكم الخاصة بالموظفين المحددين", en: "Requests will be sent to selected employees' dashboards" })}
                 </p>
+              </div>
+
+              {/* Amenities Section - Edit Dialog */}
+              <div className="space-y-4 pt-4 border-t">
+                <Label className="text-base font-semibold">{t({ ar: "المرافق والخدمات", en: "Amenities & Services" })}</Label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="wifi-edit"
+                      checked={amenities.wifi}
+                      onChange={(e) => setAmenities({ ...amenities, wifi: e.target.checked })}
+                      className="w-4 h-4 rounded border-border"
+                    />
+                    <Label htmlFor="wifi-edit" className="cursor-pointer flex items-center gap-2">
+                      <Wifi className="w-4 h-4" />
+                      {t({ ar: "واي فاي", en: "WiFi" })}
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="cafe-edit"
+                      checked={amenities.cafe}
+                      onChange={(e) => setAmenities({ ...amenities, cafe: e.target.checked })}
+                      className="w-4 h-4 rounded border-border"
+                    />
+                    <Label htmlFor="cafe-edit" className="cursor-pointer flex items-center gap-2">
+                      <Coffee className="w-4 h-4" />
+                      {t({ ar: "مقهى", en: "Cafe" })}
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="restaurant-edit"
+                      checked={amenities.restaurant}
+                      onChange={(e) => setAmenities({ ...amenities, restaurant: e.target.checked })}
+                      className="w-4 h-4 rounded border-border"
+                    />
+                    <Label htmlFor="restaurant-edit" className="cursor-pointer flex items-center gap-2">
+                      <Utensils className="w-4 h-4" />
+                      {t({ ar: "مطعم", en: "Restaurant" })}
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="parking-edit"
+                      checked={amenities.parking}
+                      onChange={(e) => setAmenities({ ...amenities, parking: e.target.checked })}
+                      className="w-4 h-4 rounded border-border"
+                    />
+                    <Label htmlFor="parking-edit" className="cursor-pointer flex items-center gap-2">
+                      <HotelIcon className="w-4 h-4" />
+                      {t({ ar: "مواقف سيارات", en: "Parking" })}
+                    </Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="shuttle-edit"
+                      checked={amenities.shuttle}
+                      onChange={(e) => setAmenities({ ...amenities, shuttle: e.target.checked })}
+                      className="w-4 h-4 rounded border-border"
+                    />
+                    <Label htmlFor="shuttle-edit" className="cursor-pointer flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      {t({ ar: "مواصلات", en: "Shuttle" })}
+                    </Label>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "المسافة إلى المنطقة المركزية", en: "Walking Distance to Center" })}</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      type="number"
+                      placeholder={t({ ar: "المسافة", en: "Distance" })}
+                      value={amenities.walking_distance}
+                      onChange={(e) => setAmenities({ ...amenities, walking_distance: e.target.value })}
+                      className="flex-1"
+                    />
+                    <Select
+                      value={amenities.walking_distance_unit}
+                      onValueChange={(value: 'm' | 'km') => setAmenities({ ...amenities, walking_distance_unit: value })}
+                    >
+                      <SelectTrigger className="w-24">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="m">{t({ ar: "متر", en: "m" })}</SelectItem>
+                        <SelectItem value="km">{t({ ar: "كم", en: "km" })}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
               </div>
             </div>
             <DialogFooter>

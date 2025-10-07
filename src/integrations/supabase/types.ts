@@ -547,6 +547,7 @@ export type Database = {
       hotels: {
         Row: {
           active: boolean | null
+          amenities: Json | null
           city_id: string
           contact_person: string | null
           contact_phone: string | null
@@ -572,6 +573,7 @@ export type Database = {
         }
         Insert: {
           active?: boolean | null
+          amenities?: Json | null
           city_id: string
           contact_person?: string | null
           contact_phone?: string | null
@@ -597,6 +599,7 @@ export type Database = {
         }
         Update: {
           active?: boolean | null
+          amenities?: Json | null
           city_id?: string
           contact_person?: string | null
           contact_phone?: string | null

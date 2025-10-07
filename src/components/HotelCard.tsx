@@ -2,8 +2,9 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, Wifi, Coffee, Utensils, ChevronLeft, ChevronRight } from "lucide-react";
+import { MapPin, Star, Wifi, Coffee, Utensils, ChevronLeft, ChevronRight, ParkingCircle, Bus, MapPinned } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface HotelCardProps {
   id: string;
@@ -15,10 +16,20 @@ interface HotelCardProps {
   image: string;
   images?: string[];
   featured?: boolean;
+  amenities?: {
+    wifi?: boolean;
+    cafe?: boolean;
+    restaurant?: boolean;
+    parking?: boolean;
+    shuttle?: boolean;
+    walking_distance?: number | null;
+    walking_distance_unit?: 'm' | 'km';
+  };
 }
 
-export function HotelCard({ id, name, nameEn, location, price, rating, image, images, featured }: HotelCardProps) {
+export function HotelCard({ id, name, nameEn, location, price, rating, image, images, featured, amenities }: HotelCardProps) {
   const navigate = useNavigate();
+  const { t, language } = useLanguage();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   
   const hotelImages = images && Array.isArray(images) && images.length > 0 ? images : [image];
@@ -94,10 +105,18 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
         </div>
 
         {/* Amenities */}
-        <div className="flex items-center gap-3 mb-4">
-          <Wifi className="w-4 h-4 text-muted-foreground" />
-          <Coffee className="w-4 h-4 text-muted-foreground" />
-          <Utensils className="w-4 h-4 text-muted-foreground" />
+        <div className="flex items-center gap-3 mb-4 flex-wrap">
+          {amenities?.wifi && <Wifi className="w-4 h-4 text-muted-foreground" />}
+          {amenities?.cafe && <Coffee className="w-4 h-4 text-muted-foreground" />}
+          {amenities?.restaurant && <Utensils className="w-4 h-4 text-muted-foreground" />}
+          {amenities?.parking && <ParkingCircle className="w-4 h-4 text-muted-foreground" />}
+          {amenities?.shuttle && <Bus className="w-4 h-4 text-muted-foreground" />}
+          {amenities?.walking_distance && amenities.walking_distance > 0 && (
+            <div className="flex items-center gap-1 text-xs text-muted-foreground">
+              <MapPinned className="w-4 h-4" />
+              <span>{amenities.walking_distance} {amenities.walking_distance_unit === 'km' ? (language === 'ar' ? 'كم' : 'km') : (language === 'ar' ? 'م' : 'm')}</span>
+            </div>
+          )}
         </div>
 
         {/* Price & CTA */}
