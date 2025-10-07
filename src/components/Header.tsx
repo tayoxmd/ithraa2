@@ -6,7 +6,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { cn } from "@/lib/utils";
 import logo from "@/assets/logo.svg";
 
 export function Header() {
@@ -34,12 +33,7 @@ export function Header() {
 
   return (
     <>
-      <header className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-300",
-        isScrolled 
-          ? "bg-card/95 backdrop-blur-md border-b border-border shadow-elegant" 
-          : "bg-transparent"
-      )}>
+      <header className="fixed top-0 left-0 right-0 z-50 bg-card/95 backdrop-blur-md border-b border-border shadow-elegant">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
@@ -61,28 +55,16 @@ export function Header() {
 
             {/* Desktop Navigation */}
             <nav className="hidden md:flex items-center gap-8">
-              <Link to="/" className={cn(
-                "transition-colors font-medium",
-                isScrolled ? "text-foreground hover:text-primary" : "text-white/90 hover:text-white"
-              )}>
+              <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium">
                 {t('الرئيسية', 'Home')}
               </Link>
-              <a href="/#hotels" className={cn(
-                "transition-colors font-medium",
-                isScrolled ? "text-foreground hover:text-primary" : "text-white/90 hover:text-white"
-              )}>
+              <a href="/#hotels" className="text-foreground hover:text-primary transition-colors font-medium">
                 {t('الفنادق', 'Hotels')}
               </a>
-              <a href="/#offers" className={cn(
-                "transition-colors font-medium",
-                isScrolled ? "text-foreground hover:text-primary" : "text-white/90 hover:text-white"
-              )}>
+              <a href="/#offers" className="text-foreground hover:text-primary transition-colors font-medium">
                 {t('العروض', 'Offers')}
               </a>
-              <a href="/#about" className={cn(
-                "transition-colors font-medium",
-                isScrolled ? "text-foreground hover:text-primary" : "text-white/90 hover:text-white"
-              )}>
+              <a href="/#about" className="text-foreground hover:text-primary transition-colors font-medium">
                 {t('من نحن', 'About')}
               </a>
             </nav>

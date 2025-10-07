@@ -1,56 +1,55 @@
-/* Theme Design 2 - Modern Hotel Booking Design */
+/* Theme Design 2 - Modern Mobile Blue */
 .theme-design2 {
-  /* Navy Blue Primary - من الصورة (#465B7D تقريباً) */
-  --primary: 220 30% 38%; /* Navy blue from design */
+  /* Navy Blue Primary - من الصورة */
+  --primary: 223 47% 28%; /* #263B5E - اللون الأزرق من التصميم */
   --primary-foreground: 0 0% 100%;
-  --primary-glow: 220 30% 48%;
-  
-  /* Cyan/Turquoise for buttons - اللون السماوي من زر البحث */
-  --accent: 185 70% 55%; /* Cyan/turquoise */
-  --accent-foreground: 220 30% 20%;
+  --primary-glow: 223 47% 38%;
   
   /* Light backgrounds */
-  --background: 0 0% 100%;
-  --foreground: 220 30% 20%;
+  --background: 240 20% 98%;
+  --foreground: 223 40% 20%;
   
-  /* Dark Card for Search Box - الكارد الداكن من التصميم */
-  --card: 220 35% 25%; /* Dark navy for cards */
-  --card-foreground: 0 0% 98%;
+  /* Card colors - white with slight blue tint */
+  --card: 0 0% 100%;
+  --card-foreground: 223 40% 20%;
   
   /* Popover colors */
-  --popover: 220 35% 25%;
-  --popover-foreground: 0 0% 98%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 223 40% 20%;
   
-  /* Secondary - lighter */
-  --secondary: 220 25% 85%;
-  --secondary-foreground: 220 30% 20%;
+  /* Secondary - lighter blue */
+  --secondary: 223 30% 85%;
+  --secondary-foreground: 223 40% 20%;
   
   /* Muted colors */
-  --muted: 220 20% 92%;
-  --muted-foreground: 220 15% 50%;
+  --muted: 223 20% 95%;
+  --muted-foreground: 223 20% 45%;
+  
+  /* Accent colors - blue accent */
+  --accent: 223 47% 35%;
+  --accent-foreground: 0 0% 100%;
   
   /* Destructive colors */
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
   
   /* Border and input */
-  --border: 220 20% 85%;
-  --input: 220 25% 30%;
-  --ring: 185 70% 55%;
+  --border: 223 20% 88%;
+  --input: 223 20% 88%;
+  --ring: 223 47% 28%;
   
-  /* Radius - rounded corners */
-  --radius: 0.75rem;
+  /* Radius - مدور أكثر كما في الصورة */
+  --radius: 1rem;
   
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, hsl(220 30% 38%), hsl(220 30% 48%));
-  --gradient-hero: linear-gradient(135deg, hsl(220 40% 20% / 0.7), hsl(220 50% 30% / 0.6));
-  --gradient-card: linear-gradient(180deg, hsl(220 35% 25%), hsl(220 35% 28%));
-  --gradient-luxury: linear-gradient(135deg, hsl(185 70% 55%), hsl(190 70% 60%));
+  /* Gradients - navy blue gradient */
+  --gradient-primary: linear-gradient(135deg, hsl(223 47% 28%), hsl(223 47% 38%));
+  --gradient-hero: linear-gradient(180deg, hsl(223 47% 28%), hsl(223 47% 35%));
+  --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(223 10% 98%));
   
   /* Shadows */
-  --shadow-elegant: 0 4px 24px -2px hsl(220 30% 20% / 0.15);
-  --shadow-luxury: 0 8px 40px -8px hsl(185 70% 55% / 0.3);
-  --shadow-card: 0 4px 16px -2px hsl(220 30% 15% / 0.2);
+  --shadow-elegant: 0 4px 24px -2px hsl(223 47% 28% / 0.12);
+  --shadow-luxury: 0 8px 40px -8px hsl(223 47% 28% / 0.2);
+  --shadow-card: 0 2px 12px -2px hsl(223 20% 40% / 0.08);
   
   /* Status Colors */
   --status-new: 210 100% 50%;

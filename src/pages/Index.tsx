@@ -67,7 +67,7 @@ const Index = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative min-h-[700px] flex items-center justify-center">
+      <section className="relative min-h-[600px] flex items-center justify-center pt-20">
         {/* Background Image with Overlay */}
         <div className="absolute inset-0 z-0">
           <img
@@ -79,12 +79,16 @@ const Index = () => {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 py-32">
-          <div className="text-center mb-16 animate-fade-in">
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-8 drop-shadow-2xl leading-tight">
+        <div className="relative z-10 container mx-auto px-4 py-20">
+          <div className="text-center mb-12 animate-fade-in">
+            <Badge className="mb-4 bg-primary/20 text-primary border-primary/30 backdrop-blur-sm">
+              <Sparkles className="w-4 h-4 ml-1" />
+              تجربة فاخرة في الحجز الفندقي
+            </Badge>
+<h1 className="text-4xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg">
               اكتشف وجهتك المثالية
             </h1>
-            <p className="text-xl md:text-2xl text-white/95 max-w-3xl mx-auto drop-shadow-lg leading-relaxed">
+            <p className="text-xl text-white/90 max-w-2xl mx-auto drop-shadow-md">
               احجز أفضل الفنادق والشقق الفندقية بأسعار تنافسية وخدمة استثنائية
             </p>
           </div>
