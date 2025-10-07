@@ -75,7 +75,9 @@ export default function SiteSettings() {
     version: number | null;
   }>({ created_at: null, version: null });
   const [userTheme, setUserTheme] = useState('design1');
+  const [userDarkMode, setUserDarkMode] = useState(false);
   const [adminTheme, setAdminTheme] = useState('design1');
+  const [adminDarkMode, setAdminDarkMode] = useState(false);
 
   useEffect(() => {
     if (!loading && userRole !== 'admin') {
@@ -99,8 +101,12 @@ export default function SiteSettings() {
       
       if (data) {
         setTaxPercentage(data.tax_percentage?.toString() || "0");
-        setUserTheme(data.user_theme || 'design1');
-        setAdminTheme(data.admin_theme || 'design1');
+        const userThemeValue = data.user_theme || 'design1';
+        setUserTheme(userThemeValue.replace('-dark', ''));
+        setUserDarkMode(userThemeValue.includes('-dark'));
+        const adminThemeValue = data.admin_theme || 'design1';
+        setAdminTheme(adminThemeValue.replace('-dark', ''));
+        setAdminDarkMode(adminThemeValue.includes('-dark'));
         setSocialMedia({
           facebook_url: data.facebook_url || '',
           twitter_url: data.twitter_url || '',
@@ -465,12 +471,15 @@ export default function SiteSettings() {
         .limit(1)
         .maybeSingle();
 
+      const finalUserTheme = userDarkMode ? `${userTheme}-dark` : userTheme;
+      const finalAdminTheme = adminDarkMode ? `${adminTheme}-dark` : adminTheme;
+
       if (existingSettings) {
         const { error } = await supabase
           .from('site_settings')
           .update({
-            user_theme: userTheme,
-            admin_theme: adminTheme,
+            user_theme: finalUserTheme,
+            admin_theme: finalAdminTheme,
           })
           .eq('id', existingSettings.id);
 
@@ -478,7 +487,7 @@ export default function SiteSettings() {
       } else {
         const { error } = await supabase
           .from('site_settings')
-          .insert({ user_theme: userTheme, admin_theme: adminTheme });
+          .insert({ user_theme: finalUserTheme, admin_theme: finalAdminTheme });
         if (error) throw error;
       }
 
@@ -758,14 +767,24 @@ export default function SiteSettings() {
                     </SelectContent>
                   </Select>
                   
+                  <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                    <Switch
+                      checked={userDarkMode}
+                      onCheckedChange={setUserDarkMode}
+                      id="user-dark-mode"
+                    />
+                    <Label htmlFor="user-dark-mode" className="cursor-pointer">
+                      {t({ ar: 'الوضع الداكن', en: 'Dark Mode' })}
+                    </Label>
+                  </div>
+                  
                   {userTheme === 'design2' && (
                     <div className="p-3 bg-muted/50 rounded-lg space-y-2 text-sm">
                       <p className="font-semibold">{t({ ar: 'معاينة التصميم:', en: 'Design Preview:' })}</p>
                       <ul className="space-y-1 text-xs text-muted-foreground">
-                        <li>• {t({ ar: 'اللون الأساسي: #001f7c (أزرق داكن)', en: 'Primary Color: #001f7c (Dark Blue)' })}</li>
-                        <li>• {t({ ar: 'الأزرار: #838383 (رمادي)', en: 'Buttons: #838383 (Gray)' })}</li>
-                        <li>• {t({ ar: 'النصوص: أبيض', en: 'Text: White' })}</li>
-                        <li>• {t({ ar: 'الزوايا: أقل حدة', en: 'Corners: Less sharp' })}</li>
+                        <li>• {t({ ar: 'اللون الأساسي: أزرق داكن', en: 'Primary Color: Dark Blue' })}</li>
+                        <li>• {t({ ar: 'التصميم: عصري ونظيف', en: 'Design: Modern & Clean' })}</li>
+                        <li>• {userDarkMode ? t({ ar: 'خلفية داكنة', en: 'Dark Background' }) : t({ ar: 'خلفية فاتحة', en: 'Light Background' })}</li>
                       </ul>
                     </div>
                   )}
@@ -791,6 +810,17 @@ export default function SiteSettings() {
                     </SelectContent>
                   </Select>
                   
+                  <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
+                    <Switch
+                      checked={adminDarkMode}
+                      onCheckedChange={setAdminDarkMode}
+                      id="admin-dark-mode"
+                    />
+                    <Label htmlFor="admin-dark-mode" className="cursor-pointer">
+                      {t({ ar: 'الوضع الداكن', en: 'Dark Mode' })}
+                    </Label>
+                  </div>
+                  
                   {adminTheme === 'admin-design2' && (
                     <div className="p-3 bg-muted/50 rounded-lg space-y-2 text-sm">
                       <p className="font-semibold">{t({ ar: 'معاينة التصميم:', en: 'Design Preview:' })}</p>
@@ -798,7 +828,7 @@ export default function SiteSettings() {
                         <li>• {t({ ar: 'اللون الأساسي: أزرق داكن Navy', en: 'Primary Color: Navy Blue' })}</li>
                         <li>• {t({ ar: 'اللون الثانوي: سماوي Turquoise', en: 'Secondary Color: Turquoise' })}</li>
                         <li>• {t({ ar: 'اللون المميز: بنفسجي Purple', en: 'Accent Color: Purple' })}</li>
-                        <li>• {t({ ar: 'تصميم إنفوجرافيك حديث', en: 'Modern Infographic Style' })}</li>
+                        <li>• {adminDarkMode ? t({ ar: 'خلفية داكنة', en: 'Dark Background' }) : t({ ar: 'خلفية فاتحة', en: 'Light Background' })}</li>
                       </ul>
                     </div>
                   )}

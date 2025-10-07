@@ -211,15 +211,9 @@ export default function SearchResults() {
           <CardContent className="pt-6">
             <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen}>
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <SlidersHorizontal className="w-5 h-5" />
-                  <h2 className="text-xl font-semibold">
-                    {t({ ar: 'الفلاتر', en: 'Filters' })}
-                  </h2>
-                </div>
                 <CollapsibleTrigger asChild>
-                  <Button variant="outline" size="sm">
-                    {isFilterOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  <Button variant="outline" size="icon" className="w-10 h-10">
+                    <SlidersHorizontal className="w-5 h-5" />
                   </Button>
                 </CollapsibleTrigger>
               </div>
@@ -236,7 +230,7 @@ export default function SearchResults() {
                       <SelectItem value="price_low">{t({ ar: 'السعر: من الأقل للأعلى', en: 'Price: Low to High' })}</SelectItem>
                       <SelectItem value="price_high">{t({ ar: 'السعر: من الأعلى للأقل', en: 'Price: High to Low' })}</SelectItem>
                       <SelectItem value="rating">{t({ ar: 'التقييم', en: 'Rating' })}</SelectItem>
-                      <SelectItem value="distance">{t({ ar: 'المسافة', en: 'Distance' })}</SelectItem>
+                      <SelectItem value="distance">{t({ ar: 'القرب من المنطقة المركزية', en: 'Proximity to Central Area' })}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>

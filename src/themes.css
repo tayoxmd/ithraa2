@@ -1,32 +1,32 @@
-/* Theme Design 2 - Modern Mobile Blue */
+/* Theme Design 2 Light - Modern Light Blue */
 .theme-design2 {
   /* Navy Blue Primary - من الصورة */
-  --primary: 210 60% 35%; /* #2C5282 - أزرق داكن */
+  --primary: 216 45% 28%; /* #2C4A6B - أزرق داكن */
   --primary-foreground: 0 0% 100%;
-  --primary-glow: 210 60% 45%;
+  --primary-glow: 216 45% 38%;
   
-  /* Light backgrounds */
-  --background: 0 0% 98%;
-  --foreground: 210 50% 25%;
+  /* Light backgrounds - very light blue-gray */
+  --background: 220 25% 97%; /* #F5F7FA */
+  --foreground: 216 45% 20%;
   
-  /* Card colors - white */
+  /* Card colors - pure white */
   --card: 0 0% 100%;
-  --card-foreground: 210 50% 25%;
+  --card-foreground: 216 45% 20%;
   
-  /* Popover colors - navy blue */
-  --popover: 210 60% 35%;
-  --popover-foreground: 0 0% 100%;
+  /* Popover colors - white */
+  --popover: 0 0% 100%;
+  --popover-foreground: 216 45% 20%;
   
-  /* Secondary - light cyan blue */
-  --secondary: 190 70% 55%;
-  --secondary-foreground: 210 60% 15%;
+  /* Secondary - white/light gray */
+  --secondary: 220 20% 96%;
+  --secondary-foreground: 216 45% 20%;
   
   /* Muted colors */
-  --muted: 210 15% 92%;
-  --muted-foreground: 210 15% 50%;
+  --muted: 220 15% 92%;
+  --muted-foreground: 216 15% 50%;
   
-  /* Accent colors - cyan */
-  --accent: 190 70% 55%;
+  /* Accent colors - darker blue */
+  --accent: 216 45% 28%;
   --accent-foreground: 0 0% 100%;
   
   /* Destructive colors */
@@ -34,22 +34,22 @@
   --destructive-foreground: 0 0% 100%;
   
   /* Border and input */
-  --border: 210 20% 88%;
-  --input: 210 20% 88%;
-  --ring: 210 60% 35%;
+  --border: 220 15% 88%;
+  --input: 220 15% 92%;
+  --ring: 216 45% 28%;
   
   /* Radius */
   --radius: 0.625rem;
   
-  /* Gradients - navy to light blue */
-  --gradient-primary: linear-gradient(135deg, hsl(210 60% 35%), hsl(210 60% 45%));
-  --gradient-hero: linear-gradient(180deg, hsl(210 60% 25% / 0.5), hsl(210 60% 35% / 0.7));
-  --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 10% 98%));
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(216 45% 28%), hsl(216 45% 38%));
+  --gradient-hero: linear-gradient(180deg, hsl(216 45% 20% / 0.5), hsl(216 45% 28% / 0.7));
+  --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 10% 98%));
   
   /* Shadows */
-  --shadow-elegant: 0 4px 24px -2px hsl(210 60% 35% / 0.12);
-  --shadow-luxury: 0 8px 40px -8px hsl(210 60% 35% / 0.2);
-  --shadow-card: 0 2px 12px -2px hsl(210 20% 40% / 0.08);
+  --shadow-elegant: 0 2px 12px -2px hsl(216 45% 28% / 0.08);
+  --shadow-luxury: 0 4px 24px -4px hsl(216 45% 28% / 0.12);
+  --shadow-card: 0 1px 8px -1px hsl(220 20% 40% / 0.06);
   
   /* Status Colors */
   --status-new: 210 100% 50%;
@@ -58,35 +58,36 @@
   --status-cancelled: 0 84% 60%;
 }
 
+/* Theme Design 2 Dark - Modern Dark Blue */
 .theme-design2.dark {
-  /* Dark mode - navy blue background */
-  --background: 223 47% 12%;
+  /* Dark mode - deep navy background */
+  --background: 216 50% 15%; /* #1A2B4A */
   --foreground: 0 0% 98%;
   
-  --card: 223 40% 16%;
+  --card: 216 45% 20%;
   --card-foreground: 0 0% 98%;
   
-  --popover: 223 40% 16%;
+  --popover: 216 45% 20%;
   --popover-foreground: 0 0% 98%;
   
-  --primary: 223 47% 45%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 0 0% 100%;
+  --primary-foreground: 216 45% 20%;
   
-  --secondary: 223 30% 25%;
+  --secondary: 216 40% 25%;
   --secondary-foreground: 0 0% 98%;
   
-  --muted: 223 35% 20%;
-  --muted-foreground: 223 15% 70%;
+  --muted: 216 35% 22%;
+  --muted-foreground: 216 15% 70%;
   
-  --accent: 223 47% 35%;
-  --accent-foreground: 0 0% 100%;
+  --accent: 0 0% 100%;
+  --accent-foreground: 216 45% 20%;
   
-  --border: 223 30% 24%;
-  --input: 223 30% 24%;
-  --ring: 223 47% 45%;
+  --border: 216 30% 28%;
+  --input: 216 30% 25%;
+  --ring: 0 0% 100%;
   
-  --gradient-primary: linear-gradient(135deg, hsl(223 47% 35%), hsl(223 47% 45%));
-  --gradient-hero: linear-gradient(180deg, hsl(223 47% 18%), hsl(223 47% 25%));
+  --gradient-primary: linear-gradient(135deg, hsl(216 45% 20%), hsl(216 45% 28%));
+  --gradient-hero: linear-gradient(180deg, hsl(216 50% 12%), hsl(216 50% 18%));
 }
 
 /* Theme Design 3 - Reserved for future use */
