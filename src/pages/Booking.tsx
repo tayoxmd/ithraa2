@@ -68,39 +68,89 @@ export default function Booking() {
   const [showNewGuestInput, setShowNewGuestInput] = useState(false);
   const [avgPricePerNight, setAvgPricePerNight] = useState<number | null>(null);
   const [loadingHotel, setLoadingHotel] = useState(true);
+  const [customerFullName, setCustomerFullName] = useState("");
+
+  // Fetch customer's full name if logged in
+  useEffect(() => {
+    async function fetchCustomerName() {
+      if (user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('full_name')
+          .eq('id', user.id)
+          .single();
+        
+        if (data?.full_name) {
+          setCustomerFullName(data.full_name);
+          if (useCustomerName) {
+            setGuestName(data.full_name);
+          }
+        }
+      }
+    }
+    fetchCustomerName();
+  }, [user]);
+
+  // Update guest name when useCustomerName changes
+  useEffect(() => {
+    if (useCustomerName && customerFullName) {
+      setGuestName(customerFullName);
+    } else if (!useCustomerName) {
+      setGuestName("");
+    }
+  }, [useCustomerName, customerFullName]);
 
   useEffect(() => {
-    setLoadingHotel(true);
+    let mounted = true;
+    
     async function fetchHotel() {
-      const { data, error } = await supabase.rpc('get_public_hotel', {
-        p_hotel_id: id
-      });
+      if (!id) {
+        navigate('/');
+        return;
+      }
+      
+      setLoadingHotel(true);
+      
+      try {
+        const { data, error } = await supabase.rpc('get_public_hotel', {
+          p_hotel_id: id
+        });
 
-      if (error) {
-        console.error('Error fetching hotel:', error);
-        setLoadingHotel(false);
-        navigate('/');
-        return;
-      }
-      
-      if (data && data.length > 0) {
-        setHotel(data[0]);
+        if (!mounted) return;
+
+        if (error) {
+          console.error('Error fetching hotel:', error);
+          setLoadingHotel(false);
+          navigate('/');
+          return;
+        }
         
-        // Calculate seasonal pricing
-        const avgPrice = await calculateSeasonalPrice(
-          id!,
-          checkIn,
-          checkOut,
-          data[0].price_per_night
-        );
-        setAvgPricePerNight(avgPrice);
-      } else {
-        setLoadingHotel(false);
-        navigate('/');
-        return;
+        if (data && data.length > 0) {
+          setHotel(data[0]);
+          
+          // Calculate seasonal pricing
+          const avgPrice = await calculateSeasonalPrice(
+            id!,
+            checkIn,
+            checkOut,
+            data[0].price_per_night
+          );
+          
+          if (mounted) {
+            setAvgPricePerNight(avgPrice);
+            setLoadingHotel(false);
+          }
+        } else {
+          setLoadingHotel(false);
+          navigate('/');
+        }
+      } catch (err) {
+        console.error('Unexpected error fetching hotel:', err);
+        if (mounted) {
+          setLoadingHotel(false);
+          navigate('/');
+        }
       }
-      
-      setLoadingHotel(false);
     }
     
     async function fetchSavedGuests() {
@@ -111,7 +161,7 @@ export default function Booking() {
           .eq('user_id', user.id)
           .order('created_at', { ascending: false });
         
-        if (!error && data) {
+        if (!error && data && mounted) {
           setSavedGuests(data);
         }
       }
@@ -119,7 +169,11 @@ export default function Booking() {
     
     fetchHotel();
     fetchSavedGuests();
-  }, [id, user, checkIn, checkOut, navigate]);
+    
+    return () => {
+      mounted = false;
+    };
+  }, [id, navigate]);
 
   const calculateTotal = () => {
     if (!hotel) return { subtotal: 0, extraGuestCharge: 0, extraMealCharge: 0, tax: 0, total: 0, extraGuestsCount: 0 };
@@ -551,25 +605,9 @@ export default function Booking() {
                           id="use-customer-name"
                           checked={useCustomerName}
                           onChange={(e) => {
-                            const checked = e.target.checked;
-                            setUseCustomerName(checked);
+                            setUseCustomerName(e.target.checked);
                             setShowNewGuestInput(false);
                             setSelectedGuestId("");
-                            if (checked) {
-                              // Get customer name from profile
-                              supabase
-                                .from('profiles')
-                                .select('full_name')
-                                .eq('id', user.id)
-                                .single()
-                                .then(({ data }) => {
-                                  if (data?.full_name) {
-                                    setGuestName(data.full_name);
-                                  }
-                                });
-                            } else {
-                              setGuestName("");
-                            }
                           }}
                           className="w-4 h-4"
                         />
@@ -579,8 +617,8 @@ export default function Booking() {
                       </div>
                       
                       {useCustomerName && guestName && (
-                        <div className="px-4 py-2 bg-muted/50 rounded-lg">
-                          <p className="text-sm font-medium text-foreground">{guestName}</p>
+                        <div className="px-4 py-3 bg-primary/10 border border-primary/20 rounded-lg">
+                          <p className="text-base font-semibold text-foreground">{guestName}</p>
                         </div>
                       )}
                     </div>
