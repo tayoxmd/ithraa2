@@ -54,14 +54,41 @@ export default function GuestDashboard() {
   const fetchGuestBookings = async (phone: string) => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('bookings')
-        .select('*, hotels(name_ar, name_en, location, location_url, price_per_night, max_guests_per_room, tax_percentage, room_type)')
-        .eq('guest_phone', phone)
-        .order('created_at', { ascending: false });
-      
+      const { data, error } = await supabase.rpc('get_guest_bookings', { p_phone: phone });
       if (error) throw error;
-      setBookings(data as Booking[] || []);
+
+      const mapped = (data || []).map((row: any) => ({
+        id: row.id,
+        check_in: row.check_in,
+        check_out: row.check_out,
+        guests: row.guests,
+        rooms: row.rooms,
+        total_amount: row.total_amount,
+        status: row.status,
+        payment_status: row.payment_status,
+        amount_paid: row.amount_paid,
+        payment_method: row.payment_method,
+        guest_name: row.guest_name,
+        guest_phone: row.guest_phone,
+        hotel_confirmation_number: row.hotel_confirmation_number,
+        booking_number: row.booking_number,
+        discount_amount: row.discount_amount,
+        manual_total: row.manual_total,
+        notes: row.notes,
+        user_id: row.user_id,
+        hotels: {
+          name_ar: row.hotel_name_ar,
+          name_en: row.hotel_name_en,
+          location: row.hotel_location,
+          location_url: row.hotel_location_url,
+          price_per_night: row.hotel_price_per_night,
+          max_guests_per_room: row.hotel_max_guests_per_room,
+          tax_percentage: row.hotel_tax_percentage,
+          room_type: row.hotel_room_type,
+        },
+      }));
+
+      setBookings(mapped as Booking[]);
     } catch (error) {
       console.error("Error fetching bookings:", error);
     } finally {

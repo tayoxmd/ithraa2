@@ -884,6 +884,37 @@ export type Database = {
         Args: { customer_id: string; employee_id: string }
         Returns: boolean
       }
+      get_guest_bookings: {
+        Args: { p_phone: string }
+        Returns: {
+          amount_paid: number
+          booking_number: number
+          check_in: string
+          check_out: string
+          discount_amount: number
+          guest_name: string
+          guest_phone: string
+          guests: number
+          hotel_confirmation_number: string
+          hotel_location: string
+          hotel_location_url: string
+          hotel_max_guests_per_room: number
+          hotel_name_ar: string
+          hotel_name_en: string
+          hotel_price_per_night: number
+          hotel_room_type: Database["public"]["Enums"]["room_type"]
+          hotel_tax_percentage: number
+          id: string
+          manual_total: number
+          notes: string
+          payment_method: string
+          payment_status: Database["public"]["Enums"]["payment_status"]
+          rooms: number
+          status: Database["public"]["Enums"]["booking_status"]
+          total_amount: number
+          user_id: string
+        }[]
+      }
       get_hotel_contacts: {
         Args: { p_hotel_id: string }
         Returns: {

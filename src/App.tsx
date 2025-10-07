@@ -51,8 +51,9 @@ const App = () => (
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/employee" element={<EmployeeDashboard />} />
               <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+              <Route path="/guest-dashboard" element={<GuestDashboard />} />
               <Route path="/dashboard/:phoneAndOrder" element={<GuestDashboard />} />
-          <Route path="/manage-employees" element={<ManageEmployees />} />
+              <Route path="/manage-employees" element={<ManageEmployees />} />
           <Route path="/profile" element={<Profile />} />
               <Route path="/manage-hotels" element={<ManageHotels />} />
           <Route path="/seasonal-pricing" element={<SeasonalPricing />} />
