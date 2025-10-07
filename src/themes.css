@@ -1,74 +1,92 @@
-/* Theme Design 2 - Dark Blue Professional */
+/* Theme Design 2 - Modern Mobile Blue */
 .theme-design2 {
-  /* Primary colors */
-  --primary: 210 100% 25%; /* #001f7c */
+  /* Navy Blue Primary - من الصورة */
+  --primary: 223 47% 28%; /* #263B5E - اللون الأزرق من التصميم */
   --primary-foreground: 0 0% 100%;
+  --primary-glow: 223 47% 38%;
   
-  /* Secondary colors */
-  --secondary: 0 0% 51%; /* #838383 */
-  --secondary-foreground: 0 0% 100%;
+  /* Light backgrounds */
+  --background: 240 20% 98%;
+  --foreground: 223 40% 20%;
   
-  /* Background colors */
-  --background: 0 0% 100%;
-  --foreground: 210 100% 25%;
-  
-  /* Card colors */
+  /* Card colors - white with slight blue tint */
   --card: 0 0% 100%;
-  --card-foreground: 210 100% 25%;
+  --card-foreground: 223 40% 20%;
   
   /* Popover colors */
   --popover: 0 0% 100%;
-  --popover-foreground: 210 100% 25%;
+  --popover-foreground: 223 40% 20%;
+  
+  /* Secondary - lighter blue */
+  --secondary: 223 30% 85%;
+  --secondary-foreground: 223 40% 20%;
   
   /* Muted colors */
-  --muted: 210 40% 96.1%;
-  --muted-foreground: 210 100% 25%;
+  --muted: 223 20% 95%;
+  --muted-foreground: 223 20% 45%;
   
-  /* Accent colors */
-  --accent: 210 100% 35%;
+  /* Accent colors - blue accent */
+  --accent: 223 47% 35%;
   --accent-foreground: 0 0% 100%;
   
   /* Destructive colors */
-  --destructive: 0 84.2% 60.2%;
+  --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
   
   /* Border and input */
-  --border: 210 40% 80%;
-  --input: 210 40% 80%;
-  --ring: 210 100% 25%;
+  --border: 223 20% 88%;
+  --input: 223 20% 88%;
+  --ring: 223 47% 28%;
   
-  /* Radius */
-  --radius: 0.375rem; /* Less rounded - 6px instead of 12px */
+  /* Radius - مدور أكثر كما في الصورة */
+  --radius: 1rem;
   
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, hsl(210 100% 25%), hsl(210 100% 35%));
-  --gradient-subtle: linear-gradient(180deg, hsl(210 40% 98%), hsl(210 40% 96%));
+  /* Gradients - navy blue gradient */
+  --gradient-primary: linear-gradient(135deg, hsl(223 47% 28%), hsl(223 47% 38%));
+  --gradient-hero: linear-gradient(180deg, hsl(223 47% 28%), hsl(223 47% 35%));
+  --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(223 10% 98%));
   
   /* Shadows */
-  --shadow-elegant: 0 4px 20px -2px hsl(210 100% 25% / 0.2);
-  --shadow-luxury: 0 8px 30px -6px hsl(210 100% 25% / 0.3);
+  --shadow-elegant: 0 4px 24px -2px hsl(223 47% 28% / 0.12);
+  --shadow-luxury: 0 8px 40px -8px hsl(223 47% 28% / 0.2);
+  --shadow-card: 0 2px 12px -2px hsl(223 20% 40% / 0.08);
+  
+  /* Status Colors */
+  --status-new: 210 100% 50%;
+  --status-pending: 30 100% 50%;
+  --status-confirmed: 142 71% 45%;
+  --status-cancelled: 0 84% 60%;
 }
 
 .theme-design2.dark {
-  /* Primary colors in dark mode */
-  --primary: 210 100% 35%;
+  /* Dark mode - navy blue background */
+  --background: 223 47% 12%;
+  --foreground: 0 0% 98%;
+  
+  --card: 223 40% 16%;
+  --card-foreground: 0 0% 98%;
+  
+  --popover: 223 40% 16%;
+  --popover-foreground: 0 0% 98%;
+  
+  --primary: 223 47% 45%;
   --primary-foreground: 0 0% 100%;
   
-  /* Background colors in dark mode */
-  --background: 210 50% 5%;
-  --foreground: 0 0% 100%;
+  --secondary: 223 30% 25%;
+  --secondary-foreground: 0 0% 98%;
   
-  /* Card colors in dark mode */
-  --card: 210 50% 8%;
-  --card-foreground: 0 0% 100%;
+  --muted: 223 35% 20%;
+  --muted-foreground: 223 15% 70%;
   
-  /* Muted colors in dark mode */
-  --muted: 210 40% 15%;
-  --muted-foreground: 210 40% 80%;
+  --accent: 223 47% 35%;
+  --accent-foreground: 0 0% 100%;
   
-  /* Border and input in dark mode */
-  --border: 210 40% 20%;
-  --input: 210 40% 20%;
+  --border: 223 30% 24%;
+  --input: 223 30% 24%;
+  --ring: 223 47% 45%;
+  
+  --gradient-primary: linear-gradient(135deg, hsl(223 47% 35%), hsl(223 47% 45%));
+  --gradient-hero: linear-gradient(180deg, hsl(223 47% 18%), hsl(223 47% 25%));
 }
 
 /* Theme Design 3 - Reserved for future use */
