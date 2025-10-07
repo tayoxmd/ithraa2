@@ -38,26 +38,27 @@ const Index = () => {
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { language } = useLanguage();
-
+  
   const heroImages = [heroImage1, heroImage2];
 
   useEffect(() => {
     fetchFeaturedHotels();
-
+    
     // Auto-switch images every 7 seconds
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
     }, 7000);
-
+    
     return () => clearInterval(interval);
   }, []);
 
   const fetchFeaturedHotels = async () => {
     try {
-      const { data, error } = await supabase.rpc("get_public_hotels", {
-        p_city_id: null,
-        p_active_only: true,
-      });
+      const { data, error } = await supabase
+        .rpc('get_public_hotels', {
+          p_city_id: null,
+          p_active_only: true
+        });
 
       if (error) throw error;
       if (data) {
@@ -69,7 +70,7 @@ const Index = () => {
         setHotels(finalHotels);
       }
     } catch (error) {
-      console.error("Error fetching hotels:", error);
+      console.error('Error fetching hotels:', error);
     } finally {
       setLoading(false);
     }
@@ -89,16 +90,18 @@ const Index = () => {
               src={image}
               alt={`Luxury Hotel ${index + 1}`}
               className={`absolute w-full h-full object-cover transition-opacity duration-1000 ${
-                index === currentImageIndex ? "opacity-100" : "opacity-0"
+                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
               }`}
             />
           ))}
         </div>
-        جوار ناصر البيك
+
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 py-20 md:py-32">
           <div className="text-center mb-12 animate-fade-in">
-            <h1 className="text-4xl md:text-6xl font-bold text-primary mb-6 drop-shadow-lg">جوار ناصر البيك</h1>
+<h1 className="text-4xl md:text-6xl font-bold text-primary mb-6 drop-shadow-lg">
+              جوار الحرم
+            </h1>
             <p className="text-xl text-primary/90 max-w-2xl mx-auto drop-shadow-md">
               احجز أفضل الفنادق والشقق الفندقية بأسعار تنافسية وخدمة استثنائية
             </p>
@@ -115,7 +118,9 @@ const Index = () => {
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             <span className="text-gradient-luxury">الفنادق المميزة</span>
           </h2>
-          <p className="text-muted-foreground text-lg">اختر من بين مجموعة مختارة من أفضل الفنادق والشقق الفندقية</p>
+          <p className="text-muted-foreground text-lg">
+            اختر من بين مجموعة مختارة من أفضل الفنادق والشقق الفندقية
+          </p>
         </div>
 
         {loading ? (
@@ -125,19 +130,19 @@ const Index = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
             {hotels.map((hotel, index) => (
-              <div key={hotel.id} style={{ animationDelay: `${index * 100}ms` }} className="animate-fade-in-up">
+              <div
+                key={hotel.id}
+                style={{ animationDelay: `${index * 100}ms` }}
+                className="animate-fade-in-up"
+              >
                 <HotelCard
                   id={hotel.id}
-                  name={language === "ar" ? hotel.name_ar : hotel.name_en}
+                  name={language === 'ar' ? hotel.name_ar : hotel.name_en}
                   nameEn={hotel.name_en}
-                  location={`${language === "ar" ? hotel.city_name_ar : hotel.city_name_en}`}
+                  location={`${language === 'ar' ? hotel.city_name_ar : hotel.city_name_en}`}
                   price={Number(hotel.price_per_night)}
                   rating={Number(hotel.rating)}
-                  image={
-                    hotel.images && hotel.images[0]
-                      ? hotel.images[0]
-                      : "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000"
-                  }
+                  image={hotel.images && hotel.images[0] ? hotel.images[0] : "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000"}
                   images={hotel.images}
                   featured={index < 2}
                   meal_plans={hotel.meal_plans}
@@ -148,6 +153,7 @@ const Index = () => {
           </div>
         )}
       </section>
+
 
       {/* About Section */}
       <section className="container mx-auto px-4 py-16" id="about">
