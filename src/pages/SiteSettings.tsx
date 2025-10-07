@@ -31,7 +31,8 @@ export default function SiteSettings() {
     instagram_url: '',
     whatsapp_number: '+966505731136',
     email: 'support@ithraa.com',
-    phone: '0505731136'
+    phone: '0505731136',
+    chat_link: ''
   });
   const [exceptionColors, setExceptionColors] = useState({
     owner_room_color: '#87CEEB',
@@ -101,7 +102,8 @@ export default function SiteSettings() {
           instagram_url: data.instagram_url || '',
           whatsapp_number: data.whatsapp_number || '+966505731136',
           email: data.email || 'support@ithraa.com',
-          phone: data.phone || '0505731136'
+          phone: data.phone || '0505731136',
+          chat_link: (data as any).chat_link || ''
         });
         setExceptionColors({
           owner_room_color: data.owner_room_color || '#87CEEB',
@@ -267,17 +269,26 @@ export default function SiteSettings() {
         .limit(1)
         .maybeSingle();
 
+      const updateData = {
+        facebook_url: socialMedia.facebook_url,
+        twitter_url: socialMedia.twitter_url,
+        instagram_url: socialMedia.instagram_url,
+        whatsapp_number: socialMedia.whatsapp_number,
+        email: socialMedia.email,
+        phone: socialMedia.phone
+      };
+
       if (existingSettings) {
         const { error } = await supabase
           .from('site_settings')
-          .update(socialMedia)
+          .update(updateData)
           .eq('id', existingSettings.id);
 
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from('site_settings')
-          .insert({ ...socialMedia, tax_percentage: parseFloat(taxPercentage) });
+          .insert({ ...updateData, tax_percentage: parseFloat(taxPercentage) });
 
         if (error) throw error;
       }
@@ -973,11 +984,24 @@ export default function SiteSettings() {
                     type="tel"
                     value={socialMedia.phone}
                     onChange={(e) => setSocialMedia({...socialMedia, phone: e.target.value})}
-                    placeholder="0505731136"
-                    className="mt-2"
-                  />
-                </div>
+                  placeholder="0505731136"
+                  className="mt-2"
+                />
               </div>
+              <div>
+                <Label>{t({ ar: 'رابط المحادثة المباشرة', en: 'Live Chat Link' })}</Label>
+                <Input 
+                  type="url"
+                  value={socialMedia.chat_link}
+                  onChange={(e) => setSocialMedia({...socialMedia, chat_link: e.target.value})}
+                  placeholder="https://..."
+                  className="mt-2"
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  {t({ ar: 'رابط صفحة الدردشة المباشرة (سيظهر في الزر الجانبي)', en: 'Live chat page link (will appear in sidebar button)' })}
+                </p>
+              </div>
+            </div>
               <Button onClick={handleSaveSocialMedia} className="w-full btn-luxury">
                 {t({ ar: 'حفظ إعدادات وسائل التواصل', en: 'Save Social Media Settings' })}
               </Button>

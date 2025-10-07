@@ -210,10 +210,11 @@ export default function SearchResults() {
         <Card className="mb-6">
           <CardContent className="pt-6">
             <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-3 mb-4">
                 <CollapsibleTrigger asChild>
-                  <Button variant="outline" size="icon" className="w-10 h-10">
-                    <SlidersHorizontal className="w-5 h-5" />
+                  <Button variant="outline" size="sm" className="h-9 gap-2">
+                    <SlidersHorizontal className="w-4 h-4" />
+                    {t({ ar: 'فلترة', en: 'Filter' })}
                   </Button>
                 </CollapsibleTrigger>
               </div>
@@ -355,7 +356,7 @@ export default function SearchResults() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
           {filteredHotels.map((hotel) => (
             <HotelCard
               key={hotel.id}

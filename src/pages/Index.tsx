@@ -2,6 +2,7 @@ import { Header } from "@/components/Header";
 import { SearchBox } from "@/components/SearchBox";
 import { HotelCard } from "@/components/HotelCard";
 import { Footer } from "@/components/Footer";
+import { FloatingContactButtons } from "@/components/FloatingContactButtons";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
 import heroImage1 from "@/assets/hero-background-1.jpg";
@@ -62,9 +63,12 @@ const Index = () => {
 
       if (error) throw error;
       if (data) {
-        // Sort by rating and limit to 6
-        const sortedData = data.sort((a: any, b: any) => b.rating - a.rating).slice(0, 6);
-        setHotels(sortedData);
+        // First get pinned hotels, then sort remaining by rating and limit to 7 total
+        const pinnedHotels = data.filter((h: any) => h.pinned_to_homepage);
+        const unpinnedHotels = data.filter((h: any) => !h.pinned_to_homepage);
+        const sortedUnpinned = unpinnedHotels.sort((a: any, b: any) => b.rating - a.rating);
+        const finalHotels = [...pinnedHotels, ...sortedUnpinned].slice(0, 7);
+        setHotels(finalHotels);
       }
     } catch (error) {
       console.error('Error fetching hotels:', error);
@@ -76,9 +80,10 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       <Header />
+      <FloatingContactButtons />
 
       {/* Hero Section */}
-      <section className="relative min-h-[600px] flex items-center justify-center pt-20">
+      <section className="relative min-h-[600px] flex items-center justify-center pt-20 md:pt-32">
         {/* Background Images with Fade Effect */}
         <div className="absolute inset-0 z-0">
           {heroImages.map((image, index) => (
@@ -94,12 +99,12 @@ const Index = () => {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 py-20">
+        <div className="relative z-10 container mx-auto px-4 py-20 md:py-32">
           <div className="text-center mb-12 animate-fade-in">
-<h1 className="text-4xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg">
+<h1 className="text-4xl md:text-6xl font-bold text-primary mb-6 drop-shadow-lg">
               اكتشف وجهتك المثالية
             </h1>
-            <p className="text-xl text-white/90 max-w-2xl mx-auto drop-shadow-md">
+            <p className="text-xl text-primary/90 max-w-2xl mx-auto drop-shadow-md">
               احجز أفضل الفنادق والشقق الفندقية بأسعار تنافسية وخدمة استثنائية
             </p>
           </div>
@@ -125,7 +130,7 @@ const Index = () => {
             <LoadingSpinner size="lg" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
             {hotels.map((hotel, index) => (
               <div
                 key={hotel.id}
