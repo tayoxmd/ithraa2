@@ -94,6 +94,8 @@ export default function SiteSettings() {
       
       if (data) {
         setTaxPercentage(data.tax_percentage?.toString() || "0");
+        setUserTheme(data.user_theme || 'design1');
+        setAdminTheme(data.admin_theme || 'design1');
         setSocialMedia({
           facebook_url: data.facebook_url || '',
           twitter_url: data.twitter_url || '',
@@ -433,6 +435,41 @@ export default function SiteSettings() {
     }
   };
 
+  const handleSaveThemes = async () => {
+    try {
+      const { data: existingSettings } = await supabase
+        .from('site_settings')
+        .select('id')
+        .single();
+
+      if (existingSettings) {
+        const { error } = await supabase
+          .from('site_settings')
+          .update({
+            user_theme: userTheme,
+            admin_theme: adminTheme,
+          })
+          .eq('id', existingSettings.id);
+
+        if (error) throw error;
+      }
+
+      // Reload the page to apply new theme
+      window.location.reload();
+
+      toast({
+        title: t({ ar: "تم الحفظ", en: "Saved" }),
+        description: t({ ar: "تم حفظ إعدادات التصاميم", en: "Theme settings saved" }),
+      });
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleCreateBackup = async () => {
     setBackupLoading(true);
     try {
@@ -673,19 +710,19 @@ export default function SiteSettings() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="design-1">
+                      <SelectItem value="design1">
                         {t({ ar: 'تصميم 1 (التصميم الحالي)', en: 'Design 1 (Current Design)' })}
                       </SelectItem>
-                      <SelectItem value="design-2">
+                      <SelectItem value="design2">
                         {t({ ar: 'تصميم 2 (أزرق داكن)', en: 'Design 2 (Dark Blue)' })}
                       </SelectItem>
-                      <SelectItem value="design-3">
+                      <SelectItem value="design3">
                         {t({ ar: 'تصميم 3 (قريباً)', en: 'Design 3 (Coming Soon)' })}
                       </SelectItem>
                     </SelectContent>
                   </Select>
                   
-                  {userTheme === 'design-2' && (
+                  {userTheme === 'design2' && (
                     <div className="p-3 bg-muted/50 rounded-lg space-y-2 text-sm">
                       <p className="font-semibold">{t({ ar: 'معاينة التصميم:', en: 'Design Preview:' })}</p>
                       <ul className="space-y-1 text-xs text-muted-foreground">
@@ -709,19 +746,19 @@ export default function SiteSettings() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="design-1">
+                      <SelectItem value="design1">
                         {t({ ar: 'تصميم 1 (التصميم الحالي)', en: 'Design 1 (Current Design)' })}
                       </SelectItem>
-                      <SelectItem value="design-2">
+                      <SelectItem value="design2">
                         {t({ ar: 'تصميم 2 (أزرق داكن)', en: 'Design 2 (Dark Blue)' })}
                       </SelectItem>
-                      <SelectItem value="design-3">
+                      <SelectItem value="design3">
                         {t({ ar: 'تصميم 3 (قريباً)', en: 'Design 3 (Coming Soon)' })}
                       </SelectItem>
                     </SelectContent>
                   </Select>
                   
-                  {adminTheme === 'design-2' && (
+                  {adminTheme === 'design2' && (
                     <div className="p-3 bg-muted/50 rounded-lg space-y-2 text-sm">
                       <p className="font-semibold">{t({ ar: 'معاينة التصميم:', en: 'Design Preview:' })}</p>
                       <ul className="space-y-1 text-xs text-muted-foreground">
@@ -740,6 +777,11 @@ export default function SiteSettings() {
                   <strong>{t({ ar: 'ملاحظة:', en: 'Note:' })}</strong> {t({ ar: 'تغيير التصميم سيؤثر على جميع الصفحات والمكونات. التصميم 3 سيكون متاحاً قريباً.', en: 'Changing the design will affect all pages and components. Design 3 will be available soon.' })}
                 </p>
               </div>
+
+              <Button onClick={handleSaveThemes} className="w-full btn-luxury">
+                <Save className="w-4 h-4 mr-2" />
+                {t({ ar: 'حفظ إعدادات التصميم', en: 'Save Theme Settings' })}
+              </Button>
 
               <Button 
                 onClick={async () => {

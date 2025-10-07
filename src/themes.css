@@ -1,0 +1,77 @@
+/* Theme Design 2 - Dark Blue Professional */
+.theme-design2 {
+  /* Primary colors */
+  --primary: 210 100% 25%; /* #001f7c */
+  --primary-foreground: 0 0% 100%;
+  
+  /* Secondary colors */
+  --secondary: 0 0% 51%; /* #838383 */
+  --secondary-foreground: 0 0% 100%;
+  
+  /* Background colors */
+  --background: 0 0% 100%;
+  --foreground: 210 100% 25%;
+  
+  /* Card colors */
+  --card: 0 0% 100%;
+  --card-foreground: 210 100% 25%;
+  
+  /* Popover colors */
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 100% 25%;
+  
+  /* Muted colors */
+  --muted: 210 40% 96.1%;
+  --muted-foreground: 210 100% 25%;
+  
+  /* Accent colors */
+  --accent: 210 100% 35%;
+  --accent-foreground: 0 0% 100%;
+  
+  /* Destructive colors */
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 0 0% 100%;
+  
+  /* Border and input */
+  --border: 210 40% 80%;
+  --input: 210 40% 80%;
+  --ring: 210 100% 25%;
+  
+  /* Radius */
+  --radius: 0.375rem; /* Less rounded - 6px instead of 12px */
+  
+  /* Gradients */
+  --gradient-primary: linear-gradient(135deg, hsl(210 100% 25%), hsl(210 100% 35%));
+  --gradient-subtle: linear-gradient(180deg, hsl(210 40% 98%), hsl(210 40% 96%));
+  
+  /* Shadows */
+  --shadow-elegant: 0 4px 20px -2px hsl(210 100% 25% / 0.2);
+  --shadow-luxury: 0 8px 30px -6px hsl(210 100% 25% / 0.3);
+}
+
+.theme-design2.dark {
+  /* Primary colors in dark mode */
+  --primary: 210 100% 35%;
+  --primary-foreground: 0 0% 100%;
+  
+  /* Background colors in dark mode */
+  --background: 210 50% 5%;
+  --foreground: 0 0% 100%;
+  
+  /* Card colors in dark mode */
+  --card: 210 50% 8%;
+  --card-foreground: 0 0% 100%;
+  
+  /* Muted colors in dark mode */
+  --muted: 210 40% 15%;
+  --muted-foreground: 210 40% 80%;
+  
+  /* Border and input in dark mode */
+  --border: 210 40% 20%;
+  --input: 210 40% 20%;
+}
+
+/* Theme Design 3 - Reserved for future use */
+.theme-design3 {
+  /* Will be customized later */
+}

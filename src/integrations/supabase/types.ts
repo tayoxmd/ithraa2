@@ -991,6 +991,7 @@ export type Database = {
       }
       site_settings: {
         Row: {
+          admin_theme: string | null
           animation_speed_multiplier: number
           backup_created_at: string | null
           backup_data: Json | null
@@ -1021,9 +1022,11 @@ export type Database = {
           tax_percentage: number
           twitter_url: string | null
           updated_at: string | null
+          user_theme: string | null
           whatsapp_number: string | null
         }
         Insert: {
+          admin_theme?: string | null
           animation_speed_multiplier?: number
           backup_created_at?: string | null
           backup_data?: Json | null
@@ -1054,9 +1057,11 @@ export type Database = {
           tax_percentage?: number
           twitter_url?: string | null
           updated_at?: string | null
+          user_theme?: string | null
           whatsapp_number?: string | null
         }
         Update: {
+          admin_theme?: string | null
           animation_speed_multiplier?: number
           backup_created_at?: string | null
           backup_data?: Json | null
@@ -1087,6 +1092,7 @@ export type Database = {
           tax_percentage?: number
           twitter_url?: string | null
           updated_at?: string | null
+          user_theme?: string | null
           whatsapp_number?: string | null
         }
         Relationships: []
