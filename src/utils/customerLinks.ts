@@ -12,6 +12,7 @@ export function generateCustomerPageUrl(userId: string): string {
 /**
  * Validate if a user can access the customer dashboard
  * Returns true if the current user matches the requested user ID
+ * Logs all staff access to customer dashboards for audit purposes
  */
 export async function validateCustomerAccess(requestedUserId: string): Promise<boolean> {
   const { data: { user } } = await supabase.auth.getUser();
@@ -29,7 +30,26 @@ export async function validateCustomerAccess(requestedUserId: string): Promise<b
   
   if (roles && roles.length > 0) {
     const userRole = roles[0].role;
-    return userRole === 'admin' || userRole === 'employee';
+    const isStaff = userRole === 'admin' || userRole === 'employee';
+    
+    if (isStaff) {
+      // Log staff access to customer dashboard
+      try {
+        await supabase
+          .from('customer_access_logs')
+          .insert({
+            staff_user_id: user.id,
+            customer_user_id: requestedUserId,
+            access_reason: 'Dashboard access',
+            ip_address: null, // Would need backend to capture real IP
+          });
+      } catch (error) {
+        console.error('Failed to log customer access:', error);
+        // Don't block access if logging fails
+      }
+    }
+    
+    return isStaff;
   }
   
   return false;

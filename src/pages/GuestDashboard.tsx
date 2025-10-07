@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +10,7 @@ import { Home, Download } from "lucide-react";
 import { downloadBookingPDF } from "@/utils/pdfGenerator";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { GuestOTPVerification } from "@/components/GuestOTPVerification";
 
 interface Booking {
   id: string;
@@ -43,31 +44,33 @@ interface Booking {
 }
 
 export default function GuestDashboard() {
-  const { phoneAndOrder } = useParams<{ phoneAndOrder: string }>();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (phoneAndOrder) {
-      const parts = phoneAndOrder.split(':');
-      const phone = decodeURIComponent(parts[0]);
-      
-      fetchGuestBookings(phone);
-    }
-  }, [phoneAndOrder]);
+  const [loading, setLoading] = useState(false);
+  const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
 
   const fetchGuestBookings = async (phone: string) => {
     setLoading(true);
-    const { data } = await supabase
-      .from('bookings')
-      .select('*, hotels(name_ar, name_en, location, location_url, price_per_night, max_guests_per_room, tax_percentage, room_type)')
-      .eq('guest_phone', phone)
-      .order('created_at', { ascending: false });
-    
-    if (data) setBookings(data as Booking[]);
-    setLoading(false);
+    try {
+      const { data, error } = await supabase
+        .from('bookings')
+        .select('*, hotels(name_ar, name_en, location, location_url, price_per_night, max_guests_per_room, tax_percentage, room_type)')
+        .eq('guest_phone', phone)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+      setBookings(data as Booking[] || []);
+    } catch (error) {
+      console.error("Error fetching bookings:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerified = (phone: string) => {
+    setVerifiedPhone(phone);
+    fetchGuestBookings(phone);
   };
 
   const getStatusColor = (status: string) => {
@@ -120,157 +123,155 @@ export default function GuestDashboard() {
     return statusMap[status] || { ar: status, en: status };
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-background">
-        <Header />
-        <div className="flex items-center justify-center min-h-[60vh]">
-          {t({ ar: "جاري التحميل...", en: "Loading..." })}
-        </div>
-        <Footer />
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       <div className="container mx-auto px-4 py-8 pt-24">
-        <div className="flex items-center gap-4 mb-8">
-          <Button variant="outline" onClick={() => navigate('/')}>
-            <Home className="w-4 h-4 mr-2" />
-            {t({ ar: "الرئيسية", en: "Home" })}
-          </Button>
-          <h1 className="text-3xl font-bold">
-            {t({ ar: "حجوزاتي", en: "My Bookings" })}
-          </h1>
-        </div>
-
-        {bookings.length === 0 ? (
-          <Card className="card-luxury">
-            <CardContent className="py-8 text-center">
-              <p className="text-muted-foreground">
-                {t({ ar: "لا توجد حجوزات", en: "No bookings found" })}
-              </p>
-            </CardContent>
-          </Card>
+        {!verifiedPhone ? (
+          <GuestOTPVerification onVerified={handleVerified} />
+        ) : loading ? (
+          <div className="flex items-center justify-center min-h-[60vh]">
+            {t({ ar: "جاري التحميل...", en: "Loading..." })}
+          </div>
         ) : (
-          <div className="grid gap-6">
-            {bookings.map((booking) => (
-              <Card key={booking.id} className="card-luxury">
-                <CardHeader>
-                  <div className="flex justify-between items-start flex-wrap gap-3">
-                    <CardTitle className="text-lg sm:text-xl flex-1 min-w-0">
-                      {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
-                    </CardTitle>
-                    <div className="flex gap-2 flex-wrap items-center">
-                      <Badge 
-                        className="text-white px-3 py-1.5 min-w-[100px] justify-center text-xs sm:text-sm rounded-sm" 
-                        style={{ backgroundColor: getStatusColor(booking.status) }}
-                      >
-                        {language === 'ar' ? getStatusText(booking.status).ar : getStatusText(booking.status).en}
-                      </Badge>
-                      <Badge 
-                        className="text-white px-3 py-1.5 min-w-[100px] justify-center text-xs sm:text-sm rounded-sm" 
-                        style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}
-                      >
-                        {language === 'ar' ? getPaymentStatusText(booking.payment_status).ar : getPaymentStatusText(booking.payment_status).en}
-                      </Badge>
-                    </div>
-                  </div>
-                  {booking.booking_number && (
-                    <div className="mt-2">
-                      <span className="text-sm text-muted-foreground">
-                        {t({ ar: "رقم الحجز:", en: "Booking #:" })} {booking.booking_number}
-                      </span>
-                    </div>
-                  )}
-                  {booking.hotel_confirmation_number && (
-                    <div className="mt-2">
-                      <div className="inline-block px-3 py-1.5 bg-white border-2 border-purple-600 rounded-md">
-                        <span className="text-xs font-semibold text-black">
-                          {t({ ar: "رقم حجز الفندق:", en: "Hotel Booking#:" })} {booking.hotel_confirmation_number}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">{t({ ar: "تاريخ الوصول:", en: "Check-in:" })}</span>
-                      <span className="font-medium">{format(new Date(booking.check_in), 'yyyy-MM-dd')}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">{t({ ar: "تاريخ المغادرة:", en: "Check-out:" })}</span>
-                      <span className="font-medium">{format(new Date(booking.check_out), 'yyyy-MM-dd')}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">{t({ ar: "عدد النزلاء:", en: "Guests:" })}</span>
-                      <span className="font-medium">{booking.guests}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">{t({ ar: "عدد الغرف:", en: "Rooms:" })}</span>
-                      <span className="font-medium">{booking.rooms}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })}</span>
-                      <span className="font-medium">{booking.total_amount} {t({ ar: "ر.س", en: "SAR" })}</span>
-                    </div>
-                  </div>
-                  <div className="mt-4">
-                    <Button
-                      size="sm"
-                      className="w-full"
-                      onClick={() => {
-                        const nights = Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24));
-                        const taxRate = booking.hotels?.tax_percentage || 0;
-                        
-                        const totalAfterDiscount = (booking.manual_total || booking.total_amount) - (booking.discount_amount || 0);
-                        const subtotalBeforeTax = taxRate > 0 ? totalAfterDiscount / (1 + taxRate / 100) : totalAfterDiscount;
-                        const vatAmount = totalAfterDiscount - subtotalBeforeTax;
-                        
-                        downloadBookingPDF({
-                          bookingNumber: booking.booking_number || 0,
-                          hotelConfirmationNumber: booking.hotel_confirmation_number,
-                          guestName: booking.guest_name || '',
-                          clientName: booking.guest_name || '',
-                          clientEmail: '',
-                          clientPhone: booking.guest_phone || '',
-                          hotelNameEn: booking.hotels?.name_en || '',
-                          hotelNameAr: booking.hotels?.name_ar || '',
-                          hotelLocation: booking.hotels?.location || '',
-                          hotelLocationUrl: booking.hotels?.location_url,
-                          checkIn: new Date(booking.check_in),
-                          checkOut: new Date(booking.check_out),
-                          nights,
-                          rooms: booking.rooms,
-                          guests: booking.guests,
-                          baseGuests: (booking.hotels?.max_guests_per_room || 2) * booking.rooms,
-                          extraGuests: Math.max(0, booking.guests - ((booking.hotels?.max_guests_per_room || 2) * booking.rooms)),
-                          roomType: booking.hotels?.room_type === 'owner_rooms' ? 'Owner Room' : 'Hotel Room',
-                          pricePerNight: booking.hotels?.price_per_night || 0,
-                          subtotal: subtotalBeforeTax,
-                          extraGuestCharge: 0,
-                          discountAmount: booking.discount_amount,
-                          netAmount: subtotalBeforeTax - (booking.discount_amount || 0),
-                          vatAmount,
-                          totalAmount: booking.total_amount,
-                          paymentMethod: booking.payment_method || '',
-                          notes: booking.notes,
-                          customerPageUrl: `${window.location.origin}/dashboard/${encodeURIComponent(booking.guest_phone || '')}`,
-                        });
-                      }}
-                    >
-                      <Download className="w-4 h-4 mr-2" />
-                      {t({ ar: "تحميل PDF", en: "Download PDF" })}
-                    </Button>
-                  </div>
+          <>
+            <div className="flex items-center gap-4 mb-8">
+              <Button variant="outline" onClick={() => navigate('/')}>
+                <Home className="w-4 h-4 mr-2" />
+                {t({ ar: "الرئيسية", en: "Home" })}
+              </Button>
+              <h1 className="text-3xl font-bold">
+                {t({ ar: "حجوزاتي", en: "My Bookings" })}
+              </h1>
+            </div>
+
+            {bookings.length === 0 ? (
+              <Card className="card-luxury">
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground">
+                    {t({ ar: "لا توجد حجوزات", en: "No bookings found" })}
+                  </p>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+            ) : (
+              <div className="grid gap-6">
+                {bookings.map((booking) => (
+                  <Card key={booking.id} className="card-luxury">
+                    <CardHeader>
+                      <div className="flex justify-between items-start flex-wrap gap-3">
+                        <CardTitle className="text-lg sm:text-xl flex-1 min-w-0">
+                          {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
+                        </CardTitle>
+                        <div className="flex gap-2 flex-wrap items-center">
+                          <Badge 
+                            className="text-white px-3 py-1.5 min-w-[100px] justify-center text-xs sm:text-sm rounded-sm" 
+                            style={{ backgroundColor: getStatusColor(booking.status) }}
+                          >
+                            {language === 'ar' ? getStatusText(booking.status).ar : getStatusText(booking.status).en}
+                          </Badge>
+                          <Badge 
+                            className="text-white px-3 py-1.5 min-w-[100px] justify-center text-xs sm:text-sm rounded-sm" 
+                            style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}
+                          >
+                            {language === 'ar' ? getPaymentStatusText(booking.payment_status).ar : getPaymentStatusText(booking.payment_status).en}
+                          </Badge>
+                        </div>
+                      </div>
+                      {booking.booking_number && (
+                        <div className="mt-2">
+                          <span className="text-sm text-muted-foreground">
+                            {t({ ar: "رقم الحجز:", en: "Booking #:" })} {booking.booking_number}
+                          </span>
+                        </div>
+                      )}
+                      {booking.hotel_confirmation_number && (
+                        <div className="mt-2">
+                          <div className="inline-block px-3 py-1.5 bg-white border-2 border-purple-600 rounded-md">
+                            <span className="text-xs font-semibold text-black">
+                              {t({ ar: "رقم حجز الفندق:", en: "Hotel Booking#:" })} {booking.hotel_confirmation_number}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{t({ ar: "تاريخ الوصول:", en: "Check-in:" })}</span>
+                          <span className="font-medium">{format(new Date(booking.check_in), 'yyyy-MM-dd')}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{t({ ar: "تاريخ المغادرة:", en: "Check-out:" })}</span>
+                          <span className="font-medium">{format(new Date(booking.check_out), 'yyyy-MM-dd')}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{t({ ar: "عدد النزلاء:", en: "Guests:" })}</span>
+                          <span className="font-medium">{booking.guests}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{t({ ar: "عدد الغرف:", en: "Rooms:" })}</span>
+                          <span className="font-medium">{booking.rooms}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })}</span>
+                          <span className="font-medium">{booking.total_amount} {t({ ar: "ر.س", en: "SAR" })}</span>
+                        </div>
+                      </div>
+                      <div className="mt-4">
+                        <Button
+                          size="sm"
+                          className="w-full"
+                          onClick={() => {
+                            const nights = Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24));
+                            const taxRate = booking.hotels?.tax_percentage || 0;
+                            
+                            const totalAfterDiscount = (booking.manual_total || booking.total_amount) - (booking.discount_amount || 0);
+                            const subtotalBeforeTax = taxRate > 0 ? totalAfterDiscount / (1 + taxRate / 100) : totalAfterDiscount;
+                            const vatAmount = totalAfterDiscount - subtotalBeforeTax;
+                            
+                            downloadBookingPDF({
+                              bookingNumber: booking.booking_number || 0,
+                              hotelConfirmationNumber: booking.hotel_confirmation_number,
+                              guestName: booking.guest_name || '',
+                              clientName: booking.guest_name || '',
+                              clientEmail: '',
+                              clientPhone: booking.guest_phone || '',
+                              hotelNameEn: booking.hotels?.name_en || '',
+                              hotelNameAr: booking.hotels?.name_ar || '',
+                              hotelLocation: booking.hotels?.location || '',
+                              hotelLocationUrl: booking.hotels?.location_url,
+                              checkIn: new Date(booking.check_in),
+                              checkOut: new Date(booking.check_out),
+                              nights,
+                              rooms: booking.rooms,
+                              guests: booking.guests,
+                              baseGuests: (booking.hotels?.max_guests_per_room || 2) * booking.rooms,
+                              extraGuests: Math.max(0, booking.guests - ((booking.hotels?.max_guests_per_room || 2) * booking.rooms)),
+                              roomType: booking.hotels?.room_type === 'owner_rooms' ? 'Owner Room' : 'Hotel Room',
+                              pricePerNight: booking.hotels?.price_per_night || 0,
+                              subtotal: subtotalBeforeTax,
+                              extraGuestCharge: 0,
+                              discountAmount: booking.discount_amount,
+                              netAmount: subtotalBeforeTax - (booking.discount_amount || 0),
+                              vatAmount,
+                              totalAmount: booking.total_amount,
+                              paymentMethod: booking.payment_method || '',
+                              notes: booking.notes,
+                              customerPageUrl: `${window.location.origin}/guest-dashboard`,
+                            });
+                          }}
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          {t({ ar: "تحميل PDF", en: "Download PDF" })}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 

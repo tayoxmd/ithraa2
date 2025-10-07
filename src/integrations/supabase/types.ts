@@ -144,6 +144,7 @@ export type Database = {
           guest_country_code: string | null
           guest_name: string | null
           guest_phone: string | null
+          guest_phone_hash: string | null
           guests: number
           hotel_confirmation_number: string | null
           hotel_id: string
@@ -168,6 +169,7 @@ export type Database = {
           guest_country_code?: string | null
           guest_name?: string | null
           guest_phone?: string | null
+          guest_phone_hash?: string | null
           guests?: number
           hotel_confirmation_number?: string | null
           hotel_id: string
@@ -192,6 +194,7 @@ export type Database = {
           guest_country_code?: string | null
           guest_name?: string | null
           guest_phone?: string | null
+          guest_phone_hash?: string | null
           guests?: number
           hotel_confirmation_number?: string | null
           hotel_id?: string
@@ -298,6 +301,33 @@ export type Database = {
           },
         ]
       }
+      customer_access_logs: {
+        Row: {
+          access_reason: string | null
+          created_at: string | null
+          customer_user_id: string | null
+          id: string
+          ip_address: string | null
+          staff_user_id: string | null
+        }
+        Insert: {
+          access_reason?: string | null
+          created_at?: string | null
+          customer_user_id?: string | null
+          id?: string
+          ip_address?: string | null
+          staff_user_id?: string | null
+        }
+        Update: {
+          access_reason?: string | null
+          created_at?: string | null
+          customer_user_id?: string | null
+          id?: string
+          ip_address?: string | null
+          staff_user_id?: string | null
+        }
+        Relationships: []
+      }
       employee_attendance: {
         Row: {
           attendance_date: string
@@ -377,6 +407,7 @@ export type Database = {
           created_by: string | null
           description: string | null
           id: string
+          soft_deleted: boolean | null
           type: string
         }
         Insert: {
@@ -385,6 +416,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           id?: string
+          soft_deleted?: boolean | null
           type: string
         }
         Update: {
@@ -393,6 +425,7 @@ export type Database = {
           created_by?: string | null
           description?: string | null
           id?: string
+          soft_deleted?: boolean | null
           type?: string
         }
         Relationships: [
@@ -404,6 +437,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      guest_verifications: {
+        Row: {
+          created_at: string | null
+          expires_at: string
+          id: string
+          otp_code: string
+          phone_hash: string
+          verified: boolean | null
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          expires_at: string
+          id?: string
+          otp_code: string
+          phone_hash: string
+          verified?: boolean | null
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          expires_at?: string
+          id?: string
+          otp_code?: string
+          phone_hash?: string
+          verified?: boolean | null
+          verified_at?: string | null
+        }
+        Relationships: []
       }
       hotel_responsible_persons: {
         Row: {
@@ -791,6 +854,10 @@ export type Database = {
           p_hotel_id: string
           p_rooms_needed: number
         }
+        Returns: boolean
+      }
+      employee_has_assigned_customer: {
+        Args: { customer_id: string; employee_id: string }
         Returns: boolean
       }
       get_hotel_contacts: {
