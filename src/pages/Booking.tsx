@@ -215,11 +215,23 @@ export default function Booking() {
       }
     }
     
-    const { data, error } = await supabase
-      .from('bookings')
-      .insert([bookingData])
-      .select()
-      .single();
+    let data: any = null;
+    let error: any = null;
+    if (user) {
+      const res = await supabase
+        .from('bookings')
+        .insert([bookingData])
+        .select()
+        .single();
+      data = res.data;
+      error = res.error;
+    } else {
+      const res = await supabase
+        .from('bookings')
+        .insert([bookingData]);
+      data = null;
+      error = res.error;
+    }
 
     setLoading(false);
 
@@ -239,13 +251,11 @@ export default function Booking() {
       setTimeout(() => {
         if (user) {
           navigate('/customer-dashboard');
-        } else if (guestPhone) {
-          // التوجيه إلى صفحة الضيف مع رقم الهاتف ورقم الحجز
-          navigate(`/dashboard/${encodeURIComponent(guestPhone)}:${data?.booking_number || 1}`);
         } else {
-          navigate('/');
+          // توجيه الضيف إلى لوحة الضيف للتحقق برقم الجوال وعرض حجوزاته
+          navigate('/guest-dashboard');
         }
-      }, 2000);
+      }, 1500);
     }
   };
 
