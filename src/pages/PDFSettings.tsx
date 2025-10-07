@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
 import { FileText, Plus, Trash2 } from "lucide-react";
 import { logAuditEvent } from "@/utils/auditLogger";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface ResponsiblePerson {
   name: string;
@@ -172,7 +173,7 @@ export default function PDFSettings() {
   };
 
   if (loading || loadingSettings) {
-    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
+    return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
   }
 
   return (
@@ -391,7 +392,7 @@ export default function PDFSettings() {
             {/* Save Button */}
             <div className="flex justify-end">
               <Button onClick={handleSave} disabled={saving} className="btn-luxury">
-                {saving ? t({ ar: "جاري الحفظ...", en: "Saving..." }) : t({ ar: "حفظ الإعدادات", en: "Save Settings" })}
+                {saving ? <LoadingSpinner size="sm" /> : t({ ar: "حفظ الإعدادات", en: "Save Settings" })}
               </Button>
             </div>
           </CardContent>

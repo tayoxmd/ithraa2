@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookingManagement } from "@/components/BookingManagement";
 import { playNotificationSound } from "@/utils/notificationSound";
 import { Button } from "@/components/ui/button";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { 
   FileText, 
   Clock, 
@@ -95,7 +96,7 @@ export default function EmployeeDashboard() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
+    return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
   }
 
   const StatCard = ({ title, value, icon: Icon, change, colorClass }: any) => (
@@ -245,7 +246,7 @@ export default function EmployeeDashboard() {
               </CardHeader>
               <CardContent>
                 {loadingBookings ? (
-                  <p className="text-muted-foreground text-center py-8">{t({ ar: "جاري التحميل...", en: "Loading..." })}</p>
+                  <div className="flex justify-center py-8"><LoadingSpinner size="md" /></div>
                 ) : (
                   <BookingManagement bookings={bookings} onUpdate={fetchBookings} />
                 )}

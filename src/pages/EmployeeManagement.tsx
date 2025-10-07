@@ -24,6 +24,8 @@ import {
   CheckCircle,
   XCircle
 } from "lucide-react";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { Switch } from "@/components/ui/switch";
 import { format } from "date-fns";
 
 interface Employee {
@@ -209,7 +211,7 @@ export default function EmployeeManagement() {
   };
 
   if (loading || loadingData) {
-    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
+    return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
   }
 
   const selectedEmployeeData = employees.find(e => e.id === selectedEmployee);

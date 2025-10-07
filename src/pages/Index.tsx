@@ -8,6 +8,7 @@ import heroImage from "@/assets/hero-hotel.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface Hotel {
   id: string;
@@ -99,8 +100,8 @@ const Index = () => {
         </div>
 
         {loading ? (
-          <div className="text-center py-12">
-            <p className="text-muted-foreground">جاري التحميل...</p>
+          <div className="flex justify-center py-12">
+            <LoadingSpinner size="lg" />
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

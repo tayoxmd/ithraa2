@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Star, MapPin, ArrowRight, Navigation } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { ImageGallery } from "@/components/ImageGallery";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface Hotel {
   id: string;
@@ -62,7 +63,7 @@ export default function HotelDetails() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        {t('جاري التحميل...', 'Loading...')}
+        <LoadingSpinner size="lg" />
       </div>
     );
   }

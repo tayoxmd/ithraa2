@@ -10,6 +10,8 @@ import { format } from "date-fns";
 import { Home, FileText, User, Download } from "lucide-react";
 import { downloadBookingPDF } from "@/utils/pdfGenerator";
 import { generateCustomerPageUrl, validateCustomerAccess } from "@/utils/customerLinks";
+import { logAuditEvent } from "@/utils/auditLogger";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface Booking {
   id: string;
@@ -136,7 +138,7 @@ export default function CustomerDashboard() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading...", fr: "Chargement...", es: "Cargando...", ru: "Загрузка...", id: "Memuat...", ms: "Memuatkan..." })}</div>;
+    return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
   }
 
   if (!user) {

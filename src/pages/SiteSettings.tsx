@@ -12,7 +12,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Palette, Type, Languages, Layout, Percent, Key } from "lucide-react";
+import { Palette, Type, Languages, Layout, Percent, Key, Loader2, Code } from "lucide-react";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { Switch } from "@/components/ui/switch";
 
 export default function SiteSettings() {
   const { t } = useLanguage();
@@ -39,6 +41,16 @@ export default function SiteSettings() {
     chat_widget_code: '',
     custom_head_code: '',
     custom_body_code: ''
+  });
+  const [animationSettings, setAnimationSettings] = useState({
+    disable_animations: false,
+    animation_speed_multiplier: '1',
+    loader_enabled: true,
+    loader_speed_ms: '1000',
+    loader_type: 'spinner' as 'spinner' | 'custom',
+    loader_custom_html: '',
+    loader_custom_css: '',
+    loader_custom_js: ''
   });
 
   useEffect(() => {
@@ -76,6 +88,16 @@ export default function SiteSettings() {
           chat_widget_code: data.chat_widget_code || '',
           custom_head_code: data.custom_head_code || '',
           custom_body_code: data.custom_body_code || ''
+        });
+        setAnimationSettings({
+          disable_animations: !!data.disable_animations,
+          animation_speed_multiplier: data.animation_speed_multiplier?.toString() || '1',
+          loader_enabled: data.loader_enabled ?? true,
+          loader_speed_ms: data.loader_speed_ms?.toString() || '1000',
+          loader_type: (data.loader_type as 'spinner' | 'custom') || 'spinner',
+          loader_custom_html: data.loader_custom_html || '',
+          loader_custom_css: data.loader_custom_css || '',
+          loader_custom_js: data.loader_custom_js || ''
         });
       }
     } catch (error: any) {
@@ -251,8 +273,65 @@ export default function SiteSettings() {
     }
   };
 
+  const handleSaveAnimationSettings = async () => {
+    try {
+      const { data: existingSettings } = await supabase
+        .from('site_settings')
+        .select('id')
+        .single();
+
+      if (existingSettings) {
+        const { error } = await supabase
+          .from('site_settings')
+          .update({
+            disable_animations: animationSettings.disable_animations,
+            animation_speed_multiplier: parseFloat(animationSettings.animation_speed_multiplier),
+            loader_enabled: animationSettings.loader_enabled,
+            loader_speed_ms: parseInt(animationSettings.loader_speed_ms),
+            loader_type: animationSettings.loader_type,
+            loader_custom_html: animationSettings.loader_custom_html,
+            loader_custom_css: animationSettings.loader_custom_css,
+            loader_custom_js: animationSettings.loader_custom_js,
+          })
+          .eq('id', existingSettings.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('site_settings')
+          .insert({
+            tax_percentage: parseFloat(taxPercentage),
+            disable_animations: animationSettings.disable_animations,
+            animation_speed_multiplier: parseFloat(animationSettings.animation_speed_multiplier),
+            loader_enabled: animationSettings.loader_enabled,
+            loader_speed_ms: parseInt(animationSettings.loader_speed_ms),
+            loader_type: animationSettings.loader_type,
+            loader_custom_html: animationSettings.loader_custom_html,
+            loader_custom_css: animationSettings.loader_custom_css,
+            loader_custom_js: animationSettings.loader_custom_js,
+          });
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: t({ ar: "تم الحفظ", en: "Saved" }),
+        description: t({ ar: "تم حفظ إعدادات التحريك والتحميل", en: "Animation & loader settings saved" }),
+      });
+
+      // Reload page to apply settings
+      window.location.reload();
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading || loadingSettings) {
-    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
+    return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
   }
 
   return (
@@ -570,6 +649,145 @@ export default function SiteSettings() {
               <Button onClick={handleSaveSocialMedia} className="w-full btn-luxury">
                 {t({ ar: 'حفظ إعدادات وسائل التواصل', en: 'Save Social Media Settings' })}
               </Button>
+            </CardContent>
+          </Card>
+
+          {/* Animation & Loader Settings Section */}
+          <Card className="card-luxury lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Loader2 className="w-5 h-5" />
+                {t({ ar: 'إعدادات التحريك ومؤشر التحميل', en: 'Animation & Loader Settings' })}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>{t({ ar: 'تعطيل جميع المؤثرات', en: 'Disable All Animations' })}</Label>
+                    <p className="text-xs text-muted-foreground">
+                      {t({ ar: 'يجعل التنقل فوريًا بدون مؤثرات', en: 'Makes navigation instant without animations' })}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={animationSettings.disable_animations}
+                    onCheckedChange={(checked) => setAnimationSettings({ ...animationSettings, disable_animations: checked })}
+                  />
+                </div>
+
+                <div>
+                  <Label>{t({ ar: 'سرعة المؤثرات (مضاعف)', en: 'Animation Speed (Multiplier)' })}</Label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    {t({ ar: '1.0 = سرعة عادية، 0.5 = نصف السرعة، 2.0 = ضعف السرعة', en: '1.0 = normal, 0.5 = half speed, 2.0 = double speed' })}
+                  </p>
+                  <Input
+                    type="number"
+                    min="0.1"
+                    max="10"
+                    step="0.1"
+                    value={animationSettings.animation_speed_multiplier}
+                    onChange={(e) => setAnimationSettings({ ...animationSettings, animation_speed_multiplier: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="border-t pt-4 space-y-4">
+                <h3 className="font-semibold">{t({ ar: 'إعدادات مؤشر التحميل', en: 'Loading Spinner Settings' })}</h3>
+                
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>{t({ ar: 'تفعيل مؤشر التحميل', en: 'Enable Loading Spinner' })}</Label>
+                    <p className="text-xs text-muted-foreground">
+                      {t({ ar: 'إظهار المؤشر عند التحميل', en: 'Show spinner during loading' })}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={animationSettings.loader_enabled}
+                    onCheckedChange={(checked) => setAnimationSettings({ ...animationSettings, loader_enabled: checked })}
+                  />
+                </div>
+
+                <div>
+                  <Label>{t({ ar: 'سرعة الدوران (ميلي ثانية)', en: 'Rotation Speed (ms)' })}</Label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    {t({ ar: 'المدة الزمنية لدورة كاملة (1000 = ثانية واحدة)', en: 'Duration for one full rotation (1000 = 1 second)' })}
+                  </p>
+                  <Input
+                    type="number"
+                    min="100"
+                    max="5000"
+                    step="100"
+                    value={animationSettings.loader_speed_ms}
+                    onChange={(e) => setAnimationSettings({ ...animationSettings, loader_speed_ms: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <Label>{t({ ar: 'نوع المؤشر', en: 'Loader Type' })}</Label>
+                  <Select value={animationSettings.loader_type} onValueChange={(value: 'spinner' | 'custom') => setAnimationSettings({ ...animationSettings, loader_type: value })}>
+                    <SelectTrigger className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="spinner">{t({ ar: 'مؤشر افتراضي', en: 'Default Spinner' })}</SelectItem>
+                      <SelectItem value="custom">{t({ ar: 'مؤشر مخصص', en: 'Custom Loader' })}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {animationSettings.loader_type === 'custom' && (
+                  <>
+                    <div>
+                      <Label>{t({ ar: 'كود HTML المخصص', en: 'Custom HTML Code' })}</Label>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {t({ ar: 'كود HTML لمؤشر التحميل المخصص', en: 'HTML code for custom loader' })}
+                      </p>
+                      <Textarea
+                        value={animationSettings.loader_custom_html}
+                        onChange={(e) => setAnimationSettings({ ...animationSettings, loader_custom_html: e.target.value })}
+                        placeholder='<div class="custom-loader">...</div>'
+                        rows={4}
+                        className="font-mono text-sm"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>{t({ ar: 'كود CSS المخصص', en: 'Custom CSS Code' })}</Label>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {t({ ar: 'تنسيقات CSS للمؤشر المخصص', en: 'CSS styling for custom loader' })}
+                      </p>
+                      <Textarea
+                        value={animationSettings.loader_custom_css}
+                        onChange={(e) => setAnimationSettings({ ...animationSettings, loader_custom_css: e.target.value })}
+                        placeholder='.custom-loader { animation: spin 1s linear infinite; }'
+                        rows={6}
+                        className="font-mono text-sm"
+                      />
+                    </div>
+
+                    <div>
+                      <Label>{t({ ar: 'كود JavaScript المخصص', en: 'Custom JavaScript Code' })}</Label>
+                      <p className="text-xs text-muted-foreground mb-2">
+                        {t({ ar: 'كود JavaScript إضافي (اختياري)', en: 'Additional JavaScript code (optional)' })}
+                      </p>
+                      <Textarea
+                        value={animationSettings.loader_custom_js}
+                        onChange={(e) => setAnimationSettings({ ...animationSettings, loader_custom_js: e.target.value })}
+                        placeholder='// Custom JavaScript'
+                        rows={6}
+                        className="font-mono text-sm"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <Button onClick={handleSaveAnimationSettings} className="w-full btn-luxury">
+                {t({ ar: 'حفظ إعدادات التحريك والتحميل', en: 'Save Animation & Loader Settings' })}
+              </Button>
+              <p className="text-xs text-muted-foreground">
+                {t({ ar: 'ملاحظة: سيتم إعادة تحميل الصفحة لتطبيق الإعدادات', en: 'Note: Page will reload to apply settings' })}
+              </p>
             </CardContent>
           </Card>
         </div>

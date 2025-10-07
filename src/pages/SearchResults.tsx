@@ -10,6 +10,7 @@ import { Star, MapPin, ChevronDown, ChevronUp } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { SearchBox } from "@/components/SearchBox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface Hotel {
   id: string;
@@ -66,7 +67,7 @@ export default function SearchResults() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        {t({ ar: 'جاري التحميل...', en: 'Loading...', fr: 'Chargement...', es: 'Cargando...', ru: 'Загрузка...', id: 'Memuat...', ms: 'Memuatkan...' })}
+        <LoadingSpinner size="lg" />
       </div>
     );
   }

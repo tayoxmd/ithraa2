@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { Key, RefreshCw, Copy, Plus, Trash2 } from "lucide-react";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface APIKey {
   id: string;
@@ -215,7 +216,7 @@ export default function APISettings() {
   };
 
   if (loading || loadingKeys) {
-    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
+    return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
   }
 
   return (

@@ -50,9 +50,10 @@ export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           loaderCustomJS: data.loader_custom_js ?? null,
         };
         setSettings(s);
+        applySettingsToDOM(s);
+      } else {
+        applySettingsToDOM(defaultSettings);
       }
-
-      applySettingsToDOM(data || defaultSettings);
     };
 
     fetchSettings();

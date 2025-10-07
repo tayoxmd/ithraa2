@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { SettingsProvider } from "@/contexts/SettingsContext";
 import { ChatWidget } from "@/components/ChatWidget";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -32,13 +33,14 @@ const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <ChatWidget />
-      <BrowserRouter>
-        <LanguageProvider>
-          <AuthProvider>
+    <SettingsProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <ChatWidget />
+        <BrowserRouter>
+          <LanguageProvider>
+            <AuthProvider>
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
@@ -62,10 +64,11 @@ const App = () => (
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-          </AuthProvider>
-        </LanguageProvider>
-      </BrowserRouter>
-    </TooltipProvider>
+            </AuthProvider>
+          </LanguageProvider>
+        </BrowserRouter>
+      </TooltipProvider>
+    </SettingsProvider>
   </QueryClientProvider>
 );
 

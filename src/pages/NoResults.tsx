@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Star, MapPin, Search } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { format, addDays } from "date-fns";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface Hotel {
   id: string;
@@ -86,7 +87,7 @@ export default function NoResults() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        {t({ ar: 'جاري التحميل...', en: 'Loading...' })}
+        <LoadingSpinner size="lg" />
       </div>
     );
   }

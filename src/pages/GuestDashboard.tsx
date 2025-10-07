@@ -11,6 +11,7 @@ import { downloadBookingPDF } from "@/utils/pdfGenerator";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { GuestOTPVerification } from "@/components/GuestOTPVerification";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface Booking {
   id: string;
@@ -132,7 +133,7 @@ export default function GuestDashboard() {
           <GuestOTPVerification onVerified={handleVerified} />
         ) : loading ? (
           <div className="flex items-center justify-center min-h-[60vh]">
-            {t({ ar: "جاري التحميل...", en: "Loading..." })}
+            <LoadingSpinner size="lg" />
           </div>
         ) : (
           <>

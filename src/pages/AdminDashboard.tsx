@@ -23,6 +23,7 @@ import {
   Briefcase
 } from "lucide-react";
 import { playNotificationSound } from "@/utils/notificationSound";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function AdminDashboard() {
   const { userRole, loading, user } = useAuth();
@@ -175,7 +176,7 @@ export default function AdminDashboard() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
+    return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
   }
 
   // BigStatCard Component for main financial stats
@@ -386,7 +387,7 @@ export default function AdminDashboard() {
               </CardHeader>
               <CardContent>
                 {loadingBookings ? (
-                  <p className="text-muted-foreground text-center py-8">{t({ ar: "جاري التحميل...", en: "Loading..." })}</p>
+                  <div className="flex justify-center py-8"><LoadingSpinner size="md" /></div>
                 ) : (
                   <BookingManagement bookings={bookings} onUpdate={fetchBookings} />
                 )}

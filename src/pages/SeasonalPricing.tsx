@@ -14,6 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus, Edit, Trash2, Calendar } from "lucide-react";
 import { format } from "date-fns";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface SeasonalPrice {
   id: string;
@@ -199,7 +200,7 @@ export default function SeasonalPricing() {
   };
 
   if (loading || loadingData) {
-    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
+    return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
   }
 
   return (

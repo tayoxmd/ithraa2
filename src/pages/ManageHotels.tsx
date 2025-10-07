@@ -14,6 +14,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { toast } from "@/hooks/use-toast";
 import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search, Upload, X, Image as ImageIcon, Trash2 } from "lucide-react";
 import { ImageGallery } from "@/components/ImageGallery";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 interface City {
   id: string;
@@ -542,7 +543,7 @@ export default function ManageHotels() {
   };
 
   if (loading || loadingData) {
-    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading...", fr: "Chargement...", es: "Cargando...", ru: "Загрузка...", id: "Memuat...", ms: "Memuatkan..." })}</div>;
+    return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
   }
 
   return (

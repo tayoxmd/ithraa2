@@ -11,6 +11,7 @@ import { toast } from "@/hooks/use-toast";
 import { User, Mail, Phone, Lock, ArrowRight, Save } from "lucide-react";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 export default function Profile() {
   const { user, userRole, loading } = useAuth();
@@ -109,7 +110,7 @@ export default function Profile() {
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        {t({ ar: "جاري التحميل...", en: "Loading..." })}
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
@@ -243,7 +244,7 @@ export default function Profile() {
               >
                 <Save className="ml-2 w-4 h-4" />
                 {saving 
-                  ? t({ ar: "جاري الحفظ...", en: "Saving..." })
+                  ? <LoadingSpinner size="sm" />
                   : t({ ar: "حفظ التغييرات", en: "Save Changes" })
                 }
               </Button>

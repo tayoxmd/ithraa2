@@ -10,6 +10,8 @@ import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { format } from "date-fns";
 import { FileText } from "lucide-react";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { Switch } from "@/components/ui/switch";
 
 interface AuditLog {
   id: string;
@@ -142,7 +144,7 @@ export default function AuditLogs() {
   };
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">{t({ ar: "جاري التحميل...", en: "Loading..." })}</div>;
+    return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
   }
 
   return (
@@ -189,7 +191,7 @@ export default function AuditLogs() {
                   {loadingLogs ? (
                     <TableRow>
                       <TableCell colSpan={6} className="text-center py-8">
-                        {t({ ar: "جاري التحميل...", en: "Loading..." })}
+                        <LoadingSpinner size="md" />
                       </TableCell>
                     </TableRow>
                   ) : logs.length === 0 ? (
