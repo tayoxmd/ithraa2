@@ -142,9 +142,20 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
 
       <CardContent className="p-5">
         {/* Title */}
-        <div className="mb-3">
-          <h3 className="text-xl font-bold text-foreground mb-1">{name}</h3>
-          <p className="text-sm text-muted-foreground">{nameEn}</p>
+        <div className="mb-3 flex items-start gap-2 justify-between">
+          <div className="flex-1">
+            <h3 className="text-xl font-bold text-foreground mb-1">{name}</h3>
+            <p className="text-sm text-muted-foreground">{nameEn}</p>
+          </div>
+          {/* Small Meal Badge - Next to hotel name */}
+          {meal_plans && meal_plans.regular_ar && (
+            <div 
+              className={`px-2 py-1 rounded text-white text-xs font-semibold whitespace-nowrap shrink-0 ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}
+              style={{ backgroundColor: mealBadgeSettings.color }}
+            >
+              {language === 'ar' ? 'يشمل وجبات' : 'Meals Included'}
+            </div>
+          )}
         </div>
 
         {/* Location */}

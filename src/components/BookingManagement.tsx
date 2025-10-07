@@ -78,6 +78,12 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     manual_total: "",
     amount_paid: "",
     room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
+    meal_plan_name_ar: "",
+    meal_plan_name_en: "",
+    meal_plan_price: "",
+    meal_plan_max_persons: "",
+    meal_plan_extra_price: "",
+    extra_meals: "",
   });
 
   const getStatusColor = (status: string) => {
@@ -247,6 +253,12 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
       manual_total: (booking.manual_total || calculatedTotal).toString(),
       amount_paid: (booking.amount_paid || 0).toString(),
       room_type: booking.hotels?.room_type || 'hotel_rooms',
+      meal_plan_name_ar: (booking as any).meal_plan_name_ar || "",
+      meal_plan_name_en: (booking as any).meal_plan_name_en || "",
+      meal_plan_price: ((booking as any).meal_plan_price || 0).toString(),
+      meal_plan_max_persons: ((booking as any).meal_plan_max_persons || 0).toString(),
+      meal_plan_extra_price: ((booking as any).meal_plan_extra_price || 0).toString(),
+      extra_meals: ((booking as any).extra_meals || 0).toString(),
     });
     setIsEditDialogOpen(true);
   };
@@ -293,6 +305,12 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
           manual_total: manualTotal,
           amount_paid: amountPaid,
           payment_status: paymentStatus,
+          meal_plan_name_ar: editFormData.meal_plan_name_ar || null,
+          meal_plan_name_en: editFormData.meal_plan_name_en || null,
+          meal_plan_price: parseFloat(editFormData.meal_plan_price) || 0,
+          meal_plan_max_persons: parseInt(editFormData.meal_plan_max_persons) || 0,
+          meal_plan_extra_price: parseFloat(editFormData.meal_plan_extra_price) || 0,
+          extra_meals: parseInt(editFormData.extra_meals) || 0,
         })
         .eq('id', selectedBooking.id);
 
@@ -920,6 +938,76 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                 {(parseFloat(editFormData.manual_total || "0") - parseFloat(editFormData.discount_amount || "0")).toFixed(2)} {t({ ar: "ر.س", en: "SAR" })}
               </div>
             </div>
+            
+            {/* Meal Plans Section */}
+            <div className="space-y-4 pt-4 border-t">
+              <h4 className="font-semibold">{t({ ar: "معلومات الوجبات", en: "Meal Information" })}</h4>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "اسم الوجبة (عربي)", en: "Meal Name (Arabic)" })}</Label>
+                  <Input
+                    value={editFormData.meal_plan_name_ar}
+                    onChange={(e) => setEditFormData({ ...editFormData, meal_plan_name_ar: e.target.value })}
+                    placeholder={t({ ar: "مثال: إفطار", en: "Example: Breakfast" })}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>{t({ ar: "اسم الوجبة (إنجليزي)", en: "Meal Name (English)" })}</Label>
+                  <Input
+                    value={editFormData.meal_plan_name_en}
+                    onChange={(e) => setEditFormData({ ...editFormData, meal_plan_name_en: e.target.value })}
+                    placeholder="Example: Breakfast"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "سعر الوجبة", en: "Meal Price" })}</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={editFormData.meal_plan_price}
+                    onChange={(e) => setEditFormData({ ...editFormData, meal_plan_price: e.target.value })}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>{t({ ar: "مشمولة لـ (أشخاص)", en: "Included for (persons)" })}</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={editFormData.meal_plan_max_persons}
+                    onChange={(e) => setEditFormData({ ...editFormData, meal_plan_max_persons: e.target.value })}
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-2">
+                  <Label>{t({ ar: "سعر الوجبة الإضافية", en: "Extra Meal Price" })}</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={editFormData.meal_plan_extra_price}
+                    onChange={(e) => setEditFormData({ ...editFormData, meal_plan_extra_price: e.target.value })}
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label>{t({ ar: "عدد الوجبات الإضافية", en: "Number of Extra Meals" })}</Label>
+                  <Input
+                    type="number"
+                    min="0"
+                    value={editFormData.extra_meals}
+                    onChange={(e) => setEditFormData({ ...editFormData, extra_meals: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+            
             <div className="space-y-2">
               <Label>{t({ ar: "ملاحظات", en: "Notes" })}</Label>
               <Textarea

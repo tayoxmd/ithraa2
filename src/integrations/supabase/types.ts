@@ -141,6 +141,7 @@ export type Database = {
           check_out: string
           created_at: string | null
           discount_amount: number | null
+          extra_meals: number | null
           guest_country_code: string | null
           guest_name: string | null
           guest_phone: string | null
@@ -150,6 +151,11 @@ export type Database = {
           hotel_id: string
           id: string
           manual_total: number | null
+          meal_plan_extra_price: number | null
+          meal_plan_max_persons: number | null
+          meal_plan_name_ar: string | null
+          meal_plan_name_en: string | null
+          meal_plan_price: number | null
           notes: string | null
           payment_method: string | null
           payment_status: Database["public"]["Enums"]["payment_status"] | null
@@ -166,6 +172,7 @@ export type Database = {
           check_out: string
           created_at?: string | null
           discount_amount?: number | null
+          extra_meals?: number | null
           guest_country_code?: string | null
           guest_name?: string | null
           guest_phone?: string | null
@@ -175,6 +182,11 @@ export type Database = {
           hotel_id: string
           id?: string
           manual_total?: number | null
+          meal_plan_extra_price?: number | null
+          meal_plan_max_persons?: number | null
+          meal_plan_name_ar?: string | null
+          meal_plan_name_en?: string | null
+          meal_plan_price?: number | null
           notes?: string | null
           payment_method?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
@@ -191,6 +203,7 @@ export type Database = {
           check_out?: string
           created_at?: string | null
           discount_amount?: number | null
+          extra_meals?: number | null
           guest_country_code?: string | null
           guest_name?: string | null
           guest_phone?: string | null
@@ -200,6 +213,11 @@ export type Database = {
           hotel_id?: string
           id?: string
           manual_total?: number | null
+          meal_plan_extra_price?: number | null
+          meal_plan_max_persons?: number | null
+          meal_plan_name_ar?: string | null
+          meal_plan_name_en?: string | null
+          meal_plan_price?: number | null
           notes?: string | null
           payment_method?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"] | null

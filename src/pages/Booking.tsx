@@ -251,6 +251,12 @@ export default function Booking() {
       status: 'new' as const,
       payment_status: 'unpaid',
       amount_paid: 0,
+      extra_meals: extraMeals,
+      meal_plan_name_ar: hotel?.meal_plans?.regular_ar || null,
+      meal_plan_name_en: hotel?.meal_plans?.regular_en || null,
+      meal_plan_price: hotel?.meal_plans?.price || 0,
+      meal_plan_max_persons: hotel?.meal_plans?.max_persons || 0,
+      meal_plan_extra_price: hotel?.meal_plans?.extra_meal_price || 0,
     };
 
     // إضافة معلومات المستخدم أو الضيف
@@ -298,6 +304,17 @@ export default function Booking() {
         title: t({ ar: "تم بنجاح", en: "Success" }),
         description: t({ ar: "تم إرسال حجزك بنجاح وفي انتظار التأكيد", en: "Your booking has been sent successfully and is awaiting confirmation" }),
       });
+      
+      // Send WhatsApp notification if user booking
+      if (user && data) {
+        try {
+          await supabase.functions.invoke('notify-whatsapp-group', {
+            body: { bookingId: data.id }
+          });
+        } catch (whatsappError) {
+          console.error('WhatsApp notification error:', whatsappError);
+        }
+      }
       
       // التوجيه بناءً على نوع المستخدم
       setTimeout(() => {

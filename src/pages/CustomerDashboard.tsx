@@ -31,6 +31,12 @@ interface Booking {
   manual_total?: number;
   notes?: string;
   user_id: string;
+  meal_plan_name_ar?: string;
+  meal_plan_name_en?: string;
+  meal_plan_price?: number;
+  meal_plan_max_persons?: number;
+  meal_plan_extra_price?: number;
+  extra_meals?: number;
   hotels: {
     name_ar: string;
     name_en: string;
@@ -229,6 +235,24 @@ export default function CustomerDashboard() {
                         <span className="text-muted-foreground">{t({ ar: "عدد الغرف:", en: "Rooms:", fr: "Chambres:", es: "Habitaciones:", ru: "Номера:", id: "Kamar:", ms: "Bilik:" })}</span>
                         <span className="font-medium">{booking.rooms}</span>
                       </div>
+                      {booking.meal_plan_name_ar && (
+                        <>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">{t({ ar: "الوجبات:", en: "Meals:" })}</span>
+                            <span className="font-medium">{language === 'ar' ? booking.meal_plan_name_ar : booking.meal_plan_name_en}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">{t({ ar: "مشمولة لـ:", en: "Included for:" })}</span>
+                            <span className="font-medium">{booking.meal_plan_max_persons} {t({ ar: "أشخاص", en: "persons" })}</span>
+                          </div>
+                          {booking.extra_meals > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">{t({ ar: "وجبات إضافية:", en: "Extra Meals:" })}</span>
+                              <span className="font-medium">{booking.extra_meals} {t({ ar: "شخص", en: "person(s)" })}</span>
+                            </div>
+                          )}
+                        </>
+                      )}
                       <div className="flex justify-between">
                         <span className="text-muted-foreground">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:", fr: "Montant total:", es: "Monto total:", ru: "Общая сумма:", id: "Jumlah Total:", ms: "Jumlah Keseluruhan:" })}</span>
                         <span className="font-medium">{booking.total_amount} {t({ ar: "ر.س", en: "SAR", fr: "SAR", es: "SAR", ru: "SAR", id: "SAR", ms: "SAR" })}</span>
