@@ -5,6 +5,7 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LanguageSelector } from "@/components/LanguageSelector";
+import { ThemeSelector } from "@/components/ThemeSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
 import logo from "@/assets/logo.svg";
 
@@ -71,6 +72,11 @@ export function Header() {
 
             {/* Actions */}
             <div className="flex items-center gap-2">
+              {/* Theme Selector - Always visible on all devices */}
+              <div className="scale-75 sm:scale-90 md:scale-100">
+                <ThemeSelector isAdmin={false} />
+              </div>
+              
               {/* Language Selector - Always visible, scaled down on mobile */}
               <div className="scale-75 sm:scale-90 md:scale-100">
                 <LanguageSelector />

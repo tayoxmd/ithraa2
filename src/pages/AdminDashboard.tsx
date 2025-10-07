@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { playNotificationSound } from "@/utils/notificationSound";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { ThemeSelector } from "@/components/ThemeSelector";
 
 export default function AdminDashboard() {
   const { userRole, loading, user } = useAuth();
@@ -289,13 +290,16 @@ export default function AdminDashboard() {
         <main className="flex-1 overflow-y-auto">
           <div className="p-4 lg:p-8 pt-24 lg:pt-8">
             {/* Header */}
-            <div className="mb-8">
-              <h1 className="text-3xl font-bold mb-2 text-gradient-luxury">
-                {t({ ar: "مرحباً بك في لوحة التحكم", en: "Welcome to Dashboard" })}
-              </h1>
-              <p className="text-muted-foreground">
-                {t({ ar: "نظرة عامة على أداء نظامك", en: "Overview of your system performance" })}
-              </p>
+            <div className="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+              <div>
+                <h1 className="text-3xl font-bold mb-2 text-gradient-luxury">
+                  {t({ ar: "مرحباً بك في لوحة التحكم", en: "Welcome to Dashboard" })}
+                </h1>
+                <p className="text-muted-foreground">
+                  {t({ ar: "نظرة عامة على أداء نظامك", en: "Overview of your system performance" })}
+                </p>
+              </div>
+              <ThemeSelector isAdmin={true} />
             </div>
 
             {/* Quick Actions - Mobile Only */}
