@@ -10,6 +10,8 @@ export const ChatWidget = () => {
         const { data, error } = await supabase
           .from('site_settings')
           .select('chat_widget_code')
+          .order('updated_at', { ascending: false })
+          .limit(1)
           .maybeSingle();
 
         if (error) {

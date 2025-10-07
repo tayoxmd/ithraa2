@@ -475,14 +475,15 @@ export default function SiteSettings() {
         if (error) throw error;
       }
 
-      // Apply immediately without reload
-      applyUserTheme(userTheme as any);
-      applyAdminTheme(adminTheme as any);
-
       toast({
         title: t({ ar: "تم الحفظ", en: "Saved" }),
-        description: t({ ar: "تم حفظ وتطبيق إعدادات التصاميم فوراً", en: "Theme settings saved and applied immediately" }),
+        description: t({ ar: "سيتم تطبيق التصميم بعد إعادة تحميل الصفحة...", en: "Theme will be applied after page reload..." }),
       });
+
+      // Reload page to apply theme changes
+      setTimeout(() => {
+        window.location.reload();
+      }, 1500);
     } catch (error: any) {
       toast({
         title: t({ ar: "خطأ", en: "Error" }),
