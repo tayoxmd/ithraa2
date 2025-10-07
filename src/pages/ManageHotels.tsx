@@ -50,6 +50,7 @@ interface Hotel {
   max_guests_per_room: number;
   extra_guest_price: number;
   room_type: 'hotel_rooms' | 'owner_rooms';
+  pinned_to_homepage?: boolean;
 }
 
 export default function ManageHotels() {
@@ -307,6 +308,42 @@ export default function ManageHotels() {
     } catch (error: any) {
       toast({
         title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const togglePinToHomepage = async (hotelId: string, currentPinned: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('hotels')
+        .update({ pinned_to_homepage: !currentPinned })
+        .eq('id', hotelId);
+
+      if (error) throw error;
+
+      const updatedHotels = hotels.map(h => 
+        h.id === hotelId ? { ...h, pinned_to_homepage: !currentPinned } : h
+      );
+      setHotels(updatedHotels);
+      setFilteredHotels(updatedHotels.filter(h => 
+        searchQuery === "" || 
+        h.name_ar.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        h.name_en.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        h.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        h.contact_person?.toLowerCase().includes(searchQuery.toLowerCase())
+      ));
+
+      toast({
+        title: t({ ar: "تم التحديث", en: "Updated" }),
+        description: !currentPinned 
+          ? t({ ar: "تم تثبيت الفندق في الصفحة الرئيسية", en: "Hotel pinned to homepage" })
+          : t({ ar: "تم إلغاء التثبيت", en: "Hotel unpinned from homepage" }),
+      });
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
         description: error.message,
         variant: "destructive",
       });
@@ -660,7 +697,7 @@ export default function ManageHotels() {
                       </Button>
                     </div>
                     
-                    {/* Row 2: Pricing and Edit Buttons */}
+                    {/* Row 2: Pricing, Edit and Pin Buttons */}
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
@@ -680,6 +717,14 @@ export default function ManageHotels() {
                       >
                         <Edit className="w-4 h-4 ml-1" />
                         {t({ ar: "تعديل", en: "Edit" })}
+                      </Button>
+                      <Button
+                        variant={hotel.pinned_to_homepage ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => togglePinToHomepage(hotel.id, hotel.pinned_to_homepage || false)}
+                        className="flex-1"
+                      >
+                        {hotel.pinned_to_homepage ? "📌" : "📍"}
                       </Button>
                     </div>
                   </div>
@@ -727,6 +772,16 @@ export default function ManageHotels() {
                           onClick={() => handleDeleteHotel(hotel.id)}
                         >
                           <Trash2 className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant={hotel.pinned_to_homepage ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => togglePinToHomepage(hotel.id, hotel.pinned_to_homepage || false)}
+                        >
+                          {hotel.pinned_to_homepage ? "📌" : "📍"}
+                          {hotel.pinned_to_homepage 
+                            ? t({ ar: "مثبت", en: "Pinned" }) 
+                            : t({ ar: "تثبيت", en: "Pin" })}
                         </Button>
                       </div>
                     </div>

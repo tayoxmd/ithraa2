@@ -61,8 +61,14 @@ const Index = () => {
 
       if (error) throw error;
       if (data) {
-        // Sort by rating and limit to 6
-        const sortedData = data.sort((a: any, b: any) => b.rating - a.rating).slice(0, 6);
+        // Sort by pinned first, then by rating, limit to 10
+        const sortedData = data
+          .sort((a: any, b: any) => {
+            if (a.pinned_to_homepage && !b.pinned_to_homepage) return -1;
+            if (!a.pinned_to_homepage && b.pinned_to_homepage) return 1;
+            return b.rating - a.rating;
+          })
+          .slice(0, 10);
         setHotels(sortedData);
       }
     } catch (error) {
