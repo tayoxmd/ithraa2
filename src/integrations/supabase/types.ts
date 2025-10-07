@@ -700,7 +700,6 @@ export type Database = {
           meal_plans: Json | null
           name_ar: string
           name_en: string
-          pinned_to_homepage: boolean | null
           price_per_night: number
           rating: number | null
           responsible_person_id: string | null
@@ -727,7 +726,6 @@ export type Database = {
           meal_plans?: Json | null
           name_ar: string
           name_en: string
-          pinned_to_homepage?: boolean | null
           price_per_night: number
           rating?: number | null
           responsible_person_id?: string | null
@@ -754,7 +752,6 @@ export type Database = {
           meal_plans?: Json | null
           name_ar?: string
           name_en?: string
-          pinned_to_homepage?: boolean | null
           price_per_night?: number
           rating?: number | null
           responsible_person_id?: string | null

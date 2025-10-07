@@ -82,9 +82,9 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
   };
   
   return (
-    <Card className="overflow-hidden hover-lift cursor-pointer group animate-fade-in w-full h-full bg-card shadow-card border border-border/50 rounded-2xl">
+    <Card className="overflow-hidden hover-lift cursor-pointer group animate-fade-in max-w-sm bg-card shadow-card border border-border/50 rounded-2xl">
       {/* Image */}
-      <div className="relative h-52 overflow-hidden" onClick={() => navigate(`/hotel/${id}`)}>
+      <div className="relative h-48 overflow-hidden" onClick={() => navigate(`/hotel/${id}`)}>
         <img
           src={hotelImages[currentImageIndex]}
           alt={name}

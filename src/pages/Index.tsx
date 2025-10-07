@@ -62,12 +62,9 @@ const Index = () => {
 
       if (error) throw error;
       if (data) {
-        // First get pinned hotels, then sort remaining by rating and limit to 7 total
-        const pinnedHotels = data.filter((h: any) => h.pinned_to_homepage);
-        const unpinnedHotels = data.filter((h: any) => !h.pinned_to_homepage);
-        const sortedUnpinned = unpinnedHotels.sort((a: any, b: any) => b.rating - a.rating);
-        const finalHotels = [...pinnedHotels, ...sortedUnpinned].slice(0, 7);
-        setHotels(finalHotels);
+        // Sort by rating and limit to 6
+        const sortedData = data.sort((a: any, b: any) => b.rating - a.rating).slice(0, 6);
+        setHotels(sortedData);
       }
     } catch (error) {
       console.error('Error fetching hotels:', error);
@@ -81,7 +78,7 @@ const Index = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative min-h-[600px] flex items-center justify-center pt-20 md:pt-32">
+      <section className="relative min-h-[500px] md:min-h-[650px] flex items-center justify-center pt-20">
         {/* Background Images with Fade Effect */}
         <div className="absolute inset-0 z-0">
           {heroImages.map((image, index) => (
@@ -97,10 +94,10 @@ const Index = () => {
         </div>
 
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 py-20 md:py-32">
+        <div className="relative z-10 container mx-auto px-4 py-20">
           <div className="text-center mb-12 animate-fade-in">
-<h1 className="text-4xl md:text-6xl font-bold text-primary mb-6 drop-shadow-lg">
-              جوار الحرم
+            <h1 className="text-4xl md:text-6xl font-bold text-primary mb-6 drop-shadow-lg">
+              اكتشف وجهتك المثالية
             </h1>
             <p className="text-xl text-primary/90 max-w-2xl mx-auto drop-shadow-md">
               احجز أفضل الفنادق والشقق الفندقية بأسعار تنافسية وخدمة استثنائية
@@ -128,7 +125,7 @@ const Index = () => {
             <LoadingSpinner size="lg" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center">
             {hotels.map((hotel, index) => (
               <div
                 key={hotel.id}

@@ -50,7 +50,6 @@ interface Hotel {
   max_guests_per_room: number;
   extra_guest_price: number;
   room_type: 'hotel_rooms' | 'owner_rooms';
-  pinned_to_homepage?: boolean;
 }
 
 export default function ManageHotels() {
@@ -721,34 +720,6 @@ export default function ManageHotels() {
                           onClick={() => toggleHotelStatus(hotel.id, hotel.active)}
                         >
                           {hotel.active ? t({ ar: "إيقاف", en: "Deactivate" }) : t({ ar: "تفعيل", en: "Activate" })}
-                        </Button>
-                        <Button
-                          variant={hotel.pinned_to_homepage ? "default" : "outline"}
-                          size="sm"
-                          onClick={async () => {
-                            try {
-                              const { error } = await supabase
-                                .from('hotels')
-                                .update({ pinned_to_homepage: !hotel.pinned_to_homepage } as any)
-                                .eq('id', hotel.id);
-                              if (error) throw error;
-                              fetchHotels();
-                              toast({
-                                title: t({ ar: "تم التحديث", en: "Updated" }),
-                                description: hotel.pinned_to_homepage 
-                                  ? t({ ar: "تم إلغاء تثبيت الفندق", en: "Hotel unpinned" })
-                                  : t({ ar: "تم تثبيت الفندق على الصفحة الرئيسية", en: "Hotel pinned to homepage" })
-                              });
-                            } catch (error: any) {
-                              toast({
-                                title: t({ ar: "خطأ", en: "Error" }),
-                                description: error.message,
-                                variant: "destructive"
-                              });
-                            }
-                          }}
-                        >
-                          {hotel.pinned_to_homepage ? t({ ar: "مثبت", en: "Pinned" }) : t({ ar: "تثبيت", en: "Pin" })}
                         </Button>
                         <Button
                           variant="destructive"
