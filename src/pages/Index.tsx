@@ -2,7 +2,6 @@ import { Header } from "@/components/Header";
 import { SearchBox } from "@/components/SearchBox";
 import { HotelCard } from "@/components/HotelCard";
 import { Footer } from "@/components/Footer";
-import { FloatingContactButtons } from "@/components/FloatingContactButtons";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
 import heroImage1 from "@/assets/hero-background-1.jpg";
@@ -80,7 +79,6 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       <Header />
-      <FloatingContactButtons />
 
       {/* Hero Section */}
       <section className="relative min-h-[600px] flex items-center justify-center pt-20 md:pt-32">
@@ -102,7 +100,7 @@ const Index = () => {
         <div className="relative z-10 container mx-auto px-4 py-20 md:py-32">
           <div className="text-center mb-12 animate-fade-in">
 <h1 className="text-4xl md:text-6xl font-bold text-primary mb-6 drop-shadow-lg">
-              اكتشف وجهتك المثالية
+              جوار الحرم
             </h1>
             <p className="text-xl text-primary/90 max-w-2xl mx-auto drop-shadow-md">
               احجز أفضل الفنادق والشقق الفندقية بأسعار تنافسية وخدمة استثنائية
