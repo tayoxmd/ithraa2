@@ -105,7 +105,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <div className="card-luxury rounded-lg p-4 md:p-6 animate-scale-in">
+      <div className="bg-popover text-popover-foreground shadow-elegant rounded-lg p-4 md:p-6 animate-scale-in gap-2">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {/* Location */}
           <div className="relative">
@@ -113,7 +113,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
               {t('الوجهة', 'Destination')}
             </label>
             <Select value={selectedCity} onValueChange={setSelectedCity}>
-              <SelectTrigger className="h-12 bg-background/50 rounded-lg">
+              <SelectTrigger className="h-12 bg-primary/80 border-primary text-primary-foreground rounded-lg">
                 <SelectValue placeholder={t('اختر المدينة', 'Select City')} />
               </SelectTrigger>
               <SelectContent className="rounded-lg">
@@ -136,8 +136,8 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full h-12 justify-start text-right font-normal bg-background/50 rounded-lg",
-                    !dateRange && "text-muted-foreground"
+                    "w-full h-12 justify-start text-right font-normal bg-primary/80 border-primary text-primary-foreground rounded-lg hover:bg-primary/90",
+                    !dateRange && "opacity-80"
                   )}
                 >
                   <CalendarIcon className="ml-2 h-4 w-4" />
@@ -182,7 +182,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full h-12 justify-start text-right font-normal bg-background/50 rounded-lg"
+                  className="w-full h-12 justify-start text-right font-normal bg-primary/80 border-primary text-primary-foreground rounded-lg hover:bg-primary/90"
                 >
                   <Users className="ml-2 h-4 w-4" />
                   {guestsDisplay}
@@ -279,7 +279,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
         {/* Search Button */}
         <div className="mt-4">
-          <Button onClick={handleSearch} className="w-full h-14 text-lg btn-luxury rounded-lg">
+          <Button onClick={handleSearch} className="w-full h-14 text-lg bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-lg font-semibold">
             <Search className="ml-2 w-5 h-5" />
             {t('ابحث الآن', 'Search Now')}
           </Button>

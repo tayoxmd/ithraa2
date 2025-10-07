@@ -82,9 +82,9 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
   };
   
   return (
-    <Card className="card-luxury overflow-hidden hover-lift cursor-pointer group animate-fade-in">
+    <Card className="card-luxury overflow-hidden hover-lift cursor-pointer group animate-fade-in max-w-sm">
       {/* Image */}
-      <div className="relative h-56 overflow-hidden" onClick={() => navigate(`/hotel/${id}`)}>
+      <div className="relative h-48 overflow-hidden" onClick={() => navigate(`/hotel/${id}`)}>
         <img
           src={hotelImages[currentImageIndex]}
           alt={name}
@@ -143,12 +143,12 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
         )}
       </div>
 
-      <CardContent className="p-5">
+      <CardContent className="p-4">
         {/* Title */}
-        <div className="mb-3 flex items-start gap-2 justify-between">
+        <div className="mb-2 flex items-start gap-2 justify-between">
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-foreground mb-1">{name}</h3>
-            <p className="text-sm text-muted-foreground">{nameEn}</p>
+            <h3 className="text-lg font-bold text-primary mb-0.5">{name}</h3>
+            <p className="text-xs text-muted-foreground">{nameEn}</p>
           </div>
           {/* Small Meal Badge - Next to hotel name */}
           {meal_plans && meal_plans.regular_ar && meal_plans.regular_en && 
@@ -165,13 +165,13 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
         </div>
 
         {/* Location */}
-        <div className="flex items-center gap-2 text-muted-foreground mb-4">
-          <MapPin className="w-4 h-4" />
-          <span className="text-sm">{location}</span>
+        <div className="flex items-center gap-1.5 text-muted-foreground mb-3">
+          <MapPin className="w-3.5 h-3.5" />
+          <span className="text-xs">{location}</span>
         </div>
 
         {/* Amenities */}
-        <div className="flex items-center gap-3 mb-4 flex-wrap">
+        <div className="flex items-center gap-2.5 mb-3 flex-wrap">
           {amenities?.wifi && <Wifi className="w-4 h-4 text-muted-foreground" />}
           {amenities?.cafe && <Coffee className="w-4 h-4 text-muted-foreground" />}
           {amenities?.restaurant && <Utensils className="w-4 h-4 text-muted-foreground" />}
@@ -207,16 +207,16 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
         )}
 
         {/* Price & CTA */}
-        <div className="flex items-center justify-between pt-4 border-t border-border">
+        <div className="flex items-center justify-between pt-3 border-t border-border">
           <div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-2xl font-bold text-primary">{price}</span>
-              <span className="text-sm text-muted-foreground">ريال / ليلة</span>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-xl font-bold text-primary">{price}</span>
+              <span className="text-xs text-muted-foreground">ريال / ليلة</span>
             </div>
           </div>
           <Button 
             size="sm" 
-            className="btn-luxury"
+            className="bg-secondary hover:bg-secondary/90 text-secondary-foreground h-8 text-sm px-4"
             onClick={() => navigate(`/hotel/${id}`)}
           >
             احجز الآن

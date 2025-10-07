@@ -1,32 +1,32 @@
 /* Theme Design 2 - Modern Mobile Blue */
 .theme-design2 {
   /* Navy Blue Primary - من الصورة */
-  --primary: 223 47% 28%; /* #263B5E - اللون الأزرق من التصميم */
+  --primary: 210 60% 35%; /* #2C5282 - أزرق داكن */
   --primary-foreground: 0 0% 100%;
-  --primary-glow: 223 47% 38%;
+  --primary-glow: 210 60% 45%;
   
   /* Light backgrounds */
-  --background: 240 20% 98%;
-  --foreground: 223 40% 20%;
+  --background: 0 0% 98%;
+  --foreground: 210 50% 25%;
   
-  /* Card colors - white with slight blue tint */
+  /* Card colors - white */
   --card: 0 0% 100%;
-  --card-foreground: 223 40% 20%;
+  --card-foreground: 210 50% 25%;
   
-  /* Popover colors */
-  --popover: 0 0% 100%;
-  --popover-foreground: 223 40% 20%;
+  /* Popover colors - navy blue */
+  --popover: 210 60% 35%;
+  --popover-foreground: 0 0% 100%;
   
-  /* Secondary - lighter blue */
-  --secondary: 223 30% 85%;
-  --secondary-foreground: 223 40% 20%;
+  /* Secondary - light cyan blue */
+  --secondary: 190 70% 55%;
+  --secondary-foreground: 210 60% 15%;
   
   /* Muted colors */
-  --muted: 223 20% 95%;
-  --muted-foreground: 223 20% 45%;
+  --muted: 210 15% 92%;
+  --muted-foreground: 210 15% 50%;
   
-  /* Accent colors - blue accent */
-  --accent: 223 47% 35%;
+  /* Accent colors - cyan */
+  --accent: 190 70% 55%;
   --accent-foreground: 0 0% 100%;
   
   /* Destructive colors */
@@ -34,22 +34,22 @@
   --destructive-foreground: 0 0% 100%;
   
   /* Border and input */
-  --border: 223 20% 88%;
-  --input: 223 20% 88%;
-  --ring: 223 47% 28%;
+  --border: 210 20% 88%;
+  --input: 210 20% 88%;
+  --ring: 210 60% 35%;
   
-  /* Radius - مدور أكثر كما في الصورة */
-  --radius: 1rem;
+  /* Radius */
+  --radius: 0.625rem;
   
-  /* Gradients - navy blue gradient */
-  --gradient-primary: linear-gradient(135deg, hsl(223 47% 28%), hsl(223 47% 38%));
-  --gradient-hero: linear-gradient(180deg, hsl(223 47% 28%), hsl(223 47% 35%));
-  --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(223 10% 98%));
+  /* Gradients - navy to light blue */
+  --gradient-primary: linear-gradient(135deg, hsl(210 60% 35%), hsl(210 60% 45%));
+  --gradient-hero: linear-gradient(180deg, hsl(210 60% 25% / 0.5), hsl(210 60% 35% / 0.7));
+  --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 10% 98%));
   
   /* Shadows */
-  --shadow-elegant: 0 4px 24px -2px hsl(223 47% 28% / 0.12);
-  --shadow-luxury: 0 8px 40px -8px hsl(223 47% 28% / 0.2);
-  --shadow-card: 0 2px 12px -2px hsl(223 20% 40% / 0.08);
+  --shadow-elegant: 0 4px 24px -2px hsl(210 60% 35% / 0.12);
+  --shadow-luxury: 0 8px 40px -8px hsl(210 60% 35% / 0.2);
+  --shadow-card: 0 2px 12px -2px hsl(210 20% 40% / 0.08);
   
   /* Status Colors */
   --status-new: 210 100% 50%;

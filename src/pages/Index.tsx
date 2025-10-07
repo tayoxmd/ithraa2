@@ -73,7 +73,7 @@ const Index = () => {
           <img
             src={heroImage}
             alt="Luxury Hotel"
-            className="w-full h-full object-cover"
+            className="w-full h-full object-cover opacity-70"
           />
           <div className="absolute inset-0 bg-gradient-hero" />
         </div>
@@ -114,7 +114,7 @@ const Index = () => {
             <LoadingSpinner size="lg" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center">
             {hotels.map((hotel, index) => (
               <div
                 key={hotel.id}
