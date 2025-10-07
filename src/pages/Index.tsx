@@ -4,7 +4,7 @@ import { HotelCard } from "@/components/HotelCard";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
-import heroImage from "@/assets/hero-hotel.jpg";
+import heroImage from "@/assets/hero-background.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -68,14 +68,13 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="relative min-h-[600px] flex items-center justify-center pt-20">
-        {/* Background Image with Overlay */}
+        {/* Background Image */}
         <div className="absolute inset-0 z-0">
           <img
             src={heroImage}
             alt="Luxury Hotel"
-            className="w-full h-full object-cover opacity-70"
+            className="w-full h-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-hero" />
         </div>
 
         {/* Content */}
