@@ -78,7 +78,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       <Header />
-
+      جوار الحرم
       {/* Hero Section */}
       <section className="relative min-h-[600px] flex items-center justify-center pt-20 md:pt-32">
         {/* Background Images with Fade Effect */}
@@ -108,7 +108,6 @@ const Index = () => {
           <SearchBox />
         </div>
       </section>
-
       {/* Featured Hotels Section */}
       <section className="container mx-auto px-4 py-16" id="hotels">
         <div className="text-center mb-12 animate-fade-in-up">
@@ -148,7 +147,6 @@ const Index = () => {
           </div>
         )}
       </section>
-
       {/* About Section */}
       <section className="container mx-auto px-4 py-16" id="about">
         <div className="max-w-3xl mx-auto text-center animate-fade-in-up">
@@ -171,7 +169,6 @@ const Index = () => {
           </div>
         </div>
       </section>
-
       <Footer />
     </div>
   );
