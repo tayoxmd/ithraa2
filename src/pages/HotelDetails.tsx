@@ -12,6 +12,9 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { ImageGallery } from "@/components/ImageGallery";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { calculateSeasonalPrice } from "@/utils/seasonalPricing";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileHotelDetails } from "@/components/MobileHotelDetails";
+import { useTheme } from "@/contexts/ThemeContext";
 
 interface Hotel {
   id: string;
@@ -35,6 +38,8 @@ export default function HotelDetails() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t, language } = useLanguage();
+  const isMobile = useIsMobile();
+  const { userTheme } = useTheme();
   const [hotel, setHotel] = useState<Hotel | null>(null);
   const [loading, setLoading] = useState(true);
   const [galleryOpen, setGalleryOpen] = useState(false);
@@ -114,6 +119,21 @@ export default function HotelDetails() {
   const hotelImages = hotel.images && Array.isArray(hotel.images) && hotel.images.length > 0 
     ? hotel.images 
     : [mainImage];
+
+  // Render mobile version if on mobile device and theme is design2
+  if (isMobile && userTheme === 'design2') {
+    return (
+      <MobileHotelDetails
+        hotel={hotel}
+        checkIn={checkIn}
+        checkOut={checkOut}
+        guests={guests}
+        rooms={rooms}
+        avgPricePerNight={avgPricePerNight}
+        mealBadgeSettings={mealBadgeSettings}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

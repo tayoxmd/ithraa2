@@ -21,6 +21,9 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { useRef } from "react";
 import { countries } from "@/data/countries";
 import { calculateSeasonalPrice } from "@/utils/seasonalPricing";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { MobileBooking } from "@/components/MobileBooking";
+import { useTheme } from "@/contexts/ThemeContext";
 
 const paymentMethods = [
   { id: 'cash', name: 'نقدي', nameEn: 'Cash' },
@@ -42,6 +45,8 @@ export default function Booking() {
   const location = useLocation();
   const { user } = useAuth();
   const { t, language } = useLanguage();
+  const isMobile = useIsMobile();
+  const { userTheme } = useTheme();
   const [hotel, setHotel] = useState<any>(null);
   
   // Get booking details from URL params
@@ -404,6 +409,36 @@ export default function Booking() {
   }
 
   const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+
+  // Render mobile version if on mobile device and theme is design2
+  if (isMobile && userTheme === 'design2') {
+    return (
+      <MobileBooking
+        hotel={hotel}
+        checkIn={checkIn}
+        checkOut={checkOut}
+        guests={guests}
+        rooms={rooms}
+        avgPricePerNight={avgPricePerNight}
+        guestName={guestName}
+        setGuestName={setGuestName}
+        guestPhone={guestPhone}
+        setGuestPhone={setGuestPhone}
+        guestCountryCode={guestCountryCode}
+        setGuestCountryCode={setGuestCountryCode}
+        paymentMethod={paymentMethod}
+        setPaymentMethod={setPaymentMethod}
+        notes={notes}
+        setNotes={setNotes}
+        extraMeals={extraMeals}
+        setExtraMeals={setExtraMeals}
+        onSubmit={initiateBooking}
+        loading={loading}
+        fieldErrors={fieldErrors}
+        paymentMethods={paymentMethods}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">

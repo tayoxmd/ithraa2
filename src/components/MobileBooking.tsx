@@ -286,8 +286,8 @@ export function MobileBooking({
                     </SelectTrigger>
                     <SelectContent>
                       {countries.map((country) => (
-                        <SelectItem key={country.code} value={country.phone}>
-                          {country.phone}
+                        <SelectItem key={country.code} value={country.dialCode}>
+                          {country.dialCode}
                         </SelectItem>
                       ))}
                     </SelectContent>
