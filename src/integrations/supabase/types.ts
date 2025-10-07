@@ -758,15 +758,23 @@ export type Database = {
       }
       site_settings: {
         Row: {
+          animation_speed_multiplier: number
           chat_widget_code: string | null
           created_at: string | null
           custom_body_code: string | null
           custom_head_code: string | null
+          disable_animations: boolean
           email: string | null
           facebook_url: string | null
           hotel_room_color: string | null
           id: string
           instagram_url: string | null
+          loader_custom_css: string | null
+          loader_custom_html: string | null
+          loader_custom_js: string | null
+          loader_enabled: boolean
+          loader_speed_ms: number
+          loader_type: string
           owner_room_color: string | null
           phone: string | null
           tax_percentage: number
@@ -775,15 +783,23 @@ export type Database = {
           whatsapp_number: string | null
         }
         Insert: {
+          animation_speed_multiplier?: number
           chat_widget_code?: string | null
           created_at?: string | null
           custom_body_code?: string | null
           custom_head_code?: string | null
+          disable_animations?: boolean
           email?: string | null
           facebook_url?: string | null
           hotel_room_color?: string | null
           id?: string
           instagram_url?: string | null
+          loader_custom_css?: string | null
+          loader_custom_html?: string | null
+          loader_custom_js?: string | null
+          loader_enabled?: boolean
+          loader_speed_ms?: number
+          loader_type?: string
           owner_room_color?: string | null
           phone?: string | null
           tax_percentage?: number
@@ -792,15 +808,23 @@ export type Database = {
           whatsapp_number?: string | null
         }
         Update: {
+          animation_speed_multiplier?: number
           chat_widget_code?: string | null
           created_at?: string | null
           custom_body_code?: string | null
           custom_head_code?: string | null
+          disable_animations?: boolean
           email?: string | null
           facebook_url?: string | null
           hotel_room_color?: string | null
           id?: string
           instagram_url?: string | null
+          loader_custom_css?: string | null
+          loader_custom_html?: string | null
+          loader_custom_js?: string | null
+          loader_enabled?: boolean
+          loader_speed_ms?: number
+          loader_type?: string
           owner_room_color?: string | null
           phone?: string | null
           tax_percentage?: number
