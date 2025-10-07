@@ -329,7 +329,8 @@ export default function Booking() {
     
     let data: any = null;
     let error: any = null;
-    let newBookingId: string | null = null;
+    let bookingId: string | null = null;
+    
     if (user) {
       const res = await supabase
         .from('bookings')
@@ -338,34 +339,15 @@ export default function Booking() {
         .single();
       data = res.data;
       error = res.error;
-      newBookingId = res.data?.id || null;
+      bookingId = res.data?.id || null;
     } else {
-      // Use secure RPC to insert guest booking and return ID
-      const { data: rpcData, error: rpcError } = await supabase.rpc('create_guest_booking', {
-        p_hotel_id: id!,
-        p_check_in: format(checkIn, 'yyyy-MM-dd'),
-        p_check_out: format(checkOut, 'yyyy-MM-dd'),
-        p_guests: parseInt(guests),
-        p_rooms: parseInt(rooms),
-        p_total_amount: totalData.total,
-        p_payment_method: paymentMethod,
-        p_notes: notes || null,
-        p_guest_name: formattedGuestName,
-        p_status: 'new',
-        p_payment_status: 'unpaid',
-        p_amount_paid: 0,
-        p_extra_meals: extraMeals,
-        p_meal_plan_name_ar: hotel?.meal_plans?.regular_ar || null,
-        p_meal_plan_name_en: hotel?.meal_plans?.regular_en || null,
-        p_meal_plan_price: hotel?.meal_plans?.price || 0,
-        p_meal_plan_max_persons: hotel?.meal_plans?.max_persons || 0,
-        p_meal_plan_extra_price: hotel?.meal_plans?.extra_meal_price || 0,
-        p_guest_phone: guestPhone,
-        p_guest_country_code: guestCountryCode,
-      });
-      data = rpcData;
-      error = rpcError;
-      newBookingId = rpcData || null;
+      // Guest booking - insert without returning ID (RLS limitation)
+      const res = await supabase
+        .from('bookings')
+        .insert([bookingData]);
+      error = res.error;
+      // For guests, we won't have the booking ID immediately
+      bookingId = null;
     }
 
     setLoading(false);
@@ -382,16 +364,15 @@ export default function Booking() {
         description: t({ ar: "تم إرسال حجزك بنجاح وفي انتظار التأكيد", en: "Your booking has been sent successfully and is awaiting confirmation" }),
       });
       
-      // Send WhatsApp notification for all bookings when possible
-      try {
-        const bookingIdToNotify = newBookingId || data?.id;
-        if (bookingIdToNotify) {
+      // Send WhatsApp notification for authenticated user bookings only
+      if (user && bookingId) {
+        try {
           await supabase.functions.invoke('notify-whatsapp-group', {
-            body: { bookingId: bookingIdToNotify }
+            body: { bookingId }
           });
+        } catch (whatsappError) {
+          console.error('WhatsApp notification error:', whatsappError);
         }
-      } catch (whatsappError) {
-        console.error('WhatsApp notification error:', whatsappError);
       }
       
       // التوجيه بناءً على نوع المستخدم

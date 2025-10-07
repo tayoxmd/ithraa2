@@ -1211,7 +1211,7 @@ export type Database = {
       }
       create_system_backup: {
         Args: Record<PropertyKey, never>
-        Returns: Json
+        Returns: undefined
       }
       employee_has_assigned_customer: {
         Args: { customer_id: string; employee_id: string }
