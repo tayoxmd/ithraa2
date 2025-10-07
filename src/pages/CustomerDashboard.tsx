@@ -192,7 +192,7 @@ export default function CustomerDashboard() {
           ) : (
             <div className="grid gap-6">
               {bookings.map((booking) => (
-                <Card key={booking.id} className="card-luxury">
+                <Card key={booking.id} className="card-luxury md:mx-0 mx-auto max-w-[calc(100vw-32px)] md:max-w-none">
                   <CardHeader>
                     <div className="flex justify-between items-start flex-wrap gap-3">
                       <CardTitle className="text-lg sm:text-xl flex-1 min-w-0">

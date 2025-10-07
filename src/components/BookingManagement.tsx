@@ -485,7 +485,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
         {bookings.map((booking) => (
           <Card 
             key={booking.id}
-            className="card-luxury"
+            className="card-luxury md:mx-0 mx-auto max-w-[calc(100vw-32px)] md:max-w-none"
             style={(booking.hotels?.room_type === 'owner_rooms' ? (highlightColors.owner ? { backgroundColor: highlightColors.owner } : undefined) : (highlightColors.hotel ? { backgroundColor: highlightColors.hotel } : undefined))}
           >
             <CardHeader className="pb-3">
@@ -535,7 +535,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid md:grid-cols-2 gap-4 md:gap-6">
+              <div className="grid grid-cols-2 gap-4 md:gap-6">
                 <div className="space-y-3">
                   <div className="flex items-start gap-2 text-sm">
                     <Calendar className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />

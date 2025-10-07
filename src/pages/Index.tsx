@@ -4,7 +4,8 @@ import { HotelCard } from "@/components/HotelCard";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
-import heroImage from "@/assets/hero-background.jpg";
+import heroImage1 from "@/assets/hero-background-1.jpg";
+import heroImage2 from "@/assets/hero-background-2.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -35,10 +36,20 @@ interface Hotel {
 const Index = () => {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { language } = useLanguage();
+  
+  const heroImages = [heroImage1, heroImage2];
 
   useEffect(() => {
     fetchFeaturedHotels();
+    
+    // Auto-switch images every 7 seconds
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
+    }, 7000);
+    
+    return () => clearInterval(interval);
   }, []);
 
   const fetchFeaturedHotels = async () => {
@@ -68,13 +79,18 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="relative min-h-[600px] flex items-center justify-center pt-20">
-        {/* Background Image */}
+        {/* Background Images with Fade Effect */}
         <div className="absolute inset-0 z-0">
-          <img
-            src={heroImage}
-            alt="Luxury Hotel"
-            className="w-full h-full object-cover"
-          />
+          {heroImages.map((image, index) => (
+            <img
+              key={index}
+              src={image}
+              alt={`Luxury Hotel ${index + 1}`}
+              className={`absolute w-full h-full object-cover transition-opacity duration-1000 ${
+                index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+              }`}
+            />
+          ))}
         </div>
 
         {/* Content */}

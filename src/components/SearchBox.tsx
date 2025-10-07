@@ -105,7 +105,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <div className="bg-primary/70 backdrop-blur-md text-white shadow-elegant rounded-2xl p-4 md:p-6 animate-scale-in gap-2 border-0">
+      <div className="bg-primary/80 backdrop-blur-md text-white shadow-elegant rounded-2xl p-4 md:p-6 animate-scale-in gap-2 border-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {/* Location */}
           <div className="relative">
@@ -113,7 +113,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
               {t('الوجهة', 'Destination')}
             </label>
             <Select value={selectedCity} onValueChange={setSelectedCity}>
-              <SelectTrigger className="h-12 bg-white/60 border-white/20 text-white rounded-xl hover:bg-white/70">
+              <SelectTrigger className="h-12 bg-white/60 border-white/20 text-white rounded-xl hover:bg-white/80">
                 <SelectValue placeholder={t('اختر المدينة', 'Select City')} />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
@@ -136,7 +136,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full h-12 justify-start text-right font-normal bg-white/60 border-white/20 text-white rounded-xl hover:bg-white/70",
+                    "w-full h-12 justify-start text-right font-normal bg-white/60 border-white/20 text-white rounded-xl hover:bg-white/80",
                     !dateRange && "opacity-80"
                   )}
                 >
@@ -182,7 +182,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full h-12 justify-start text-right font-normal bg-white/60 border-white/20 text-white rounded-xl hover:bg-white/70"
+                  className="w-full h-12 justify-start text-right font-normal bg-white/60 border-white/20 text-white rounded-xl hover:bg-white/80"
                 >
                   <Users className="ml-2 h-4 w-4" />
                   {guestsDisplay}
