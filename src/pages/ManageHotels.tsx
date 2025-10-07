@@ -596,7 +596,7 @@ export default function ManageHotels() {
       <div className="container mx-auto max-w-7xl">
         <div className="flex flex-col gap-4 mb-8">
           <div className="flex items-center gap-4">
-            <Button variant="outline" onClick={() => navigate('/admin')}>
+            <Button variant="outline" onClick={() => navigate(-1)}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               {t({ ar: "العودة", en: "Back", fr: "Retour", es: "Volver", ru: "Назад", id: "Kembali", ms: "Kembali" })}
             </Button>

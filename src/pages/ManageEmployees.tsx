@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Pencil, Plus, Trash2 } from "lucide-react";
+import { Pencil, Plus, Trash2, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { logAuditEvent } from "@/utils/auditLogger";
@@ -342,6 +342,10 @@ export default function ManageEmployees() {
     <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto px-4 py-8 pt-24">
+        <Button variant="outline" onClick={() => navigate(-1)} className="mb-4">
+          <ArrowLeft className="w-4 h-4 mr-2" />
+          {t({ ar: "العودة", en: "Back" })}
+        </Button>
         <Card className="card-luxury">
           <CardHeader className="flex flex-row items-center justify-between">
             <CardTitle className="text-2xl">

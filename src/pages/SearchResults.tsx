@@ -6,12 +6,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, MapPin, ChevronDown, ChevronUp } from "lucide-react";
+import { Star, MapPin, ChevronDown, ChevronUp, SlidersHorizontal } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { HotelCard } from "@/components/HotelCard";
 import { SearchBox } from "@/components/SearchBox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Slider } from "@/components/ui/slider";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Hotel {
   id: string;
@@ -33,6 +37,7 @@ interface Hotel {
     extra_meal_price: number;
   } | null;
   amenities?: any;
+  location_url?: string;
 }
 
 export default function SearchResults() {
@@ -40,8 +45,10 @@ export default function SearchResults() {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const [hotels, setHotels] = useState<Hotel[]>([]);
+  const [filteredHotels, setFilteredHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
   const searchBoxRef = useRef<HTMLDivElement>(null);
 
   const cityId = searchParams.get('city');
@@ -49,6 +56,12 @@ export default function SearchResults() {
   const checkOut = searchParams.get('checkOut');
   const guests = searchParams.get('guests');
   const rooms = searchParams.get('rooms');
+
+  // Filter states
+  const [sortBy, setSortBy] = useState<string>('recommended');
+  const [priceRange, setPriceRange] = useState<[number, number]>([0, 5000]);
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [minRating, setMinRating] = useState<number>(0);
   
   // Store search params in localStorage for persistence
   useEffect(() => {
@@ -69,11 +82,79 @@ export default function SearchResults() {
         console.error('Error fetching hotels:', error);
       }
       
-      if (data) setHotels(data);
+      if (data) {
+        setHotels(data);
+        setFilteredHotels(data);
+        
+        // Set initial price range based on actual hotel prices
+        if (data.length > 0) {
+          const prices = data.map((h: Hotel) => h.price_per_night);
+          const minPrice = Math.min(...prices);
+          const maxPrice = Math.max(...prices);
+          setPriceRange([minPrice, maxPrice]);
+        }
+      }
       setLoading(false);
     }
     fetchHotels();
   }, [cityId]);
+
+  // Apply filters and sorting
+  useEffect(() => {
+    let result = [...hotels];
+
+    // Filter by price
+    result = result.filter(h => 
+      h.price_per_night >= priceRange[0] && h.price_per_night <= priceRange[1]
+    );
+
+    // Filter by rating
+    if (minRating > 0) {
+      result = result.filter(h => h.rating >= minRating);
+    }
+
+    // Filter by amenities
+    if (selectedAmenities.length > 0) {
+      result = result.filter(h => {
+        if (!h.amenities) return false;
+        return selectedAmenities.every(amenity => h.amenities[amenity] === true);
+      });
+    }
+
+    // Filter by meal plans
+    if (selectedAmenities.includes('meal_plans')) {
+      result = result.filter(h => h.meal_plans !== null);
+    }
+
+    // Sort
+    switch (sortBy) {
+      case 'price_low':
+        result.sort((a, b) => a.price_per_night - b.price_per_night);
+        break;
+      case 'price_high':
+        result.sort((a, b) => b.price_per_night - a.price_per_night);
+        break;
+      case 'rating':
+        result.sort((a, b) => b.rating - a.rating);
+        break;
+      case 'distance':
+        // Would need distance calculation - placeholder for now
+        break;
+      default:
+        // Keep original order (recommended)
+        break;
+    }
+
+    setFilteredHotels(result);
+  }, [hotels, sortBy, priceRange, selectedAmenities, minRating]);
+
+  const toggleAmenity = (amenity: string) => {
+    setSelectedAmenities(prev =>
+      prev.includes(amenity)
+        ? prev.filter(a => a !== amenity)
+        : [...prev, amenity]
+    );
+  };
 
   if (loading) {
     return (
@@ -93,10 +174,10 @@ export default function SearchResults() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h1 className="text-3xl font-bold mb-2">
-                  {t({ ar: 'نتائج البحث', en: 'Search Results', fr: 'Résultats de recherche', es: 'Resultados de búsqueda', ru: 'Результаты поиска', id: 'Hasil Pencarian', ms: 'Hasil Carian' })}
+                  {t({ ar: 'نتائج البحث', en: 'Search Results' })}
                 </h1>
                 <p className="text-muted-foreground">
-                  {t({ ar: `تم العثور على ${hotels.length} فندق`, en: `Found ${hotels.length} hotels`, fr: `${hotels.length} hôtels trouvés`, es: `Se encontraron ${hotels.length} hoteles`, ru: `Найдено отелей: ${hotels.length}`, id: `Ditemukan ${hotels.length} hotel`, ms: `Ditemui ${hotels.length} hotel` })}
+                  {t({ ar: `تم العثور على ${filteredHotels.length} فندق`, en: `Found ${filteredHotels.length} hotels` })}
                 </p>
               </div>
               <CollapsibleTrigger asChild>
@@ -117,7 +198,6 @@ export default function SearchResults() {
                     rooms
                   }}
                   onSearch={() => {
-                    // Scroll to the search box (top of collapsible)
                     searchBoxRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
                 />
@@ -126,8 +206,163 @@ export default function SearchResults() {
           </Collapsible>
         </div>
 
+        {/* Filters Section */}
+        <Card className="mb-6">
+          <CardContent className="pt-6">
+            <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2">
+                  <SlidersHorizontal className="w-5 h-5" />
+                  <h2 className="text-xl font-semibold">
+                    {t({ ar: 'الفلاتر', en: 'Filters' })}
+                  </h2>
+                </div>
+                <CollapsibleTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    {isFilterOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </Button>
+                </CollapsibleTrigger>
+              </div>
+
+              <div className="flex items-center gap-4 mb-4">
+                <div className="flex-1">
+                  <Label>{t({ ar: 'ترتيب حسب', en: 'Sort By' })}</Label>
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="recommended">{t({ ar: 'موصى به', en: 'Recommended' })}</SelectItem>
+                      <SelectItem value="price_low">{t({ ar: 'السعر: من الأقل للأعلى', en: 'Price: Low to High' })}</SelectItem>
+                      <SelectItem value="price_high">{t({ ar: 'السعر: من الأعلى للأقل', en: 'Price: High to Low' })}</SelectItem>
+                      <SelectItem value="rating">{t({ ar: 'التقييم', en: 'Rating' })}</SelectItem>
+                      <SelectItem value="distance">{t({ ar: 'المسافة', en: 'Distance' })}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <CollapsibleContent className="space-y-6">
+                {/* Price Range */}
+                <div>
+                  <Label>{t({ ar: 'نطاق السعر', en: 'Price Range' })}</Label>
+                  <div className="pt-4 pb-2">
+                    <Slider
+                      min={0}
+                      max={5000}
+                      step={50}
+                      value={priceRange}
+                      onValueChange={(value) => setPriceRange(value as [number, number])}
+                    />
+                  </div>
+                  <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>{priceRange[0]} {t({ ar: 'ريال', en: 'SAR' })}</span>
+                    <span>{priceRange[1]} {t({ ar: 'ريال', en: 'SAR' })}</span>
+                  </div>
+                </div>
+
+                {/* Rating Filter */}
+                <div>
+                  <Label>{t({ ar: 'الحد الأدنى للتقييم', en: 'Minimum Rating' })}</Label>
+                  <Select value={minRating.toString()} onValueChange={(v) => setMinRating(Number(v))}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="0">{t({ ar: 'الكل', en: 'All' })}</SelectItem>
+                      <SelectItem value="3">3+ ⭐</SelectItem>
+                      <SelectItem value="4">4+ ⭐</SelectItem>
+                      <SelectItem value="4.5">4.5+ ⭐</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Amenities Filter */}
+                <div>
+                  <Label className="mb-3 block">{t({ ar: 'المرافق والخدمات', en: 'Amenities' })}</Label>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="wifi"
+                        checked={selectedAmenities.includes('wifi')}
+                        onCheckedChange={() => toggleAmenity('wifi')}
+                      />
+                      <label htmlFor="wifi" className="cursor-pointer">
+                        {t({ ar: 'واي فاي', en: 'WiFi' })}
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="parking"
+                        checked={selectedAmenities.includes('parking')}
+                        onCheckedChange={() => toggleAmenity('parking')}
+                      />
+                      <label htmlFor="parking" className="cursor-pointer">
+                        {t({ ar: 'مواقف سيارات', en: 'Parking' })}
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="restaurant"
+                        checked={selectedAmenities.includes('restaurant')}
+                        onCheckedChange={() => toggleAmenity('restaurant')}
+                      />
+                      <label htmlFor="restaurant" className="cursor-pointer">
+                        {t({ ar: 'مطعم', en: 'Restaurant' })}
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="cafe"
+                        checked={selectedAmenities.includes('cafe')}
+                        onCheckedChange={() => toggleAmenity('cafe')}
+                      />
+                      <label htmlFor="cafe" className="cursor-pointer">
+                        {t({ ar: 'مقهى', en: 'Cafe' })}
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="shuttle"
+                        checked={selectedAmenities.includes('shuttle')}
+                        onCheckedChange={() => toggleAmenity('shuttle')}
+                      />
+                      <label htmlFor="shuttle" className="cursor-pointer">
+                        {t({ ar: 'خدمة النقل', en: 'Shuttle Service' })}
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id="meal_plans"
+                        checked={selectedAmenities.includes('meal_plans')}
+                        onCheckedChange={() => toggleAmenity('meal_plans')}
+                      />
+                      <label htmlFor="meal_plans" className="cursor-pointer">
+                        {t({ ar: 'وجبات طعام', en: 'Meal Plans' })}
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => {
+                    setSortBy('recommended');
+                    setPriceRange([0, 5000]);
+                    setSelectedAmenities([]);
+                    setMinRating(0);
+                  }}
+                >
+                  {t({ ar: 'إعادة تعيين الفلاتر', en: 'Reset Filters' })}
+                </Button>
+              </CollapsibleContent>
+            </Collapsible>
+          </CardContent>
+        </Card>
+
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {hotels.map((hotel) => (
+          {filteredHotels.map((hotel) => (
             <HotelCard
               key={hotel.id}
               id={hotel.id}
@@ -144,11 +379,23 @@ export default function SearchResults() {
           ))}
         </div>
 
-        {hotels.length === 0 && (
+        {filteredHotels.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">
-              {t({ ar: 'لم يتم العثور على نتائج', en: 'No results found', fr: 'Aucun résultat trouvé', es: 'No se encontraron resultados', ru: 'Результаты не найдены', id: 'Tidak ada hasil ditemukan', ms: 'Tiada hasil ditemui' })}
+              {t({ ar: 'لم يتم العثور على نتائج تطابق معايير البحث', en: 'No results found matching your criteria' })}
             </p>
+            <Button
+              variant="outline"
+              className="mt-4"
+              onClick={() => {
+                setSortBy('recommended');
+                setPriceRange([0, 5000]);
+                setSelectedAmenities([]);
+                setMinRating(0);
+              }}
+            >
+              {t({ ar: 'إعادة تعيين الفلاتر', en: 'Reset Filters' })}
+            </Button>
           </div>
         )}
       </div>

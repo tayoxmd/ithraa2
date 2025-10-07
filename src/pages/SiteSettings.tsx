@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Palette, Type, Languages, Layout, Percent, Key, Loader2, Code, Utensils } from "lucide-react";
+import { Palette, Type, Languages, Layout, Percent, Key, Loader2, Code, Utensils, MessageCircle } from "lucide-react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Switch } from "@/components/ui/switch";
 
@@ -58,6 +58,14 @@ export default function SiteSettings() {
     loader_custom_html: '',
     loader_custom_css: '',
     loader_custom_js: ''
+  });
+  const [whatsappSettings, setWhatsappSettings] = useState({
+    send_confirmation: true,
+    send_reminder: true,
+    reminder_hours: 24,
+    send_to_group: true,
+    group_link: '',
+    no_booking_alert_hours: 24
   });
 
   useEffect(() => {
@@ -112,6 +120,23 @@ export default function SiteSettings() {
           loader_custom_html: data.loader_custom_html || '',
           loader_custom_css: data.loader_custom_css || '',
           loader_custom_js: data.loader_custom_js || ''
+        });
+      }
+
+      // Fetch WhatsApp settings
+      const { data: whatsappData } = await supabase
+        .from('whatsapp_settings')
+        .select('*')
+        .single();
+
+      if (whatsappData) {
+        setWhatsappSettings({
+          send_confirmation: whatsappData.send_confirmation ?? true,
+          send_reminder: whatsappData.send_reminder ?? true,
+          reminder_hours: whatsappData.reminder_hours || 24,
+          send_to_group: whatsappData.send_to_group ?? true,
+          group_link: whatsappData.group_link || '',
+          no_booking_alert_hours: whatsappData.no_booking_alert_hours || 24
         });
       }
     } catch (error: any) {
@@ -335,6 +360,55 @@ export default function SiteSettings() {
 
       // Reload page to apply settings
       window.location.reload();
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleSaveWhatsappSettings = async () => {
+    try {
+      const { data: existingSettings } = await supabase
+        .from('whatsapp_settings')
+        .select('id')
+        .single();
+
+      if (existingSettings) {
+        const { error } = await supabase
+          .from('whatsapp_settings')
+          .update({
+            send_confirmation: whatsappSettings.send_confirmation,
+            send_reminder: whatsappSettings.send_reminder,
+            reminder_hours: whatsappSettings.reminder_hours,
+            send_to_group: whatsappSettings.send_to_group,
+            group_link: whatsappSettings.group_link,
+            no_booking_alert_hours: whatsappSettings.no_booking_alert_hours
+          })
+          .eq('id', existingSettings.id);
+
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('whatsapp_settings')
+          .insert({
+            send_confirmation: whatsappSettings.send_confirmation,
+            send_reminder: whatsappSettings.send_reminder,
+            reminder_hours: whatsappSettings.reminder_hours,
+            send_to_group: whatsappSettings.send_to_group,
+            group_link: whatsappSettings.group_link,
+            no_booking_alert_hours: whatsappSettings.no_booking_alert_hours
+          });
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: t({ ar: "تم الحفظ", en: "Saved" }),
+        description: t({ ar: "تم حفظ إعدادات WhatsApp", en: "WhatsApp settings saved" }),
+      });
     } catch (error: any) {
       toast({
         title: t({ ar: "خطأ", en: "Error" }),
@@ -916,6 +990,99 @@ export default function SiteSettings() {
               <p className="text-xs text-muted-foreground">
                 {t({ ar: 'ملاحظة: سيتم إعادة تحميل الصفحة لتطبيق الإعدادات', en: 'Note: Page will reload to apply settings' })}
               </p>
+            </CardContent>
+          </Card>
+
+          {/* WhatsApp Settings Section */}
+          <Card className="card-luxury lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageCircle className="w-5 h-5" />
+                {t({ ar: 'إعدادات WhatsApp', en: 'WhatsApp Settings' })}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>{t({ ar: 'إرسال تأكيد الحجز', en: 'Send Booking Confirmation' })}</Label>
+                    <p className="text-xs text-muted-foreground">
+                      {t({ ar: 'إرسال رسالة تأكيد تلقائية عند الحجز', en: 'Send automatic confirmation on booking' })}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={whatsappSettings.send_confirmation}
+                    onCheckedChange={(checked) => setWhatsappSettings({ ...whatsappSettings, send_confirmation: checked })}
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>{t({ ar: 'إرسال تذكير قبل الوصول', en: 'Send Reminder Before Arrival' })}</Label>
+                    <p className="text-xs text-muted-foreground">
+                      {t({ ar: 'إرسال تذكير للعميل قبل موعد الوصول', en: 'Send reminder before check-in' })}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={whatsappSettings.send_reminder}
+                    onCheckedChange={(checked) => setWhatsappSettings({ ...whatsappSettings, send_reminder: checked })}
+                  />
+                </div>
+
+                <div>
+                  <Label>{t({ ar: 'عدد الساعات قبل التذكير', en: 'Hours Before Reminder' })}</Label>
+                  <Input
+                    type="number"
+                    min="1"
+                    max="72"
+                    value={whatsappSettings.reminder_hours}
+                    onChange={(e) => setWhatsappSettings({ ...whatsappSettings, reminder_hours: parseInt(e.target.value) })}
+                    className="mt-2"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <div>
+                    <Label>{t({ ar: 'إرسال للمجموعة', en: 'Send to Group' })}</Label>
+                    <p className="text-xs text-muted-foreground">
+                      {t({ ar: 'إرسال الحجوزات الجديدة إلى مجموعة WhatsApp', en: 'Send new bookings to WhatsApp group' })}
+                    </p>
+                  </div>
+                  <Switch
+                    checked={whatsappSettings.send_to_group}
+                    onCheckedChange={(checked) => setWhatsappSettings({ ...whatsappSettings, send_to_group: checked })}
+                  />
+                </div>
+              </div>
+
+              <div>
+                <Label>{t({ ar: 'رابط المجموعة', en: 'Group Link' })}</Label>
+                <Input
+                  type="url"
+                  value={whatsappSettings.group_link}
+                  onChange={(e) => setWhatsappSettings({ ...whatsappSettings, group_link: e.target.value })}
+                  placeholder="https://chat.whatsapp.com/..."
+                  className="mt-2"
+                />
+              </div>
+
+              <div>
+                <Label>{t({ ar: 'تنبيه عدم وجود حجوزات (ساعات)', en: 'No Bookings Alert (Hours)' })}</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {t({ ar: 'إرسال تنبيه إذا لم يتم إنشاء حجز جديد خلال المدة المحددة', en: 'Send alert if no booking in specified time' })}
+                </p>
+                <Input
+                  type="number"
+                  min="1"
+                  max="168"
+                  value={whatsappSettings.no_booking_alert_hours}
+                  onChange={(e) => setWhatsappSettings({ ...whatsappSettings, no_booking_alert_hours: parseInt(e.target.value) })}
+                />
+              </div>
+
+              <Button onClick={handleSaveWhatsappSettings} className="w-full btn-luxury">
+                {t({ ar: 'حفظ إعدادات WhatsApp', en: 'Save WhatsApp Settings' })}
+              </Button>
             </CardContent>
           </Card>
         </div>
