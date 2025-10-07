@@ -67,9 +67,10 @@ export default function Booking() {
   const [selectedGuestId, setSelectedGuestId] = useState<string>("");
   const [showNewGuestInput, setShowNewGuestInput] = useState(false);
   const [avgPricePerNight, setAvgPricePerNight] = useState<number | null>(null);
+  const [loadingHotel, setLoadingHotel] = useState(true);
 
   useEffect(() => {
-    // إزالة التحقق من المصادقة - السماح للضيوف بالوصول
+    setLoadingHotel(true);
     async function fetchHotel() {
       const { data, error } = await supabase.rpc('get_public_hotel', {
         p_hotel_id: id
@@ -77,6 +78,9 @@ export default function Booking() {
 
       if (error) {
         console.error('Error fetching hotel:', error);
+        setLoadingHotel(false);
+        navigate('/');
+        return;
       }
       
       if (data && data.length > 0) {
@@ -90,7 +94,13 @@ export default function Booking() {
           data[0].price_per_night
         );
         setAvgPricePerNight(avgPrice);
+      } else {
+        setLoadingHotel(false);
+        navigate('/');
+        return;
       }
+      
+      setLoadingHotel(false);
     }
     
     async function fetchSavedGuests() {
@@ -109,7 +119,7 @@ export default function Booking() {
     
     fetchHotel();
     fetchSavedGuests();
-  }, [id, user, checkIn, checkOut]);
+  }, [id, user, checkIn, checkOut, navigate]);
 
   const calculateTotal = () => {
     if (!hotel) return { subtotal: 0, extraGuestCharge: 0, extraMealCharge: 0, tax: 0, total: 0, extraGuestsCount: 0 };
@@ -300,6 +310,14 @@ export default function Booking() {
       }, 1500);
     }
   };
+
+  if (loadingHotel) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
 
   if (!hotel) {
     return (
@@ -509,36 +527,45 @@ export default function Booking() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {user && (
-                    <div className="flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        id="use-customer-name"
-                        checked={useCustomerName}
-                        onChange={(e) => {
-                          setUseCustomerName(e.target.checked);
-                          setShowNewGuestInput(false);
-                          setSelectedGuestId("");
-                          if (e.target.checked) {
-                            // Get customer name from profile
-                            supabase
-                              .from('profiles')
-                              .select('full_name')
-                              .eq('id', user.id)
-                              .single()
-                              .then(({ data }) => {
-                                if (data?.full_name) {
-                                  setGuestName(data.full_name);
-                                }
-                              });
-                          } else {
-                            setGuestName("");
-                          }
-                        }}
-                        className="w-4 h-4"
-                      />
-                      <label htmlFor="use-customer-name" className="text-sm text-muted-foreground cursor-pointer">
-                        {t({ ar: 'هل اسم العميل هو نفسه اسم الضيف؟', en: 'Is the customer name the same as the guest name?' })}
-                      </label>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="use-customer-name"
+                          checked={useCustomerName}
+                          onChange={(e) => {
+                            const checked = e.target.checked;
+                            setUseCustomerName(checked);
+                            setShowNewGuestInput(false);
+                            setSelectedGuestId("");
+                            if (checked) {
+                              // Get customer name from profile
+                              supabase
+                                .from('profiles')
+                                .select('full_name')
+                                .eq('id', user.id)
+                                .single()
+                                .then(({ data }) => {
+                                  if (data?.full_name) {
+                                    setGuestName(data.full_name);
+                                  }
+                                });
+                            } else {
+                              setGuestName("");
+                            }
+                          }}
+                          className="w-4 h-4"
+                        />
+                        <label htmlFor="use-customer-name" className="text-sm text-muted-foreground cursor-pointer">
+                          {t({ ar: 'هل اسم العميل هو نفسه اسم الضيف؟', en: 'Is the customer name the same as the guest name?' })}
+                        </label>
+                      </div>
+                      
+                      {useCustomerName && guestName && (
+                        <div className="px-4 py-2 bg-muted/50 rounded-lg">
+                          <p className="text-sm font-medium text-foreground">{guestName}</p>
+                        </div>
+                      )}
                     </div>
                   )}
                   

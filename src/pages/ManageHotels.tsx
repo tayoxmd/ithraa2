@@ -1455,6 +1455,14 @@ export default function ManageHotels() {
                   </div>
                 </div>
               </div>
+
+              {/* Meal Plans Section - Edit Dialog */}
+              <div className="pt-4 border-t">
+                <MealPlansManager 
+                  mealPlan={mealPlan}
+                  onChange={setMealPlan}
+                />
+              </div>
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => { setIsEditDialogOpen(false); setEditingHotel(null); resetForm(); }}>

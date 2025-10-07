@@ -78,7 +78,7 @@ export function Header() {
 
               {user ? (
                 <>
-                  <div className="hidden sm:flex items-center gap-2">
+                  <div className="hidden lg:flex items-center gap-2">
                     {(userRole === 'admin' || userRole === 'employee') && (
                       <Button
                         variant="outline"
@@ -96,10 +96,20 @@ export function Header() {
                       variant="outline"
                       size="sm"
                       className="gap-2"
+                      onClick={() => navigate('/customer-dashboard')}
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      {t({ ar: "الحجوزات", en: "Bookings" })}
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2"
                       onClick={() => navigate('/dashboard')}
                     >
                       <LayoutDashboard className="w-4 h-4" />
-                      {t({ ar: "الحجوزات ولوحة التحكم", en: "Bookings & Dashboard" })}
+                      {t({ ar: "لوحة التحكم", en: "Dashboard" })}
                     </Button>
 
                     <Button
@@ -110,6 +120,26 @@ export function Header() {
                     >
                       <LogOut className="w-4 h-4" />
                       {t('تسجيل الخروج', 'Sign Out')}
+                    </Button>
+                  </div>
+                  
+                  {/* Mobile/Tablet Quick Actions - Outside Menu */}
+                  <div className="lg:hidden flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => navigate('/customer-dashboard')}
+                    >
+                      {t({ ar: "الحجوزات", en: "Bookings" })}
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 px-2 text-xs"
+                      onClick={() => navigate('/dashboard')}
+                    >
+                      {t({ ar: "لوحة التحكم", en: "Dashboard" })}
                     </Button>
                   </div>
                 </>
@@ -138,7 +168,7 @@ export function Header() {
               <Button
                 variant="outline"
                 size="sm"
-                className="md:hidden"
+                className="lg:hidden"
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               >
                 {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -148,36 +178,8 @@ export function Header() {
 
           {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <div className="md:hidden py-4 animate-fade-in">
+            <div className="lg:hidden py-4 animate-fade-in">
               <nav className="flex flex-col gap-4">
-                {/* Language Selector for Mobile - placed at top */}
-                <div className="pb-2 border-b border-border">
-                  <LanguageSelector />
-                </div>
-
-                {user && (
-                  <div className="grid grid-cols-2 gap-2 pb-2 border-b border-border">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="justify-start gap-2"
-                      onClick={() => navigate('/customer-dashboard')}
-                    >
-                      <LayoutDashboard className="w-4 h-4" />
-                      {t({ ar: "الحجوزات", en: "Bookings" })}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="justify-start gap-2"
-                      onClick={() => navigate('/dashboard')}
-                    >
-                      <LayoutDashboard className="w-4 h-4" />
-                      {t({ ar: "لوحة التحكم", en: "Dashboard" })}
-                    </Button>
-                  </div>
-                )}
-                
                 <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium py-2">
                   {t('الرئيسية', 'Home')}
                 </Link>
@@ -239,24 +241,6 @@ export function Header() {
         </div>
       </header>
 
-      {/* Fixed Booking Button for Mobile/Tablet - Only show for logged in users and not in dashboard pages */}
-      {user && isMobileOrTablet && 
-       !location.pathname.includes('/dashboard') && 
-       !location.pathname.includes('/admin') && 
-       !location.pathname.includes('/employee') && (
-        <div 
-          className={`fixed ${isScrolled ? 'top-24' : 'top-20'} ${language === 'ar' ? 'right-2' : 'left-2'} z-40 transition-all duration-300 lg:hidden scale-75`}
-        >
-          <Button
-            onClick={() => navigate('/dashboard')}
-            size="sm"
-            className="h-7 px-2 bg-gradient-to-r from-primary to-primary-glow text-primary-foreground shadow-lg hover:shadow-xl transition-all text-xs"
-          >
-            <LayoutDashboard className="w-3 h-3 ml-1" />
-            {t({ ar: "الحجوزات", en: "Bookings" })}
-          </Button>
-        </div>
-      )}
     </>
   );
 }
