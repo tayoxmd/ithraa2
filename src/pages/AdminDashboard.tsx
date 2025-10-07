@@ -24,7 +24,6 @@ import {
 } from "lucide-react";
 import { playNotificationSound } from "@/utils/notificationSound";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
-import { ThemeSelector } from "@/components/ThemeSelector";
 
 export default function AdminDashboard() {
   const { userRole, loading, user } = useAuth();
@@ -299,7 +298,6 @@ export default function AdminDashboard() {
                   {t({ ar: "نظرة عامة على أداء نظامك", en: "Overview of your system performance" })}
                 </p>
               </div>
-              <ThemeSelector isAdmin={true} />
             </div>
 
             {/* Quick Actions - Mobile Only */}

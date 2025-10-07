@@ -15,13 +15,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Palette, Type, Languages, Layout, Percent, Key, Loader2, Code, Utensils, MessageCircle, Download, Database, Save } from "lucide-react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Switch } from "@/components/ui/switch";
-import { useTheme } from "@/contexts/ThemeContext";
 
 export default function SiteSettings() {
   const { t } = useLanguage();
   const { userRole, loading } = useAuth();
   const navigate = useNavigate();
-  const { setUserTheme: applyUserTheme, setAdminTheme: applyAdminTheme } = useTheme();
   const [primaryColor, setPrimaryColor] = useState("#F59E0B");
   const [fontFamily, setFontFamily] = useState("Cairo");
   const [fontSize, setFontSize] = useState("16");
@@ -74,10 +72,6 @@ export default function SiteSettings() {
     created_at: string | null;
     version: number | null;
   }>({ created_at: null, version: null });
-  const [userTheme, setUserTheme] = useState('design1');
-  const [userDarkMode, setUserDarkMode] = useState(false);
-  const [adminTheme, setAdminTheme] = useState('design1');
-  const [adminDarkMode, setAdminDarkMode] = useState(false);
 
   useEffect(() => {
     if (!loading && userRole !== 'admin') {
@@ -101,12 +95,6 @@ export default function SiteSettings() {
       
       if (data) {
         setTaxPercentage(data.tax_percentage?.toString() || "0");
-        const userThemeValue = data.user_theme || 'design1';
-        setUserTheme(userThemeValue.replace('-dark', ''));
-        setUserDarkMode(userThemeValue.includes('-dark'));
-        const adminThemeValue = data.admin_theme || 'design1';
-        setAdminTheme(adminThemeValue.replace('-dark', ''));
-        setAdminDarkMode(adminThemeValue.includes('-dark'));
         setSocialMedia({
           facebook_url: data.facebook_url || '',
           twitter_url: data.twitter_url || '',
@@ -461,53 +449,6 @@ export default function SiteSettings() {
     }
   };
 
-  const handleSaveThemes = async () => {
-    try {
-      const { data: existingSettings } = await supabase
-        .from('site_settings')
-        .select('id')
-        .order('created_at', { ascending: false })
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      const finalUserTheme = userDarkMode ? `${userTheme}-dark` : userTheme;
-      const finalAdminTheme = adminDarkMode ? `${adminTheme}-dark` : adminTheme;
-
-      if (existingSettings) {
-        const { error } = await supabase
-          .from('site_settings')
-          .update({
-            user_theme: finalUserTheme,
-            admin_theme: finalAdminTheme,
-          })
-          .eq('id', existingSettings.id);
-
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('site_settings')
-          .insert({ user_theme: finalUserTheme, admin_theme: finalAdminTheme });
-        if (error) throw error;
-      }
-
-      toast({
-        title: t({ ar: "تم الحفظ", en: "Saved" }),
-        description: t({ ar: "سيتم تطبيق التصميم بعد إعادة تحميل الصفحة...", en: "Theme will be applied after page reload..." }),
-      });
-
-      // Reload page to apply theme changes
-      setTimeout(() => {
-        window.location.reload();
-      }, 1500);
-    } catch (error: any) {
-      toast({
-        title: t({ ar: "خطأ", en: "Error" }),
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleCreateBackup = async () => {
     setBackupLoading(true);
@@ -734,120 +675,6 @@ export default function SiteSettings() {
             </CardContent>
           </Card>
 
-          {/* Website Design Section */}
-          <Card className="card-luxury lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Layout className="w-5 h-5" />
-                {t({ ar: 'تصميم الموقع', en: 'Website Design' })}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* User Interface Design */}
-                <div className="space-y-3">
-                  <Label>{t({ ar: 'تصاميم واجهة المستخدم', en: 'User Interface Design' })}</Label>
-                  <p className="text-xs text-muted-foreground">
-                    {t({ ar: 'اختر التصميم المناسب للصفحات العامة', en: 'Choose design for public pages' })}
-                  </p>
-                  <Select value={userTheme} onValueChange={setUserTheme}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="design1">
-                        {t({ ar: 'تصميم 1 (التصميم الحالي)', en: 'Design 1 (Current Design)' })}
-                      </SelectItem>
-                      <SelectItem value="design2">
-                        {t({ ar: 'تصميم 2 (أزرق داكن)', en: 'Design 2 (Dark Blue)' })}
-                      </SelectItem>
-                      <SelectItem value="design3">
-                        {t({ ar: 'تصميم 3 (قريباً)', en: 'Design 3 (Coming Soon)' })}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  
-                  <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-                    <Switch
-                      checked={userDarkMode}
-                      onCheckedChange={setUserDarkMode}
-                      id="user-dark-mode"
-                    />
-                    <Label htmlFor="user-dark-mode" className="cursor-pointer">
-                      {t({ ar: 'الوضع الداكن', en: 'Dark Mode' })}
-                    </Label>
-                  </div>
-                  
-                  {userTheme === 'design2' && (
-                    <div className="p-3 bg-muted/50 rounded-lg space-y-2 text-sm">
-                      <p className="font-semibold">{t({ ar: 'معاينة التصميم:', en: 'Design Preview:' })}</p>
-                      <ul className="space-y-1 text-xs text-muted-foreground">
-                        <li>• {t({ ar: 'اللون الأساسي: أزرق داكن', en: 'Primary Color: Dark Blue' })}</li>
-                        <li>• {t({ ar: 'التصميم: عصري ونظيف', en: 'Design: Modern & Clean' })}</li>
-                        <li>• {userDarkMode ? t({ ar: 'خلفية داكنة', en: 'Dark Background' }) : t({ ar: 'خلفية فاتحة', en: 'Light Background' })}</li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-
-                {/* Admin Panel Design */}
-                <div className="space-y-3">
-                  <Label>{t({ ar: 'تصاميم صفحة الأدمن', en: 'Admin Panel Design' })}</Label>
-                  <p className="text-xs text-muted-foreground">
-                    {t({ ar: 'اختر التصميم المناسب للوحة الإدارة', en: 'Choose design for admin panel' })}
-                  </p>
-                  <Select value={adminTheme} onValueChange={setAdminTheme}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="design1">
-                        {t({ ar: 'تصميم 1 (التصميم الحالي)', en: 'Design 1 (Current Design)' })}
-                      </SelectItem>
-                      <SelectItem value="admin-design2">
-                        {t({ ar: 'تصميم 2 (إنفوجرافيك حديث)', en: 'Design 2 (Modern Infographic)' })}
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  
-                  <div className="flex items-center gap-2 p-3 bg-muted/50 rounded-lg">
-                    <Switch
-                      checked={adminDarkMode}
-                      onCheckedChange={setAdminDarkMode}
-                      id="admin-dark-mode"
-                    />
-                    <Label htmlFor="admin-dark-mode" className="cursor-pointer">
-                      {t({ ar: 'الوضع الداكن', en: 'Dark Mode' })}
-                    </Label>
-                  </div>
-                  
-                  {adminTheme === 'admin-design2' && (
-                    <div className="p-3 bg-muted/50 rounded-lg space-y-2 text-sm">
-                      <p className="font-semibold">{t({ ar: 'معاينة التصميم:', en: 'Design Preview:' })}</p>
-                      <ul className="space-y-1 text-xs text-muted-foreground">
-                        <li>• {t({ ar: 'اللون الأساسي: أزرق داكن Navy', en: 'Primary Color: Navy Blue' })}</li>
-                        <li>• {t({ ar: 'اللون الثانوي: سماوي Turquoise', en: 'Secondary Color: Turquoise' })}</li>
-                        <li>• {t({ ar: 'اللون المميز: بنفسجي Purple', en: 'Accent Color: Purple' })}</li>
-                        <li>• {adminDarkMode ? t({ ar: 'خلفية داكنة', en: 'Dark Background' }) : t({ ar: 'خلفية فاتحة', en: 'Light Background' })}</li>
-                      </ul>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-                <p className="text-sm text-blue-900 dark:text-blue-300">
-                  <strong>{t({ ar: 'ملاحظة:', en: 'Note:' })}</strong> {t({ ar: 'تغيير التصميم سيؤثر على جميع الصفحات والمكونات. التصميم 3 سيكون متاحاً قريباً.', en: 'Changing the design will affect all pages and components. Design 3 will be available soon.' })}
-                </p>
-              </div>
-
-              <Button onClick={handleSaveThemes} className="w-full btn-luxury">
-                <Save className="w-4 h-4 mr-2" />
-                {t({ ar: 'حفظ إعدادات التصميم', en: 'Save Theme Settings' })}
-              </Button>
-
-            </CardContent>
-          </Card>
 
           {/* Meal Badge Settings */}
           <Card className="card-luxury">
