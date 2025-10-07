@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { NotificationBell } from "./NotificationBell";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
 import logo from "@/assets/logo.svg";
@@ -75,6 +76,9 @@ export function Header() {
               <div className="scale-75 sm:scale-90 md:scale-100">
                 <LanguageSelector />
               </div>
+              
+              {/* Notification Bell */}
+              <NotificationBell />
 
               {user ? (
                 <>

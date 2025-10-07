@@ -33,6 +33,9 @@ import UserDashboard from "./pages/UserDashboard";
 import Reviews from "./pages/Reviews";
 import Coupons from "./pages/Coupons";
 import LoyaltyProgram from "./pages/LoyaltyProgram";
+import HotelComparison from "./pages/HotelComparison";
+import SpecialOffers from "./pages/SpecialOffers";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
@@ -62,18 +65,20 @@ const RouterWithTheme = () => {
               <Route path="/guest-dashboard" element={<GuestDashboard />} />
               <Route path="/dashboard/:phoneAndOrder" element={<GuestDashboard />} />
               <Route path="/dashboard" element={<UserDashboard />} />
-              <Route path="/manage-employees" element={<ManageEmployees />} />
               <Route path="/profile" element={<Profile />} />
-              <Route path="/manage-hotels" element={<ManageHotels />} />
-              <Route path="/seasonal-pricing" element={<SeasonalPricing />} />
-              <Route path="/employee-management" element={<EmployeeManagement />} />
-              <Route path="/api-settings" element={<APISettings />} />
-              <Route path="/site-settings" element={<SiteSettings />} />
-              <Route path="/pdf-settings" element={<PDFSettings />} />
-              <Route path="/audit-logs" element={<AuditLogs />} />
               <Route path="/reviews" element={<Reviews />} />
               <Route path="/coupons" element={<Coupons />} />
               <Route path="/loyalty-program" element={<LoyaltyProgram />} />
+              <Route path="/hotel-comparison" element={<HotelComparison />} />
+              <Route path="/special-offers" element={<SpecialOffers />} />
+              <Route path="/manage-hotels" element={<ProtectedRoute><ManageHotels /></ProtectedRoute>} />
+              <Route path="/seasonal-pricing" element={<ProtectedRoute><SeasonalPricing /></ProtectedRoute>} />
+              <Route path="/employee-management" element={<ProtectedRoute><EmployeeManagement /></ProtectedRoute>} />
+              <Route path="/manage-employees" element={<ProtectedRoute><ManageEmployees /></ProtectedRoute>} />
+              <Route path="/api-settings" element={<ProtectedRoute><APISettings /></ProtectedRoute>} />
+              <Route path="/site-settings" element={<ProtectedRoute><SiteSettings /></ProtectedRoute>} />
+              <Route path="/pdf-settings" element={<ProtectedRoute><PDFSettings /></ProtectedRoute>} />
+              <Route path="/audit-logs" element={<ProtectedRoute><AuditLogs /></ProtectedRoute>} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
