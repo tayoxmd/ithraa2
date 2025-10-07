@@ -103,15 +103,15 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <div className="card-luxury rounded-2xl p-6 md:p-8 animate-scale-in">
+      <div className="bg-card rounded-2xl p-6 md:p-8 shadow-card animate-scale-in border border-card/20">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
           {/* Location */}
           <div className="relative">
-            <label className="text-sm font-medium text-foreground mb-2 block">
+            <label className="text-sm font-medium text-card-foreground mb-2 block">
               {t('الوجهة', 'Destination')}
             </label>
             <Select value={selectedCity} onValueChange={setSelectedCity}>
-              <SelectTrigger className="h-12 bg-background/50">
+              <SelectTrigger className="h-12 bg-input border-input text-card-foreground">
                 <SelectValue placeholder={t('اختر المدينة', 'Select City')} />
               </SelectTrigger>
               <SelectContent>
@@ -126,7 +126,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
           {/* Date Range */}
           <div className="lg:col-span-2">
-            <label className="text-sm font-medium text-foreground mb-2 block">
+            <label className="text-sm font-medium text-card-foreground mb-2 block">
               {t('تاريخ الوصول والمغادرة', 'Check-in & Check-out')}
             </label>
             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
@@ -134,7 +134,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full h-12 justify-start text-right font-normal bg-background/50",
+                    "w-full h-12 justify-start text-right font-normal bg-input border-input text-card-foreground",
                     !dateRange && "text-muted-foreground"
                   )}
                 >
@@ -173,11 +173,11 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
           {/* Rooms - Now before Guests */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">
+            <label className="text-sm font-medium text-card-foreground mb-2 block">
               {t('عدد الغرف', 'Rooms')}
             </label>
             <Select value={rooms} onValueChange={setRooms}>
-              <SelectTrigger className="h-12 bg-background/50">
+              <SelectTrigger className="h-12 bg-input border-input text-card-foreground">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -201,11 +201,11 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
           {/* Guests - Now after Rooms */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-2 block">
+            <label className="text-sm font-medium text-card-foreground mb-2 block">
               {t('عدد الضيوف', 'Guests')}
             </label>
             <Select value={guests} onValueChange={setGuests}>
-              <SelectTrigger className="h-12 bg-background/50">
+              <SelectTrigger className="h-12 bg-input border-input text-card-foreground">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -230,7 +230,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
         {/* Search Button */}
         <div className="mt-6">
-          <Button onClick={handleSearch} className="w-full h-14 text-lg btn-luxury">
+          <Button onClick={handleSearch} className="w-full h-14 text-lg bg-accent hover:bg-accent/90 text-accent-foreground font-semibold shadow-luxury transition-all">
             <Search className="ml-2 w-5 h-5" />
             {t('ابحث الآن', 'Search Now')}
           </Button>
