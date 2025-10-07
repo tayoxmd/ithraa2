@@ -248,6 +248,11 @@ export default function AdminDashboard() {
               onClick={() => navigate('/')} 
             />
             <NavItem 
+              icon={FileText} 
+              label={t({ ar: "التقييمات والمراجعات", en: "Reviews & Ratings" })} 
+              onClick={() => navigate('/reviews')} 
+            />
+            <NavItem 
               icon={Hotel} 
               label={t({ ar: "إدارة الفنادق", en: "Manage Hotels" })} 
               onClick={() => navigate('/manage-hotels')} 

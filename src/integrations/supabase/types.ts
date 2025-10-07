@@ -301,6 +301,125 @@ export type Database = {
           },
         ]
       }
+      coupon_hotels: {
+        Row: {
+          coupon_id: string
+          created_at: string | null
+          hotel_id: string
+          id: string
+        }
+        Insert: {
+          coupon_id: string
+          created_at?: string | null
+          hotel_id: string
+          id?: string
+        }
+        Update: {
+          coupon_id?: string
+          created_at?: string | null
+          hotel_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_hotels_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "coupon_hotels_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupon_users: {
+        Row: {
+          coupon_id: string
+          created_at: string | null
+          id: string
+          used: boolean | null
+          used_at: string | null
+          user_id: string
+        }
+        Insert: {
+          coupon_id: string
+          created_at?: string | null
+          id?: string
+          used?: boolean | null
+          used_at?: string | null
+          user_id: string
+        }
+        Update: {
+          coupon_id?: string
+          created_at?: string | null
+          id?: string
+          used?: boolean | null
+          used_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coupon_users_coupon_id_fkey"
+            columns: ["coupon_id"]
+            isOneToOne: false
+            referencedRelation: "coupons"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      coupons: {
+        Row: {
+          active: boolean | null
+          applicable_to: string | null
+          code: string
+          created_at: string | null
+          current_uses: number | null
+          discount_type: string
+          discount_value: number
+          id: string
+          max_uses: number | null
+          min_booking_amount: number | null
+          updated_at: string | null
+          valid_from: string
+          valid_to: string
+        }
+        Insert: {
+          active?: boolean | null
+          applicable_to?: string | null
+          code: string
+          created_at?: string | null
+          current_uses?: number | null
+          discount_type: string
+          discount_value: number
+          id?: string
+          max_uses?: number | null
+          min_booking_amount?: number | null
+          updated_at?: string | null
+          valid_from: string
+          valid_to: string
+        }
+        Update: {
+          active?: boolean | null
+          applicable_to?: string | null
+          code?: string
+          created_at?: string | null
+          current_uses?: number | null
+          discount_type?: string
+          discount_value?: number
+          id?: string
+          max_uses?: number | null
+          min_booking_amount?: number | null
+          updated_at?: string | null
+          valid_from?: string
+          valid_to?: string
+        }
+        Relationships: []
+      }
       customer_access_logs: {
         Row: {
           access_reason: string | null
@@ -633,6 +752,39 @@ export type Database = {
           },
         ]
       }
+      loyalty_points: {
+        Row: {
+          created_at: string | null
+          id: string
+          points: number | null
+          tier: string | null
+          total_bookings: number | null
+          total_spent: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          points?: number | null
+          tier?: string | null
+          total_bookings?: number | null
+          total_spent?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          points?: number | null
+          tier?: string | null
+          total_bookings?: number | null
+          total_spent?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       pdf_settings: {
         Row: {
           bank_account_number: string | null
@@ -713,6 +865,66 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      reviews: {
+        Row: {
+          admin_response: string | null
+          booking_id: string
+          comment: string | null
+          created_at: string | null
+          guest_name: string | null
+          guest_phone: string | null
+          hotel_id: string
+          id: string
+          rating: number
+          status: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          admin_response?: string | null
+          booking_id: string
+          comment?: string | null
+          created_at?: string | null
+          guest_name?: string | null
+          guest_phone?: string | null
+          hotel_id: string
+          id?: string
+          rating: number
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          admin_response?: string | null
+          booking_id?: string
+          comment?: string | null
+          created_at?: string | null
+          guest_name?: string | null
+          guest_phone?: string | null
+          hotel_id?: string
+          id?: string
+          rating?: number
+          status?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "hotels"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       room_availability: {
         Row: {
@@ -913,6 +1125,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      whatsapp_settings: {
+        Row: {
+          created_at: string | null
+          group_link: string | null
+          id: string
+          no_booking_alert_hours: number | null
+          reminder_hours: number | null
+          send_confirmation: boolean | null
+          send_reminder: boolean | null
+          send_to_group: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          group_link?: string | null
+          id?: string
+          no_booking_alert_hours?: number | null
+          reminder_hours?: number | null
+          send_confirmation?: boolean | null
+          send_reminder?: boolean | null
+          send_to_group?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          group_link?: string | null
+          id?: string
+          no_booking_alert_hours?: number | null
+          reminder_hours?: number | null
+          send_confirmation?: boolean | null
+          send_reminder?: boolean | null
+          send_to_group?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: []
       }
     }
     Views: {

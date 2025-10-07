@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, Wifi, Coffee, Utensils, ChevronLeft, ChevronRight, ParkingCircle, Bus, MapPinned } from "lucide-react";
+import { MapPin, Star, Wifi, Coffee, Utensils, ChevronLeft, ChevronRight, Bus, MapPinned } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
@@ -91,6 +91,14 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
           className="w-full h-full object-cover transition-all duration-300"
         />
         
+        {/* Image Counter - Always visible top left */}
+        {hotelImages.length > 1 && (
+          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-foreground px-3 py-1 rounded-lg text-sm font-semibold">
+            {String(currentImageIndex + 1).padStart(2, '0')}
+            <span className="text-muted-foreground text-xs"> / {String(hotelImages.length).padStart(2, '0')}</span>
+          </div>
+        )}
+        
         {/* Meal Badge */}
         {meal_plans && meal_plans.regular_ar && (
           <div 
@@ -114,36 +122,21 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
             عرض مميز
           </Badge>
         )}
-        <div className="absolute top-4 left-4 bg-card/95 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1">
+        <div className="absolute top-4 right-4 bg-card/95 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1">
           <Star className="w-4 h-4 fill-primary text-primary" />
           <span className="text-sm font-bold">{rating}</span>
         </div>
         
-        {/* Navigation Arrows */}
+        {/* Next Image Button - Only if multiple images */}
         {hotelImages.length > 1 && (
-          <>
-            <Button
-              size="icon"
-              variant="secondary"
-              className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-card/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={handlePrevImage}
-            >
-              <ChevronRight className="w-4 h-4" />
-            </Button>
-            <Button
-              size="icon"
-              variant="secondary"
-              className="absolute left-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-full bg-card/95 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity"
-              onClick={handleNextImage}
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </Button>
-            
-            {/* Image Counter */}
-            <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/70 text-white px-2 py-1 rounded-full text-xs">
-              {currentImageIndex + 1} / {hotelImages.length}
-            </div>
-          </>
+          <Button
+            size="icon"
+            variant="ghost"
+            className={`absolute ${language === 'ar' ? 'left-2' : 'right-2'} top-1/2 -translate-y-1/2 h-10 w-10 rounded-md bg-white/90 hover:bg-white backdrop-blur-sm shadow-lg transition-all`}
+            onClick={handleNextImage}
+          >
+            <ChevronLeft className="w-5 h-5 text-foreground" />
+          </Button>
         )}
       </div>
 
@@ -165,7 +158,11 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
           {amenities?.wifi && <Wifi className="w-4 h-4 text-muted-foreground" />}
           {amenities?.cafe && <Coffee className="w-4 h-4 text-muted-foreground" />}
           {amenities?.restaurant && <Utensils className="w-4 h-4 text-muted-foreground" />}
-          {amenities?.parking && <ParkingCircle className="w-4 h-4 text-muted-foreground" />}
+          {amenities?.parking && (
+            <div className="flex items-center justify-center w-5 h-5 rounded-full bg-muted text-muted-foreground text-xs font-bold">
+              P
+            </div>
+          )}
           {amenities?.shuttle && <Bus className="w-4 h-4 text-muted-foreground" />}
           {amenities?.walking_distance && amenities.walking_distance > 0 && (
             <div className="flex items-center gap-1 text-xs text-muted-foreground">

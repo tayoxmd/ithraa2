@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search, Upload, X, Image as ImageIcon, Trash2, Wifi, Coffee, Utensils, Users, Hotel as HotelIcon, Bus, ParkingCircle } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search, Upload, X, Image as ImageIcon, Trash2, Wifi, Coffee, Utensils, Users, Hotel as HotelIcon, Bus, MapPinned } from "lucide-react";
 import { MealPlansManager } from "@/components/MealPlansManager";
 import { ImageGallery } from "@/components/ImageGallery";
 import { LoadingSpinner } from "@/components/LoadingSpinner";

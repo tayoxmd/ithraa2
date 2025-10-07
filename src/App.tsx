@@ -29,6 +29,9 @@ import SeasonalPricing from "./pages/SeasonalPricing";
 import EmployeeManagement from "./pages/EmployeeManagement";
 import APISettings from "./pages/APISettings";
 import UserDashboard from "./pages/UserDashboard";
+import Reviews from "./pages/Reviews";
+import Coupons from "./pages/Coupons";
+import LoyaltyProgram from "./pages/LoyaltyProgram";
 
 const queryClient = new QueryClient();
 
@@ -50,20 +53,24 @@ const App = () => (
               <Route path="/hotel/:id" element={<HotelDetails />} />
               <Route path="/booking/:id" element={<Booking />} />
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/admin-dashboard" element={<AdminDashboard />} />
               <Route path="/employee" element={<EmployeeDashboard />} />
               <Route path="/customer-dashboard" element={<CustomerDashboard />} />
               <Route path="/guest-dashboard" element={<GuestDashboard />} />
               <Route path="/dashboard/:phoneAndOrder" element={<GuestDashboard />} />
               <Route path="/dashboard" element={<UserDashboard />} />
               <Route path="/manage-employees" element={<ManageEmployees />} />
-          <Route path="/profile" element={<Profile />} />
+              <Route path="/profile" element={<Profile />} />
               <Route path="/manage-hotels" element={<ManageHotels />} />
-          <Route path="/seasonal-pricing" element={<SeasonalPricing />} />
-          <Route path="/employee-management" element={<EmployeeManagement />} />
-          <Route path="/api-settings" element={<APISettings />} />
+              <Route path="/seasonal-pricing" element={<SeasonalPricing />} />
+              <Route path="/employee-management" element={<EmployeeManagement />} />
+              <Route path="/api-settings" element={<APISettings />} />
               <Route path="/site-settings" element={<SiteSettings />} />
               <Route path="/pdf-settings" element={<PDFSettings />} />
               <Route path="/audit-logs" element={<AuditLogs />} />
+              <Route path="/reviews" element={<Reviews />} />
+              <Route path="/coupons" element={<Coupons />} />
+              <Route path="/loyalty-program" element={<LoyaltyProgram />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
