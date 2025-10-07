@@ -106,16 +106,6 @@ export function Header() {
                       variant="outline"
                       size="sm"
                       className="gap-2"
-                      onClick={() => navigate('/dashboard')}
-                    >
-                      <LayoutDashboard className="w-4 h-4" />
-                      {t({ ar: "لوحة التحكم", en: "Dashboard" })}
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-2"
                       onClick={() => signOut()}
                     >
                       <LogOut className="w-4 h-4" />
@@ -132,14 +122,6 @@ export function Header() {
                       onClick={() => navigate('/customer-dashboard')}
                     >
                       {t({ ar: "الحجوزات", en: "Bookings" })}
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 px-2 text-xs"
-                      onClick={() => navigate('/dashboard')}
-                    >
-                      {t({ ar: "لوحة التحكم", en: "Dashboard" })}
                     </Button>
                   </div>
                 </>
@@ -206,6 +188,15 @@ export function Header() {
                         {t('الإدارة', 'Management')}
                       </Button>
                     )}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="justify-start gap-2"
+                      onClick={() => navigate('/dashboard')}
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      {t({ ar: "لوحة التحكم", en: "Dashboard" })}
+                    </Button>
                     <Button 
                       variant="outline" 
                       size="sm" 

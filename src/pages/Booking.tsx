@@ -239,7 +239,7 @@ export default function Booking() {
       setFieldErrors({ guestName: true });
       toast({
         title: t({ ar: "خطأ", en: "Error" }),
-        description: t({ ar: "يرجى إدخال اسم الضيف", en: "Please enter guest name" }),
+        description: t({ ar: "لم تقم بإدخال اسم الضيف", en: "Guest name is required" }),
         variant: "destructive",
       });
       // Scroll to the error field

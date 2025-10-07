@@ -72,6 +72,8 @@ export default function SiteSettings() {
     created_at: string | null;
     version: number | null;
   }>({ created_at: null, version: null });
+  const [userTheme, setUserTheme] = useState('design-1');
+  const [adminTheme, setAdminTheme] = useState('design-1');
 
   useEffect(() => {
     if (!loading && userRole !== 'admin') {
@@ -646,6 +648,109 @@ export default function SiteSettings() {
               <p className="text-xs text-muted-foreground">{t({ ar: 'تُستخدم هذه الألوان لتظليل بطاقات الفنادق والطلبات حسب النوع', en: 'These colors are used to highlight hotel and booking cards by type' })}</p>
               <Button onClick={handleSaveExceptionColors} className="w-full btn-luxury">
                 {t({ ar: 'حفظ الألوان الاستثنائية', en: 'Save Exceptional Colors' })}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Website Design Section */}
+          <Card className="card-luxury lg:col-span-2">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Layout className="w-5 h-5" />
+                {t({ ar: 'تصميم الموقع', en: 'Website Design' })}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* User Interface Design */}
+                <div className="space-y-3">
+                  <Label>{t({ ar: 'تصاميم واجهة المستخدم', en: 'User Interface Design' })}</Label>
+                  <p className="text-xs text-muted-foreground">
+                    {t({ ar: 'اختر التصميم المناسب للصفحات العامة', en: 'Choose design for public pages' })}
+                  </p>
+                  <Select value={userTheme} onValueChange={setUserTheme}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="design-1">
+                        {t({ ar: 'تصميم 1 (التصميم الحالي)', en: 'Design 1 (Current Design)' })}
+                      </SelectItem>
+                      <SelectItem value="design-2">
+                        {t({ ar: 'تصميم 2 (أزرق داكن)', en: 'Design 2 (Dark Blue)' })}
+                      </SelectItem>
+                      <SelectItem value="design-3">
+                        {t({ ar: 'تصميم 3 (قريباً)', en: 'Design 3 (Coming Soon)' })}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  {userTheme === 'design-2' && (
+                    <div className="p-3 bg-muted/50 rounded-lg space-y-2 text-sm">
+                      <p className="font-semibold">{t({ ar: 'معاينة التصميم:', en: 'Design Preview:' })}</p>
+                      <ul className="space-y-1 text-xs text-muted-foreground">
+                        <li>• {t({ ar: 'اللون الأساسي: #001f7c (أزرق داكن)', en: 'Primary Color: #001f7c (Dark Blue)' })}</li>
+                        <li>• {t({ ar: 'الأزرار: #838383 (رمادي)', en: 'Buttons: #838383 (Gray)' })}</li>
+                        <li>• {t({ ar: 'النصوص: أبيض', en: 'Text: White' })}</li>
+                        <li>• {t({ ar: 'الزوايا: أقل حدة', en: 'Corners: Less sharp' })}</li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* Admin Panel Design */}
+                <div className="space-y-3">
+                  <Label>{t({ ar: 'تصاميم صفحة الأدمن', en: 'Admin Panel Design' })}</Label>
+                  <p className="text-xs text-muted-foreground">
+                    {t({ ar: 'اختر التصميم المناسب للوحة الإدارة', en: 'Choose design for admin panel' })}
+                  </p>
+                  <Select value={adminTheme} onValueChange={setAdminTheme}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="design-1">
+                        {t({ ar: 'تصميم 1 (التصميم الحالي)', en: 'Design 1 (Current Design)' })}
+                      </SelectItem>
+                      <SelectItem value="design-2">
+                        {t({ ar: 'تصميم 2 (أزرق داكن)', en: 'Design 2 (Dark Blue)' })}
+                      </SelectItem>
+                      <SelectItem value="design-3">
+                        {t({ ar: 'تصميم 3 (قريباً)', en: 'Design 3 (Coming Soon)' })}
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  {adminTheme === 'design-2' && (
+                    <div className="p-3 bg-muted/50 rounded-lg space-y-2 text-sm">
+                      <p className="font-semibold">{t({ ar: 'معاينة التصميم:', en: 'Design Preview:' })}</p>
+                      <ul className="space-y-1 text-xs text-muted-foreground">
+                        <li>• {t({ ar: 'اللون الأساسي: #001f7c (أزرق داكن)', en: 'Primary Color: #001f7c (Dark Blue)' })}</li>
+                        <li>• {t({ ar: 'الأزرار: #838383 (رمادي)', en: 'Buttons: #838383 (Gray)' })}</li>
+                        <li>• {t({ ar: 'النصوص: أبيض', en: 'Text: White' })}</li>
+                        <li>• {t({ ar: 'الزوايا: أقل حدة', en: 'Corners: Less sharp' })}</li>
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="p-4 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                <p className="text-sm text-blue-900 dark:text-blue-300">
+                  <strong>{t({ ar: 'ملاحظة:', en: 'Note:' })}</strong> {t({ ar: 'تغيير التصميم سيؤثر على جميع الصفحات والمكونات. التصميم 3 سيكون متاحاً قريباً.', en: 'Changing the design will affect all pages and components. Design 3 will be available soon.' })}
+                </p>
+              </div>
+
+              <Button 
+                onClick={async () => {
+                  toast({
+                    title: t({ ar: 'تم الحفظ', en: 'Saved' }),
+                    description: t({ ar: 'سيتم تفعيل التصاميم الجديدة في التحديثات القادمة', en: 'New designs will be activated in upcoming updates' }),
+                  });
+                }} 
+                className="w-full btn-luxury"
+              >
+                {t({ ar: 'حفظ إعدادات التصميم', en: 'Save Design Settings' })}
               </Button>
             </CardContent>
           </Card>

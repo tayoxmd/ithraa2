@@ -232,30 +232,36 @@ export default function CustomerDashboard() {
                         <span className="font-medium">{booking.guests}</span>
                       </div>
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">{t({ ar: "عدد الغرف:", en: "Rooms:", fr: "Chambres:", es: "Habitaciones:", ru: "Номера:", id: "Kamar:", ms: "Bilik:" })}</span>
+                        <span className="text-muted-foreground">{t({ ar: "عدد الغرف:", en: "Rooms:" })}</span>
                         <span className="font-medium">{booking.rooms}</span>
                       </div>
                       {booking.meal_plan_name_ar && (
-                        <>
+                        <div className="pt-3 border-t space-y-2">
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">{t({ ar: "الوجبات:", en: "Meals:" })}</span>
+                            <span className="text-muted-foreground font-semibold">{t({ ar: "الوجبات:", en: "Meals:" })}</span>
                             <span className="font-medium">{language === 'ar' ? booking.meal_plan_name_ar : booking.meal_plan_name_en}</span>
                           </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">{t({ ar: "مشمولة لـ:", en: "Included for:" })}</span>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">{booking.meal_plan_price && booking.meal_plan_price > 0 ? t({ ar: "مدفوعة", en: "Paid" }) : t({ ar: "مشمولة", en: "Included" })}</span>
+                            {booking.meal_plan_price && booking.meal_plan_price > 0 && (
+                              <span className="font-medium">+{booking.meal_plan_price} {t({ ar: "ر.س", en: "SAR" })}</span>
+                            )}
+                          </div>
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">{t({ ar: "عدد الأشخاص:", en: "Persons:" })}</span>
                             <span className="font-medium">{booking.meal_plan_max_persons} {t({ ar: "أشخاص", en: "persons" })}</span>
                           </div>
-                          {booking.extra_meals > 0 && (
-                            <div className="flex justify-between">
+                          {booking.extra_meals && booking.extra_meals > 0 && (
+                            <div className="flex justify-between text-sm">
                               <span className="text-muted-foreground">{t({ ar: "وجبات إضافية:", en: "Extra Meals:" })}</span>
-                              <span className="font-medium">{booking.extra_meals} {t({ ar: "شخص", en: "person(s)" })}</span>
+                              <span className="font-medium">+{booking.extra_meals}</span>
                             </div>
                           )}
-                        </>
+                        </div>
                       )}
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:", fr: "Montant total:", es: "Monto total:", ru: "Общая сумма:", id: "Jumlah Total:", ms: "Jumlah Keseluruhan:" })}</span>
-                        <span className="font-medium">{booking.total_amount} {t({ ar: "ر.س", en: "SAR", fr: "SAR", es: "SAR", ru: "SAR", id: "SAR", ms: "SAR" })}</span>
+                      <div className="flex justify-between pt-3 border-t">
+                        <span className="text-muted-foreground font-semibold">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })}</span>
+                        <span className="font-bold text-lg text-primary">{booking.total_amount} {t({ ar: "ر.س", en: "SAR" })}</span>
                       </div>
                     </div>
                     <div className="mt-4">

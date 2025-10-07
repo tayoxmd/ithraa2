@@ -56,7 +56,7 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
       const { data } = await supabase
         .from('site_settings')
         .select('meal_badge_color, meal_badge_width, meal_badge_height, meal_badge_font_size, meal_badge_border_radius')
-        .single();
+        .maybeSingle();
       
       if (data) {
         setMealBadgeSettings({
@@ -100,7 +100,7 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
         )}
         
         {/* Meal Badge */}
-        {meal_plans && meal_plans.regular_ar && (
+        {meal_plans && meal_plans.regular_ar && meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
           <div 
             className={`absolute ${language === 'ar' ? 'left-4' : 'right-4'} top-16`}
             style={{
@@ -112,6 +112,7 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
             }}
           >
             <div className="flex items-center justify-center h-full px-2 text-white font-semibold text-center">
+              <Utensils className="w-3 h-3 ml-1" />
               {language === 'ar' ? meal_plans.regular_ar : meal_plans.regular_en}
             </div>
           </div>
@@ -148,11 +149,12 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
             <p className="text-sm text-muted-foreground">{nameEn}</p>
           </div>
           {/* Small Meal Badge - Next to hotel name */}
-          {meal_plans && meal_plans.regular_ar && (
+          {meal_plans && meal_plans.regular_ar && meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
             <div 
-              className={`px-2 py-1 rounded text-white text-xs font-semibold whitespace-nowrap shrink-0 ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}
+              className={`px-2 py-1 rounded text-white text-xs font-semibold whitespace-nowrap shrink-0 flex items-center gap-1 ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}
               style={{ backgroundColor: mealBadgeSettings.color }}
             >
+              <Utensils className="w-3 h-3" />
               {language === 'ar' ? 'يشمل وجبات' : 'Meals Included'}
             </div>
           )}
@@ -184,14 +186,15 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
         </div>
 
         {/* Meal Info */}
-        {meal_plans && meal_plans.regular_ar && meal_plans.max_persons > 0 && (
+        {meal_plans && meal_plans.regular_ar && meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && meal_plans.max_persons > 0 && (
           <div 
-            className="text-xs mb-3 px-2 py-1 rounded inline-block"
+            className="text-xs mb-3 px-2 py-1 rounded inline-flex items-center gap-1"
             style={{ 
               backgroundColor: `${mealBadgeSettings.color}20`,
               color: mealBadgeSettings.color,
             }}
           >
+            <Utensils className="w-3 h-3" />
             {language === 'ar' 
               ? `${meal_plans.regular_ar} - يشمل ${meal_plans.max_persons} ${meal_plans.max_persons === 1 ? 'شخص' : meal_plans.max_persons === 2 ? 'شخصين' : 'أشخاص'}`
               : `${meal_plans.regular_en} - Includes ${meal_plans.max_persons} ${meal_plans.max_persons === 1 ? 'person' : 'persons'}`

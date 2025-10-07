@@ -68,6 +68,22 @@ serve(async (req) => {
       );
     }
 
+    // Build meal info section
+    let mealInfo = '';
+    if (booking.meal_plan_name_ar) {
+      const maxPersons = booking.meal_plan_max_persons || 0;
+      const personsText = maxPersons === 1 ? 'شخص واحد' : maxPersons === 2 ? 'شخصين' : `${maxPersons} أشخاص`;
+      const paidInfo = booking.meal_plan_price && booking.meal_plan_price > 0 
+        ? `مدفوعة (${booking.meal_plan_price} ر.س/ليلة)` 
+        : 'مشمولة';
+      mealInfo = `🍽️ *الوجبات:* ${booking.meal_plan_name_ar}\n   • ${paidInfo} لـ ${personsText}`;
+      
+      if (booking.extra_meals && booking.extra_meals > 0) {
+        const extraMealsText = booking.extra_meals === 1 ? 'وجبة إضافية واحدة' : booking.extra_meals === 2 ? 'وجبتين إضافيتين' : `${booking.extra_meals} وجبات إضافية`;
+        mealInfo += `\n   • ${extraMealsText}`;
+      }
+    }
+    
     // Format the message (Arabic)
     const message = `🔔 *حجز جديد*
 
@@ -82,11 +98,10 @@ serve(async (req) => {
 👥 *عدد النزلاء:* ${booking.guests}
 🛏️ *عدد الغرف:* ${booking.rooms}
 
+${mealInfo}
+
 💰 *المبلغ الإجمالي:* ${booking.total_amount} ر.س
 💳 *طريقة الدفع:* ${booking.payment_method}
-
-${booking.meal_plan_name_ar ? `🍽️ *الوجبات:* ${booking.meal_plan_name_ar} (مشمولة لـ ${booking.meal_plan_max_persons} أشخاص)` : ''}
-${booking.extra_meals > 0 ? `➕ *وجبات إضافية:* ${booking.extra_meals}` : ''}
 
 ${booking.notes ? `📝 *ملاحظات:* ${booking.notes}` : ''}
 
