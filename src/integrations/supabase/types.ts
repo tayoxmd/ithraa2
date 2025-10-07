@@ -141,7 +141,9 @@ export type Database = {
           check_out: string
           created_at: string | null
           discount_amount: number | null
+          guest_country_code: string | null
           guest_name: string | null
+          guest_phone: string | null
           guests: number
           hotel_confirmation_number: string | null
           hotel_id: string
@@ -154,7 +156,7 @@ export type Database = {
           status: Database["public"]["Enums"]["booking_status"] | null
           total_amount: number
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           amount_paid?: number | null
@@ -163,7 +165,9 @@ export type Database = {
           check_out: string
           created_at?: string | null
           discount_amount?: number | null
+          guest_country_code?: string | null
           guest_name?: string | null
+          guest_phone?: string | null
           guests?: number
           hotel_confirmation_number?: string | null
           hotel_id: string
@@ -176,7 +180,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_amount: number
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           amount_paid?: number | null
@@ -185,7 +189,9 @@ export type Database = {
           check_out?: string
           created_at?: string | null
           discount_amount?: number | null
+          guest_country_code?: string | null
           guest_name?: string | null
+          guest_phone?: string | null
           guests?: number
           hotel_confirmation_number?: string | null
           hotel_id?: string
@@ -198,7 +204,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_amount?: number
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {

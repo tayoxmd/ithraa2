@@ -16,6 +16,7 @@ import { CreditCard, Calendar as CalendarIcon, Users, Hotel as HotelIcon } from 
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { bookingSchema } from "@/lib/validations";
+import { BookingAuthDialog } from "@/components/BookingAuthDialog";
 
 const paymentMethods = [
   { id: 'cash', name: 'نقدي', nameEn: 'Cash' },
@@ -51,15 +52,12 @@ export default function Booking() {
   const [guestName, setGuestName] = useState("");
   const [useCustomerName, setUseCustomerName] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [guestPhone, setGuestPhone] = useState("");
+  const [guestCountryCode, setGuestCountryCode] = useState("+966");
 
   useEffect(() => {
-    if (!user) {
-      // Store the current URL to redirect back after login
-      const redirectUrl = `${location.pathname}${location.search}`;
-      navigate(`/auth?redirect=${encodeURIComponent(redirectUrl)}`);
-      return;
-    }
-    
+    // إزالة التحقق من المصادقة - السماح للضيوف بالوصول
     async function fetchHotel() {
       const { data, error } = await supabase.rpc('get_public_hotel', {
         p_hotel_id: id
@@ -72,7 +70,7 @@ export default function Booking() {
       if (data && data.length > 0) setHotel(data[0]);
     }
     fetchHotel();
-  }, [id, user, navigate, location]);
+  }, [id]);
 
   const calculateTotal = () => {
     if (!hotel) return { subtotal: 0, extraGuestCharge: 0, tax: 0, total: 0, extraGuestsCount: 0 };
@@ -112,14 +110,14 @@ export default function Booking() {
     return { subtotal: basePrice, extraGuestCharge, tax, total, extraGuestsCount };
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const initiateBooking = (e: React.FormEvent) => {
     e.preventDefault();
     
     // Validate dates
     if (checkOut <= checkIn) {
       toast({
-        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
-        description: t({ ar: "تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول", en: "Check-out date must be after check-in date", fr: "La date de départ doit être postérieure à la date d'arrivée", es: "La fecha de salida debe ser posterior a la fecha de entrada", ru: "Дата выезда должна быть позже даты заезда", id: "Tanggal check-out harus setelah tanggal check-in", ms: "Tarikh daftar keluar mesti selepas tarikh daftar masuk" }),
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: t({ ar: "تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول", en: "Check-out date must be after check-in date" }),
         variant: "destructive",
       });
       return;
@@ -127,8 +125,8 @@ export default function Booking() {
     
     if (!guestName.trim()) {
       toast({
-        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
-        description: t({ ar: "يرجى إدخال اسم الضيف", en: "Please enter guest name", fr: "Veuillez entrer le nom de l'invité", es: "Por favor ingrese el nombre del huésped", ru: "Пожалуйста, введите имя гостя", id: "Silakan masukkan nama tamu", ms: "Sila masukkan nama tetamu" }),
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: t({ ar: "يرجى إدخال اسم الضيف", en: "Please enter guest name" }),
         variant: "destructive",
       });
       return;
@@ -136,13 +134,29 @@ export default function Booking() {
     
     if (!paymentMethod) {
       toast({
-        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
-        description: t({ ar: "يرجى اختيار طريقة الدفع", en: "Please select payment method", fr: "Veuillez sélectionner le mode de paiement", es: "Por favor seleccione el método de pago", ru: "Пожалуйста, выберите способ оплаты", id: "Silakan pilih metode pembayaran", ms: "Sila pilih kaedah pembayaran" }),
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: t({ ar: "يرجى اختيار طريقة الدفع", en: "Please select payment method" }),
         variant: "destructive",
       });
       return;
     }
 
+    // إذا كان المستخدم مسجل دخول، قم بالحجز مباشرة
+    if (user) {
+      handleSubmit();
+    } else {
+      // إظهار نافذة خيارات المصادقة
+      setShowAuthDialog(true);
+    }
+  };
+
+  const handleGuestContinue = (phone: string, countryCode: string) => {
+    setGuestPhone(phone);
+    setGuestCountryCode(countryCode);
+    handleSubmit();
+  };
+
+  const handleSubmit = async () => {
     setLoading(true);
 
     const totalData = calculateTotal();
@@ -152,41 +166,59 @@ export default function Booking() {
       ? guestName.trim().toUpperCase() 
       : guestName.trim();
     
-    const { error } = await supabase
+    const bookingData: any = {
+      hotel_id: id!,
+      check_in: format(checkIn, 'yyyy-MM-dd'),
+      check_out: format(checkOut, 'yyyy-MM-dd'),
+      guests: parseInt(guests),
+      rooms: parseInt(rooms),
+      total_amount: totalData.total,
+      payment_method: paymentMethod,
+      notes: notes || null,
+      guest_name: formattedGuestName,
+      status: 'new' as const,
+      payment_status: 'unpaid',
+      amount_paid: 0,
+    };
+
+    // إضافة معلومات المستخدم أو الضيف
+    if (user) {
+      bookingData.user_id = user.id;
+    } else if (guestPhone) {
+      bookingData.guest_phone = guestPhone;
+      bookingData.guest_country_code = guestCountryCode;
+    }
+    
+    const { data, error } = await supabase
       .from('bookings')
-      .insert([{
-        user_id: user!.id,
-        hotel_id: id!,
-        check_in: format(checkIn, 'yyyy-MM-dd'),
-        check_out: format(checkOut, 'yyyy-MM-dd'),
-        guests: parseInt(guests),
-        rooms: parseInt(rooms),
-        total_amount: totalData.total,
-        payment_method: paymentMethod,
-        notes: notes || null,
-        guest_name: formattedGuestName,
-        status: 'new' as const,
-        payment_status: 'unpaid',
-        amount_paid: 0,
-      }]);
+      .insert([bookingData])
+      .select()
+      .single();
 
     setLoading(false);
 
     if (error) {
       toast({
-        title: t({ ar: "خطأ", en: "Error", fr: "Erreur", es: "Error", ru: "Ошибка", id: "Kesalahan", ms: "Ralat" }),
-        description: t({ ar: "حدث خطأ في الحجز", en: "Booking failed", fr: "Échec de la réservation", es: "Reserva fallida", ru: "Бронирование не удалось", id: "Pemesanan gagal", ms: "Tempahan gagal" }),
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: t({ ar: "حدث خطأ في الحجز", en: "Booking failed" }),
         variant: "destructive",
       });
     } else {
       toast({
-        title: t({ ar: "تم بنجاح", en: "Success", fr: "Succès", es: "Éxito", ru: "Успех", id: "Berhasil", ms: "Berjaya" }),
-        description: t({ ar: "تم إرسال حجزك بنجاح وفي انتظار التأكيد", en: "Your booking has been sent successfully and is awaiting confirmation", fr: "Votre réservation a été envoyée avec succès et est en attente de confirmation", es: "Su reserva se ha enviado con éxito y está pendiente de confirmación", ru: "Ваше бронирование успешно отправлено и ожидает подтверждения", id: "Pemesanan Anda berhasil dikirim dan menunggu konfirmasi", ms: "Tempahan anda telah berjaya dihantar dan menunggu pengesahan" }),
+        title: t({ ar: "تم بنجاح", en: "Success" }),
+        description: t({ ar: "تم إرسال حجزك بنجاح وفي انتظار التأكيد", en: "Your booking has been sent successfully and is awaiting confirmation" }),
       });
       
-      // Redirect to dashboard after 2 seconds
+      // التوجيه بناءً على نوع المستخدم
       setTimeout(() => {
-        navigate('/');
+        if (user) {
+          navigate('/customer-dashboard');
+        } else if (guestPhone) {
+          // التوجيه إلى صفحة الضيف مع رقم الهاتف ورقم الحجز
+          navigate(`/dashboard/${encodeURIComponent(guestPhone)}:${data?.booking_number || 1}`);
+        } else {
+          navigate('/');
+        }
       }, 2000);
     }
   };
@@ -212,7 +244,7 @@ export default function Booking() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={initiateBooking} className="space-y-6">
               {/* Booking Summary Card */}
               <Card className="card-luxury">
                 <CardHeader>
@@ -405,61 +437,21 @@ export default function Booking() {
                 className="w-full btn-luxury h-14 text-lg"
                 disabled={loading}
               >
-                {loading ? t({ ar: 'جاري المعالجة...', en: 'Processing...', fr: 'Traitement...', es: 'Procesando...', ru: 'Обработка...', id: 'Memproses...', ms: 'Memproses...' }) : t({ ar: 'تأكيد الحجز', en: 'Confirm Booking', fr: 'Confirmer la réservation', es: 'Confirmar reserva', ru: 'Подтвердить бронирование', id: 'Konfirmasi Pemesanan', ms: 'Sahkan Tempahan' })}
+                {loading ? t({ ar: 'جاري المعالجة...', en: 'Processing...' }) : t({ ar: 'تأكيد الحجز', en: 'Confirm Booking' })}
               </Button>
             </form>
           </div>
 
           {/* Side Summary (Desktop) */}
-          <div className="hidden lg:block">
-            <Card className="card-luxury sticky top-24">
-              <CardHeader>
-                <CardTitle>{t({ ar: 'معلومات الفندق', en: 'Hotel Information', fr: 'Informations sur l\'hôtel', es: 'Información del hotel', ru: 'Информация об отеле', id: 'Informasi Hotel', ms: 'Maklumat Hotel' })}</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <h3 className="font-semibold text-lg mb-2">
-                    {language === 'ar' ? hotel.name_ar : hotel.name_en}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-4">{hotel.location}</p>
-                  {hotel.images && hotel.images[0] && (
-                    <img 
-                      src={hotel.images[0]} 
-                      alt={hotel.name_en}
-                      className="w-full h-48 object-cover rounded-lg mb-4"
-                    />
-                  )}
-                </div>
-
-                <div className="border-t pt-4 space-y-2">
-                  <div className="flex items-center gap-2 text-sm">
-                    <CalendarIcon className="w-4 h-4 text-primary" />
-                    <span>{format(checkIn, "dd/MM/yyyy")} - {format(checkOut, "dd/MM/yyyy")}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Users className="w-4 h-4 text-primary" />
-                    <span>{guests} {t({ ar: 'نزيل', en: 'Guest(s)', fr: 'Invité(s)', es: 'Huésped(es)', ru: 'Гость(и)', id: 'Tamu', ms: 'Tetamu' })}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <HotelIcon className="w-4 h-4 text-primary" />
-                    <span>{rooms} {t({ ar: 'غرفة', en: 'Room(s)', fr: 'Chambre(s)', es: 'Habitación(es)', ru: 'Номер(а)', id: 'Kamar', ms: 'Bilik' })}</span>
-                  </div>
-                </div>
-
-                <div className="border-t pt-4">
-                  <div className="flex justify-between font-bold text-xl">
-                    <span>{t({ ar: 'الإجمالي', en: 'Total' })}</span>
-                    <span className="text-primary">
-                      {Math.round(calculateTotal().total)} {t({ ar: 'ر.س', en: 'SAR' })}
-                      <span className="text-xs font-normal text-muted-foreground mr-1 block">{t({ ar: 'شامل الضريبة', en: 'incl. tax' })}</span>
-                    </span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+...
         </div>
       </div>
+
+      <BookingAuthDialog 
+        open={showAuthDialog}
+        onClose={() => setShowAuthDialog(false)}
+        onGuestContinue={handleGuestContinue}
+      />
 
       <Footer />
     </div>

@@ -11,6 +11,7 @@ import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import EmployeeDashboard from "./pages/EmployeeDashboard";
 import CustomerDashboard from "./pages/CustomerDashboard";
+import GuestDashboard from "./pages/GuestDashboard";
 import ManageEmployees from "./pages/ManageEmployees";
 import Profile from "./pages/Profile";
 import ManageHotels from "./pages/ManageHotels";
@@ -47,7 +48,8 @@ const App = () => (
               <Route path="/booking/:id" element={<Booking />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/employee" element={<EmployeeDashboard />} />
-              <Route path="/dashboard" element={<CustomerDashboard />} />
+              <Route path="/customer-dashboard" element={<CustomerDashboard />} />
+              <Route path="/dashboard/:phoneAndOrder" element={<GuestDashboard />} />
           <Route path="/manage-employees" element={<ManageEmployees />} />
           <Route path="/profile" element={<Profile />} />
               <Route path="/manage-hotels" element={<ManageHotels />} />
