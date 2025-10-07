@@ -78,7 +78,7 @@ const Index = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="relative min-h-[600px] flex items-center justify-center pt-20">
+      <section className="relative min-h-[500px] md:min-h-[650px] flex items-center justify-center pt-20">
         {/* Background Images with Fade Effect */}
         <div className="absolute inset-0 z-0">
           {heroImages.map((image, index) => (
@@ -96,10 +96,10 @@ const Index = () => {
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 py-20">
           <div className="text-center mb-12 animate-fade-in">
-<h1 className="text-4xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg">
+            <h1 className="text-4xl md:text-6xl font-bold text-primary mb-6 drop-shadow-lg">
               اكتشف وجهتك المثالية
             </h1>
-            <p className="text-xl text-white/90 max-w-2xl mx-auto drop-shadow-md">
+            <p className="text-xl text-primary/90 max-w-2xl mx-auto drop-shadow-md">
               احجز أفضل الفنادق والشقق الفندقية بأسعار تنافسية وخدمة استثنائية
             </p>
           </div>
