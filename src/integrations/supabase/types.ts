@@ -778,6 +778,11 @@ export type Database = {
           loader_enabled: boolean
           loader_speed_ms: number
           loader_type: string
+          meal_badge_border_radius: number | null
+          meal_badge_color: string | null
+          meal_badge_font_size: number | null
+          meal_badge_height: number | null
+          meal_badge_width: number | null
           owner_room_color: string | null
           phone: string | null
           tax_percentage: number
@@ -803,6 +808,11 @@ export type Database = {
           loader_enabled?: boolean
           loader_speed_ms?: number
           loader_type?: string
+          meal_badge_border_radius?: number | null
+          meal_badge_color?: string | null
+          meal_badge_font_size?: number | null
+          meal_badge_height?: number | null
+          meal_badge_width?: number | null
           owner_room_color?: string | null
           phone?: string | null
           tax_percentage?: number
@@ -828,6 +838,11 @@ export type Database = {
           loader_enabled?: boolean
           loader_speed_ms?: number
           loader_type?: string
+          meal_badge_border_radius?: number | null
+          meal_badge_color?: string | null
+          meal_badge_font_size?: number | null
+          meal_badge_height?: number | null
+          meal_badge_width?: number | null
           owner_room_color?: string | null
           phone?: string | null
           tax_percentage?: number

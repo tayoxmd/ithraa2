@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Palette, Type, Languages, Layout, Percent, Key, Loader2, Code } from "lucide-react";
+import { Palette, Type, Languages, Layout, Percent, Key, Loader2, Code, Utensils } from "lucide-react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Switch } from "@/components/ui/switch";
 
@@ -36,6 +36,13 @@ export default function SiteSettings() {
   const [exceptionColors, setExceptionColors] = useState({
     owner_room_color: '#87CEEB',
     hotel_room_color: '' as string
+  });
+  const [mealBadgeSettings, setMealBadgeSettings] = useState({
+    meal_badge_color: '#007dff',
+    meal_badge_width: 150,
+    meal_badge_height: 32,
+    meal_badge_font_size: 12,
+    meal_badge_border_radius: 8,
   });
   const [chatCodes, setChatCodes] = useState({
     chat_widget_code: '',
@@ -83,6 +90,13 @@ export default function SiteSettings() {
         setExceptionColors({
           owner_room_color: data.owner_room_color || '#87CEEB',
           hotel_room_color: data.hotel_room_color || ''
+        });
+        setMealBadgeSettings({
+          meal_badge_color: data.meal_badge_color || '#007dff',
+          meal_badge_width: data.meal_badge_width || 150,
+          meal_badge_height: data.meal_badge_height || 32,
+          meal_badge_font_size: data.meal_badge_font_size || 12,
+          meal_badge_border_radius: data.meal_badge_border_radius || 8,
         });
         setChatCodes({
           chat_widget_code: data.chat_widget_code || '',
@@ -457,6 +471,120 @@ export default function SiteSettings() {
               <p className="text-xs text-muted-foreground">{t({ ar: 'تُستخدم هذه الألوان لتظليل بطاقات الفنادق والطلبات حسب النوع', en: 'These colors are used to highlight hotel and booking cards by type' })}</p>
               <Button onClick={handleSaveExceptionColors} className="w-full btn-luxury">
                 {t({ ar: 'حفظ الألوان الاستثنائية', en: 'Save Exceptional Colors' })}
+              </Button>
+            </CardContent>
+          </Card>
+
+          {/* Meal Badge Settings */}
+          <Card className="card-luxury">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Utensils className="w-5 h-5" />
+                {t({ ar: 'إعدادات شريط الوجبات', en: 'Meal Badge Settings' })}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>{t({ ar: 'لون شريط الوجبات', en: 'Meal Badge Color' })}</Label>
+                <div className="flex gap-2 mt-2 items-center">
+                  <Input
+                    type="color"
+                    value={mealBadgeSettings.meal_badge_color}
+                    onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_color: e.target.value })}
+                    className="w-20 h-12 cursor-pointer rounded-full border-4 border-primary/20"
+                  />
+                  <Input
+                    type="text"
+                    value={mealBadgeSettings.meal_badge_color}
+                    onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_color: e.target.value })}
+                    className="flex-1"
+                  />
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>{t({ ar: 'العرض (بكسل)', en: 'Width (px)' })}</Label>
+                  <Input
+                    type="number"
+                    value={mealBadgeSettings.meal_badge_width}
+                    onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_width: parseInt(e.target.value) || 150 })}
+                    min="50"
+                    max="300"
+                  />
+                </div>
+                <div>
+                  <Label>{t({ ar: 'الارتفاع (بكسل)', en: 'Height (px)' })}</Label>
+                  <Input
+                    type="number"
+                    value={mealBadgeSettings.meal_badge_height}
+                    onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_height: parseInt(e.target.value) || 32 })}
+                    min="20"
+                    max="100"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label>{t({ ar: 'حجم الخط (بكسل)', en: 'Font Size (px)' })}</Label>
+                  <Input
+                    type="number"
+                    value={mealBadgeSettings.meal_badge_font_size}
+                    onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_font_size: parseInt(e.target.value) || 12 })}
+                    min="8"
+                    max="24"
+                  />
+                </div>
+                <div>
+                  <Label>{t({ ar: 'انحناء الزوايا (بكسل)', en: 'Border Radius (px)' })}</Label>
+                  <Input
+                    type="number"
+                    value={mealBadgeSettings.meal_badge_border_radius}
+                    onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_border_radius: parseInt(e.target.value) || 8 })}
+                    min="0"
+                    max="50"
+                  />
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground">
+                {t({ 
+                  ar: 'يُستخدم هذا الشريط لعرض معلومات الوجبات على بطاقات الفنادق', 
+                  en: 'This badge is used to display meal information on hotel cards' 
+                })}
+              </p>
+              
+              <Button onClick={async () => {
+                try {
+                  const { data: existingSettings } = await supabase
+                    .from('site_settings')
+                    .select('id')
+                    .single();
+
+                  if (existingSettings) {
+                    const { error } = await supabase
+                      .from('site_settings')
+                      .update(mealBadgeSettings)
+                      .eq('id', existingSettings.id);
+                    if (error) throw error;
+                  }
+
+                  toast({
+                    title: t({ ar: 'تم الحفظ', en: 'Saved' }),
+                    description: t({ ar: 'تم حفظ إعدادات شريط الوجبات', en: 'Meal badge settings saved' }),
+                  });
+                  
+                  window.location.reload();
+                } catch (error: any) {
+                  toast({
+                    title: t({ ar: 'خطأ', en: 'Error' }),
+                    description: error.message,
+                    variant: 'destructive',
+                  });
+                }
+              }} className="w-full btn-luxury">
+                {t({ ar: 'حفظ إعدادات شريط الوجبات', en: 'Save Meal Badge Settings' })}
               </Button>
             </CardContent>
           </Card>

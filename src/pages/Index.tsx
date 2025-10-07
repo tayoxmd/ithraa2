@@ -20,6 +20,16 @@ interface Hotel {
   images: any;
   city_name_ar: string;
   city_name_en: string;
+  meal_plans?: {
+    regular_ar: string;
+    regular_en: string;
+    ramadan_ar?: string;
+    ramadan_en?: string;
+    price: number;
+    max_persons: number;
+    extra_meal_price: number;
+  } | null;
+  amenities?: any;
 }
 
 const Index = () => {
@@ -121,6 +131,8 @@ const Index = () => {
                   image={hotel.images && hotel.images[0] ? hotel.images[0] : "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000"}
                   images={hotel.images}
                   featured={index < 2}
+                  meal_plans={hotel.meal_plans}
+                  amenities={hotel.amenities}
                 />
               </div>
             ))}

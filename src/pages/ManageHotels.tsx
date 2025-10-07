@@ -12,7 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search, Upload, X, Image as ImageIcon, Trash2, Wifi, Coffee, Utensils, Users, Hotel as HotelIcon } from "lucide-react";
+import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search, Upload, X, Image as ImageIcon, Trash2, Wifi, Coffee, Utensils, Users, Hotel as HotelIcon, Bus, ParkingCircle } from "lucide-react";
+import { MealPlansManager } from "@/components/MealPlansManager";
 import { ImageGallery } from "@/components/ImageGallery";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 
@@ -98,12 +99,15 @@ export default function ManageHotels() {
     walking_distance: "",
     walking_distance_unit: "m" as 'm' | 'km',
   });
-  const [mealPlans, setMealPlans] = useState<Array<{
-    type: string;
-    name_ar: string;
-    name_en: string;
+  const [mealPlan, setMealPlan] = useState<{
+    regular_ar: string;
+    regular_en: string;
+    ramadan_ar?: string;
+    ramadan_en?: string;
     price: number;
-  }>>([]);
+    max_persons: number;
+    extra_meal_price: number;
+  } | null>(null);
 
   useEffect(() => {
     if (!loading && userRole !== 'admin') {
@@ -361,7 +365,7 @@ export default function ManageHotels() {
           tax_percentage: parseFloat(formData.tax_percentage),
           room_type: formData.room_type,
           images: hotelImages,
-          meal_plans: mealPlans,
+          meal_plans: mealPlan,
           amenities: {
             ...amenities,
             walking_distance: amenities.walking_distance ? parseFloat(amenities.walking_distance) : null,
@@ -392,7 +396,7 @@ export default function ManageHotels() {
       setIsAddDialogOpen(false);
       setSelectedResponsiblePersons([]);
       setHotelImages([]);
-      setMealPlans([]);
+      setMealPlan(null);
       resetForm();
       fetchHotels();
     } catch (error: any) {
@@ -420,7 +424,7 @@ export default function ManageHotels() {
           tax_percentage: parseFloat(formData.tax_percentage),
           room_type: formData.room_type,
           images: hotelImages,
-          meal_plans: mealPlans,
+          meal_plans: mealPlan,
           amenities: {
             ...amenities,
             walking_distance: amenities.walking_distance ? parseFloat(amenities.walking_distance) : null,
@@ -458,7 +462,7 @@ export default function ManageHotels() {
       setEditingHotel(null);
       setSelectedResponsiblePersons([]);
       setHotelImages([]);
-      setMealPlans([]);
+      setMealPlan(null);
       resetForm();
       fetchHotels();
     } catch (error: any) {
@@ -500,10 +504,10 @@ export default function ManageHotels() {
     }
 
     // Set existing meal plans
-    if ((hotel as any).meal_plans && Array.isArray((hotel as any).meal_plans)) {
-      setMealPlans((hotel as any).meal_plans);
+    if ((hotel as any).meal_plans) {
+      setMealPlan((hotel as any).meal_plans);
     } else {
-      setMealPlans([]);
+      setMealPlan(null);
     }
 
     // Set existing amenities
@@ -1154,43 +1158,11 @@ export default function ManageHotels() {
               </div>
 
               {/* Meal Plans Section */}
-              <div className="space-y-3 pt-4 border-t">
-                <div className="flex items-center justify-between">
-                  <Label>{t({ ar: "خطط الوجبات", en: "Meal Plans" })}</Label>
-                  <Button 
-                    type="button" 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setMealPlans([...mealPlans, { type: 'breakfast_only', name_ar: '', name_en: '', price: 0 }])}
-                  >
-                    <Plus className="w-4 h-4 ml-1" />
-                    {t({ ar: "إضافة", en: "Add" })}
-                  </Button>
-                </div>
-                {mealPlans.map((meal, idx) => (
-                  <Card key={idx} className="p-3 space-y-2">
-                    <div className="grid grid-cols-3 gap-2">
-                      <Input placeholder={t({ ar: "الاسم عربي", en: "Name AR" })} value={meal.name_ar} onChange={(e) => {
-                        const updated = [...mealPlans];
-                        updated[idx].name_ar = e.target.value;
-                        setMealPlans(updated);
-                      }} />
-                      <Input placeholder="Name EN" value={meal.name_en} onChange={(e) => {
-                        const updated = [...mealPlans];
-                        updated[idx].name_en = e.target.value;
-                        setMealPlans(updated);
-                      }} />
-                      <Input type="number" placeholder={t({ ar: "السعر", en: "Price" })} value={meal.price} onChange={(e) => {
-                        const updated = [...mealPlans];
-                        updated[idx].price = parseFloat(e.target.value) || 0;
-                        setMealPlans(updated);
-                      }} />
-                    </div>
-                    <Button variant="destructive" size="sm" onClick={() => setMealPlans(mealPlans.filter((_, i) => i !== idx))}>
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </Card>
-                ))}
+              <div className="pt-4 border-t">
+                <MealPlansManager 
+                  mealPlan={mealPlan}
+                  onChange={setMealPlan}
+                />
               </div>
             </div>
             <DialogFooter>

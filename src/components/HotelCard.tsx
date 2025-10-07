@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { MapPin, Star, Wifi, Coffee, Utensils, ChevronLeft, ChevronRight, ParkingCircle, Bus, MapPinned } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { supabase } from "@/integrations/supabase/client";
 
 interface HotelCardProps {
   id: string;
@@ -16,6 +17,15 @@ interface HotelCardProps {
   image: string;
   images?: string[];
   featured?: boolean;
+  meal_plans?: {
+    regular_ar: string;
+    regular_en: string;
+    ramadan_ar?: string;
+    ramadan_en?: string;
+    price: number;
+    max_persons: number;
+    extra_meal_price: number;
+  } | null;
   amenities?: {
     wifi?: boolean;
     cafe?: boolean;
@@ -27,12 +37,39 @@ interface HotelCardProps {
   };
 }
 
-export function HotelCard({ id, name, nameEn, location, price, rating, image, images, featured, amenities }: HotelCardProps) {
+export function HotelCard({ id, name, nameEn, location, price, rating, image, images, featured, meal_plans, amenities }: HotelCardProps) {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [mealBadgeSettings, setMealBadgeSettings] = useState({
+    color: '#007dff',
+    width: 150,
+    height: 32,
+    fontSize: 12,
+    borderRadius: 8,
+  });
   
   const hotelImages = images && Array.isArray(images) && images.length > 0 ? images : [image];
+
+  useEffect(() => {
+    async function fetchMealBadgeSettings() {
+      const { data } = await supabase
+        .from('site_settings')
+        .select('meal_badge_color, meal_badge_width, meal_badge_height, meal_badge_font_size, meal_badge_border_radius')
+        .single();
+      
+      if (data) {
+        setMealBadgeSettings({
+          color: data.meal_badge_color || '#007dff',
+          width: data.meal_badge_width || 150,
+          height: data.meal_badge_height || 32,
+          fontSize: data.meal_badge_font_size || 12,
+          borderRadius: data.meal_badge_border_radius || 8,
+        });
+      }
+    }
+    fetchMealBadgeSettings();
+  }, []);
   
   const handlePrevImage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -53,6 +90,25 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
           alt={name}
           className="w-full h-full object-cover transition-all duration-300"
         />
+        
+        {/* Meal Badge */}
+        {meal_plans && meal_plans.regular_ar && (
+          <div 
+            className={`absolute ${language === 'ar' ? 'left-4' : 'right-4'} top-16`}
+            style={{
+              backgroundColor: mealBadgeSettings.color,
+              width: `${mealBadgeSettings.width}px`,
+              height: `${mealBadgeSettings.height}px`,
+              borderRadius: `${mealBadgeSettings.borderRadius}px`,
+              fontSize: `${mealBadgeSettings.fontSize}px`,
+            }}
+          >
+            <div className="flex items-center justify-center h-full px-2 text-white font-semibold text-center">
+              {language === 'ar' ? meal_plans.regular_ar : meal_plans.regular_en}
+            </div>
+          </div>
+        )}
+        
         {featured && (
           <Badge className="absolute top-4 right-4 bg-gradient-luxury border-0 shadow-luxury">
             عرض مميز
@@ -118,6 +174,22 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
             </div>
           )}
         </div>
+
+        {/* Meal Info */}
+        {meal_plans && meal_plans.regular_ar && meal_plans.max_persons > 0 && (
+          <div 
+            className="text-xs mb-3 px-2 py-1 rounded inline-block"
+            style={{ 
+              backgroundColor: `${mealBadgeSettings.color}20`,
+              color: mealBadgeSettings.color,
+            }}
+          >
+            {language === 'ar' 
+              ? `${meal_plans.regular_ar} - يشمل ${meal_plans.max_persons} ${meal_plans.max_persons === 1 ? 'شخص' : meal_plans.max_persons === 2 ? 'شخصين' : 'أشخاص'}`
+              : `${meal_plans.regular_en} - Includes ${meal_plans.max_persons} ${meal_plans.max_persons === 1 ? 'person' : 'persons'}`
+            }
+          </div>
+        )}
 
         {/* Price & CTA */}
         <div className="flex items-center justify-between pt-4 border-t border-border">

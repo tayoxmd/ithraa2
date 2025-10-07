@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Star, MapPin, ChevronDown, ChevronUp } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { HotelCard } from "@/components/HotelCard";
 import { SearchBox } from "@/components/SearchBox";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -22,6 +23,16 @@ interface Hotel {
   images: any;
   description_ar: string;
   description_en: string;
+  meal_plans?: {
+    regular_ar: string;
+    regular_en: string;
+    ramadan_ar?: string;
+    ramadan_en?: string;
+    price: number;
+    max_persons: number;
+    extra_meal_price: number;
+  } | null;
+  amenities?: any;
 }
 
 export default function SearchResults() {
@@ -116,106 +127,21 @@ export default function SearchResults() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {hotels.map((hotel) => {
-            const mainImage = hotel.images && hotel.images[0] 
-              ? hotel.images[0] 
-              : "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000";
-
-            return (
-              <Card key={hotel.id} className="card-luxury hover-lift cursor-pointer overflow-hidden">
-                <div className="relative h-48">
-                  <img
-                    src={mainImage}
-                    alt={language === 'ar' ? hotel.name_ar : hotel.name_en}
-                    className="w-full h-full object-cover"
-                  />
-                  <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">
-                    <Star className="w-3 h-3 ml-1 fill-current" />
-                    {hotel.rating}
-                  </Badge>
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="text-xl font-bold mb-2">
-                    {language === 'ar' ? hotel.name_ar : hotel.name_en}
-                  </h3>
-                  <div className="flex items-center text-muted-foreground mb-3">
-                    <MapPin className="w-4 h-4 ml-1" />
-                    <span className="text-sm">{hotel.location}</span>
-                  </div>
-                  <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                    {language === 'ar' ? hotel.description_ar : hotel.description_en}
-                  </p>
-                  <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-2xl font-bold text-primary">
-                        {Math.round(hotel.price_per_night)}
-                      </span>
-                      <span className="text-sm text-muted-foreground">
-                        {t({ ar: 'ر.س / ليلة', en: 'SAR / night' })}
-                      </span>
-                    </div>
-                    {checkIn && checkOut && rooms && guests && (() => {
-                      const nights = Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24));
-                      const roomsCount = parseInt(rooms) || 1;
-                      const guestsCount = parseInt(guests) || 2;
-                      const maxGuestsIncluded = ((hotel as any).max_guests_per_room || 2) * roomsCount;
-                      
-                      const taxRate = (hotel as any).tax_percentage || 0;
-                      let subtotal = hotel.price_per_night * nights * roomsCount;
-                      
-                      let extraGuestCharge = 0;
-                      let extraGuests = 0;
-                      
-                      // Calculate extra guests charge
-                      if (guestsCount > maxGuestsIncluded) {
-                        extraGuests = guestsCount - maxGuestsIncluded;
-                        const extraGuestPrice = (hotel as any).extra_guest_price || 0;
-                        extraGuestCharge = extraGuests * extraGuestPrice * nights;
-                        subtotal += extraGuestCharge;
-                      }
-                      
-                      // Add tax only if tax_percentage > 0
-                      const tax = taxRate > 0 ? subtotal * (taxRate / 100) : 0;
-                      const total = subtotal + tax;
-                      
-                      return (
-                        <>
-                          {extraGuests > 0 && (
-                            <p className="text-xs text-foreground/70 mt-1">
-                              +{Math.round(extraGuestCharge)} {t({ ar: 'ريال', en: 'SAR' })} ({extraGuests} {extraGuests === 1 ? t({ ar: 'شخص إضافي', en: 'extra guest' }) : t({ ar: 'أشخاص إضافيين', en: 'extra guests' })})
-                            </p>
-                          )}
-                          <p className="text-xs text-foreground/80 mt-1 font-medium">
-                            {t({ ar: 'الإجمالي', en: 'Total' })}: {Math.round(total).toLocaleString()} {t({ ar: 'ر.س', en: 'SAR' })} ({nights} {t({ ar: 'ليلة', en: 'nights' })} × {roomsCount} {t({ ar: 'غرفة', en: 'rooms' })})
-                          </p>
-                          {taxRate > 0 && (
-                            <p className="text-xs text-muted-foreground mt-0.5">
-                              {t({ ar: 'شامل ضريبة', en: 'Including tax' })} {taxRate}%
-                            </p>
-                          )}
-                        </>
-                      );
-                    })()}
-                  </div>
-                    <Button 
-                      className="btn-luxury"
-                      onClick={() => {
-                        const params = new URLSearchParams();
-                        if (checkIn) params.set('checkIn', checkIn);
-                        if (checkOut) params.set('checkOut', checkOut);
-                        if (guests) params.set('guests', guests);
-                        if (rooms) params.set('rooms', rooms);
-                        navigate(`/hotel/${hotel.id}?${params.toString()}`);
-                      }}
-                    >
-                      {t({ ar: 'عرض التفاصيل', en: 'View Details', fr: 'Voir les détails', es: 'Ver detalles', ru: 'Подробности', id: 'Lihat Detail', ms: 'Lihat Butiran' })}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
+          {hotels.map((hotel) => (
+            <HotelCard
+              key={hotel.id}
+              id={hotel.id}
+              name={language === 'ar' ? hotel.name_ar : hotel.name_en}
+              nameEn={hotel.name_en}
+              location={hotel.location}
+              price={Number(hotel.price_per_night)}
+              rating={Number(hotel.rating)}
+              image={hotel.images && hotel.images[0] ? hotel.images[0] : "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000"}
+              images={hotel.images}
+              meal_plans={hotel.meal_plans}
+              amenities={hotel.amenities}
+            />
+          ))}
         </div>
 
         {hotels.length === 0 && (
