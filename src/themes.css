@@ -93,3 +93,95 @@
 .theme-design3 {
   /* Will be customized later */
 }
+
+/* Admin Dashboard Design 2 - Modern Infographic Style */
+.admin-design2 {
+  /* Deep Navy Blue - من الصور */
+  --primary: 230 45% 25%; /* #1E2D4D - navy blue */
+  --primary-foreground: 0 0% 100%;
+  --primary-glow: 230 45% 35%;
+  
+  /* Purple Accent - البنفسجي من التصميم */
+  --accent: 265 85% 65%; /* #8B5CF6 - purple */
+  --accent-foreground: 0 0% 100%;
+  
+  /* Cyan/Turquoise - السماوي من التصميم */
+  --secondary: 175 85% 55%; /* #1DD3B0 - turquoise */
+  --secondary-foreground: 230 45% 15%;
+  
+  /* Light backgrounds */
+  --background: 220 25% 97%;
+  --foreground: 230 40% 15%;
+  
+  /* Card colors - white with gradient feel */
+  --card: 0 0% 100%;
+  --card-foreground: 230 40% 15%;
+  
+  /* Popover colors */
+  --popover: 0 0% 100%;
+  --popover-foreground: 230 40% 15%;
+  
+  /* Muted colors */
+  --muted: 230 20% 92%;
+  --muted-foreground: 230 20% 45%;
+  
+  /* Destructive colors */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  
+  /* Border and input */
+  --border: 230 20% 85%;
+  --input: 230 20% 85%;
+  --ring: 230 45% 25%;
+  
+  /* Radius - rounded modern */
+  --radius: 1.25rem;
+  
+  /* Gradients - modern infographic style */
+  --gradient-primary: linear-gradient(135deg, hsl(230 45% 25%), hsl(265 85% 65%));
+  --gradient-secondary: linear-gradient(135deg, hsl(175 85% 55%), hsl(190 85% 65%));
+  --gradient-hero: linear-gradient(135deg, hsl(230 45% 25%), hsl(265 85% 65%), hsl(175 85% 55%));
+  --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(230 10% 98%));
+  
+  /* Shadows - modern elevated */
+  --shadow-elegant: 0 8px 32px -4px hsl(230 45% 25% / 0.15);
+  --shadow-luxury: 0 12px 48px -8px hsl(230 45% 25% / 0.25);
+  --shadow-card: 0 4px 16px -2px hsl(230 20% 40% / 0.1);
+  
+  /* Status Colors */
+  --status-new: 265 85% 65%;
+  --status-pending: 35 100% 55%;
+  --status-confirmed: 175 85% 55%;
+  --status-cancelled: 0 84% 60%;
+}
+
+.admin-design2.dark {
+  /* Dark mode - deep navy background */
+  --background: 230 45% 10%;
+  --foreground: 0 0% 98%;
+  
+  --card: 230 40% 15%;
+  --card-foreground: 0 0% 98%;
+  
+  --popover: 230 40% 15%;
+  --popover-foreground: 0 0% 98%;
+  
+  --primary: 230 45% 35%;
+  --primary-foreground: 0 0% 100%;
+  
+  --secondary: 175 85% 45%;
+  --secondary-foreground: 0 0% 100%;
+  
+  --muted: 230 35% 20%;
+  --muted-foreground: 230 15% 70%;
+  
+  --accent: 265 85% 60%;
+  --accent-foreground: 0 0% 100%;
+  
+  --border: 230 30% 22%;
+  --input: 230 30% 22%;
+  --ring: 230 45% 35%;
+  
+  --gradient-primary: linear-gradient(135deg, hsl(230 45% 35%), hsl(265 85% 60%));
+  --gradient-hero: linear-gradient(135deg, hsl(230 45% 20%), hsl(265 85% 50%), hsl(175 85% 45%));
+}

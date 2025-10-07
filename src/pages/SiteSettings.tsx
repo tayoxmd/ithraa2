@@ -752,23 +752,20 @@ export default function SiteSettings() {
                       <SelectItem value="design1">
                         {t({ ar: 'تصميم 1 (التصميم الحالي)', en: 'Design 1 (Current Design)' })}
                       </SelectItem>
-                      <SelectItem value="design2">
-                        {t({ ar: 'تصميم 2 (أزرق داكن)', en: 'Design 2 (Dark Blue)' })}
-                      </SelectItem>
-                      <SelectItem value="design3">
-                        {t({ ar: 'تصميم 3 (قريباً)', en: 'Design 3 (Coming Soon)' })}
+                      <SelectItem value="admin-design2">
+                        {t({ ar: 'تصميم 2 (إنفوجرافيك حديث)', en: 'Design 2 (Modern Infographic)' })}
                       </SelectItem>
                     </SelectContent>
                   </Select>
                   
-                  {adminTheme === 'design2' && (
+                  {adminTheme === 'admin-design2' && (
                     <div className="p-3 bg-muted/50 rounded-lg space-y-2 text-sm">
                       <p className="font-semibold">{t({ ar: 'معاينة التصميم:', en: 'Design Preview:' })}</p>
                       <ul className="space-y-1 text-xs text-muted-foreground">
-                        <li>• {t({ ar: 'اللون الأساسي: #001f7c (أزرق داكن)', en: 'Primary Color: #001f7c (Dark Blue)' })}</li>
-                        <li>• {t({ ar: 'الأزرار: #838383 (رمادي)', en: 'Buttons: #838383 (Gray)' })}</li>
-                        <li>• {t({ ar: 'النصوص: أبيض', en: 'Text: White' })}</li>
-                        <li>• {t({ ar: 'الزوايا: أقل حدة', en: 'Corners: Less sharp' })}</li>
+                        <li>• {t({ ar: 'اللون الأساسي: أزرق داكن Navy', en: 'Primary Color: Navy Blue' })}</li>
+                        <li>• {t({ ar: 'اللون الثانوي: سماوي Turquoise', en: 'Secondary Color: Turquoise' })}</li>
+                        <li>• {t({ ar: 'اللون المميز: بنفسجي Purple', en: 'Accent Color: Purple' })}</li>
+                        <li>• {t({ ar: 'تصميم إنفوجرافيك حديث', en: 'Modern Infographic Style' })}</li>
                       </ul>
                     </div>
                   )}

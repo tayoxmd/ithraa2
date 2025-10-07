@@ -2,12 +2,13 @@ import { createContext, useContext, useState, useEffect, ReactNode } from "react
 import { supabase } from "@/integrations/supabase/client";
 
 type ThemeType = 'design1' | 'design2' | 'design3';
+type AdminThemeType = 'design1' | 'admin-design2';
 
 interface ThemeContextType {
   userTheme: ThemeType;
-  adminTheme: ThemeType;
+  adminTheme: AdminThemeType;
   setUserTheme: (theme: ThemeType) => void;
-  setAdminTheme: (theme: ThemeType) => void;
+  setAdminTheme: (theme: AdminThemeType) => void;
   isAdmin: boolean;
 }
 
@@ -15,7 +16,7 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children, isAdmin = false }: { children: ReactNode; isAdmin?: boolean }) {
   const [userTheme, setUserThemeState] = useState<ThemeType>('design1');
-  const [adminTheme, setAdminThemeState] = useState<ThemeType>('design1');
+  const [adminTheme, setAdminThemeState] = useState<AdminThemeType>('design1');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export function ThemeProvider({ children, isAdmin = false }: { children: ReactNo
 
       if (data) {
         setUserThemeState((data.user_theme as ThemeType) || 'design1');
-        setAdminThemeState((data.admin_theme as ThemeType) || 'design1');
+        setAdminThemeState((data.admin_theme as AdminThemeType) || 'design1');
       }
       setLoading(false);
     }
@@ -41,17 +42,17 @@ export function ThemeProvider({ children, isAdmin = false }: { children: ReactNo
     const currentTheme = isAdmin ? adminTheme : userTheme;
     
     // Remove all theme classes
-    document.documentElement.classList.remove('theme-design1', 'theme-design2', 'theme-design3');
+    document.documentElement.classList.remove('theme-design1', 'theme-design2', 'theme-design3', 'admin-design2');
     
     // Add current theme class
-    document.documentElement.classList.add(`theme-${currentTheme}`);
+    document.documentElement.classList.add(currentTheme.startsWith('admin-') ? currentTheme : `theme-${currentTheme}`);
   }, [userTheme, adminTheme, isAdmin, loading]);
 
   const setUserTheme = (theme: ThemeType) => {
     setUserThemeState(theme);
   };
 
-  const setAdminTheme = (theme: ThemeType) => {
+  const setAdminTheme = (theme: AdminThemeType) => {
     setAdminThemeState(theme);
   };
 
