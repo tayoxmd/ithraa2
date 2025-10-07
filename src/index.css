@@ -10,38 +10,38 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Luxury Gold & Royal Blue Theme for ITHRAA */
-    --background: 40 20% 97%;
-    --foreground: 220 40% 15%;
+    /* Navy Blue & Modern Design Theme */
+    --background: 220 45% 96%;
+    --foreground: 220 50% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 40% 15%;
+    --card-foreground: 220 50% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 40% 15%;
+    --popover: 220 30% 25%;
+    --popover-foreground: 0 0% 100%;
 
-    /* Luxury Gold Primary */
-    --primary: 38 92% 50%;
+    /* Deep Navy Primary */
+    --primary: 220 60% 25%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 42 100% 65%;
+    --primary-glow: 220 55% 35%;
 
-    /* Royal Blue Secondary */
-    --secondary: 220 60% 25%;
+    /* Light Blue Secondary */
+    --secondary: 200 80% 50%;
     --secondary-foreground: 0 0% 100%;
 
-    /* Warm Beige Accent */
-    --muted: 40 30% 94%;
-    --muted-foreground: 220 20% 40%;
+    /* Cool Gray Accent */
+    --muted: 220 20% 92%;
+    --muted-foreground: 220 20% 45%;
 
-    --accent: 35 50% 85%;
-    --accent-foreground: 220 40% 15%;
+    --accent: 220 25% 90%;
+    --accent-foreground: 220 50% 15%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 40 20% 88%;
-    --input: 40 20% 88%;
-    --ring: 38 92% 50%;
+    --border: 220 20% 88%;
+    --input: 220 15% 94%;
+    --ring: 220 60% 25%;
 
     /* Status Colors */
     --status-new: 210 100% 50%;
@@ -49,17 +49,18 @@ All colors MUST be HSL.
     --status-confirmed: 142 71% 45%;
     --status-cancelled: 0 84% 60%;
 
-    --radius: 0.625rem;
+    --radius: 1rem;
 
-    /* Luxury Gradients */
-    --gradient-luxury: linear-gradient(135deg, hsl(38 92% 50%), hsl(42 100% 65%));
-    --gradient-hero: linear-gradient(135deg, hsl(220 60% 25% / 0.95), hsl(220 70% 35% / 0.9));
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(40 30% 98%));
+    /* Modern Gradients */
+    --gradient-luxury: linear-gradient(135deg, hsl(220 60% 25%), hsl(220 55% 35%));
+    --gradient-hero: linear-gradient(135deg, hsl(220 60% 20% / 0.95), hsl(220 55% 30% / 0.9));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 20% 98%));
+    --gradient-navy: linear-gradient(180deg, hsl(220 60% 20%), hsl(220 55% 28%));
 
     /* Elegant Shadows */
-    --shadow-luxury: 0 20px 60px -15px hsl(38 92% 50% / 0.3);
-    --shadow-card: 0 10px 30px -10px hsl(220 40% 15% / 0.1);
-    --shadow-elegant: 0 4px 20px -4px hsl(220 40% 15% / 0.15);
+    --shadow-luxury: 0 20px 60px -15px hsl(220 60% 25% / 0.3);
+    --shadow-card: 0 10px 30px -10px hsl(220 50% 20% / 0.15);
+    --shadow-elegant: 0 4px 20px -4px hsl(220 50% 20% / 0.2);
 
     /* Smooth Transitions */
     --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -67,37 +68,38 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 220 45% 8%;
-    --foreground: 40 20% 95%;
+    --background: 220 60% 12%;
+    --foreground: 220 10% 95%;
 
-    --card: 220 40% 12%;
-    --card-foreground: 40 20% 95%;
+    --card: 220 55% 18%;
+    --card-foreground: 220 10% 95%;
 
-    --popover: 220 40% 12%;
-    --popover-foreground: 40 20% 95%;
+    --popover: 220 50% 22%;
+    --popover-foreground: 220 10% 95%;
 
-    --primary: 38 92% 50%;
+    --primary: 220 60% 35%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 42 100% 65%;
+    --primary-glow: 220 55% 45%;
 
-    --secondary: 220 50% 20%;
+    --secondary: 200 75% 45%;
     --secondary-foreground: 0 0% 100%;
 
-    --muted: 220 35% 15%;
-    --muted-foreground: 40 10% 65%;
+    --muted: 220 45% 20%;
+    --muted-foreground: 220 15% 70%;
 
-    --accent: 220 35% 18%;
-    --accent-foreground: 40 20% 95%;
+    --accent: 220 40% 25%;
+    --accent-foreground: 220 10% 95%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 30% 20%;
-    --input: 220 30% 20%;
-    --ring: 38 92% 50%;
+    --border: 220 35% 28%;
+    --input: 220 40% 25%;
+    --ring: 220 60% 35%;
 
-    --gradient-luxury: linear-gradient(135deg, hsl(38 92% 50%), hsl(42 100% 65%));
-    --gradient-hero: linear-gradient(135deg, hsl(220 50% 15% / 0.95), hsl(220 60% 20% / 0.9));
+    --gradient-luxury: linear-gradient(135deg, hsl(220 60% 35%), hsl(220 55% 45%));
+    --gradient-hero: linear-gradient(135deg, hsl(220 60% 15% / 0.95), hsl(220 55% 22% / 0.9));
+    --gradient-navy: linear-gradient(180deg, hsl(220 60% 18%), hsl(220 55% 25%));
   }
 }
 

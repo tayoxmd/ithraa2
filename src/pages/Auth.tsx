@@ -185,13 +185,13 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-subtle">
-      <Card className="w-full max-w-md card-luxury">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary via-primary-glow to-primary">
+      <Card className="w-full max-w-md bg-card shadow-luxury border-0 rounded-2xl">
         <CardHeader className="text-center">
-          <div className="w-16 h-16 rounded-lg bg-gradient-luxury flex items-center justify-center shadow-luxury mx-auto mb-4">
+          <div className="w-16 h-16 rounded-2xl bg-gradient-luxury flex items-center justify-center shadow-luxury mx-auto mb-4">
             <span className="text-3xl font-bold text-white">إ</span>
           </div>
-          <CardTitle className="text-2xl text-gradient-luxury">
+          <CardTitle className="text-2xl text-primary font-bold">
             {isLogin ? t({ ar: "تسجيل الدخول", en: "Sign In" }) : t({ ar: "إنشاء حساب جديد", en: "Create Account" })}
           </CardTitle>
           <CardDescription>

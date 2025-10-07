@@ -105,18 +105,18 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <div className="bg-popover text-popover-foreground shadow-elegant rounded-lg p-4 md:p-6 animate-scale-in gap-2">
+      <div className="bg-primary/90 backdrop-blur-md text-white shadow-elegant rounded-2xl p-4 md:p-6 animate-scale-in gap-2 border-0">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {/* Location */}
           <div className="relative">
-            <label className="text-sm font-medium text-foreground mb-1.5 block">
+            <label className="text-sm font-medium text-white/90 mb-1.5 block">
               {t('الوجهة', 'Destination')}
             </label>
             <Select value={selectedCity} onValueChange={setSelectedCity}>
-              <SelectTrigger className="h-12 bg-primary/80 border-primary text-primary-foreground rounded-lg">
+              <SelectTrigger className="h-12 bg-white/10 border-white/20 text-white rounded-xl hover:bg-white/20">
                 <SelectValue placeholder={t('اختر المدينة', 'Select City')} />
               </SelectTrigger>
-              <SelectContent className="rounded-lg">
+              <SelectContent className="rounded-xl">
                 {cities.map((city) => (
                   <SelectItem key={city.id} value={city.id}>
                     {city.name_ar}
@@ -128,7 +128,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
           {/* Date Range */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-1.5 block">
+            <label className="text-sm font-medium text-white/90 mb-1.5 block">
               {t('تاريخ الوصول والمغادرة', 'Check-in & Check-out')}
             </label>
             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
@@ -136,7 +136,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                 <Button
                   variant="outline"
                   className={cn(
-                    "w-full h-12 justify-start text-right font-normal bg-primary/80 border-primary text-primary-foreground rounded-lg hover:bg-primary/90",
+                    "w-full h-12 justify-start text-right font-normal bg-white/10 border-white/20 text-white rounded-xl hover:bg-white/20",
                     !dateRange && "opacity-80"
                   )}
                 >
@@ -144,7 +144,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                   {displayDateText}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 rounded-lg" align="start">
+              <PopoverContent className="w-auto p-0 rounded-xl" align="start">
                 <div>
                   <Calendar
                     mode="range"
@@ -162,7 +162,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                     </span>
                     <Button 
                       size="default"
-                      className="min-w-28 h-10 px-6 text-base rounded-lg"
+                      className="min-w-28 h-10 px-6 text-base rounded-xl"
                       onClick={() => setIsCalendarOpen(false)}
                     >
                       {t('موافق', 'OK')}
@@ -175,20 +175,20 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
           {/* Rooms and Guests Combined */}
           <div>
-            <label className="text-sm font-medium text-foreground mb-1.5 block">
+            <label className="text-sm font-medium text-white/90 mb-1.5 block">
               {t('الغرف والضيوف', 'Rooms & Guests')}
             </label>
             <Popover open={isGuestsOpen} onOpenChange={setIsGuestsOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full h-12 justify-start text-right font-normal bg-primary/80 border-primary text-primary-foreground rounded-lg hover:bg-primary/90"
+                  className="w-full h-12 justify-start text-right font-normal bg-white/10 border-white/20 text-white rounded-xl hover:bg-white/20"
                 >
                   <Users className="ml-2 h-4 w-4" />
                   {guestsDisplay}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-80 p-4 rounded-lg" align="start">
+              <PopoverContent className="w-80 p-4 rounded-xl" align="start">
                 <div className="space-y-4">
                   {/* Rooms */}
                   <div className="flex items-center justify-between">
@@ -266,7 +266,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                   </div>
 
                   <Button 
-                    className="w-full rounded-lg"
+                    className="w-full rounded-xl"
                     onClick={() => setIsGuestsOpen(false)}
                   >
                     {t('تم', 'Done')}
@@ -279,7 +279,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
         {/* Search Button */}
         <div className="mt-4">
-          <Button onClick={handleSearch} className="w-full h-14 text-lg bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-lg font-semibold">
+          <Button onClick={handleSearch} className="w-full h-14 text-lg bg-white hover:bg-white/90 text-primary rounded-full font-semibold shadow-lg">
             <Search className="ml-2 w-5 h-5" />
             {t('ابحث الآن', 'Search Now')}
           </Button>
