@@ -23,8 +23,10 @@ export function ThemeProvider({ children, isAdmin = false }: { children: ReactNo
     async function loadThemes() {
       const { data } = await supabase
         .from('site_settings')
-        .select('user_theme, admin_theme')
-        .single();
+        .select('user_theme, admin_theme, updated_at')
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (data) {
         setUserThemeState((data.user_theme as ThemeType) || 'design1');

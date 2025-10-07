@@ -90,7 +90,9 @@ export default function SiteSettings() {
       const { data, error } = await supabase
         .from('site_settings')
         .select('*')
-        .single();
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (error && error.code !== 'PGRST116') throw error;
       
@@ -177,7 +179,9 @@ export default function SiteSettings() {
       const { data: existingSettings } = await supabase
         .from('site_settings')
         .select('id')
-        .single();
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (existingSettings) {
         const { error } = await supabase
@@ -224,7 +228,9 @@ export default function SiteSettings() {
       const { data: existingSettings } = await supabase
         .from('site_settings')
         .select('id')
-        .single();
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (existingSettings) {
         const { error } = await supabase
@@ -259,7 +265,9 @@ export default function SiteSettings() {
       const { data: existingSettings } = await supabase
         .from('site_settings')
         .select('id')
-        .single();
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (existingSettings) {
         const { error } = await supabase
@@ -294,7 +302,9 @@ export default function SiteSettings() {
       const { data: existingSettings } = await supabase
         .from('site_settings')
         .select('id')
-        .single();
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (existingSettings) {
         const { error } = await supabase
@@ -336,7 +346,9 @@ export default function SiteSettings() {
       const { data: existingSettings } = await supabase
         .from('site_settings')
         .select('id')
-        .single();
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (existingSettings) {
         const { error } = await supabase
@@ -442,7 +454,9 @@ export default function SiteSettings() {
       const { data: existingSettings } = await supabase
         .from('site_settings')
         .select('id')
-        .single();
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (existingSettings) {
         const { error } = await supabase
@@ -453,6 +467,11 @@ export default function SiteSettings() {
           })
           .eq('id', existingSettings.id);
 
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('site_settings')
+          .insert({ user_theme: userTheme, admin_theme: adminTheme });
         if (error) throw error;
       }
 
@@ -484,7 +503,9 @@ export default function SiteSettings() {
       const { data: settingsData } = await supabase
         .from('site_settings')
         .select('backup_created_at, backup_version')
-        .single();
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (settingsData) {
         setBackupInfo({
@@ -516,7 +537,9 @@ export default function SiteSettings() {
       const { data, error } = await supabase
         .from('site_settings')
         .select('backup_data, backup_created_at, backup_version')
-        .single();
+        .order('updated_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
 
       if (error) throw error;
 
@@ -783,17 +806,6 @@ export default function SiteSettings() {
                 {t({ ar: 'حفظ إعدادات التصميم', en: 'Save Theme Settings' })}
               </Button>
 
-              <Button 
-                onClick={async () => {
-                  toast({
-                    title: t({ ar: 'تم الحفظ', en: 'Saved' }),
-                    description: t({ ar: 'سيتم تفعيل التصاميم الجديدة في التحديثات القادمة', en: 'New designs will be activated in upcoming updates' }),
-                  });
-                }} 
-                className="w-full btn-luxury"
-              >
-                {t({ ar: 'حفظ إعدادات التصميم', en: 'Save Design Settings' })}
-              </Button>
             </CardContent>
           </Card>
 
@@ -882,7 +894,9 @@ export default function SiteSettings() {
                   const { data: existingSettings } = await supabase
                     .from('site_settings')
                     .select('id')
-                    .single();
+                    .order('updated_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle();
 
                   if (existingSettings) {
                     const { error } = await supabase
