@@ -42,41 +42,11 @@ export function Footer() {
         {/* Company Info - Center */}
         <div className="flex flex-col items-center justify-center text-center mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <div style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}>
-              <div className="logo-3d-wrapper relative" style={{ transformStyle: 'preserve-3d' }}>
-                <div className="absolute inset-0" style={{ 
-                  transform: 'translateZ(-3px)',
-                  background: 'linear-gradient(135deg, #A8760B 0%, #886010 100%)',
-                  borderRadius: 'inherit',
-                  width: '4rem',
-                  height: '4rem'
-                }} />
-                <div className="absolute inset-0" style={{ 
-                  transform: 'translateZ(-2px)',
-                  background: 'linear-gradient(135deg, #B8860B 0%, #986610 100%)',
-                  borderRadius: 'inherit',
-                  width: '4rem',
-                  height: '4rem'
-                }} />
-                <div className="absolute inset-0" style={{ 
-                  transform: 'translateZ(-1px)',
-                  background: 'linear-gradient(135deg, #FFC700 0%, #FFA500 100%)',
-                  borderRadius: 'inherit',
-                  width: '4rem',
-                  height: '4rem'
-                }} />
-                <img 
-                  src={logo} 
-                  alt="ITHRAA Logo" 
-                  className="w-16 h-16 object-contain animate-rotate-3d-slow relative z-10"
-                  style={{ 
-                    transformStyle: 'preserve-3d',
-                    filter: 'brightness(1.3) contrast(1.15) saturate(1.2)',
-                    mixBlendMode: 'multiply'
-                  }}
-                />
-              </div>
-            </div>
+            <img 
+              src={logo} 
+              alt="ITHRAA Logo" 
+              className="w-16 h-16 object-contain animate-rotate-3d-slow"
+            />
             <div className="flex flex-col">
               <span className="text-2xl font-bold text-white">
                 {t('إثراء', 'ITHRAA')}
