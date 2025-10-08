@@ -103,6 +103,10 @@ export default {
           "0%": { transform: "rotate(0deg)" },
           "100%": { transform: "rotate(360deg)" },
         },
+        "rotate-3d": {
+          "0%": { transform: "perspective(1000px) rotateY(0deg)" },
+          "100%": { transform: "perspective(1000px) rotateY(360deg)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.3s ease-out",
@@ -113,6 +117,7 @@ export default {
         "shimmer": "shimmer 2s linear infinite",
         "float": "float 3s ease-in-out infinite",
         "rotate-slow": "rotate-360 8s linear infinite",
+        "rotate-3d-slow": "rotate-3d 8s linear infinite",
       },
     },
   },
