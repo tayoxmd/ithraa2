@@ -51,9 +51,9 @@ const RouterWithTheme = () => {
         <Toaster />
         <Sonner />
         <ChatWidget />
-        <LiveChatSupport />
         <LanguageProvider>
           <AuthProvider>
+            <LiveChatSupport />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
