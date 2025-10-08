@@ -1115,6 +1115,10 @@ export type Database = {
           owner_room_color: string | null
           phone: string | null
           tax_percentage: number
+          tidio_client_id: string | null
+          tidio_client_secret: string | null
+          tidio_private_key: string | null
+          tidio_public_key: string | null
           tidio_widget_code: string | null
           twitter_url: string | null
           updated_at: string | null
@@ -1151,6 +1155,10 @@ export type Database = {
           owner_room_color?: string | null
           phone?: string | null
           tax_percentage?: number
+          tidio_client_id?: string | null
+          tidio_client_secret?: string | null
+          tidio_private_key?: string | null
+          tidio_public_key?: string | null
           tidio_widget_code?: string | null
           twitter_url?: string | null
           updated_at?: string | null
@@ -1187,6 +1195,10 @@ export type Database = {
           owner_room_color?: string | null
           phone?: string | null
           tax_percentage?: number
+          tidio_client_id?: string | null
+          tidio_client_secret?: string | null
+          tidio_private_key?: string | null
+          tidio_public_key?: string | null
           tidio_widget_code?: string | null
           twitter_url?: string | null
           updated_at?: string | null

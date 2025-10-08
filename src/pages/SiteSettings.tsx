@@ -50,6 +50,12 @@ export default function SiteSettings() {
     custom_head_code: '',
     custom_body_code: ''
   });
+  const [tidioSettings, setTidioSettings] = useState({
+    tidio_public_key: '',
+    tidio_private_key: '',
+    tidio_client_id: '',
+    tidio_client_secret: ''
+  });
   const [animationSettings, setAnimationSettings] = useState({
     disable_animations: false,
     animation_speed_multiplier: '1',
@@ -120,6 +126,12 @@ export default function SiteSettings() {
           tidio_widget_code: data.tidio_widget_code || '',
           custom_head_code: data.custom_head_code || '',
           custom_body_code: data.custom_body_code || ''
+        });
+        setTidioSettings({
+          tidio_public_key: data.tidio_public_key || '',
+          tidio_private_key: data.tidio_private_key || '',
+          tidio_client_id: data.tidio_client_id || '',
+          tidio_client_secret: data.tidio_client_secret || ''
         });
         setAnimationSettings({
           disable_animations: !!data.disable_animations,
@@ -315,6 +327,10 @@ export default function SiteSettings() {
             tidio_widget_code: chatCodes.tidio_widget_code,
             custom_head_code: chatCodes.custom_head_code,
             custom_body_code: chatCodes.custom_body_code,
+            tidio_public_key: tidioSettings.tidio_public_key,
+            tidio_private_key: tidioSettings.tidio_private_key,
+            tidio_client_id: tidioSettings.tidio_client_id,
+            tidio_client_secret: tidioSettings.tidio_client_secret,
           })
           .eq('id', existingSettings.id);
 
@@ -324,6 +340,7 @@ export default function SiteSettings() {
           .from('site_settings')
           .insert({
             ...chatCodes,
+            ...tidioSettings,
             tax_percentage: parseFloat(taxPercentage)
           });
 
@@ -874,6 +891,79 @@ export default function SiteSettings() {
                   rows={6}
                   className="font-mono text-sm"
                 />
+              </div>
+
+              <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                <h3 className="font-semibold text-sm flex items-center gap-2">
+                  <Key className="w-4 h-4" />
+                  {t({ ar: 'إعدادات Tidio API', en: 'Tidio API Settings' })}
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  {t({ 
+                    ar: 'معلومات API الخاصة بـ Tidio للربط والتكامل مع النظام', 
+                    en: 'Tidio API credentials for integration with the system' 
+                  })}
+                </p>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tidio_public_key">
+                      {t({ ar: 'Public Key', en: 'Public Key' })}
+                    </Label>
+                    <Input
+                      id="tidio_public_key"
+                      value={tidioSettings.tidio_public_key}
+                      onChange={(e) => setTidioSettings({ ...tidioSettings, tidio_public_key: e.target.value })}
+                      placeholder="9not32hmrcpgn4r6i8d7of5o0c5ufab"
+                      dir="ltr"
+                      className="font-mono text-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="tidio_private_key">
+                      {t({ ar: 'Private Key', en: 'Private Key' })}
+                    </Label>
+                    <Input
+                      id="tidio_private_key"
+                      type="password"
+                      value={tidioSettings.tidio_private_key}
+                      onChange={(e) => setTidioSettings({ ...tidioSettings, tidio_private_key: e.target.value })}
+                      placeholder="wbwxuefxj8hbdvguuwj[6qikljjywck"
+                      dir="ltr"
+                      className="font-mono text-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="tidio_client_id">
+                      {t({ ar: 'Client ID', en: 'Client ID' })}
+                    </Label>
+                    <Input
+                      id="tidio_client_id"
+                      value={tidioSettings.tidio_client_id}
+                      onChange={(e) => setTidioSettings({ ...tidioSettings, tidio_client_id: e.target.value })}
+                      placeholder="ci_617f73d3d986d426381bbb8450c0c2e9a"
+                      dir="ltr"
+                      className="font-mono text-sm"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="tidio_client_secret">
+                      {t({ ar: 'Client Secret', en: 'Client Secret' })}
+                    </Label>
+                    <Input
+                      id="tidio_client_secret"
+                      type="password"
+                      value={tidioSettings.tidio_client_secret}
+                      onChange={(e) => setTidioSettings({ ...tidioSettings, tidio_client_secret: e.target.value })}
+                      placeholder="cs_ce2e8148033d4695a6889b1a6e4dcd68"
+                      dir="ltr"
+                      className="font-mono text-sm"
+                    />
+                  </div>
+                </div>
               </div>
 
               <div>
