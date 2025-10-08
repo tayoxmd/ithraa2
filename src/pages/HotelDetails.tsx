@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, MapPin, ArrowRight, Navigation } from "lucide-react";
+import { Star, MapPin, ArrowRight, Navigation, ChevronLeft, ChevronRight } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -44,6 +44,7 @@ export default function HotelDetails() {
   const [loading, setLoading] = useState(true);
   const [mealBadgeSettings, setMealBadgeSettings] = useState<any>(null);
   const [avgPricePerNight, setAvgPricePerNight] = useState<number | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Get search parameters from URL or localStorage
   const searchParams = new URLSearchParams(location.search);
@@ -149,12 +150,23 @@ export default function HotelDetails() {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div>
+            {/* Image Carousel */}
             <div className="relative group">
               <img
-                src={mainImage}
+                src={hotelImages[currentImageIndex]}
                 alt={language === 'ar' ? hotel.name_ar : hotel.name_en}
                 className="w-full h-[400px] object-cover rounded-2xl shadow-luxury"
               />
+              
+              {/* Image Counter */}
+              {hotelImages.length > 1 && (
+                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-foreground px-3 py-1 rounded-lg text-sm font-semibold">
+                  {String(currentImageIndex + 1).padStart(2, '0')}
+                  <span className="text-muted-foreground text-xs"> / {String(hotelImages.length).padStart(2, '0')}</span>
+                </div>
+              )}
+              
+              {/* Meal Badge */}
               {hotel.meal_plans && mealBadgeSettings && (
                 <div 
                   className="absolute top-4 px-3 py-1 text-white font-semibold shadow-lg"
@@ -172,6 +184,28 @@ export default function HotelDetails() {
                 >
                   {language === 'ar' ? hotel.meal_plans.regular_ar : hotel.meal_plans.regular_en}
                 </div>
+              )}
+              
+              {/* Navigation Buttons */}
+              {hotelImages.length > 1 && (
+                <>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-md bg-white/90 hover:bg-white backdrop-blur-sm shadow-lg transition-all"
+                    onClick={() => setCurrentImageIndex((prev) => (prev + 1) % hotelImages.length)}
+                  >
+                    <ChevronLeft className="w-5 h-5 text-foreground" />
+                  </Button>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="absolute left-2 top-1/2 -translate-y-1/2 h-10 w-10 rounded-md bg-white/90 hover:bg-white backdrop-blur-sm shadow-lg transition-all"
+                    onClick={() => setCurrentImageIndex((prev) => (prev - 1 + hotelImages.length) % hotelImages.length)}
+                  >
+                    <ChevronRight className="w-5 h-5 text-foreground" />
+                  </Button>
+                </>
               )}
             </div>
           </div>

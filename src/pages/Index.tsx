@@ -126,9 +126,9 @@ const Index = () => {
             <LoadingSpinner size="lg" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 justify-items-center">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
             {hotels.map((hotel, index) => (
-              <div key={hotel.id} style={{ animationDelay: `${index * 100}ms` }} className="animate-fade-in-up">
+              <div key={hotel.id} style={{ animationDelay: `${index * 100}ms` }} className="animate-fade-in-up w-full">
                 <HotelCard
                   id={hotel.id}
                   name={language === "ar" ? hotel.name_ar : hotel.name_en}

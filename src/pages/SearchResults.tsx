@@ -355,9 +355,10 @@ export default function SearchResults() {
           </CardContent>
         </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
           {filteredHotels.map((hotel) => (
-            <HotelCard
+            <div key={hotel.id} className="w-full">
+              <HotelCard
               key={hotel.id}
               id={hotel.id}
               name={language === 'ar' ? hotel.name_ar : hotel.name_en}
@@ -370,6 +371,7 @@ export default function SearchResults() {
               meal_plans={hotel.meal_plans}
               amenities={hotel.amenities}
             />
+            </div>
           ))}
         </div>
 
