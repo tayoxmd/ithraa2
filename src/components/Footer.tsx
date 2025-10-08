@@ -45,7 +45,7 @@ export function Footer() {
             <img 
               src={logo} 
               alt="ITHRAA Logo" 
-              className="w-16 h-16 object-contain animate-rotate-3d-slow"
+              className="w-16 h-16 object-contain logo-3d-rotate"
             />
             <div className="flex flex-col">
               <span className="text-2xl font-bold text-white">
