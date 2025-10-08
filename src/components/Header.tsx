@@ -39,16 +39,40 @@ export function Header() {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3">
-              <div className="logo-3d-wrapper" style={{ perspective: '1000px' }}>
-                <img 
-                  src={logo} 
-                  alt="ITHRAA Logo" 
-                  className="w-12 h-12 object-contain animate-rotate-3d-slow logo-3d"
-                  style={{ 
-                    transformStyle: 'preserve-3d',
-                    filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15))'
-                  }}
-                />
+              <div style={{ perspective: '1000px', transformStyle: 'preserve-3d' }}>
+                <div className="logo-3d-wrapper relative" style={{ transformStyle: 'preserve-3d' }}>
+                  <div className="absolute inset-0" style={{ 
+                    transform: 'translateZ(-3px)',
+                    background: 'linear-gradient(135deg, #A8760B 0%, #886010 100%)',
+                    borderRadius: 'inherit',
+                    width: '3rem',
+                    height: '3rem'
+                  }} />
+                  <div className="absolute inset-0" style={{ 
+                    transform: 'translateZ(-2px)',
+                    background: 'linear-gradient(135deg, #B8860B 0%, #986610 100%)',
+                    borderRadius: 'inherit',
+                    width: '3rem',
+                    height: '3rem'
+                  }} />
+                  <div className="absolute inset-0" style={{ 
+                    transform: 'translateZ(-1px)',
+                    background: 'linear-gradient(135deg, #FFC700 0%, #FFA500 100%)',
+                    borderRadius: 'inherit',
+                    width: '3rem',
+                    height: '3rem'
+                  }} />
+                  <img 
+                    src={logo} 
+                    alt="ITHRAA Logo" 
+                    className="w-12 h-12 object-contain animate-rotate-3d-slow relative z-10"
+                    style={{ 
+                      transformStyle: 'preserve-3d',
+                      filter: 'brightness(1.3) contrast(1.15) saturate(1.2)',
+                      mixBlendMode: 'multiply'
+                    }}
+                  />
+                </div>
               </div>
               <div className="flex flex-col">
                 <span className="text-xl font-bold text-gradient-luxury">

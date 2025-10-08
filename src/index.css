@@ -141,28 +141,37 @@ All colors MUST be HSL.
   .logo-3d {
     position: relative;
     transform-style: preserve-3d;
+    filter: brightness(1.2) contrast(1.1);
   }
 
-  .logo-3d::before,
-  .logo-3d::after {
+  .logo-3d-wrapper {
+    position: relative;
+    transform-style: preserve-3d;
+  }
+
+  .logo-3d-wrapper::before,
+  .logo-3d-wrapper::after,
+  .logo-3d-wrapper .depth-layer-1,
+  .logo-3d-wrapper .depth-layer-2,
+  .logo-3d-wrapper .depth-layer-3 {
     content: '';
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: inherit;
-    opacity: 0.8;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 50%, #B8860B 100%);
+    border-radius: inherit;
   }
 
-  .logo-3d::before {
+  .logo-3d-wrapper::before {
+    transform: translateZ(-1px);
+    background: linear-gradient(135deg, #FFC700 0%, #FF9500 50%, #A8760B 100%);
+  }
+
+  .logo-3d-wrapper::after {
     transform: translateZ(-2px);
-    filter: brightness(0.9);
-  }
-
-  .logo-3d::after {
-    transform: translateZ(-4px);
-    filter: brightness(0.8);
+    background: linear-gradient(135deg, #FFB700 0%, #FF8500 50%, #986610 100%);
   }
 }
 
