@@ -7,7 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { NotificationBell } from "./NotificationBell";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Rotating3DLogo } from "./Rotating3DLogo";
+import logo from "@/assets/logo.svg";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -39,7 +39,11 @@ export function Header() {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3">
-              <Rotating3DLogo size="small" />
+              <img 
+                src={logo} 
+                alt="ITHRAA Logo" 
+                className="w-12 h-12 object-contain logo-3d-rotate"
+              />
               <div className="flex flex-col">
                 <span className="text-xl font-bold text-gradient-luxury">
                   {t('إثراء', 'ITHRAA')}

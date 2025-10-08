@@ -138,6 +138,19 @@ All colors MUST be HSL.
     @apply bg-gradient-to-r from-primary to-primary-glow text-primary-foreground font-semibold shadow-luxury hover:shadow-2xl transition-all duration-300 hover:scale-105;
   }
 
+  .logo-3d-rotate {
+    animation: rotate3d 8s linear infinite;
+    transform-style: preserve-3d;
+  }
+
+  @keyframes rotate3d {
+    0% {
+      transform: perspective(1000px) rotateY(0deg);
+    }
+    100% {
+      transform: perspective(1000px) rotateY(360deg);
+    }
+  }
 }
 
 /* Disable all animations when setting is enabled */

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Rotating3DLogo } from "./Rotating3DLogo";
+import logo from "@/assets/logo.svg";
 
 export function Footer() {
   const { t, language } = useLanguage();
@@ -42,7 +42,11 @@ export function Footer() {
         {/* Company Info - Center */}
         <div className="flex flex-col items-center justify-center text-center mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <Rotating3DLogo size="medium" />
+            <img 
+              src={logo} 
+              alt="ITHRAA Logo" 
+              className="w-16 h-16 object-contain logo-3d-rotate"
+            />
             <div className="flex flex-col">
               <span className="text-2xl font-bold text-white">
                 {t('إثراء', 'ITHRAA')}
