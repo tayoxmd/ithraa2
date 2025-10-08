@@ -108,7 +108,9 @@ const Index = () => {
           </div>
 
           {/* Search Box */}
-          <SearchBox />
+          <div className="mt-8">
+            <SearchBox />
+          </div>
         </div>
       </section>
 
