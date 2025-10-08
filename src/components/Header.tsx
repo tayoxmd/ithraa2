@@ -39,11 +39,17 @@ export function Header() {
           <div className="flex items-center justify-between h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-3">
-              <img 
-                src={logo} 
-                alt="ITHRAA Logo" 
-                className="w-12 h-12 object-contain animate-rotate-3d-slow logo-3d"
-              />
+              <div className="logo-3d-wrapper" style={{ perspective: '1000px' }}>
+                <img 
+                  src={logo} 
+                  alt="ITHRAA Logo" 
+                  className="w-12 h-12 object-contain animate-rotate-3d-slow logo-3d"
+                  style={{ 
+                    transformStyle: 'preserve-3d',
+                    filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15))'
+                  }}
+                />
+              </div>
               <div className="flex flex-col">
                 <span className="text-xl font-bold text-gradient-luxury">
                   {t('إثراء', 'ITHRAA')}

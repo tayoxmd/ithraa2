@@ -42,11 +42,17 @@ export function Footer() {
         {/* Company Info - Center */}
         <div className="flex flex-col items-center justify-center text-center mb-8">
           <div className="flex items-center gap-3 mb-4">
-            <img 
-              src={logo} 
-              alt="ITHRAA Logo" 
-              className="w-16 h-16 object-contain animate-rotate-3d-slow logo-3d"
-            />
+            <div className="logo-3d-wrapper" style={{ perspective: '1000px' }}>
+              <img 
+                src={logo} 
+                alt="ITHRAA Logo" 
+                className="w-16 h-16 object-contain animate-rotate-3d-slow logo-3d"
+                style={{ 
+                  transformStyle: 'preserve-3d',
+                  filter: 'drop-shadow(0 2px 4px rgba(0, 0, 0, 0.2)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15))'
+                }}
+              />
+            </div>
             <div className="flex flex-col">
               <span className="text-2xl font-bold text-white">
                 {t('إثراء', 'ITHRAA')}
