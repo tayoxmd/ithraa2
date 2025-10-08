@@ -42,7 +42,7 @@ export function Header() {
               <img 
                 src={logo} 
                 alt="ITHRAA Logo" 
-                className="w-12 h-12 object-contain"
+                className="w-12 h-12 object-contain animate-rotate-slow"
               />
               <div className="flex flex-col">
                 <span className="text-xl font-bold text-gradient-luxury">
