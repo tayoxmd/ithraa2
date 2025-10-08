@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, LayoutDashboard, Hotel, Users, Settings, Tag, Gift, Calendar, FileText, MessageSquare, DollarSign, Briefcase } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -8,37 +8,15 @@ import { NotificationBell } from "./NotificationBell";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
 import logo from "@/assets/logo.svg";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 
 export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, signOut, userRole } = useAuth();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobileOrTablet = useIsMobile() || (typeof window !== 'undefined' && window.innerWidth <= 1024);
-
-  const adminMenuItems = [
-    { icon: Hotel, label: t({ ar: 'إدارة الفنادق', en: 'Manage Hotels' }), path: '/manage-hotels' },
-    { icon: Users, label: t({ ar: 'إدارة الموظفين', en: 'Manage Employees' }), path: '/manage-employees' },
-    { icon: MessageSquare, label: t({ ar: 'الدردشة المباشرة', en: 'Live Chat' }), path: '/live-chat' },
-    { icon: Tag, label: t({ ar: 'الكوبونات', en: 'Coupons' }), path: '/coupons' },
-    { icon: Gift, label: t({ ar: 'العروض الخاصة', en: 'Special Offers' }), path: '/special-offers' },
-    { icon: Calendar, label: t({ ar: 'الأسعار الموسمية', en: 'Seasonal Pricing' }), path: '/seasonal-pricing' },
-    { icon: Briefcase, label: t({ ar: 'برنامج الولاء', en: 'Loyalty Program' }), path: '/loyalty-program' },
-    { icon: Settings, label: t({ ar: 'إعدادات الموقع', en: 'Site Settings' }), path: '/site-settings' },
-    { icon: DollarSign, label: t({ ar: 'إعدادات API', en: 'API Settings' }), path: '/api-settings' },
-    { icon: FileText, label: t({ ar: 'إعدادات PDF', en: 'PDF Settings' }), path: '/pdf-settings' },
-    { icon: FileText, label: t({ ar: 'سجل التدقيق', en: 'Audit Logs' }), path: '/audit-logs' },
-  ];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -143,42 +121,6 @@ export function Header() {
                   
                   {/* Mobile/Tablet Quick Actions - Outside Menu */}
                   <div className="lg:hidden flex items-center gap-1">
-                    {(userRole === 'admin' || userRole === 'employee') && (
-                      <Sheet open={adminMenuOpen} onOpenChange={setAdminMenuOpen}>
-                        <SheetTrigger asChild>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            className="h-7 px-2 text-xs gap-1"
-                            style={{ backgroundColor: '#237bff', color: 'white', borderColor: '#237bff' }}
-                          >
-                            <Settings className="w-3 h-3" />
-                            {t({ ar: "إدارة الموقع", en: "Management" })}
-                          </Button>
-                        </SheetTrigger>
-                        <SheetContent side={language === 'ar' ? 'right' : 'left'} className="w-[280px] sm:w-[320px]">
-                          <SheetHeader>
-                            <SheetTitle>{t({ ar: 'إدارة الموقع', en: 'Site Management' })}</SheetTitle>
-                          </SheetHeader>
-                          <div className="mt-6 space-y-2">
-                            {adminMenuItems.map((item) => (
-                              <Button
-                                key={item.path}
-                                variant="ghost"
-                                className="w-full justify-start gap-3"
-                                onClick={() => {
-                                  navigate(item.path);
-                                  setAdminMenuOpen(false);
-                                }}
-                              >
-                                <item.icon className="w-4 h-4" />
-                                {item.label}
-                              </Button>
-                            ))}
-                          </div>
-                        </SheetContent>
-                      </Sheet>
-                    )}
                     <Button
                       variant="outline"
                       size="sm"

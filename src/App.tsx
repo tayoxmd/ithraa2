@@ -74,6 +74,7 @@ const RouterWithTheme = () => {
               <Route path="/loyalty-program" element={<LoyaltyProgram />} />
               <Route path="/hotel-comparison" element={<HotelComparison />} />
               <Route path="/special-offers" element={<SpecialOffers />} />
+              <Route path="/live-chat" element={<ProtectedRoute><LiveChatManagement /></ProtectedRoute>} />
               <Route path="/live-chat-management" element={<ProtectedRoute><LiveChatManagement /></ProtectedRoute>} />
               <Route path="/manage-hotels" element={<ProtectedRoute><ManageHotels /></ProtectedRoute>} />
               <Route path="/seasonal-pricing" element={<ProtectedRoute><SeasonalPricing /></ProtectedRoute>} />

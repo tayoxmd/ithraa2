@@ -20,10 +20,21 @@ import {
   Home,
   LayoutDashboard,
   CheckCircle,
-  Briefcase
+  Briefcase,
+  Tag,
+  Gift,
+  Calendar,
+  MessageSquare
 } from "lucide-react";
 import { playNotificationSound } from "@/utils/notificationSound";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 export default function AdminDashboard() {
   const { userRole, loading, user } = useAuth();
@@ -31,6 +42,7 @@ export default function AdminDashboard() {
   const navigate = useNavigate();
   const [bookings, setBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
+  const [adminMenuOpen, setAdminMenuOpen] = useState(false);
   const [stats, setStats] = useState({
     totalBookings: 0,
     pending: 0,
@@ -42,6 +54,20 @@ export default function AdminDashboard() {
     totalBookingsValue: 0,
     pendingPayments: 0,
   });
+
+  const adminMenuItems = [
+    { icon: Hotel, label: t({ ar: 'إدارة الفنادق', en: 'Manage Hotels' }), path: '/manage-hotels' },
+    { icon: Users, label: t({ ar: 'إدارة الموظفين', en: 'Manage Employees' }), path: '/manage-employees' },
+    { icon: MessageSquare, label: t({ ar: 'الدردشة المباشرة', en: 'Live Chat' }), path: '/live-chat' },
+    { icon: Tag, label: t({ ar: 'الكوبونات', en: 'Coupons' }), path: '/coupons' },
+    { icon: Gift, label: t({ ar: 'العروض الخاصة', en: 'Special Offers' }), path: '/special-offers' },
+    { icon: Calendar, label: t({ ar: 'الأسعار الموسمية', en: 'Seasonal Pricing' }), path: '/seasonal-pricing' },
+    { icon: Briefcase, label: t({ ar: 'برنامج الولاء', en: 'Loyalty Program' }), path: '/loyalty-program' },
+    { icon: Settings, label: t({ ar: 'إعدادات الموقع', en: 'Site Settings' }), path: '/site-settings' },
+    { icon: DollarSign, label: t({ ar: 'إعدادات API', en: 'API Settings' }), path: '/api-settings' },
+    { icon: FileText, label: t({ ar: 'إعدادات PDF', en: 'PDF Settings' }), path: '/pdf-settings' },
+    { icon: FileText, label: t({ ar: 'سجل التدقيق', en: 'Audit Logs' }), path: '/audit-logs' },
+  ];
 
   useEffect(() => {
     if (!loading) {
@@ -298,6 +324,40 @@ export default function AdminDashboard() {
                   {t({ ar: "نظرة عامة على أداء نظامك", en: "Overview of your system performance" })}
                 </p>
               </div>
+              
+              {/* Site Management Button - Top Right */}
+              <Sheet open={adminMenuOpen} onOpenChange={setAdminMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button
+                    className="gap-2 shadow-lg"
+                    style={{ backgroundColor: '#237bff', color: 'white', borderColor: '#237bff' }}
+                  >
+                    <Settings className="w-4 h-4" />
+                    {t({ ar: "إدارة الموقع", en: "Site Management" })}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side={language === 'ar' ? 'right' : 'left'} className="w-[280px] sm:w-[350px]">
+                  <SheetHeader>
+                    <SheetTitle>{t({ ar: 'إدارة الموقع', en: 'Site Management' })}</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6 space-y-2">
+                    {adminMenuItems.map((item) => (
+                      <Button
+                        key={item.path}
+                        variant="ghost"
+                        className="w-full justify-start gap-3 h-12"
+                        onClick={() => {
+                          navigate(item.path);
+                          setAdminMenuOpen(false);
+                        }}
+                      >
+                        <item.icon className="w-5 h-5" />
+                        <span className="text-base">{item.label}</span>
+                      </Button>
+                    ))}
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
 
             {/* Quick Actions - Mobile Only */}

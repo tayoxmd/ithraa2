@@ -6,13 +6,13 @@ import { LoadingSpinner } from "./LoadingSpinner";
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user } = useAuth();
-  const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const checkAdminRole = async () => {
+    const checkRole = async () => {
       if (!user) {
-        setIsAdmin(false);
+        setIsAuthorized(false);
         setLoading(false);
         return;
       }
@@ -21,14 +21,14 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .eq('role', 'admin')
+        .in('role', ['admin', 'employee'])
         .single();
 
-      setIsAdmin(!!data);
+      setIsAuthorized(!!data);
       setLoading(false);
     };
 
-    checkAdminRole();
+    checkRole();
   }, [user]);
 
   if (loading) {
@@ -39,7 +39,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     );
   }
 
-  if (!user || !isAdmin) {
+  if (!user || !isAuthorized) {
     return <Navigate to="/auth" replace />;
   }
 
