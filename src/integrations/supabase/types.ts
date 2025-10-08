@@ -1115,6 +1115,7 @@ export type Database = {
           owner_room_color: string | null
           phone: string | null
           tax_percentage: number
+          tidio_widget_code: string | null
           twitter_url: string | null
           updated_at: string | null
           user_theme: string | null
@@ -1150,6 +1151,7 @@ export type Database = {
           owner_room_color?: string | null
           phone?: string | null
           tax_percentage?: number
+          tidio_widget_code?: string | null
           twitter_url?: string | null
           updated_at?: string | null
           user_theme?: string | null
@@ -1185,6 +1187,7 @@ export type Database = {
           owner_room_color?: string | null
           phone?: string | null
           tax_percentage?: number
+          tidio_widget_code?: string | null
           twitter_url?: string | null
           updated_at?: string | null
           user_theme?: string | null

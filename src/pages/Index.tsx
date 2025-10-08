@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { LiveChatButton } from "@/components/LiveChatButton";
 
 interface Hotel {
   id: string;
@@ -81,6 +82,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       <Header />
+      <LiveChatButton />
 
       {/* Hero Section */}
       <section className="relative min-h-[500px] md:min-h-[650px] flex items-center justify-center pt-20">

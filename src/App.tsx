@@ -8,7 +8,6 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { ChatWidget } from "@/components/ChatWidget";
-import { LiveChatSupport } from "@/components/LiveChatSupport";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -53,7 +52,6 @@ const RouterWithTheme = () => {
         <ChatWidget />
         <LanguageProvider>
           <AuthProvider>
-            <LiveChatSupport />
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />

@@ -46,6 +46,7 @@ export default function SiteSettings() {
   });
   const [chatCodes, setChatCodes] = useState({
     chat_widget_code: '',
+    tidio_widget_code: '',
     custom_head_code: '',
     custom_body_code: ''
   });
@@ -116,6 +117,7 @@ export default function SiteSettings() {
         });
         setChatCodes({
           chat_widget_code: data.chat_widget_code || '',
+          tidio_widget_code: data.tidio_widget_code || '',
           custom_head_code: data.custom_head_code || '',
           custom_body_code: data.custom_body_code || ''
         });
@@ -310,6 +312,7 @@ export default function SiteSettings() {
           .from('site_settings')
           .update({
             chat_widget_code: chatCodes.chat_widget_code,
+            tidio_widget_code: chatCodes.tidio_widget_code,
             custom_head_code: chatCodes.custom_head_code,
             custom_body_code: chatCodes.custom_body_code,
           })
@@ -860,7 +863,21 @@ export default function SiteSettings() {
             </CardHeader>
             <CardContent className="space-y-6">
               <div>
-                <Label>{t({ ar: 'كود الدردشة الحية (Tidio / Tawk.to / etc)', en: 'Live Chat Code (Tidio / Tawk.to / etc)' })}</Label>
+                <Label>{t({ ar: 'كود Tidio للدردشة المباشرة', en: 'Tidio Live Chat Code' })}</Label>
+                <p className="text-xs text-muted-foreground mb-2">
+                  {t({ ar: 'الصق كود HTML/JavaScript الخاص بـ Tidio هنا', en: 'Paste your Tidio widget HTML/JavaScript code here' })}
+                </p>
+                <Textarea
+                  value={chatCodes.tidio_widget_code}
+                  onChange={(e) => setChatCodes({ ...chatCodes, tidio_widget_code: e.target.value })}
+                  placeholder="<!-- كود Tidio -->"
+                  rows={6}
+                  className="font-mono text-sm"
+                />
+              </div>
+
+              <div>
+                <Label>{t({ ar: 'كود دردشة آخر (Tawk.to / etc)', en: 'Other Chat Code (Tawk.to / etc)' })}</Label>
                 <p className="text-xs text-muted-foreground mb-2">
                   {t({ ar: 'الصق كود HTML/JavaScript الخاص بالدردشة هنا', en: 'Paste your chat widget HTML/JavaScript code here' })}
                 </p>

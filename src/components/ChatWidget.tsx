@@ -2,40 +2,40 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export const ChatWidget = () => {
-  const [chatCode, setChatCode] = useState<string>('');
+  const [tidioCode, setTidioCode] = useState<string>('');
 
   useEffect(() => {
-    const fetchChatCode = async () => {
+    const fetchTidioCode = async () => {
       try {
         const { data, error } = await supabase
           .from('site_settings')
-          .select('chat_widget_code, created_at, updated_at')
+          .select('tidio_widget_code, created_at, updated_at')
           .order('created_at', { ascending: false })
           .order('updated_at', { ascending: false })
           .limit(1)
           .maybeSingle();
 
         if (error) {
-          console.error('Error fetching chat code:', error);
+          console.error('Error fetching tidio code:', error);
           return;
         }
 
-        if (data?.chat_widget_code) {
-          setChatCode(data.chat_widget_code);
+        if (data?.tidio_widget_code) {
+          setTidioCode(data.tidio_widget_code);
         }
       } catch (error) {
-        console.error('Error loading chat widget:', error);
+        console.error('Error loading tidio widget:', error);
       }
     };
 
-    fetchChatCode();
+    fetchTidioCode();
   }, []);
 
   useEffect(() => {
-    if (!chatCode) return;
+    if (!tidioCode) return;
 
     // Extract script src from the HTML code
-    const scriptMatch = chatCode.match(/src=["']([^"']+)["']/);
+    const scriptMatch = tidioCode.match(/src=["']([^"']+)["']/);
     if (!scriptMatch) return;
 
     const scriptSrc = scriptMatch[1];
@@ -57,7 +57,7 @@ export const ChatWidget = () => {
         scriptToRemove.remove();
       }
     };
-  }, [chatCode]);
+  }, [tidioCode]);
 
   return null;
 };
