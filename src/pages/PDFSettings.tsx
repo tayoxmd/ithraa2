@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -11,9 +11,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/hooks/use-toast";
-import { FileText, Plus, Trash2 } from "lucide-react";
+import { FileText, Plus, Trash2, Eye, RefreshCw } from "lucide-react";
 import { logAuditEvent } from "@/utils/auditLogger";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { generateBookingPDF } from "@/utils/pdfGenerator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ResponsiblePerson {
   name: string;
@@ -49,6 +51,9 @@ export default function PDFSettings() {
   });
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
     if (!loading) {
@@ -172,6 +177,79 @@ export default function PDFSettings() {
     setSettings({ ...settings, contact_numbers: numbers });
   };
 
+  const generatePreview = () => {
+    try {
+      // Create sample booking data for preview
+      const sampleData = {
+        bookingNumber: 12345,
+        hotelConfirmationNumber: "HTL-2024-001",
+        guestName: settings.responsible_persons?.[0]?.name || "John Doe",
+        clientName: "Sample Client",
+        clientEmail: settings.responsible_persons?.[0]?.email || "client@example.com",
+        clientPhone: settings.contact_numbers?.[0] || "+966501234567",
+        hotelNameEn: "Sample Hotel",
+        hotelNameAr: "فندق نموذجي",
+        hotelLocation: "Riyadh, Saudi Arabia",
+        hotelLocationUrl: "https://maps.google.com",
+        checkIn: new Date(),
+        checkOut: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
+        nights: 3,
+        rooms: 2,
+        guests: 4,
+        baseGuests: 4,
+        extraGuests: 0,
+        roomType: "Standard",
+        pricePerNight: 500,
+        subtotal: 3000,
+        extraGuestCharge: 0,
+        discountAmount: 0,
+        netAmount: 3000,
+        vatAmount: 450,
+        totalAmount: 3450,
+        paymentMethod: "Bank Transfer",
+        notes: "Sample booking for preview",
+        confirmedBy: settings.responsible_persons?.[0] || {
+          name: "Reservation Department",
+          email: "reservations@example.com",
+          phone: "+966501234567",
+          position: "Reservation"
+        },
+        customerPageUrl: window.location.origin + "/customer-dashboard"
+      };
+
+      const pdf = generateBookingPDF(sampleData);
+      const pdfBlob = pdf.output('blob');
+      const url = URL.createObjectURL(pdfBlob);
+      
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      
+      setPreviewUrl(url);
+      setShowPreview(true);
+      
+      toast({
+        title: t({ ar: "تم إنشاء المعاينة", en: "Preview Generated" }),
+        description: t({ ar: "يمكنك الآن مشاهدة نموذج PDF", en: "You can now view the PDF preview" }),
+      });
+    } catch (error) {
+      console.error('Error generating preview:', error);
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: t({ ar: "حدث خطأ أثناء إنشاء المعاينة", en: "An error occurred while generating preview" }),
+        variant: "destructive",
+      });
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
   if (loading || loadingSettings) {
     return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
   }
@@ -180,14 +258,32 @@ export default function PDFSettings() {
     <div className="min-h-screen bg-background">
       <Header />
       <div className="container mx-auto px-4 py-8 pt-24">
-        <Card className="card-luxury">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-2xl">
-              <FileText className="w-6 h-6" />
-              {t({ ar: "إعدادات ملف PDF", en: "PDF Settings" })}
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-8">
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold flex items-center gap-2">
+            <FileText className="w-8 h-8" />
+            {t({ ar: "إعدادات ملف PDF", en: "PDF Settings" })}
+          </h1>
+          <Button
+            onClick={generatePreview}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            {showPreview ? <RefreshCw className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            {t({ ar: showPreview ? "تحديث المعاينة" : "معاينة PDF", en: showPreview ? "Refresh Preview" : "Preview PDF" })}
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Settings Form */}
+          <Card className="card-luxury">
+            <CardHeader>
+              <CardTitle className="text-xl">
+                {t({ ar: "تعديل الإعدادات", en: "Edit Settings" })}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-[calc(100vh-280px)] pr-4">
+                <div className="space-y-8">
             {/* Company Info */}
             <div className="space-y-4">
               <h3 className="text-lg font-semibold">{t({ ar: "معلومات الشركة", en: "Company Information" })}</h3>
@@ -389,14 +485,60 @@ export default function PDFSettings() {
               ))}
             </div>
 
-            {/* Save Button */}
-            <div className="flex justify-end">
-              <Button onClick={handleSave} disabled={saving} className="btn-luxury">
-                {saving ? <LoadingSpinner size="sm" /> : t({ ar: "حفظ الإعدادات", en: "Save Settings" })}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+                  {/* Save Button */}
+                  <div className="flex justify-end pt-4">
+                    <Button onClick={handleSave} disabled={saving} className="btn-luxury w-full">
+                      {saving ? <LoadingSpinner size="sm" /> : t({ ar: "حفظ الإعدادات", en: "Save Settings" })}
+                    </Button>
+                  </div>
+                </div>
+              </ScrollArea>
+            </CardContent>
+          </Card>
+
+          {/* PDF Preview */}
+          <Card className="card-luxury">
+            <CardHeader>
+              <CardTitle className="text-xl flex items-center gap-2">
+                <Eye className="w-5 h-5" />
+                {t({ ar: "معاينة PDF", en: "PDF Preview" })}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {showPreview && previewUrl ? (
+                <div className="h-[calc(100vh-280px)] border rounded-lg overflow-hidden bg-gray-100">
+                  <iframe
+                    ref={iframeRef}
+                    src={previewUrl}
+                    className="w-full h-full"
+                    title="PDF Preview"
+                  />
+                </div>
+              ) : (
+                <div className="h-[calc(100vh-280px)] border rounded-lg flex items-center justify-center bg-muted/30">
+                  <div className="text-center space-y-4">
+                    <FileText className="w-16 h-16 mx-auto text-muted-foreground/50" />
+                    <div>
+                      <p className="text-lg font-medium text-muted-foreground">
+                        {t({ ar: "لا توجد معاينة", en: "No Preview" })}
+                      </p>
+                      <p className="text-sm text-muted-foreground/70">
+                        {t({ 
+                          ar: "اضغط على زر 'معاينة PDF' لإنشاء نموذج", 
+                          en: "Click 'Preview PDF' to generate a sample" 
+                        })}
+                      </p>
+                    </div>
+                    <Button onClick={generatePreview} variant="outline">
+                      <Eye className="w-4 h-4 mr-2" />
+                      {t({ ar: "إنشاء المعاينة", en: "Generate Preview" })}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
       </div>
       <Footer />
     </div>
