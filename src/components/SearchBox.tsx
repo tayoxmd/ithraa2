@@ -172,7 +172,10 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
               </PopoverContent>
             </Popover>
           </div>
+        </div>
 
+        {/* Second Row: Guests and Search Button */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
           {/* Rooms and Guests Combined */}
           <div>
             <label className="text-sm font-medium text-white/90 mb-1.5 block">
@@ -275,14 +278,14 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
               </PopoverContent>
             </Popover>
           </div>
-        </div>
 
-        {/* Search Button */}
-        <div className="mt-3 md:mt-0">
-          <Button onClick={handleSearch} className="w-full h-14 text-lg bg-white/70 hover:bg-white/80 text-primary rounded-full font-semibold shadow-lg">
-            <Search className="ml-2 w-5 h-5" />
-            {t('ابحث الآن', 'Search Now')}
-          </Button>
+          {/* Search Button */}
+          <div className="flex items-end">
+            <Button onClick={handleSearch} className="w-full h-12 text-lg bg-white/70 hover:bg-white/80 text-primary rounded-xl font-semibold shadow-lg">
+              <Search className="ml-2 w-5 h-5" />
+              {t('ابحث الآن', 'Search Now')}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
