@@ -26,7 +26,7 @@ export const Rotating3DLogo = ({ size = 'medium', className = '' }: Rotating3DLo
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentView((prev) => (prev + 1) % logoViews.length);
-    }, 200); // تبديل الصورة كل 200ms لدوران سلس
+    }, 150); // دوران سلس وبطيء 360 درجة
 
     return () => clearInterval(interval);
   }, []);
