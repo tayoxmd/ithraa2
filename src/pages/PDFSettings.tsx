@@ -190,8 +190,17 @@ export default function PDFSettings() {
     setSettings({ ...settings, contact_numbers: numbers });
   };
 
-  const generatePreview = () => {
+  const generatePreview = async () => {
     try {
+      // Show loading state
+      toast({
+        title: t({ ar: "جاري الإنشاء...", en: "Generating..." }),
+        description: t({ ar: "يرجى الانتظار", en: "Please wait" }),
+      });
+
+      // Use setTimeout to allow UI to update before heavy operation
+      await new Promise(resolve => setTimeout(resolve, 100));
+
       // Create sample booking data for preview
       const sampleData = {
         bookingNumber: 12345,

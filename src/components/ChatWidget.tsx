@@ -1,11 +1,25 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
+// Cache the Tidio key to avoid unnecessary database calls
+let cachedTidioKey: string | null = null;
+let isLoading = false;
+
 export const ChatWidget = () => {
-  const [tidioPublicKey, setTidioPublicKey] = useState<string>('');
+  const [tidioPublicKey, setTidioPublicKey] = useState<string>(cachedTidioKey || '');
 
   useEffect(() => {
+    // If already cached, use it
+    if (cachedTidioKey) {
+      setTidioPublicKey(cachedTidioKey);
+      return;
+    }
+
+    // If already loading, don't load again
+    if (isLoading) return;
+
     const fetchTidioKey = async () => {
+      isLoading = true;
       try {
         const { data, error } = await supabase
           .from('site_settings')
@@ -20,10 +34,13 @@ export const ChatWidget = () => {
         }
 
         if (data?.tidio_public_key) {
+          cachedTidioKey = data.tidio_public_key;
           setTidioPublicKey(data.tidio_public_key);
         }
       } catch (error) {
         console.error('Error loading tidio widget:', error);
+      } finally {
+        isLoading = false;
       }
     };
 
@@ -36,23 +53,18 @@ export const ChatWidget = () => {
     // Build Tidio script URL from public key
     const scriptSrc = `//code.tidio.co/${tidioPublicKey}.js`;
     
-    // Check if script already exists
-    const existingScript = document.querySelector(`script[src="${scriptSrc}"]`);
+    // Check if script already exists in the entire document
+    const existingScript = document.querySelector(`script[src="${scriptSrc}"], script[src*="code.tidio.co"]`);
     if (existingScript) return;
 
-    // Create and inject the script
+    // Create and inject the script only once
     const script = document.createElement('script');
     script.src = scriptSrc;
     script.async = true;
+    script.defer = true;
     document.body.appendChild(script);
 
-    return () => {
-      // Cleanup: remove script when component unmounts
-      const scriptToRemove = document.querySelector(`script[src="${scriptSrc}"]`);
-      if (scriptToRemove) {
-        scriptToRemove.remove();
-      }
-    };
+    // Don't remove the script on unmount to keep it loaded across page navigations
   }, [tidioPublicKey]);
 
   return null;
