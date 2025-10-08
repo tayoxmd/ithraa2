@@ -2,43 +2,39 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
 export const ChatWidget = () => {
-  const [tidioCode, setTidioCode] = useState<string>('');
+  const [tidioPublicKey, setTidioPublicKey] = useState<string>('');
 
   useEffect(() => {
-    const fetchTidioCode = async () => {
+    const fetchTidioKey = async () => {
       try {
         const { data, error } = await supabase
           .from('site_settings')
-          .select('tidio_widget_code, created_at, updated_at')
+          .select('tidio_public_key')
           .order('created_at', { ascending: false })
-          .order('updated_at', { ascending: false })
           .limit(1)
           .maybeSingle();
 
         if (error) {
-          console.error('Error fetching tidio code:', error);
+          console.error('Error fetching tidio key:', error);
           return;
         }
 
-        if (data?.tidio_widget_code) {
-          setTidioCode(data.tidio_widget_code);
+        if (data?.tidio_public_key) {
+          setTidioPublicKey(data.tidio_public_key);
         }
       } catch (error) {
         console.error('Error loading tidio widget:', error);
       }
     };
 
-    fetchTidioCode();
+    fetchTidioKey();
   }, []);
 
   useEffect(() => {
-    if (!tidioCode) return;
+    if (!tidioPublicKey) return;
 
-    // Extract script src from the HTML code
-    const scriptMatch = tidioCode.match(/src=["']([^"']+)["']/);
-    if (!scriptMatch) return;
-
-    const scriptSrc = scriptMatch[1];
+    // Build Tidio script URL from public key
+    const scriptSrc = `//code.tidio.co/${tidioPublicKey}.js`;
     
     // Check if script already exists
     const existingScript = document.querySelector(`script[src="${scriptSrc}"]`);
@@ -57,7 +53,7 @@ export const ChatWidget = () => {
         scriptToRemove.remove();
       }
     };
-  }, [tidioCode]);
+  }, [tidioPublicKey]);
 
   return null;
 };
