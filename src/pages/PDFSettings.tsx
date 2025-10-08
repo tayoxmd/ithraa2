@@ -76,10 +76,23 @@ export default function PDFSettings() {
       if (error && error.code !== 'PGRST116') throw error;
       
       if (data) {
+        // Parse JSON strings from database
+        const parseJsonField = (field: any, defaultValue: any) => {
+          if (!field) return defaultValue;
+          if (typeof field === 'string') {
+            try {
+              return JSON.parse(field);
+            } catch {
+              return defaultValue;
+            }
+          }
+          return Array.isArray(field) ? field : defaultValue;
+        };
+
         setSettings({
           ...data,
-          responsible_persons: (data.responsible_persons as unknown as ResponsiblePerson[]) || [],
-          contact_numbers: (data.contact_numbers as unknown as string[]) || []
+          responsible_persons: parseJsonField(data.responsible_persons, []),
+          contact_numbers: parseJsonField(data.contact_numbers, [])
         });
       }
     } catch (error) {
