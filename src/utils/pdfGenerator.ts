@@ -56,124 +56,137 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   
-  // Colors
-  const primaryColor: [number, number, number] = [138, 43, 226]; // Purple
-  const yellowColor: [number, number, number] = [255, 215, 0];
-  const darkGray: [number, number, number] = [64, 64, 64];
+  // Colors matching the uploaded PDF
+  const primaryColor: [number, number, number] = [75, 0, 130]; // Darker purple/indigo
+  const lightGray: [number, number, number] = [245, 245, 245];
+  const borderGray: [number, number, number] = [200, 200, 200];
+  const darkText: [number, number, number] = [0, 0, 0];
   
-  // Header - Company Logo and Title
+  // Header with booking number
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(0, 0, pageWidth, 40, 'F');
+  doc.rect(0, 0, pageWidth, 30, 'F');
   
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(24);
-  doc.setFont('helvetica', 'bold');
-  doc.text('CONFIRMATION', pageWidth / 2, 15, { align: 'center' });
-  
-  doc.setFontSize(14);
-  doc.text('Hotel Booking Confirmation', pageWidth / 2, 25, { align: 'center' });
-  
-  // Booking Number (Company)
-  doc.setFontSize(10);
-  doc.setFillColor(yellowColor[0], yellowColor[1], yellowColor[2]);
-  doc.roundedRect(pageWidth - 50, 5, 40, 8, 2, 2, 'F');
+  // Booking number in top right corner with white background
+  doc.setFillColor(255, 255, 255);
+  doc.roundedRect(pageWidth - 45, 8, 35, 10, 2, 2, 'F');
   doc.setTextColor(0, 0, 0);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text(`#${data.bookingNumber}`, pageWidth - 30, 10, { align: 'center' });
+  doc.text(`#${data.bookingNumber}`, pageWidth - 27.5, 15, { align: 'center' });
   
-  // Hotel Confirmation Number (if exists)
-  let yPos = 45;
-  if (data.hotelConfirmationNumber) {
-    doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.setLineWidth(2);
-    doc.roundedRect(15, yPos, 50, 10, 2, 2, 'S');
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Hotel Conf#:', 17, yPos + 4);
-    doc.text(data.hotelConfirmationNumber, 17, yPos + 8);
-    yPos += 15;
-  }
+  // Title
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(18);
+  doc.setFont('helvetica', 'bold');
+  doc.text('CONFIRMATION', 15, 20);
   
-  // Greeting
-  doc.setTextColor(darkGray[0], darkGray[1], darkGray[2]);
+  // Main title
+  let yPos = 38;
+  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+  doc.setFontSize(14);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Hotel Booking Confirmation', 15, yPos);
+  yPos += 10;
+  
+  // Greeting section
   doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
   doc.text('Dear Sir:', 15, yPos);
-  yPos += 8;
+  yPos += 6;
   
   doc.setFont('helvetica', 'bold');
   doc.text('Greeting From Ethraa Company for Tourist Accommodation', 15, yPos);
-  yPos += 8;
+  yPos += 7;
   
   doc.setFont('helvetica', 'normal');
-  doc.text('First of All, We would like to take this opportunity to welcome you at Ethraa Company', 15, yPos);
-  yPos += 5;
-  doc.text('for Tourist Accommodation. We are pleased to confirm the following reservation on a definite basis.', 15, yPos);
-  yPos += 12;
-  
-  // Client Information Box
-  doc.setFillColor(245, 245, 245);
-  doc.rect(15, yPos, pageWidth - 30, 35, 'F');
-  doc.setDrawColor(200, 200, 200);
-  doc.rect(15, yPos, pageWidth - 30, 35, 'S');
-  
-  doc.setTextColor(0, 0, 0);
   doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
+  doc.text('First of All, We would like to take this opportunity to welcome you at Ethraa Company for Tourist', 15, yPos);
+  yPos += 4;
+  doc.text('Accommodation. We are pleased to confirm the following reservation on a definite basis.', 15, yPos);
+  yPos += 10;
   
-  // Left column
-  doc.text('Hotel:', 20, yPos + 6);
-  doc.text('Guest Name:', 20, yPos + 14);
-  doc.text('Mail:', 20, yPos + 22);
+  // Client Information Table
+  const infoTableHeight = 30;
+  doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2]);
+  doc.setLineWidth(0.5);
+  doc.rect(15, yPos, pageWidth - 30, infoTableHeight, 'S');
+  
+  // Draw horizontal lines
+  const lineSpacing = infoTableHeight / 5;
+  for (let i = 1; i < 5; i++) {
+    doc.line(15, yPos + (i * lineSpacing), pageWidth - 15, yPos + (i * lineSpacing));
+  }
+  
+  // Draw vertical line
+  doc.line(pageWidth / 2, yPos, pageWidth / 2, yPos + infoTableHeight);
+  
+  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+  doc.setFontSize(8);
+  
+  // Left column labels and values
+  doc.setFont('helvetica', 'bold');
+  doc.text('Hotel:', 18, yPos + 4);
+  doc.setFont('helvetica', 'normal');
+  doc.text(data.hotelNameEn, 35, yPos + 4);
+  
+  doc.setFont('helvetica', 'bold');
+  doc.text('Client:', 18, yPos + 10);
+  doc.setFont('helvetica', 'normal');
+  doc.text(data.clientName, 35, yPos + 10);
+  
+  doc.setFont('helvetica', 'bold');
+  doc.text('Guest Name:', 18, yPos + 16);
+  doc.setFont('helvetica', 'normal');
+  doc.text(data.guestName, 45, yPos + 16);
+  
+  doc.setFont('helvetica', 'bold');
+  doc.text('Nationality:', 18, yPos + 22);
+  doc.setFont('helvetica', 'normal');
+  doc.text('-', 45, yPos + 22);
+  
+  doc.setFont('helvetica', 'bold');
+  doc.text('Mail:', 18, yPos + 28);
+  doc.setFont('helvetica', 'normal');
+  doc.text(data.clientEmail, 35, yPos + 28);
   
   // Right column
-  doc.text('Client:', pageWidth / 2 + 5, yPos + 6);
-  doc.text('Nationality:', pageWidth / 2 + 5, yPos + 14);
-  doc.text('Mobile:', pageWidth / 2 + 5, yPos + 22);
-  
+  doc.setFont('helvetica', 'bold');
+  doc.text('Mobile:', pageWidth / 2 + 3, yPos + 28);
   doc.setFont('helvetica', 'normal');
-  // Values - Left
-  doc.text(data.hotelNameEn, 20, yPos + 10);
-  doc.text(data.guestName, 20, yPos + 18);
-  doc.text(data.clientEmail, 20, yPos + 26);
+  doc.text(data.clientPhone, pageWidth / 2 + 20, yPos + 28);
   
-  // Values - Right
-  doc.text(data.clientName, pageWidth / 2 + 5, yPos + 10);
-  doc.text('-', pageWidth / 2 + 5, yPos + 18); // Nationality placeholder
-  doc.text(data.clientPhone, pageWidth / 2 + 5, yPos + 26);
+  yPos += infoTableHeight + 8;
   
-  yPos += 42;
-  
-  // Booking Details Table
+  // Booking Details Table Header
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(15, yPos, pageWidth - 30, 8, 'F');
+  doc.rect(15, yPos, pageWidth - 30, 7, 'F');
   
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(8);
+  doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
   
-  const colWidths = [25, 20, 20, 25, 25, 15, 20, 25, 25];
-  let xPos = 18;
+  // Adjusted column widths for better fit
+  const colWidths = [30, 18, 20, 22, 22, 12, 15, 18, 18];
+  let xPos = 17;
   const headers = ['ROOM TYPE', 'VIEW', 'MEAL', 'CHECK IN', 'CHECK OUT', 'NIGHTS', 'GUESTS', 'RATE', 'TOTAL'];
   
   headers.forEach((header, i) => {
-    doc.text(header, xPos, yPos + 5);
+    doc.text(header, xPos, yPos + 4.5);
     xPos += colWidths[i];
   });
   
-  yPos += 8;
+  yPos += 7;
   
-  // Table Row
-  doc.setFillColor(255, 255, 255);
-  doc.rect(15, yPos, pageWidth - 30, 10, 'F');
-  doc.setDrawColor(200, 200, 200);
-  doc.rect(15, yPos, pageWidth - 30, 10, 'S');
+  // Table Row with border
+  doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2]);
+  doc.setLineWidth(0.5);
+  doc.rect(15, yPos, pageWidth - 30, 8, 'S');
   
-  doc.setTextColor(0, 0, 0);
+  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+  doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
   
-  xPos = 18;
+  xPos = 17;
   const values = [
     `${data.rooms} ${data.roomType}`,
     'Non View',
@@ -181,185 +194,160 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
     format(data.checkIn, 'dd/MM/yyyy'),
     format(data.checkOut, 'dd/MM/yyyy'),
     data.nights.toString(),
-    `${data.guests}`,
+    data.guests.toString(),
     data.pricePerNight.toFixed(2),
     data.subtotal.toFixed(2)
   ];
   
   values.forEach((value, i) => {
-    doc.text(value, xPos, yPos + 6);
+    doc.text(value, xPos, yPos + 5);
     xPos += colWidths[i];
   });
   
-  yPos += 15;
+  yPos += 12;
   
   // Price Breakdown
+  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   doc.text('Net Accommodation Charge:', 15, yPos);
-  doc.text(`${data.netAmount.toFixed(2)}`, pageWidth - 40, yPos);
+  doc.text(data.netAmount.toFixed(2), pageWidth - 40, yPos);
   yPos += 6;
   
   doc.text('VAT Charge:', 15, yPos);
-  doc.text(`${data.vatAmount.toFixed(2)}`, pageWidth - 40, yPos);
+  doc.text(data.vatAmount.toFixed(2), pageWidth - 40, yPos);
   yPos += 8;
   
-  doc.setFillColor(yellowColor[0], yellowColor[1], yellowColor[2]);
-  doc.rect(15, yPos - 5, pageWidth - 30, 8, 'F');
-  doc.setTextColor(0, 0, 0);
-  doc.setFontSize(12);
-  doc.text('(SAR) Total:', 20, yPos);
-  doc.text(`${data.totalAmount.toFixed(2)}`, pageWidth - 40, yPos);
+  // Total with light yellow background
+  doc.setFillColor(255, 251, 230);
+  doc.rect(15, yPos - 4, pageWidth - 30, 8, 'F');
+  doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2]);
+  doc.rect(15, yPos - 4, pageWidth - 30, 8, 'S');
   
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  doc.text('including VAT', 20, yPos + 3);
-  
-  yPos += 12;
-  
-  // Bank Details
-  doc.setFillColor(245, 245, 245);
-  doc.rect(15, yPos, (pageWidth - 35) / 2, 35, 'F');
-  doc.setDrawColor(200, 200, 200);
-  doc.rect(15, yPos, (pageWidth - 35) / 2, 35, 'S');
-  
-  doc.setTextColor(0, 0, 0);
   doc.setFontSize(10);
   doc.setFont('helvetica', 'bold');
-  doc.text('Bank Details', 20, yPos + 6);
+  doc.text('(SAR) Total:', 18, yPos + 1);
+  doc.text(`${data.totalAmount.toFixed(2)} including VAT`, pageWidth - 40, yPos + 1);
   
-  doc.setFontSize(8);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Bank name: ANB Bank', 20, yPos + 12);
-  doc.text('Account Name: Ithraa Tourist Accommodation Company', 20, yPos + 17);
-  doc.text('Account number: SA9630400108095640510010', 20, yPos + 22);
-  doc.text('IBAN: SA9630400108095640510010', 20, yPos + 27);
-  doc.text('Swift Code: ARNBSARI', 20, yPos + 32);
+  yPos += 10;
   
-  // Hotel Details
-  const hotelDetailsX = (pageWidth + 5) / 2;
-  doc.rect(hotelDetailsX, yPos, (pageWidth - 35) / 2, 35, 'F');
-  doc.rect(hotelDetailsX, yPos, (pageWidth - 35) / 2, 35, 'S');
+  // Bank Details Section
+  const boxWidth = (pageWidth - 35) / 2;
+  doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2]);
+  doc.setLineWidth(0.5);
+  doc.rect(15, yPos, boxWidth, 32, 'S');
   
+  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+  doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(10);
-  doc.text('Hotel Details', hotelDetailsX + 5, yPos + 6);
+  doc.text('Bank Details', 18, yPos + 5);
   
-  doc.setFontSize(8);
+  doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
-  doc.text('Children: Two children under 6 years are allowed.', hotelDetailsX + 5, yPos + 12);
-  doc.text('Check In: 00:00:00', hotelDetailsX + 5, yPos + 17);
-  doc.text('Check Out: 00:00:00', hotelDetailsX + 5, yPos + 22);
+  let bankY = yPos + 10;
+  doc.setFont('helvetica', 'bold');
+  doc.text('Bank name:', 18, bankY);
+  doc.setFont('helvetica', 'normal');
+  doc.text('ANB Bank', 45, bankY);
   
-  yPos += 42;
+  bankY += 4;
+  doc.setFont('helvetica', 'bold');
+  doc.text('Account Name:', 18, bankY);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Ithraa Tourist Accommodation Company', 45, bankY);
   
-  // Confirmed By (if available)
-  if (data.confirmedBy) {
-    doc.setFillColor(240, 240, 255);
-    doc.rect(15, yPos, pageWidth - 30, 20, 'F');
-    doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-    doc.rect(15, yPos, pageWidth - 30, 20, 'S');
-    
-    doc.setTextColor(0, 0, 0);
-    doc.setFontSize(9);
-    doc.setFont('helvetica', 'bold');
-    doc.text(data.confirmedBy.name, pageWidth / 2, yPos + 6, { align: 'center' });
-    doc.setFont('helvetica', 'normal');
-    doc.text('reservation', pageWidth / 2, yPos + 11, { align: 'center' });
-    doc.text(data.confirmedBy.email, pageWidth / 2, yPos + 15, { align: 'center' });
-    doc.text(data.confirmedBy.phone, pageWidth / 2, yPos + 19, { align: 'center' });
-    
-    yPos += 25;
-  }
+  bankY += 4;
+  doc.setFont('helvetica', 'bold');
+  doc.text('Account number:', 18, bankY);
+  doc.setFont('helvetica', 'normal');
+  doc.text('SA9630400108095640510010', 45, bankY);
   
-  // Terms & Conditions and Cancellation Policy
+  bankY += 4;
+  doc.setFont('helvetica', 'bold');
+  doc.text('IBAN:', 18, bankY);
+  doc.setFont('helvetica', 'normal');
+  doc.text('SA9630400108095640510010', 45, bankY);
+  
+  bankY += 4;
+  doc.setFont('helvetica', 'bold');
+  doc.text('Swift Code:', 18, bankY);
+  doc.setFont('helvetica', 'normal');
+  doc.text('ARNBSARI', 45, bankY);
+  
+  yPos += 38;
+  
+  // Terms & Conditions Section
   doc.setFontSize(9);
   doc.setFont('helvetica', 'bold');
   doc.text('Terms & Conditions', 15, yPos);
-  doc.text('شروط وأحكام', pageWidth - 40, yPos);
   
   yPos += 5;
   doc.setFontSize(7);
   doc.setFont('helvetica', 'normal');
   
-  // English Terms (Left)
-  const englishTerms = [
-    '1. Cancellation must be made 7 days before',
-    '   arrival, notice period 48 hours in advance.',
+  const terms = [
+    '1. Cancellation must be made 7 days before arrival, notice period 48 hours in advance.',
     '2. No refund for no-shows or early departures.',
-    '3. Hotel reserves the right to cancel unconfirmed',
-    '   bookings.'
+    '3. Hotel reserves the right to cancel unconfirmed bookings.'
   ];
   
-  let termsY = yPos;
-  englishTerms.forEach(term => {
-    doc.text(term, 15, termsY);
-    termsY += 4;
+  terms.forEach(term => {
+    const lines = doc.splitTextToSize(term, (pageWidth - 35));
+    lines.forEach((line: string) => {
+      doc.text(line, 15, yPos);
+      yPos += 4;
+    });
   });
   
-  // Arabic Terms (Right)
-  // Note: Arabic text rendering in jsPDF requires special fonts
-  // For now, using placeholder - in production, use arabic-support plugin
-  const arabicTerms = [
-    'يجب الإلغاء قبل 7 أيام من الوصول',
-    'فترة الإشعار 48 ساعة مسبقاً',
-    'لا يوجد استرداد في حالة عدم الحضور',
-    'يحتفظ الفندق بالحق في إلغاء الحجوزات',
-    'غير المؤكدة'
-  ];
+  yPos += 3;
   
-  termsY = yPos;
-  arabicTerms.forEach(term => {
-    doc.text(term, pageWidth - 15, termsY, { align: 'right' });
-    termsY += 4;
-  });
-  
-  // Vertical separator line
-  doc.setDrawColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.setLineWidth(0.5);
-  doc.line(pageWidth / 2, yPos - 2, pageWidth / 2, yPos + 18);
-  
-  yPos += 25;
-  
-  // Hotel Location and Customer Page
-  doc.setFontSize(8);
+  // Hotel Location
+  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+  doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
   doc.text('Hotel Location:', 15, yPos);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(0, 0, 255);
+  const locationText = data.hotelLocation.length > 80 ? data.hotelLocation.substring(0, 80) + '...' : data.hotelLocation;
   if (data.hotelLocationUrl) {
-    doc.textWithLink(data.hotelLocation, 45, yPos, { url: data.hotelLocationUrl });
+    doc.textWithLink(locationText, 40, yPos, { url: data.hotelLocationUrl });
   } else {
-    doc.text(data.hotelLocation, 45, yPos);
+    doc.text(locationText, 40, yPos);
   }
   
-  yPos += 5;
-  doc.setTextColor(0, 0, 0);
+  yPos += 4;
+  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
   doc.setFont('helvetica', 'bold');
   doc.text('My Bookings Page:', 15, yPos);
   doc.setFont('helvetica', 'normal');
   doc.setTextColor(0, 0, 255);
-  doc.textWithLink(data.customerPageUrl, 45, yPos, { url: data.customerPageUrl });
+  doc.textWithLink(data.customerPageUrl, 40, yPos, { url: data.customerPageUrl });
   
-  // Footer
-  const footerY = pageHeight - 25;
+  // Footer section
+  const footerY = pageHeight - 20;
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(0, footerY, pageWidth, 25, 'F');
+  doc.rect(0, footerY, pageWidth, 20, 'F');
   
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(8);
+  doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
-  doc.text('Official Business Name: Ethraa Company for Tourist Accommodation', pageWidth / 2, footerY + 5, { align: 'center' });
+  doc.text('Official Business Name: Ethraa Company for Tourist Accommodation', pageWidth / 2, footerY + 4, { align: 'center' });
   
   doc.setFont('helvetica', 'normal');
+  doc.setFontSize(6);
   const today = new Date();
-  doc.text(`Date: ${format(today, 'dd/MM/yyyy')}`, 15, footerY + 10);
-  doc.text(`Hijri Date: ${toHijri(today)}`, 15, footerY + 15);
   
-  doc.text('CR N°: 4031285856', pageWidth / 2 - 20, footerY + 10);
-  doc.text('VAT N°: 302006094600003', pageWidth / 2 - 20, footerY + 15);
+  // Left column
+  doc.text(`Date: ${format(today, 'dd/MM/yyyy')}`, 15, footerY + 9);
+  doc.text(`Hijri Date: ${toHijri(today)}`, 15, footerY + 13);
   
-  doc.text('LIC N°: 73105372', pageWidth - 50, footerY + 10);
-  doc.text('Class: 5 Star', pageWidth - 50, footerY + 15);
+  // Center column
+  doc.text('CR N°: 4031285856', pageWidth / 2 - 25, footerY + 9);
+  doc.text('VAT N°: 302006094600003', pageWidth / 2 - 25, footerY + 13);
+  
+  // Right column
+  doc.text('LIC N°: 73105372', pageWidth - 40, footerY + 9);
+  doc.text('Class: 5 Star', pageWidth - 40, footerY + 13);
   
   return doc;
 }
