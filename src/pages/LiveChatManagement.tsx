@@ -10,101 +10,94 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { MessageCircle, Send, CheckCircle, Clock } from "lucide-react";
+import { MessageCircle, Send, CheckCircle, Clock, RefreshCw } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { ar } from "date-fns/locale";
 import { useToast } from "@/hooks/use-toast";
 
-interface ChatSession {
+interface TidioConversation {
   id: string;
-  user_id: string;
+  visitor: {
+    name: string;
+    email?: string;
+  };
   status: string;
   created_at: string;
   updated_at: string;
-  profile?: {
-    full_name: string;
-    phone: string;
-  };
-  unread_count?: number;
+  unread_messages_count: number;
 }
 
-interface Message {
+interface TidioMessage {
   id: string;
-  sender_name: string;
   message: string;
-  created_at: string;
-  is_admin: boolean;
+  delivered_at: string;
+  author: {
+    type: string;
+    name: string;
+  };
 }
 
 export default function LiveChatManagement() {
   const { t, language } = useLanguage();
   const { user } = useAuth();
   const { toast } = useToast();
-  const [sessions, setSessions] = useState<ChatSession[]>([]);
-  const [selectedSession, setSelectedSession] = useState<string | null>(null);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [conversations, setConversations] = useState<TidioConversation[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [messages, setMessages] = useState<TidioMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    fetchSessions();
+    fetchConversations();
+    
+    // Auto-refresh conversations every 10 seconds
+    const interval = setInterval(fetchConversations, 10000);
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
-    if (selectedSession) {
-      fetchMessages(selectedSession);
-
-      const channel = supabase
-        .channel(`admin-chat:${selectedSession}`)
-        .on(
-          'postgres_changes',
-          {
-            event: 'INSERT',
-            schema: 'public',
-            table: 'chat_messages',
-            filter: `session_id=eq.${selectedSession}`,
-          },
-          (payload) => {
-            const newMsg = payload.new as Message;
-            setMessages((prev) => [...prev, newMsg]);
-            scrollToBottom();
-          }
-        )
-        .subscribe();
-
-      return () => {
-        supabase.removeChannel(channel);
-      };
+    if (selectedConversation) {
+      fetchMessages(selectedConversation);
+      
+      // Auto-refresh messages every 5 seconds
+      const interval = setInterval(() => {
+        fetchMessages(selectedConversation);
+      }, 5000);
+      
+      return () => clearInterval(interval);
     }
-  }, [selectedSession]);
+  }, [selectedConversation]);
 
-  const fetchSessions = async () => {
-    const { data } = await supabase
-      .from('chat_sessions')
-      .select(`
-        *,
-        profiles:user_id (
-          full_name,
-          phone
-        )
-      `)
-      .order('updated_at', { ascending: false });
+  const callTidioAPI = async (action: string, data?: any) => {
+    const { data: result, error } = await supabase.functions.invoke('tidio-chat', {
+      body: { action, ...data },
+    });
 
-    if (data) {
-      setSessions(data as any);
+    if (error) throw error;
+    return result;
+  };
+
+  const fetchConversations = async () => {
+    try {
+      const result = await callTidioAPI('getConversations');
+      if (result?.conversations) {
+        setConversations(result.conversations);
+      }
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
     }
   };
 
-  const fetchMessages = async (sessionId: string) => {
-    const { data } = await supabase
-      .from('chat_messages')
-      .select('*')
-      .eq('session_id', sessionId)
-      .order('created_at', { ascending: true });
-
-    if (data) {
-      setMessages(data);
-      scrollToBottom();
+  const fetchMessages = async (conversationId: string) => {
+    try {
+      const result = await callTidioAPI('getMessages', { conversationId });
+      if (result?.messages) {
+        setMessages(result.messages);
+        scrollToBottom();
+      }
+    } catch (error) {
+      console.error('Error fetching messages:', error);
     }
   };
 
@@ -117,71 +110,81 @@ export default function LiveChatManagement() {
   };
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !user || !selectedSession) return;
+    if (!newMessage.trim() || !selectedConversation) return;
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('full_name')
-      .eq('id', user.id)
-      .single();
+    setLoading(true);
+    try {
+      await callTidioAPI('sendMessage', {
+        conversationId: selectedConversation,
+        message: newMessage,
+      });
 
-    const { error } = await supabase.from('chat_messages').insert({
-      session_id: selectedSession,
-      sender_id: user.id,
-      sender_name: profile?.full_name || 'Support Team',
-      message: newMessage,
-      is_admin: true,
-    });
+      setNewMessage("");
+      toast({
+        title: t('تم', 'Done'),
+        description: t('تم إرسال الرسالة', 'Message sent'),
+      });
 
-    if (error) {
+      // Refresh messages
+      await fetchMessages(selectedConversation);
+    } catch (error) {
       toast({
         title: t('خطأ', 'Error'),
         description: t('فشل إرسال الرسالة', 'Failed to send message'),
         variant: 'destructive',
       });
-    } else {
-      setNewMessage("");
-      
-      // Update session timestamp
-      await supabase
-        .from('chat_sessions')
-        .update({ updated_at: new Date().toISOString() })
-        .eq('id', selectedSession);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleCloseSession = async (sessionId: string) => {
-    const { error } = await supabase
-      .from('chat_sessions')
-      .update({ status: 'closed' })
-      .eq('id', sessionId);
-
-    if (!error) {
+  const handleCloseConversation = async (conversationId: string) => {
+    try {
+      await callTidioAPI('closeConversation', { conversationId });
+      
       toast({
         title: t('تم', 'Done'),
-        description: t('تم إغلاق الجلسة', 'Session closed'),
+        description: t('تم إغلاق المحادثة', 'Conversation closed'),
       });
-      fetchSessions();
-      if (selectedSession === sessionId) {
-        setSelectedSession(null);
+      
+      await fetchConversations();
+      if (selectedConversation === conversationId) {
+        setSelectedConversation(null);
       }
+    } catch (error) {
+      toast({
+        title: t('خطأ', 'Error'),
+        description: t('فشل إغلاق المحادثة', 'Failed to close conversation'),
+        variant: 'destructive',
+      });
     }
   };
 
-  const activeSessions = sessions.filter((s) => s.status === 'active');
-  const closedSessions = sessions.filter((s) => s.status === 'closed');
+  const activeConversations = conversations.filter((c) => c.status === 'open');
+  const closedConversations = conversations.filter((c) => c.status === 'closed');
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       <div className="container mx-auto px-4 py-24">
-        <h1 className="text-3xl font-bold mb-8">
-          {t('إدارة الدردشة المباشرة', 'Live Chat Management')}
-        </h1>
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-3xl font-bold">
+            {t('إدارة الدردشة المباشرة', 'Live Chat Management')}
+          </h1>
+          <Button
+            onClick={fetchConversations}
+            variant="outline"
+            size="sm"
+            className="gap-2"
+          >
+            <RefreshCw className="w-4 h-4" />
+            {t('تحديث', 'Refresh')}
+          </Button>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Sessions List */}
+          {/* Conversations List */}
           <Card className="lg:col-span-1">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -193,43 +196,50 @@ export default function LiveChatManagement() {
               <Tabs defaultValue="active">
                 <TabsList className="w-full">
                   <TabsTrigger value="active" className="flex-1">
-                    {t('نشطة', 'Active')} ({activeSessions.length})
+                    {t('نشطة', 'Active')} ({activeConversations.length})
                   </TabsTrigger>
                   <TabsTrigger value="closed" className="flex-1">
-                    {t('مغلقة', 'Closed')} ({closedSessions.length})
+                    {t('مغلقة', 'Closed')} ({closedConversations.length})
                   </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="active" className="m-0">
                   <ScrollArea className="h-[500px]">
-                    {activeSessions.length === 0 ? (
+                    {activeConversations.length === 0 ? (
                       <div className="p-8 text-center text-muted-foreground">
                         {t('لا توجد محادثات نشطة', 'No active conversations')}
                       </div>
                     ) : (
                       <div className="divide-y">
-                        {activeSessions.map((session) => (
+                        {activeConversations.map((conversation) => (
                           <div
-                            key={session.id}
+                            key={conversation.id}
                             className={`p-4 cursor-pointer hover:bg-muted transition-colors ${
-                              selectedSession === session.id ? 'bg-muted' : ''
+                              selectedConversation === conversation.id ? 'bg-muted' : ''
                             }`}
-                            onClick={() => setSelectedSession(session.id)}
+                            onClick={() => setSelectedConversation(conversation.id)}
                           >
                             <div className="flex items-center justify-between mb-1">
                               <p className="font-semibold">
-                                {session.profile?.full_name || 'User'}
+                                {conversation.visitor.name || 'زائر'}
                               </p>
                               <Badge variant="default" className="gap-1">
                                 <Clock className="w-3 h-3" />
                                 {t('نشط', 'Active')}
                               </Badge>
                             </div>
-                            <p className="text-xs text-muted-foreground">
-                              {session.profile?.phone}
-                            </p>
+                            {conversation.visitor.email && (
+                              <p className="text-xs text-muted-foreground">
+                                {conversation.visitor.email}
+                              </p>
+                            )}
+                            {conversation.unread_messages_count > 0 && (
+                              <Badge variant="destructive" className="mt-1">
+                                {conversation.unread_messages_count} {t('جديد', 'new')}
+                              </Badge>
+                            )}
                             <p className="text-xs text-muted-foreground mt-1">
-                              {formatDistanceToNow(new Date(session.updated_at), {
+                              {formatDistanceToNow(new Date(conversation.updated_at), {
                                 addSuffix: true,
                                 locale: language === 'ar' ? ar : undefined,
                               })}
@@ -243,32 +253,34 @@ export default function LiveChatManagement() {
 
                 <TabsContent value="closed" className="m-0">
                   <ScrollArea className="h-[500px]">
-                    {closedSessions.length === 0 ? (
+                    {closedConversations.length === 0 ? (
                       <div className="p-8 text-center text-muted-foreground">
                         {t('لا توجد محادثات مغلقة', 'No closed conversations')}
                       </div>
                     ) : (
                       <div className="divide-y">
-                        {closedSessions.map((session) => (
+                        {closedConversations.map((conversation) => (
                           <div
-                            key={session.id}
+                            key={conversation.id}
                             className={`p-4 cursor-pointer hover:bg-muted transition-colors ${
-                              selectedSession === session.id ? 'bg-muted' : ''
+                              selectedConversation === conversation.id ? 'bg-muted' : ''
                             }`}
-                            onClick={() => setSelectedSession(session.id)}
+                            onClick={() => setSelectedConversation(conversation.id)}
                           >
                             <div className="flex items-center justify-between mb-1">
                               <p className="font-semibold">
-                                {session.profile?.full_name || 'User'}
+                                {conversation.visitor.name || 'زائر'}
                               </p>
                               <Badge variant="secondary" className="gap-1">
                                 <CheckCircle className="w-3 h-3" />
                                 {t('مغلقة', 'Closed')}
                               </Badge>
                             </div>
-                            <p className="text-xs text-muted-foreground">
-                              {session.profile?.phone}
-                            </p>
+                            {conversation.visitor.email && (
+                              <p className="text-xs text-muted-foreground">
+                                {conversation.visitor.email}
+                              </p>
+                            )}
                           </div>
                         ))}
                       </div>
@@ -284,17 +296,17 @@ export default function LiveChatManagement() {
             <CardHeader>
               <div className="flex items-center justify-between">
                 <CardTitle>
-                  {selectedSession
-                    ? sessions.find((s) => s.id === selectedSession)?.profile?.full_name ||
-                      'User'
+                  {selectedConversation
+                    ? conversations.find((c) => c.id === selectedConversation)?.visitor.name ||
+                      t('زائر', 'Visitor')
                     : t('اختر محادثة', 'Select a conversation')}
                 </CardTitle>
-                {selectedSession &&
-                  sessions.find((s) => s.id === selectedSession)?.status === 'active' && (
+                {selectedConversation &&
+                  conversations.find((c) => c.id === selectedConversation)?.status === 'open' && (
                     <Button
                       variant="outline"
                       size="sm"
-                      onClick={() => handleCloseSession(selectedSession)}
+                      onClick={() => handleCloseConversation(selectedConversation)}
                     >
                       {t('إغلاق المحادثة', 'Close Chat')}
                     </Button>
@@ -302,7 +314,7 @@ export default function LiveChatManagement() {
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              {selectedSession ? (
+              {selectedConversation ? (
                 <div className="flex flex-col h-[500px]">
                   <ScrollArea className="flex-1 p-4" ref={scrollRef}>
                     <div className="space-y-4">
@@ -310,22 +322,22 @@ export default function LiveChatManagement() {
                         <div
                           key={message.id}
                           className={`flex ${
-                            message.is_admin ? 'justify-end' : 'justify-start'
+                            message.author.type === 'operator' ? 'justify-end' : 'justify-start'
                           }`}
                         >
                           <div
                             className={`max-w-[80%] rounded-lg p-3 ${
-                              message.is_admin
+                              message.author.type === 'operator'
                                 ? 'bg-primary text-primary-foreground'
                                 : 'bg-muted'
                             }`}
                           >
                             <p className="text-xs font-semibold mb-1">
-                              {message.sender_name}
+                              {message.author.name}
                             </p>
                             <p className="text-sm">{message.message}</p>
                             <p className="text-xs opacity-70 mt-1">
-                              {formatDistanceToNow(new Date(message.created_at), {
+                              {formatDistanceToNow(new Date(message.delivered_at), {
                                 addSuffix: true,
                                 locale: language === 'ar' ? ar : undefined,
                               })}
@@ -336,21 +348,26 @@ export default function LiveChatManagement() {
                     </div>
                   </ScrollArea>
 
-                  {sessions.find((s) => s.id === selectedSession)?.status === 'active' && (
+                  {conversations.find((c) => c.id === selectedConversation)?.status === 'open' && (
                     <div className="p-4 border-t">
                       <div className="flex gap-2">
                         <Input
                           value={newMessage}
                           onChange={(e) => setNewMessage(e.target.value)}
                           onKeyPress={(e) => {
-                            if (e.key === 'Enter') {
+                            if (e.key === 'Enter' && !loading) {
                               handleSendMessage();
                             }
                           }}
                           placeholder={t('اكتب ردك...', 'Type your reply...')}
                           className="flex-1"
+                          disabled={loading}
                         />
-                        <Button onClick={handleSendMessage} size="icon">
+                        <Button 
+                          onClick={handleSendMessage} 
+                          size="icon"
+                          disabled={loading}
+                        >
                           <Send className="h-4 w-4" />
                         </Button>
                       </div>
