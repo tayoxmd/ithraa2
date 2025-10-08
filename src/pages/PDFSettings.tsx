@@ -389,12 +389,12 @@ export default function PDFSettings() {
               </div>
             </div>
 
-            {/* Cancellation Policy */}
+            {/* Booking Policy */}
             <div className="space-y-4">
-              <h3 className="text-lg font-semibold">{t({ ar: "سياسة الإلغاء", en: "Cancellation Policy" })}</h3>
+              <h3 className="text-lg font-semibold">{t({ ar: "سياسة الحجز", en: "Booking Policy" })}</h3>
               
               <div>
-                <Label>{t({ ar: "سياسة الإلغاء (عربي)", en: "Cancellation Policy (Arabic)" })}</Label>
+                <Label>{t({ ar: "سياسة الحجز (عربي)", en: "Booking Policy (Arabic)" })}</Label>
                 <Textarea
                   value={settings.cancellation_policy_ar || ''}
                   onChange={(e) => setSettings({ ...settings, cancellation_policy_ar: e.target.value })}
@@ -403,7 +403,7 @@ export default function PDFSettings() {
               </div>
 
               <div>
-                <Label>{t({ ar: "سياسة الإلغاء (إنجليزي)", en: "Cancellation Policy (English)" })}</Label>
+                <Label>{t({ ar: "سياسة الحجز (إنجليزي)", en: "Booking Policy (English)" })}</Label>
                 <Textarea
                   value={settings.cancellation_policy_en || ''}
                   onChange={(e) => setSettings({ ...settings, cancellation_policy_en: e.target.value })}
