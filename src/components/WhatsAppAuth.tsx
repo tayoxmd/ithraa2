@@ -54,9 +54,25 @@ export function WhatsAppAuth({ open, onOpenChange, redirectUrl }: WhatsAppAuthPr
 
       if (error) {
         console.error('Edge function error:', error);
+        
+        // Check if it's a configuration error
+        if (error.message?.includes('ASENDERAPI_KEY') || error.message?.includes('not configured')) {
+          throw new Error(t({ 
+            ar: "إعدادات WhatsApp غير مكتملة. يرجى مراجعة الإعدادات.", 
+            en: "WhatsApp configuration incomplete. Please check settings." 
+          }));
+        }
+        
         throw new Error(t({ 
           ar: "خدمة واتساب غير متوفرة حالياً. يرجى المحاولة لاحقاً أو استخدام طريقة تسجيل دخول أخرى.", 
           en: "WhatsApp service is currently unavailable. Please try again later or use another sign-in method." 
+        }));
+      }
+
+      if (!data || !data.success) {
+        throw new Error(t({ 
+          ar: "فشل في إرسال رمز التحقق. يرجى المحاولة مرة أخرى.", 
+          en: "Failed to send verification code. Please try again." 
         }));
       }
 
@@ -67,6 +83,7 @@ export function WhatsAppAuth({ open, onOpenChange, redirectUrl }: WhatsAppAuthPr
         description: t({ ar: "تم إرسال رمز التحقق عبر WhatsApp", en: "Verification code sent via WhatsApp" }),
       });
     } catch (error: any) {
+      console.error('WhatsApp OTP error:', error);
       toast({
         title: t({ ar: "خطأ", en: "Error" }),
         description: error.message || t({ ar: "فشل إرسال رمز التحقق", en: "Failed to send verification code" }),
