@@ -12,6 +12,7 @@ import { downloadBookingPDF } from "@/utils/pdfGenerator";
 import { generateCustomerPageUrl, validateCustomerAccess } from "@/utils/customerLinks";
 import { logAuditEvent } from "@/utils/auditLogger";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { FirstTimeUserDialog } from "@/components/FirstTimeUserDialog";
 
 interface Booking {
   id: string;
@@ -60,6 +61,8 @@ export default function CustomerDashboard() {
   const [searchParams] = useSearchParams();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [activeTab, setActiveTab] = useState<'bookings' | 'profile'>('bookings');
+  const [showFirstTimeDialog, setShowFirstTimeDialog] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ full_name: string | null; phone: string | null } | null>(null);
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -91,6 +94,20 @@ export default function CustomerDashboard() {
       .order('created_at', { ascending: false });
     
     if (data) setBookings(data as Booking[]);
+
+    // Check if user is first time (no profile info)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('full_name, phone')
+      .eq('id', userId)
+      .single();
+    
+    setUserProfile(profile);
+    
+    // Show first time dialog if profile incomplete
+    if (profile && (!profile.full_name || !profile.phone)) {
+      setShowFirstTimeDialog(true);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -153,8 +170,16 @@ export default function CustomerDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-subtle p-4 pt-28">
-      <div className="container mx-auto max-w-7xl">
+    <>
+      <FirstTimeUserDialog 
+        open={showFirstTimeDialog} 
+        onOpenChange={setShowFirstTimeDialog}
+        userId={user.id}
+        defaultPhone={userProfile?.phone || undefined}
+      />
+      
+      <div className="min-h-screen bg-gradient-subtle p-4 pt-28">
+        <div className="container mx-auto max-w-7xl">
         <div className="flex items-center gap-4 mb-8">
           <Button variant="outline" onClick={() => navigate('/')}>
             <Home className="w-4 h-4 mr-2" />
@@ -327,16 +352,28 @@ export default function CustomerDashboard() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">{t({ ar: "الاسم الكامل", en: "Full Name" })}</p>
+                <p className="font-medium">{userProfile?.full_name || t({ ar: "غير محدد", en: "Not set" })}</p>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm text-muted-foreground">{t({ ar: "رقم واتساب", en: "WhatsApp Number" })}</p>
+                <p className="font-medium" dir="ltr">{userProfile?.phone || t({ ar: "غير محدد", en: "Not set" })}</p>
+              </div>
+              <div className="space-y-2">
                 <p className="text-sm text-muted-foreground">{t({ ar: "البريد الإلكتروني", en: "Email", fr: "E-mail", es: "Correo electrónico", ru: "Электронная почта", id: "Email", ms: "E-mel" })}</p>
                 <p className="font-medium">{user.email}</p>
               </div>
+              <Button onClick={() => setShowFirstTimeDialog(true)} variant="outline" className="w-full">
+                {t({ ar: "تعديل رقم واتساب", en: "Edit WhatsApp Number" })}
+              </Button>
               <Button onClick={() => navigate('/reset-password')} className="w-full btn-luxury">
                 {t({ ar: "تغيير كلمة المرور", en: "Change Password", fr: "Changer le mot de passe", es: "Cambiar contraseña", ru: "Изменить пароль", id: "Ubah Kata Sandi", ms: "Tukar Kata Laluan" })}
               </Button>
             </CardContent>
           </Card>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

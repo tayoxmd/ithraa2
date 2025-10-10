@@ -284,7 +284,14 @@ export function WhatsAppAuth({ open, onOpenChange, redirectUrl }: WhatsAppAuthPr
                   type="text"
                   placeholder="123456"
                   value={otpCode}
-                  onChange={(e) => setOtpCode(e.target.value)}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
+                    setOtpCode(value);
+                    // Auto-submit when 6 digits entered
+                    if (value.length === 6) {
+                      setTimeout(() => handleVerifyOTP(), 100);
+                    }
+                  }}
                   maxLength={6}
                   dir="ltr"
                 />
