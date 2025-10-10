@@ -52,7 +52,13 @@ export function WhatsAppAuth({ open, onOpenChange, redirectUrl }: WhatsAppAuthPr
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw new Error(t({ 
+          ar: "خدمة واتساب غير متوفرة حالياً. يرجى المحاولة لاحقاً أو استخدام طريقة تسجيل دخول أخرى.", 
+          en: "WhatsApp service is currently unavailable. Please try again later or use another sign-in method." 
+        }));
+      }
 
       setStep("otp");
       
