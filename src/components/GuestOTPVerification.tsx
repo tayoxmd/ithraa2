@@ -33,44 +33,31 @@ export function GuestOTPVerification({ onVerified }: GuestOTPVerificationProps) 
 
     setLoading(true);
     try {
-      const fullPhone = `${countryCode}${phoneNumber}`;
-      
-      // Generate OTP code (6 digits)
-      const otp = Math.floor(100000 + Math.random() * 900000).toString();
-      
-      // Hash the phone number for storage
-      const encoder = new TextEncoder();
-      const data = encoder.encode(fullPhone);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      const phoneHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-      
-      // Store OTP in database with 5-minute expiration
-      const expiresAt = new Date(Date.now() + 5 * 60 * 1000).toISOString();
-      
-      const { data: verification, error } = await supabase
-        .from('guest_verifications')
-        .insert({
-          phone_hash: phoneHash,
-          otp_code: otp,
-          expires_at: expiresAt,
-        })
-        .select()
-        .single();
+      // Call edge function to send OTP via WhatsApp
+      const { data, error } = await supabase.functions.invoke('send-whatsapp-otp', {
+        body: { 
+          phone: phoneNumber, 
+          countryCode: countryCode 
+        }
+      });
 
       if (error) throw error;
 
-      setVerificationId(verification.id);
+      // Create hash of phone number for verification
+      const fullPhone = `${countryCode}${phoneNumber}`;
+      const encoder = new TextEncoder();
+      const phoneData = encoder.encode(fullPhone);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', phoneData);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      const phoneHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+      setVerificationId(phoneHash);
+      setStep("otp");
       
-      // In production, send OTP via SMS service
-      // For now, show it in toast (development only)
       toast({
         title: "تم إرسال رمز التحقق",
-        description: `رمز التحقق الخاص بك: ${otp}`,
-        duration: 10000,
+        description: "تم إرسال رمز التحقق عبر WhatsApp",
       });
-
-      setStep("otp");
     } catch (error: any) {
       toast({
         title: "خطأ",
@@ -107,7 +94,6 @@ export function GuestOTPVerification({ onVerified }: GuestOTPVerificationProps) 
       const { data: verification, error } = await supabase
         .from('guest_verifications')
         .select()
-        .eq('id', verificationId)
         .eq('phone_hash', phoneHash)
         .eq('otp_code', otpCode)
         .eq('verified', false)
@@ -122,7 +108,8 @@ export function GuestOTPVerification({ onVerified }: GuestOTPVerificationProps) 
       await supabase
         .from('guest_verifications')
         .update({ verified: true, verified_at: new Date().toISOString() })
-        .eq('id', verificationId);
+        .eq('phone_hash', phoneHash)
+        .eq('otp_code', otpCode);
 
       toast({
         title: "تم التحقق بنجاح",
