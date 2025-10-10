@@ -26,9 +26,6 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Generate 6-digit OTP
-    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
-    
     // Create hash of phone number for storage
     const encoder = new TextEncoder();
     const data = encoder.encode(phone);
@@ -36,6 +33,52 @@ serve(async (req) => {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const phoneHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 
+    // Check for recent OTP requests (rate limiting)
+    const oneMinuteAgo = new Date();
+    oneMinuteAgo.setMinutes(oneMinuteAgo.getMinutes() - 1);
+    
+    const { data: recentOTP, error: recentError } = await supabase
+      .from('guest_verifications')
+      .select('created_at')
+      .eq('phone_hash', phoneHash)
+      .gte('created_at', oneMinuteAgo.toISOString())
+      .order('created_at', { ascending: false })
+      .limit(1);
+
+    if (recentOTP && recentOTP.length > 0) {
+      return new Response(
+        JSON.stringify({ error: 'Please wait before requesting a new OTP' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Check daily limit (max 5 OTPs per day)
+    const oneDayAgo = new Date();
+    oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+    
+    const { count, error: countError } = await supabase
+      .from('guest_verifications')
+      .select('*', { count: 'exact', head: true })
+      .eq('phone_hash', phoneHash)
+      .gte('created_at', oneDayAgo.toISOString());
+
+    if (count && count >= 5) {
+      return new Response(
+        JSON.stringify({ error: 'Daily OTP limit reached. Please try again tomorrow' }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Clean up old unverified OTPs for this phone
+    await supabase
+      .from('guest_verifications')
+      .delete()
+      .eq('phone_hash', phoneHash)
+      .eq('verified', false);
+
+    // Generate 6-digit OTP
+    const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+    
     // Store OTP in database
     const expiresAt = new Date();
     expiresAt.setMinutes(expiresAt.getMinutes() + 10); // OTP valid for 10 minutes
@@ -50,7 +93,7 @@ serve(async (req) => {
       });
 
     if (dbError) {
-      console.error('Database error:', dbError);
+      console.error('Database error - failed to store OTP');
       return new Response(
         JSON.stringify({ error: 'Failed to store OTP' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -59,10 +102,18 @@ serve(async (req) => {
 
     // Send OTP via WhatsApp using asenderapi
     const apiKey = Deno.env.get('ASENDERAPI_KEY');
-    const sessionId = Deno.env.get('WHATSAPP_SESSION_ID') || 'd0444686fc3031f48718b8c0d793121d5c0e84cbb80174de9edfdab2354269b1';
+    const sessionId = Deno.env.get('WHATSAPP_SESSION_ID');
     
     if (!apiKey) {
       console.error('ASENDERAPI_KEY not configured');
+      return new Response(
+        JSON.stringify({ error: 'WhatsApp service not configured' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!sessionId) {
+      console.error('WHATSAPP_SESSION_ID not configured');
       return new Response(
         JSON.stringify({ error: 'WhatsApp service not configured' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -86,8 +137,7 @@ serve(async (req) => {
     });
 
     if (!whatsappResponse.ok) {
-      const errorText = await whatsappResponse.text();
-      console.error('WhatsApp API error:', errorText);
+      console.error('WhatsApp API error - status:', whatsappResponse.status);
       return new Response(
         JSON.stringify({ error: 'Failed to send WhatsApp message' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -95,7 +145,7 @@ serve(async (req) => {
     }
 
     const result = await whatsappResponse.json();
-    console.log('WhatsApp OTP sent successfully:', result);
+    console.log('OTP sent successfully at', new Date().toISOString());
 
     return new Response(
       JSON.stringify({ 
