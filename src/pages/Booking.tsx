@@ -18,6 +18,7 @@ import { ar } from "date-fns/locale";
 import { bookingSchema } from "@/lib/validations";
 import { BookingAuthDialog } from "@/components/BookingAuthDialog";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { PostBookingAuthDialog } from "@/components/PostBookingAuthDialog";
 import { useRef } from "react";
 import { countries } from "@/data/countries";
 import { calculateSeasonalPrice } from "@/utils/seasonalPricing";
@@ -62,6 +63,7 @@ export default function Booking() {
   const [useCustomerName, setUseCustomerName] = useState(user ? true : false);
   const [loading, setLoading] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [showPostBookingDialog, setShowPostBookingDialog] = useState(false);
   const [guestPhone, setGuestPhone] = useState("");
   const [guestCountryCode, setGuestCountryCode] = useState("+966");
   const [fieldErrors, setFieldErrors] = useState<{[key: string]: boolean}>({});
@@ -381,14 +383,17 @@ export default function Booking() {
       }
       
       // التوجيه بناءً على نوع المستخدم
-      setTimeout(() => {
-        if (user) {
+      if (user) {
+        // للمستخدمين المسجلين - توجيه فوري
+        setTimeout(() => {
           navigate('/customer-dashboard');
-        } else {
-          // توجيه الضيف إلى لوحة الضيف للتحقق برقم الجوال وعرض حجوزاته
-          navigate('/guest-dashboard');
-        }
-      }, 1500);
+        }, 1500);
+      } else {
+        // للضيوف - عرض dialog لتشجيعهم على إنشاء حساب
+        setTimeout(() => {
+          setShowPostBookingDialog(true);
+        }, 1000);
+      }
     }
   };
 
@@ -841,6 +846,12 @@ export default function Booking() {
         open={showAuthDialog}
         onClose={() => setShowAuthDialog(false)}
         onGuestContinue={handleGuestContinue}
+      />
+
+      <PostBookingAuthDialog
+        open={showPostBookingDialog}
+        onOpenChange={setShowPostBookingDialog}
+        onSkip={() => navigate('/guest-dashboard')}
       />
 
       <Footer />
