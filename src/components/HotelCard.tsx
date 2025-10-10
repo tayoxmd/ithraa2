@@ -99,27 +99,6 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
           </div>
         )}
         
-        {/* Meal Badge */}
-        {meal_plans && meal_plans.regular_ar && meal_plans.regular_en && 
-         meal_plans.regular_ar.trim() !== "" && meal_plans.regular_en.trim() !== "" &&
-         meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
-          <div 
-            className={`absolute ${language === 'ar' ? 'left-4' : 'right-4'} top-16`}
-            style={{
-              backgroundColor: mealBadgeSettings.color,
-              width: `${mealBadgeSettings.width}px`,
-              height: `${mealBadgeSettings.height}px`,
-              borderRadius: `${mealBadgeSettings.borderRadius}px`,
-              fontSize: `${mealBadgeSettings.fontSize}px`,
-            }}
-          >
-            <div className="flex items-center justify-center h-full px-2 text-white font-semibold text-center">
-              <Utensils className="w-3 h-3 ml-1" />
-              {language === 'ar' ? meal_plans.regular_ar : meal_plans.regular_en}
-            </div>
-          </div>
-        )}
-        
         {featured && (
           <Badge className="absolute top-4 right-4 bg-gradient-luxury border-0 shadow-luxury">
             عرض مميز
@@ -144,22 +123,22 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
       </div>
 
       <CardContent className="p-4 flex flex-col flex-1">
-        {/* Title */}
+        {/* Title and Meal Badge Side by Side */}
         <div className="mb-2 flex items-start gap-2 justify-between">
-          <div className="flex-1">
-            <h3 className="text-lg font-bold text-primary mb-0.5">{name}</h3>
-            <p className="text-xs text-muted-foreground">{nameEn}</p>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-bold text-primary mb-0.5 truncate">{name}</h3>
+            <p className="text-xs text-muted-foreground truncate">{nameEn}</p>
           </div>
-          {/* Small Meal Badge - Next to hotel name */}
+          {/* Meal Badge - Next to hotel name */}
           {meal_plans && meal_plans.regular_ar && meal_plans.regular_en && 
            meal_plans.regular_ar.trim() !== "" && meal_plans.regular_en.trim() !== "" &&
            meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
             <div 
-              className={`px-2 py-1 rounded text-white text-xs font-semibold whitespace-nowrap shrink-0 flex items-center gap-1 ${language === 'ar' ? 'mr-auto' : 'ml-auto'}`}
+              className="px-2 py-1 rounded text-white text-xs font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
               style={{ backgroundColor: mealBadgeSettings.color }}
             >
               <Utensils className="w-3 h-3" />
-              {language === 'ar' ? 'يشمل وجبات' : 'Meals Included'}
+              {language === 'ar' ? 'يشمل وجبات' : 'Meals'}
             </div>
           )}
         </div>
@@ -189,22 +168,6 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
           )}
         </div>
 
-        {/* Meal Info */}
-        {meal_plans && meal_plans.regular_ar && meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && meal_plans.max_persons > 0 && (
-          <div 
-            className="text-xs mb-3 px-2 py-1 rounded inline-flex items-center gap-1"
-            style={{ 
-              backgroundColor: `${mealBadgeSettings.color}20`,
-              color: mealBadgeSettings.color,
-            }}
-          >
-            <Utensils className="w-3 h-3" />
-            {language === 'ar' 
-              ? `${meal_plans.regular_ar} - يشمل ${meal_plans.max_persons} ${meal_plans.max_persons === 1 ? 'شخص' : meal_plans.max_persons === 2 ? 'شخصين' : 'أشخاص'}`
-              : `${meal_plans.regular_en} - Includes ${meal_plans.max_persons} ${meal_plans.max_persons === 1 ? 'person' : 'persons'}`
-            }
-          </div>
-        )}
 
         {/* Price & CTA */}
         <div className="flex items-center justify-between pt-3 border-t border-border">

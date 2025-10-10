@@ -206,154 +206,172 @@ export default function SearchResults() {
           </Collapsible>
         </div>
 
-        {/* Filters Section */}
-        <Card className="mb-6">
-          <CardContent className="pt-6">
-            <Collapsible open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-              <div className="flex items-center justify-between mb-4">
-                <CollapsibleTrigger asChild>
-                  <Button variant="outline" size="icon" className="w-10 h-10">
-                    <SlidersHorizontal className="w-5 h-5" />
-                  </Button>
-                </CollapsibleTrigger>
-              </div>
+        {/* Compact Filters Bar */}
+        <div className="mb-6 flex items-center gap-3 flex-wrap">
+          {/* Sort Dropdown */}
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[180px] h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recommended">{t({ ar: 'موصى به', en: 'Recommended' })}</SelectItem>
+                <SelectItem value="price_low">{t({ ar: 'السعر ↑', en: 'Price ↑' })}</SelectItem>
+                <SelectItem value="price_high">{t({ ar: 'السعر ↓', en: 'Price ↓' })}</SelectItem>
+                <SelectItem value="rating">{t({ ar: 'التقييم', en: 'Rating' })}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex-1">
-                  <Label>{t({ ar: 'ترتيب حسب', en: 'Sort By' })}</Label>
-                  <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="recommended">{t({ ar: 'موصى به', en: 'Recommended' })}</SelectItem>
-                      <SelectItem value="price_low">{t({ ar: 'السعر: من الأقل للأعلى', en: 'Price: Low to High' })}</SelectItem>
-                      <SelectItem value="price_high">{t({ ar: 'السعر: من الأعلى للأقل', en: 'Price: High to Low' })}</SelectItem>
-                      <SelectItem value="rating">{t({ ar: 'التقييم', en: 'Rating' })}</SelectItem>
-                      <SelectItem value="distance">{t({ ar: 'القرب من المنطقة المركزية', en: 'Proximity to Central Area' })}</SelectItem>
-                    </SelectContent>
-                  </Select>
+          {/* Price Range Badge */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 gap-2"
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+          >
+            <span className="text-xs">{priceRange[0]}-{priceRange[1]} {t({ ar: 'ريال', en: 'SAR' })}</span>
+          </Button>
+
+          {/* Rating Filter */}
+          <Select value={minRating.toString()} onValueChange={(v) => setMinRating(Number(v))}>
+            <SelectTrigger className="w-[120px] h-9">
+              <SelectValue placeholder={t({ ar: 'التقييم', en: 'Rating' })} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="0">{t({ ar: 'الكل', en: 'All' })}</SelectItem>
+              <SelectItem value="3">3+ ⭐</SelectItem>
+              <SelectItem value="4">4+ ⭐</SelectItem>
+              <SelectItem value="4.5">4.5+ ⭐</SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Amenity Icons */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant={selectedAmenities.includes('wifi') ? 'default' : 'outline'}
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => toggleAmenity('wifi')}
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/>
+              </svg>
+            </Button>
+            
+            <Button
+              variant={selectedAmenities.includes('parking') ? 'default' : 'outline'}
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => toggleAmenity('parking')}
+            >
+              <span className="text-sm font-bold">P</span>
+            </Button>
+
+            <Button
+              variant={selectedAmenities.includes('restaurant') ? 'default' : 'outline'}
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => toggleAmenity('restaurant')}
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M16 6v8h3v8h2V2c-2.76 0-5 2.24-5 4zm-5 3H9V2H7v7H5V2H3v7c0 2.21 1.79 4 4 4v9h2v-9c2.21 0 4-1.79 4-4V2h-2v7z"/>
+              </svg>
+            </Button>
+
+            <Button
+              variant={selectedAmenities.includes('meal_plans') ? 'default' : 'outline'}
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => toggleAmenity('meal_plans')}
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8.1 13.34l2.83-2.83L3.91 3.5c-1.56 1.56-1.56 4.09 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.2-1.1-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z"/>
+              </svg>
+            </Button>
+          </div>
+
+          {/* Advanced Filters Toggle */}
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 gap-1"
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+          >
+            <ChevronDown className={`w-4 h-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
+            <span className="text-xs">{t({ ar: 'المزيد', en: 'More' })}</span>
+          </Button>
+
+          {/* Reset Button - Only show when filters are active */}
+          {(sortBy !== 'recommended' || minRating > 0 || selectedAmenities.length > 0 || priceRange[0] !== 0 || priceRange[1] !== 5000) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 text-xs text-muted-foreground"
+              onClick={() => {
+                setSortBy('recommended');
+                setPriceRange([0, 5000]);
+                setSelectedAmenities([]);
+                setMinRating(0);
+              }}
+            >
+              {t({ ar: 'إعادة تعيين', en: 'Reset' })}
+            </Button>
+          )}
+        </div>
+
+        {/* Advanced Filters Panel */}
+        {isFilterOpen && (
+          <Card className="mb-6">
+            <CardContent className="pt-6 space-y-6">
+              {/* Price Range */}
+              <div>
+                <Label>{t({ ar: 'نطاق السعر', en: 'Price Range' })}</Label>
+                <div className="pt-4 pb-2">
+                  <Slider
+                    min={0}
+                    max={5000}
+                    step={50}
+                    value={priceRange}
+                    onValueChange={(value) => setPriceRange(value as [number, number])}
+                  />
+                </div>
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>{priceRange[0]} {t({ ar: 'ريال', en: 'SAR' })}</span>
+                  <span>{priceRange[1]} {t({ ar: 'ريال', en: 'SAR' })}</span>
                 </div>
               </div>
 
-              <CollapsibleContent className="space-y-6">
-                {/* Price Range */}
-                <div>
-                  <Label>{t({ ar: 'نطاق السعر', en: 'Price Range' })}</Label>
-                  <div className="pt-4 pb-2">
-                    <Slider
-                      min={0}
-                      max={5000}
-                      step={50}
-                      value={priceRange}
-                      onValueChange={(value) => setPriceRange(value as [number, number])}
+              {/* Additional Amenities */}
+              <div>
+                <Label className="mb-3 block">{t({ ar: 'المرافق الإضافية', en: 'Additional Amenities' })}</Label>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="cafe"
+                      checked={selectedAmenities.includes('cafe')}
+                      onCheckedChange={() => toggleAmenity('cafe')}
                     />
+                    <label htmlFor="cafe" className="cursor-pointer">
+                      {t({ ar: 'مقهى', en: 'Cafe' })}
+                    </label>
                   </div>
-                  <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>{priceRange[0]} {t({ ar: 'ريال', en: 'SAR' })}</span>
-                    <span>{priceRange[1]} {t({ ar: 'ريال', en: 'SAR' })}</span>
-                  </div>
-                </div>
-
-                {/* Rating Filter */}
-                <div>
-                  <Label>{t({ ar: 'الحد الأدنى للتقييم', en: 'Minimum Rating' })}</Label>
-                  <Select value={minRating.toString()} onValueChange={(v) => setMinRating(Number(v))}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="0">{t({ ar: 'الكل', en: 'All' })}</SelectItem>
-                      <SelectItem value="3">3+ ⭐</SelectItem>
-                      <SelectItem value="4">4+ ⭐</SelectItem>
-                      <SelectItem value="4.5">4.5+ ⭐</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Amenities Filter */}
-                <div>
-                  <Label className="mb-3 block">{t({ ar: 'المرافق والخدمات', en: 'Amenities' })}</Label>
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="wifi"
-                        checked={selectedAmenities.includes('wifi')}
-                        onCheckedChange={() => toggleAmenity('wifi')}
-                      />
-                      <label htmlFor="wifi" className="cursor-pointer">
-                        {t({ ar: 'واي فاي', en: 'WiFi' })}
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="parking"
-                        checked={selectedAmenities.includes('parking')}
-                        onCheckedChange={() => toggleAmenity('parking')}
-                      />
-                      <label htmlFor="parking" className="cursor-pointer">
-                        {t({ ar: 'مواقف سيارات', en: 'Parking' })}
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="restaurant"
-                        checked={selectedAmenities.includes('restaurant')}
-                        onCheckedChange={() => toggleAmenity('restaurant')}
-                      />
-                      <label htmlFor="restaurant" className="cursor-pointer">
-                        {t({ ar: 'مطعم', en: 'Restaurant' })}
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="cafe"
-                        checked={selectedAmenities.includes('cafe')}
-                        onCheckedChange={() => toggleAmenity('cafe')}
-                      />
-                      <label htmlFor="cafe" className="cursor-pointer">
-                        {t({ ar: 'مقهى', en: 'Cafe' })}
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="shuttle"
-                        checked={selectedAmenities.includes('shuttle')}
-                        onCheckedChange={() => toggleAmenity('shuttle')}
-                      />
-                      <label htmlFor="shuttle" className="cursor-pointer">
-                        {t({ ar: 'خدمة النقل', en: 'Shuttle Service' })}
-                      </label>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Checkbox
-                        id="meal_plans"
-                        checked={selectedAmenities.includes('meal_plans')}
-                        onCheckedChange={() => toggleAmenity('meal_plans')}
-                      />
-                      <label htmlFor="meal_plans" className="cursor-pointer">
-                        {t({ ar: 'وجبات طعام', en: 'Meal Plans' })}
-                      </label>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="shuttle"
+                      checked={selectedAmenities.includes('shuttle')}
+                      onCheckedChange={() => toggleAmenity('shuttle')}
+                    />
+                    <label htmlFor="shuttle" className="cursor-pointer">
+                      {t({ ar: 'خدمة النقل', en: 'Shuttle Service' })}
+                    </label>
                   </div>
                 </div>
-
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    setSortBy('recommended');
-                    setPriceRange([0, 5000]);
-                    setSelectedAmenities([]);
-                    setMinRating(0);
-                  }}
-                >
-                  {t({ ar: 'إعادة تعيين الفلاتر', en: 'Reset Filters' })}
-                </Button>
-              </CollapsibleContent>
-            </Collapsible>
-          </CardContent>
-        </Card>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
           {filteredHotels.map((hotel) => (
