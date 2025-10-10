@@ -22,6 +22,7 @@ export default function Auth() {
   const redirectUrl = searchParams.get('redirect');
   const [isLogin, setIsLogin] = useState(searchParams.get('mode') !== 'signup');
   const [loginMethod, setLoginMethod] = useState<'phone' | 'email' | null>(null);
+  const [showSignupForm, setShowSignupForm] = useState(false);
   const [emailOrPhone, setEmailOrPhone] = useState("");
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
@@ -255,7 +256,7 @@ export default function Auth() {
               </div>
             </div>
 
-            {/* Phone/Email selection buttons - Only show if method not selected */}
+            {/* Login method selection buttons */}
             {isLogin && !loginMethod && (
               <div className="grid grid-cols-2 gap-2">
                 <Button
@@ -278,10 +279,24 @@ export default function Auth() {
                 </Button>
               </div>
             )}
+
+            {/* Signup button - Only show if form not shown yet */}
+            {!isLogin && !showSignupForm && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setShowSignupForm(true)}
+                className="w-full h-11 gap-2"
+              >
+                <Mail className="w-4 h-4" />
+                <Phone className="w-4 h-4" />
+                {t({ ar: "التسجيل عبر البريد ورقم الجوال", en: "Sign up with Email & Phone" })}
+              </Button>
+            )}
           </div>
 
-          {/* Form fields - Only show after selecting method or for signup */}
-          {(!isLogin || loginMethod) && (
+          {/* Form fields - Only show after selecting method for login or clicking signup button */}
+          {((isLogin && loginMethod) || (!isLogin && showSignupForm)) && (
             <form onSubmit={handleSubmit} className="space-y-3">
 
             {!isLogin && (
@@ -429,7 +444,7 @@ export default function Auth() {
                 )}
               </Button>
 
-              {/* Back button for login when method is selected */}
+              {/* Back button */}
               {isLogin && loginMethod && (
                 <Button
                   type="button"
@@ -438,6 +453,16 @@ export default function Auth() {
                   className="w-full"
                 >
                   {t({ ar: "العودة لطرق الدخول", en: "Back to login methods" })}
+                </Button>
+              )}
+              {!isLogin && showSignupForm && (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setShowSignupForm(false)}
+                  className="w-full"
+                >
+                  {t({ ar: "العودة لطرق التسجيل", en: "Back to signup methods" })}
                 </Button>
               )}
             </form>
