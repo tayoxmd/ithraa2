@@ -69,6 +69,28 @@ export function WhatsAppAuth({ open, onOpenChange, redirectUrl }: WhatsAppAuthPr
         }));
       }
 
+      // Handle specific error responses from the edge function
+      if (data?.error) {
+        if (data.error.includes('wait before requesting')) {
+          throw new Error(t({ 
+            ar: "يرجى الانتظار قبل طلب رمز تحقق جديد", 
+            en: "Please wait before requesting a new OTP" 
+          }));
+        }
+        if (data.error.includes('Daily OTP limit')) {
+          throw new Error(t({ 
+            ar: "تم الوصول إلى الحد اليومي. يرجى المحاولة غداً", 
+            en: "Daily OTP limit reached. Please try again tomorrow" 
+          }));
+        }
+        if (data.provider_error) {
+          throw new Error(t({ 
+            ar: "خطأ في مزود الخدمة. يرجى المحاولة لاحقاً", 
+            en: "Provider error. Please try again later" 
+          }));
+        }
+      }
+
       if (!data || !data.success) {
         throw new Error(t({ 
           ar: "فشل في إرسال رمز التحقق. يرجى المحاولة مرة أخرى.", 

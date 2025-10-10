@@ -43,6 +43,19 @@ export function GuestOTPVerification({ onVerified }: GuestOTPVerificationProps) 
 
       if (error) throw error;
 
+      // Handle specific error responses from the edge function
+      if (data?.error) {
+        if (data.error.includes('wait before requesting')) {
+          throw new Error("يرجى الانتظار قبل طلب رمز تحقق جديد");
+        }
+        if (data.error.includes('Daily OTP limit')) {
+          throw new Error("تم الوصول إلى الحد اليومي. يرجى المحاولة غداً");
+        }
+        if (data.provider_error) {
+          throw new Error("خطأ في مزود الخدمة. يرجى المحاولة لاحقاً");
+        }
+      }
+
       // Create hash of phone number for verification
       const fullPhone = `${countryCode}${phoneNumber}`;
       const encoder = new TextEncoder();

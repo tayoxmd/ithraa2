@@ -121,10 +121,11 @@ serve(async (req) => {
       );
     }
 
-    const fullPhone = `${countryCode}${phone}`.replace(/\+/g, '');
+    // Keep the + in the phone number for E.164 format
+    const fullPhone = `${countryCode}${phone}`;
     const message = `رمز التحقق الخاص بك هو: ${otpCode}\n\nصالح لمدة 10 دقائق.\n\nإثراء للحجز الفندقي`;
 
-    const whatsappResponse = await fetch('https://wasenderapi.com/api/v1/message/text', {
+    const whatsappResponse = await fetch('https://wasenderapi.com/api/send-message', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -138,9 +139,15 @@ serve(async (req) => {
     });
 
     if (!whatsappResponse.ok) {
-      console.error('WhatsApp API error - status:', whatsappResponse.status);
+      const responseText = await whatsappResponse.text();
+      console.error('WhatsApp API error - status:', whatsappResponse.status, 'response:', responseText);
+      
       return new Response(
-        JSON.stringify({ error: 'Failed to send WhatsApp message' }),
+        JSON.stringify({ 
+          error: 'Failed to send WhatsApp message',
+          details: `Provider returned status ${whatsappResponse.status}`,
+          provider_error: true
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
