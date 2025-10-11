@@ -121,22 +121,19 @@ serve(async (req) => {
       );
     }
 
-    // Format phone number for WhatsApp (without + but with country code, then add @s.whatsapp.net)
-    const cleanPhone = `${countryCode.replace('+', '')}${phone}`;
-    const whatsappPhone = `${cleanPhone}@s.whatsapp.net`;
+    // Keep the + in the phone number for E.164 format
+    const fullPhone = `${countryCode}${phone}`;
     const message = `رمز التحقق الخاص بك هو: ${otpCode}\n\nصالح لمدة 10 دقائق.\n\nإثراء للحجز الفندقي`;
-
-    console.log('Sending WhatsApp OTP to:', whatsappPhone);
 
     const whatsappResponse = await fetch('https://wasenderapi.com/api/send-message', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
       },
       body: JSON.stringify({
-        apiKey: apiKey,
         sessionId: sessionId,
-        to: whatsappPhone,
+        to: fullPhone,
         text: message
       })
     });
