@@ -133,6 +133,47 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_actions_log: {
+        Row: {
+          action_type: string
+          booking_id: string
+          created_at: string | null
+          id: string
+          new_value: string | null
+          notes: string | null
+          old_value: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          booking_id: string
+          created_at?: string | null
+          id?: string
+          new_value?: string | null
+          notes?: string | null
+          old_value?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          booking_id?: string
+          created_at?: string | null
+          id?: string
+          new_value?: string | null
+          notes?: string | null
+          old_value?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_actions_log_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
           amount_paid: number | null
@@ -327,6 +368,60 @@ export type Database = {
           id?: string
           name_ar?: string
           name_en?: string
+        }
+        Relationships: []
+      }
+      company_requests: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          commercial_register: string
+          company_name_ar: string
+          company_name_en: string
+          contact_email: string
+          contact_person: string
+          contact_phone: string
+          created_at: string | null
+          id: string
+          rejection_reason: string | null
+          status: string
+          tax_number: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          commercial_register: string
+          company_name_ar: string
+          company_name_en: string
+          contact_email: string
+          contact_person: string
+          contact_phone: string
+          created_at?: string | null
+          id?: string
+          rejection_reason?: string | null
+          status?: string
+          tax_number?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          commercial_register?: string
+          company_name_ar?: string
+          company_name_en?: string
+          contact_email?: string
+          contact_person?: string
+          contact_phone?: string
+          created_at?: string | null
+          id?: string
+          rejection_reason?: string | null
+          status?: string
+          tax_number?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -667,6 +762,48 @@ export type Database = {
         }
         Relationships: []
       }
+      hotel_owners: {
+        Row: {
+          active: boolean | null
+          address: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          national_id: string | null
+          notes: string | null
+          owner_name_ar: string
+          owner_name_en: string
+          phone: string
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          address?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          national_id?: string | null
+          notes?: string | null
+          owner_name_ar: string
+          owner_name_en: string
+          phone: string
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          address?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          national_id?: string | null
+          notes?: string | null
+          owner_name_ar?: string
+          owner_name_en?: string
+          phone?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       hotel_responsible_persons: {
         Row: {
           created_at: string | null
@@ -747,6 +884,7 @@ export type Database = {
         Row: {
           active: boolean | null
           amenities: Json | null
+          bed_type_double: string | null
           city_id: string
           contact_person: string | null
           contact_phone: string | null
@@ -762,6 +900,7 @@ export type Database = {
           meal_plans: Json | null
           name_ar: string
           name_en: string
+          owner_id: string | null
           pinned_to_homepage: boolean | null
           price_per_night: number
           rating: number | null
@@ -774,6 +913,7 @@ export type Database = {
         Insert: {
           active?: boolean | null
           amenities?: Json | null
+          bed_type_double?: string | null
           city_id: string
           contact_person?: string | null
           contact_phone?: string | null
@@ -789,6 +929,7 @@ export type Database = {
           meal_plans?: Json | null
           name_ar: string
           name_en: string
+          owner_id?: string | null
           pinned_to_homepage?: boolean | null
           price_per_night: number
           rating?: number | null
@@ -801,6 +942,7 @@ export type Database = {
         Update: {
           active?: boolean | null
           amenities?: Json | null
+          bed_type_double?: string | null
           city_id?: string
           contact_person?: string | null
           contact_phone?: string | null
@@ -816,6 +958,7 @@ export type Database = {
           meal_plans?: Json | null
           name_ar?: string
           name_en?: string
+          owner_id?: string | null
           pinned_to_homepage?: boolean | null
           price_per_night?: number
           rating?: number | null
@@ -831,6 +974,13 @@ export type Database = {
             columns: ["city_id"]
             isOneToOne: false
             referencedRelation: "cities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hotels_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "hotel_owners"
             referencedColumns: ["id"]
           },
         ]
@@ -1466,7 +1616,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "employee" | "customer"
+      app_role: "admin" | "employee" | "customer" | "company"
       booking_status: "new" | "pending" | "confirmed" | "cancelled" | "rejected"
       complaint_status: "new" | "pending" | "rejected" | "resolved"
       meal_plan_type:
@@ -1604,7 +1754,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "employee", "customer"],
+      app_role: ["admin", "employee", "customer", "company"],
       booking_status: ["new", "pending", "confirmed", "cancelled", "rejected"],
       complaint_status: ["new", "pending", "rejected", "resolved"],
       meal_plan_type: [

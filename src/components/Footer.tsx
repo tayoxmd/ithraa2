@@ -87,6 +87,11 @@ export function Footer() {
                   {t('سياسة الخصوصية', 'Privacy Policy')}
                 </a>
               </li>
+              <li>
+                <Link to="/company-support" className="text-white/80 hover:text-white transition-colors text-sm md:text-base">
+                  {t('دعم الشركات', 'Company Support')}
+                </Link>
+              </li>
             </ul>
           </div>
 
