@@ -76,7 +76,7 @@ export default function Auth() {
 
   const handleAppleSignIn = async () => {
     try {
-      const { data, error } = await supabase.auth.signInWithOAuth({
+      const { data, error} = await supabase.auth.signInWithOAuth({
         provider: 'apple',
         options: {
           redirectTo: window.location.origin,
@@ -93,6 +93,33 @@ export default function Auth() {
       }
     } catch (error: any) {
       console.error('Apple sign-in error:', error);
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleTwitterSignIn = async () => {
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'twitter',
+        options: {
+          redirectTo: window.location.origin,
+        }
+      });
+      
+      if (error) {
+        console.error('Twitter OAuth error:', error);
+        toast({
+          title: t({ ar: "خطأ في تسجيل الدخول", en: "Login Error" }),
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+    } catch (error: any) {
+      console.error('Twitter sign-in error:', error);
       toast({
         title: t({ ar: "خطأ", en: "Error" }),
         description: error.message,
@@ -279,6 +306,20 @@ export default function Auth() {
             >
               <Apple className="w-5 h-5" />
               Apple
+            </Button>
+
+            {/* X/Twitter Button */}
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleTwitterSignIn}
+              disabled={loading}
+              className="w-full h-11 gap-2"
+            >
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+              </svg>
+              X
             </Button>
 
             {/* Separator */}

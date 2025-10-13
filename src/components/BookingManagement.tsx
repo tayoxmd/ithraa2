@@ -11,11 +11,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, Users, Hotel, Mail, MessageCircle, Edit, Share2, FileText, Download } from "lucide-react";
+import { Calendar, Users, Hotel, Mail, MessageCircle, Edit, Share2, FileText, Download, History } from "lucide-react";
 import { format } from "date-fns";
 import { downloadBookingPDF, sharePDFViaEmail, sharePDFViaWhatsApp } from "@/utils/pdfGenerator";
 import { generateCustomerPageUrl } from "@/utils/customerLinks";
 import { logAuditEvent } from "@/utils/auditLogger";
+import { BookingActionsLog } from "@/components/BookingActionsLog";
 
 interface Booking {
   id: string;
@@ -67,6 +68,8 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [hotelConfNumber, setHotelConfNumber] = useState<string>("");
   const [showConfNumberInput, setShowConfNumberInput] = useState<string | null>(null);
+  const [actionsLogOpen, setActionsLogOpen] = useState(false);
+  const [selectedBookingIdForLog, setSelectedBookingIdForLog] = useState<string>("");
   const [editFormData, setEditFormData] = useState({
     check_in: "",
     check_out: "",
@@ -823,11 +826,28 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                       <Mail className="w-4 h-4 ml-1" />
                       {t({ ar: "بريد", en: "Email" })}
                     </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setSelectedBookingIdForLog(booking.id);
+                        setActionsLogOpen(true);
+                      }}
+                    >
+                      <History className="w-4 h-4 ml-1" />
+                      {t({ ar: "سجل الإجراءات", en: "Actions Log" })}
+                    </Button>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
+
+      <BookingActionsLog
+        bookingId={selectedBookingIdForLog}
+        open={actionsLogOpen}
+        onClose={() => setActionsLogOpen(false)}
+      />
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="max-h-[85vh] overflow-y-auto max-w-2xl">
