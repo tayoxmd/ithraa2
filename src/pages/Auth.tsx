@@ -43,16 +43,30 @@ export default function Auth() {
   }, [user, navigate]);
 
   const handleGoogleSignIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}${redirectUrl || '/'}`,
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
+        }
+      });
+      
+      if (error) {
+        console.error('Google OAuth error:', error);
+        toast({
+          title: t({ ar: "خطأ في تسجيل الدخول", en: "Login Error" }),
+          description: error.message,
+          variant: "destructive",
+        });
       }
-    });
-    
-    if (error) {
+    } catch (error: any) {
+      console.error('Google sign-in error:', error);
       toast({
-        title: "خطأ",
+        title: t({ ar: "خطأ", en: "Error" }),
         description: error.message,
         variant: "destructive",
       });
@@ -60,16 +74,26 @@ export default function Auth() {
   };
 
   const handleAppleSignIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'apple',
-      options: {
-        redirectTo: `${window.location.origin}${redirectUrl || '/'}`,
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: window.location.origin,
+        }
+      });
+      
+      if (error) {
+        console.error('Apple OAuth error:', error);
+        toast({
+          title: t({ ar: "خطأ في تسجيل الدخول", en: "Login Error" }),
+          description: error.message,
+          variant: "destructive",
+        });
       }
-    });
-    
-    if (error) {
+    } catch (error: any) {
+      console.error('Apple sign-in error:', error);
       toast({
-        title: "خطأ",
+        title: t({ ar: "خطأ", en: "Error" }),
         description: error.message,
         variant: "destructive",
       });
