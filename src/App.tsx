@@ -40,6 +40,7 @@ import CompanySupport from "./pages/CompanySupport";
 import CompanyRequests from "./pages/CompanyRequests";
 import ManageOwners from "./pages/ManageOwners";
 import MealPlansManager from "./pages/MealPlansManager";
+import BackendSettings from "./pages/BackendSettings";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -90,6 +91,7 @@ const RouterWithTheme = () => {
               <Route path="/company-requests" element={<ProtectedRoute><CompanyRequests /></ProtectedRoute>} />
               <Route path="/manage-owners" element={<ProtectedRoute><ManageOwners /></ProtectedRoute>} />
               <Route path="/meal-plans" element={<ProtectedRoute><MealPlansManager /></ProtectedRoute>} />
+              <Route path="/backend-settings" element={<ProtectedRoute><BackendSettings /></ProtectedRoute>} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -24,7 +24,8 @@ import {
   Tag,
   Gift,
   Calendar,
-  MessageSquare
+  MessageSquare,
+  Database
 } from "lucide-react";
 import { playNotificationSound } from "@/utils/notificationSound";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -66,6 +67,7 @@ export default function AdminDashboard() {
     { icon: Calendar, label: t({ ar: 'الأسعار الموسمية', en: 'Seasonal Pricing' }), path: '/seasonal-pricing' },
     { icon: FileText, label: t({ ar: 'إدارة الوجبات', en: 'Meal Plans' }), path: '/meal-plans' },
     { icon: Briefcase, label: t({ ar: 'برنامج الولاء', en: 'Loyalty Program' }), path: '/loyalty-program' },
+    { icon: Database, label: t({ ar: 'إعدادات Backend', en: 'Backend Settings' }), path: '/backend-settings' },
     { icon: Settings, label: t({ ar: 'إعدادات الموقع', en: 'Site Settings' }), path: '/site-settings' },
     { icon: DollarSign, label: t({ ar: 'إعدادات API', en: 'API Settings' }), path: '/api-settings' },
     { icon: FileText, label: t({ ar: 'إعدادات PDF', en: 'PDF Settings' }), path: '/pdf-settings' },
