@@ -180,6 +180,7 @@ export type Database = {
           booking_number: number
           check_in: string
           check_out: string
+          coupon_code: string | null
           created_at: string | null
           discount_amount: number | null
           extra_meals: number | null
@@ -200,6 +201,7 @@ export type Database = {
           notes: string | null
           payment_method: string | null
           payment_status: Database["public"]["Enums"]["payment_status"] | null
+          referrer_user_id: string | null
           rooms: number
           status: Database["public"]["Enums"]["booking_status"] | null
           total_amount: number
@@ -211,6 +213,7 @@ export type Database = {
           booking_number?: number
           check_in: string
           check_out: string
+          coupon_code?: string | null
           created_at?: string | null
           discount_amount?: number | null
           extra_meals?: number | null
@@ -231,6 +234,7 @@ export type Database = {
           notes?: string | null
           payment_method?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
+          referrer_user_id?: string | null
           rooms?: number
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_amount: number
@@ -242,6 +246,7 @@ export type Database = {
           booking_number?: number
           check_in?: string
           check_out?: string
+          coupon_code?: string | null
           created_at?: string | null
           discount_amount?: number | null
           extra_meals?: number | null
@@ -262,6 +267,7 @@ export type Database = {
           notes?: string | null
           payment_method?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
+          referrer_user_id?: string | null
           rooms?: number
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_amount?: number
@@ -886,6 +892,8 @@ export type Database = {
           amenities: Json | null
           bed_type_double: string | null
           city_id: string
+          commission_type: string | null
+          commission_value: number | null
           contact_person: string | null
           contact_phone: string | null
           created_at: string | null
@@ -915,6 +923,8 @@ export type Database = {
           amenities?: Json | null
           bed_type_double?: string | null
           city_id: string
+          commission_type?: string | null
+          commission_value?: number | null
           contact_person?: string | null
           contact_phone?: string | null
           created_at?: string | null
@@ -944,6 +954,8 @@ export type Database = {
           amenities?: Json | null
           bed_type_double?: string | null
           city_id?: string
+          commission_type?: string | null
+          commission_value?: number | null
           contact_person?: string | null
           contact_phone?: string | null
           created_at?: string | null
@@ -1107,24 +1119,69 @@ export type Database = {
       }
       profiles: {
         Row: {
+          commission_percentage: number | null
           created_at: string | null
           full_name: string | null
           id: string
           phone: string | null
+          referral_code: string | null
+          referred_by: string | null
           updated_at: string | null
         }
         Insert: {
+          commission_percentage?: number | null
           created_at?: string | null
           full_name?: string | null
           id: string
           phone?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
           updated_at?: string | null
         }
         Update: {
+          commission_percentage?: number | null
           created_at?: string | null
           full_name?: string | null
           id?: string
           phone?: string | null
+          referral_code?: string | null
+          referred_by?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      referrals: {
+        Row: {
+          commission_earned: number | null
+          created_at: string | null
+          id: string
+          referral_code: string
+          referred_user_id: string
+          referrer_user_id: string
+          status: string | null
+          total_bookings: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          commission_earned?: number | null
+          created_at?: string | null
+          id?: string
+          referral_code: string
+          referred_user_id: string
+          referrer_user_id: string
+          status?: string | null
+          total_bookings?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          commission_earned?: number | null
+          created_at?: string | null
+          id?: string
+          referral_code?: string
+          referred_user_id?: string
+          referrer_user_id?: string
+          status?: string | null
+          total_bookings?: number | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1460,6 +1517,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_referral_commission: {
+        Args: { p_booking_id: string }
+        Returns: undefined
+      }
       check_room_availability: {
         Args: {
           p_check_in: string
@@ -1476,6 +1537,10 @@ export type Database = {
       employee_has_assigned_customer: {
         Args: { customer_id: string; employee_id: string }
         Returns: boolean
+      }
+      generate_referral_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       get_guest_bookings: {
         Args: { p_phone: string }
