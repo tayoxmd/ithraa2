@@ -58,10 +58,13 @@ export default function AdminDashboard() {
   const adminMenuItems = [
     { icon: Hotel, label: t({ ar: 'إدارة الفنادق', en: 'Manage Hotels' }), path: '/manage-hotels' },
     { icon: Users, label: t({ ar: 'إدارة الموظفين', en: 'Manage Employees' }), path: '/manage-employees' },
+    { icon: Users, label: t({ ar: 'إدارة المُلاك', en: 'Manage Owners' }), path: '/manage-owners' },
+    { icon: Briefcase, label: t({ ar: 'طلبات الشركات', en: 'Company Requests' }), path: '/company-requests' },
     { icon: MessageSquare, label: t({ ar: 'الدردشة المباشرة', en: 'Live Chat' }), path: '/live-chat' },
     { icon: Tag, label: t({ ar: 'الكوبونات', en: 'Coupons' }), path: '/coupons' },
     { icon: Gift, label: t({ ar: 'العروض الخاصة', en: 'Special Offers' }), path: '/special-offers' },
     { icon: Calendar, label: t({ ar: 'الأسعار الموسمية', en: 'Seasonal Pricing' }), path: '/seasonal-pricing' },
+    { icon: FileText, label: t({ ar: 'إدارة الوجبات', en: 'Meal Plans' }), path: '/meal-plans' },
     { icon: Briefcase, label: t({ ar: 'برنامج الولاء', en: 'Loyalty Program' }), path: '/loyalty-program' },
     { icon: Settings, label: t({ ar: 'إعدادات الموقع', en: 'Site Settings' }), path: '/site-settings' },
     { icon: DollarSign, label: t({ ar: 'إعدادات API', en: 'API Settings' }), path: '/api-settings' },
