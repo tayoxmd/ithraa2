@@ -42,6 +42,7 @@ import ManageOwners from "./pages/ManageOwners";
 import MealPlansManager from "./pages/MealPlansManager";
 import UserReferral from "./pages/UserReferral";
 import BackendSettings from "./pages/BackendSettings";
+import InstallApp from "./pages/InstallApp";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -94,6 +95,7 @@ const RouterWithTheme = () => {
         <Route path="/meal-plans" element={<ProtectedRoute><MealPlansManager /></ProtectedRoute>} />
         <Route path="/user-referral" element={<ProtectedRoute><UserReferral /></ProtectedRoute>} />
               <Route path="/backend-settings" element={<ProtectedRoute><BackendSettings /></ProtectedRoute>} />
+              <Route path="/install-app" element={<InstallApp />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
