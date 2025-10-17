@@ -5,11 +5,11 @@ type Language = "ar" | "en" | "fr" | "es" | "ru" | "id" | "ms";
 type TranslationObject = {
   ar: string;
   en: string;
-  fr: string;
-  es: string;
-  ru: string;
-  id: string;
-  ms: string;
+  fr?: string;
+  es?: string;
+  ru?: string;
+  id?: string;
+  ms?: string;
 };
 
 interface LanguageContextType {
