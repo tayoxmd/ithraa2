@@ -1584,6 +1584,19 @@ export type Database = {
         Args: { p_check_in_date: string; p_hotel_id: string }
         Returns: number
       }
+      get_profile_with_audit: {
+        Args: { p_access_reason?: string; p_profile_id: string }
+        Returns: {
+          commission_percentage: number
+          created_at: string
+          full_name: string
+          id: string
+          phone: string
+          referral_code: string
+          referred_by: string
+          updated_at: string
+        }[]
+      }
       get_public_hotel: {
         Args: { p_hotel_id: string }
         Returns: {
