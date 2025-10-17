@@ -1,5 +1,6 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 
 type ThemeType = 'design1' | 'design2' | 'design3';
 type AdminThemeType = 'design1' | 'admin-design2';
@@ -63,7 +64,11 @@ export function ThemeProvider({ children, isAdmin = false }: { children: ReactNo
   };
 
   if (loading) {
-    return null;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
   }
 
   return (
