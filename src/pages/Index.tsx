@@ -84,20 +84,35 @@ const Index = () => {
       <Header />
       <LiveChatButton />
 
-      {/* Hero Section */}
-      <section className="relative min-h-[500px] md:min-h-[650px] flex items-center justify-center pt-20">
-        {/* Background Images with Fade Effect */}
-        <div className="absolute inset-0 z-0">
-          {heroImages.map((image, index) => (
-            <img
-              key={index}
-              src={image}
-              alt={`Luxury Hotel ${index + 1}`}
-              className={`absolute w-full h-full object-cover transition-opacity duration-1000 ${
-                index === currentImageIndex ? "opacity-100" : "opacity-0"
-              }`}
-            />
-          ))}
+      {/* Hero Section with 3D Background */}
+      <section className="relative min-h-[500px] md:min-h-[650px] flex items-center justify-center pt-20 overflow-hidden">
+        {/* Animated 3D Background */}
+        <div className="absolute inset-0 z-0 bg-gradient-to-br from-primary/20 via-secondary/10 to-primary/30">
+          {/* 3D Floating Shapes */}
+          <div className="absolute inset-0">
+            {/* Kaaba-inspired cube */}
+            <div className="floating-shape absolute top-1/4 left-1/4 w-32 h-32 md:w-48 md:h-48 opacity-10">
+              <div className="kaaba-3d"></div>
+            </div>
+            
+            {/* Dome shapes representing mosque domes */}
+            <div className="floating-shape-2 absolute top-1/3 right-1/4 w-24 h-24 md:w-40 md:h-40 opacity-10">
+              <div className="dome-3d"></div>
+            </div>
+            
+            {/* Minaret shapes */}
+            <div className="floating-shape-3 absolute bottom-1/4 left-1/3 w-16 h-32 md:w-24 md:h-48 opacity-10">
+              <div className="minaret-3d"></div>
+            </div>
+            
+            {/* Additional floating elements */}
+            <div className="floating-shape absolute bottom-1/3 right-1/3 w-20 h-20 md:w-32 md:h-32 opacity-5">
+              <div className="kaaba-3d"></div>
+            </div>
+          </div>
+          
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-b from-background/80 via-background/60 to-background/80"></div>
         </div>
 
         {/* Content */}
