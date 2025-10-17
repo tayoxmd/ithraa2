@@ -50,7 +50,6 @@ export default function GuestDashboard() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
   const [verifiedPhone, setVerifiedPhone] = useState<string | null>(null);
-  const [guestDialogOpen, setGuestDialogOpen] = useState(true);
 
   const fetchGuestBookings = async (phone: string) => {
     setLoading(true);
@@ -158,14 +157,7 @@ export default function GuestDashboard() {
       
       <div className="container mx-auto px-4 py-8 pt-24">
         {!verifiedPhone ? (
-          <GuestOTPVerification 
-            onVerified={handleVerified} 
-            open={guestDialogOpen}
-            onOpenChange={(open) => {
-              setGuestDialogOpen(open);
-              if (!open) navigate('/');
-            }}
-          />
+          <GuestOTPVerification onVerified={handleVerified} />
         ) : loading ? (
           <div className="flex items-center justify-center min-h-[60vh]">
             <LoadingSpinner size="lg" />

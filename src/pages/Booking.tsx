@@ -76,9 +76,6 @@ export default function Booking() {
   const [avgPricePerNight, setAvgPricePerNight] = useState<number | null>(null);
   const [loadingHotel, setLoadingHotel] = useState(true);
   const [customerFullName, setCustomerFullName] = useState("");
-  const [couponCode, setCouponCode] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
-  const [verifyingCoupon, setVerifyingCoupon] = useState(false);
 
   // Fetch customer's full name if logged in
   useEffect(() => {
@@ -222,122 +219,13 @@ export default function Booking() {
     // Calculate subtotal before tax
     const subtotalBeforeTax = basePrice + extraGuestCharge + extraMealCharge;
     
-    // Apply coupon discount
-    let discountAmount = 0;
-    if (appliedCoupon) {
-      if (appliedCoupon.discount_type === 'percentage') {
-        discountAmount = subtotalBeforeTax * (appliedCoupon.discount_value / 100);
-      } else {
-        discountAmount = appliedCoupon.discount_value;
-      }
-    }
-    
-    const subtotalAfterDiscount = subtotalBeforeTax - discountAmount;
-    
     // Calculate tax amount
-    const tax = taxRate > 0 ? (subtotalAfterDiscount * taxRate / 100) : 0;
+    const tax = taxRate > 0 ? (subtotalBeforeTax * taxRate / 100) : 0;
     
     // Calculate total
-    const total = subtotalAfterDiscount + tax;
+    const total = subtotalBeforeTax + tax;
     
-    return { subtotal: basePrice, extraGuestCharge, extraMealCharge, discountAmount, tax, total, extraGuestsCount };
-  };
-
-  const verifyCoupon = async () => {
-    if (!couponCode.trim()) {
-      toast({
-        title: t({ ar: "خطأ", en: "Error" }),
-        description: t({ ar: "الرجاء إدخال رمز الكوبون", en: "Please enter coupon code" }),
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setVerifyingCoupon(true);
-    try {
-      const { data: coupon, error } = await supabase
-        .from('coupons')
-        .select('*')
-        .eq('code', couponCode.toUpperCase())
-        .eq('active', true)
-        .single();
-
-      if (error || !coupon) {
-        toast({
-          title: t({ ar: "خطأ", en: "Error" }),
-          description: t({ ar: "كوبون غير صالح", en: "Invalid coupon" }),
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Check validity dates
-      const today = new Date();
-      const validFrom = new Date(coupon.valid_from);
-      const validTo = new Date(coupon.valid_to);
-
-      if (today < validFrom || today > validTo) {
-        toast({
-          title: t({ ar: "خطأ", en: "Error" }),
-          description: t({ ar: "الكوبون منتهي الصلاحية", en: "Coupon expired" }),
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Check usage limit
-      if (coupon.max_uses && coupon.current_uses >= coupon.max_uses) {
-        toast({
-          title: t({ ar: "خطأ", en: "Error" }),
-          description: t({ ar: "تم استخدام الكوبون بالكامل", en: "Coupon fully used" }),
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Check minimum booking amount
-      const totalData = calculateTotal();
-      if (coupon.min_booking_amount && totalData.total < coupon.min_booking_amount) {
-        toast({
-          title: t({ ar: "خطأ", en: "Error" }),
-          description: t({ ar: `الحد الأدنى للحجز ${coupon.min_booking_amount} ريال`, en: `Minimum booking ${coupon.min_booking_amount} SAR` }),
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Check if applicable to this hotel
-      if (coupon.applicable_to === 'specific') {
-        const { data: couponHotels } = await supabase
-          .from('coupon_hotels')
-          .select('hotel_id')
-          .eq('coupon_id', coupon.id)
-          .eq('hotel_id', id);
-
-        if (!couponHotels || couponHotels.length === 0) {
-          toast({
-            title: t({ ar: "خطأ", en: "Error" }),
-            description: t({ ar: "الكوبون غير صالح لهذا الفندق", en: "Coupon not valid for this hotel" }),
-            variant: "destructive",
-          });
-          return;
-        }
-      }
-
-      setAppliedCoupon(coupon);
-      toast({
-        title: t({ ar: "تم بنجاح", en: "Success" }),
-        description: t({ ar: "تم تطبيق الكوبون بنجاح", en: "Coupon applied successfully" }),
-      });
-    } catch (error) {
-      toast({
-        title: t({ ar: "خطأ", en: "Error" }),
-        description: t({ ar: "حدث خطأ في التحقق من الكوبون", en: "Error verifying coupon" }),
-        variant: "destructive",
-      });
-    } finally {
-      setVerifyingCoupon(false);
-    }
+    return { subtotal: basePrice, extraGuestCharge, extraMealCharge, tax, total, extraGuestsCount };
   };
 
   const initiateBooking = (e: React.FormEvent) => {
@@ -430,23 +318,7 @@ export default function Booking() {
       meal_plan_price: hotel?.meal_plans?.price || 0,
       meal_plan_max_persons: hotel?.meal_plans?.max_persons || 0,
       meal_plan_extra_price: hotel?.meal_plans?.extra_meal_price || 0,
-      coupon_code: appliedCoupon?.code || null,
-      discount_amount: appliedCoupon ? (appliedCoupon.discount_type === 'percentage' ? totalData.total * (appliedCoupon.discount_value / 100) : appliedCoupon.discount_value) : 0,
     };
-
-    // Add referrer if exists in URL
-    const refCode = searchParams.get('ref');
-    if (refCode) {
-      const { data: referrerProfile } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('referral_code', refCode)
-        .single();
-      
-      if (referrerProfile) {
-        bookingData.referrer_user_id = referrerProfile.id;
-      }
-    }
 
     // إضافة معلومات المستخدم أو الضيف
     if (user) {
@@ -675,21 +547,13 @@ export default function Booking() {
                         </span>
                         <span>+{Math.round(calculateTotal().extraGuestCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
                       </div>
-                     )}
+                    )}
                     {calculateTotal().extraMealCharge > 0 && (
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">
                           {t({ ar: `${extraMeals} ${extraMeals === 1 ? 'وجبة إضافية' : extraMeals === 2 ? 'وجبتين إضافيتين' : 'وجبات إضافية'}`, en: `${extraMeals} extra meal${extraMeals > 1 ? 's' : ''}` })}
                         </span>
                         <span>+{Math.round(calculateTotal().extraMealCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
-                      </div>
-                    )}
-                    {appliedCoupon && calculateTotal().discountAmount > 0 && (
-                      <div className="flex justify-between text-sm text-green-600">
-                        <span>
-                          {t({ ar: 'خصم الكوبون', en: 'Coupon Discount' })} ({appliedCoupon.code})
-                        </span>
-                        <span>-{Math.round(calculateTotal().discountAmount)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
                       </div>
                     )}
                     <div className="flex justify-between font-bold text-lg pt-2 border-t">
@@ -904,42 +768,6 @@ export default function Booking() {
                       )}
                     </>
                   )}
-                </CardContent>
-              </Card>
-
-              {/* Coupon Code */}
-              <Card className="card-luxury">
-                <CardHeader>
-                  <CardTitle>{t({ ar: 'كود الكوبون', en: 'Coupon Code' })}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex gap-2">
-                    <Input
-                      value={couponCode}
-                      onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
-                      placeholder={t({ ar: 'أدخل كود الكوبون', en: 'Enter coupon code' })}
-                      disabled={!!appliedCoupon}
-                    />
-                    <Button 
-                      type="button"
-                      onClick={verifyCoupon}
-                      disabled={verifyingCoupon || !!appliedCoupon}
-                    >
-                      {appliedCoupon ? t({ ar: 'تم التطبيق', en: 'Applied' }) : t({ ar: 'تطبيق', en: 'Apply' })}
-                    </Button>
-                    {appliedCoupon && (
-                      <Button 
-                        type="button"
-                        variant="outline"
-                        onClick={() => {
-                          setAppliedCoupon(null);
-                          setCouponCode("");
-                        }}
-                      >
-                        {t({ ar: 'إلغاء', en: 'Remove' })}
-                      </Button>
-                    )}
-                  </div>
                 </CardContent>
               </Card>
 

@@ -90,8 +90,6 @@ export default function ManageHotels() {
     total_rooms: "10",
     tax_percentage: "0",
     room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
-    commission_type: "percentage",
-    commission_value: "0",
   });
   const [amenities, setAmenities] = useState({
     wifi: true,
@@ -405,8 +403,6 @@ export default function ManageHotels() {
           room_type: formData.room_type,
           images: hotelImages,
           meal_plans: mealPlan,
-          commission_type: formData.commission_type,
-          commission_value: parseFloat(formData.commission_value),
           amenities: {
             ...amenities,
             walking_distance: amenities.walking_distance ? parseFloat(amenities.walking_distance) : null,
@@ -466,8 +462,6 @@ export default function ManageHotels() {
           room_type: formData.room_type,
           images: hotelImages,
           meal_plans: mealPlan,
-          commission_type: formData.commission_type,
-          commission_value: parseFloat(formData.commission_value),
           amenities: {
             ...amenities,
             walking_distance: amenities.walking_distance ? parseFloat(amenities.walking_distance) : null,
@@ -537,8 +531,6 @@ export default function ManageHotels() {
       total_rooms: (hotel as any).total_rooms?.toString() || "0",
       tax_percentage: (hotel as any).tax_percentage?.toString() || "0",
       room_type: hotel.room_type || 'hotel_rooms',
-      commission_type: (hotel as any).commission_type || "percentage",
-      commission_value: ((hotel as any).commission_value || 0).toString(),
     });
 
     // Set existing images
@@ -608,11 +600,9 @@ export default function ManageHotels() {
       active: true,
       max_guests_per_room: "2",
       extra_guest_price: "0",
-      total_rooms: "10",
+      total_rooms: "0",
       tax_percentage: "0",
       room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
-      commission_type: "percentage",
-      commission_value: "0",
     });
   };
 

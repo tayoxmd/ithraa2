@@ -133,54 +133,12 @@ export type Database = {
         }
         Relationships: []
       }
-      booking_actions_log: {
-        Row: {
-          action_type: string
-          booking_id: string
-          created_at: string | null
-          id: string
-          new_value: string | null
-          notes: string | null
-          old_value: string | null
-          user_id: string
-        }
-        Insert: {
-          action_type: string
-          booking_id: string
-          created_at?: string | null
-          id?: string
-          new_value?: string | null
-          notes?: string | null
-          old_value?: string | null
-          user_id: string
-        }
-        Update: {
-          action_type?: string
-          booking_id?: string
-          created_at?: string | null
-          id?: string
-          new_value?: string | null
-          notes?: string | null
-          old_value?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "booking_actions_log_booking_id_fkey"
-            columns: ["booking_id"]
-            isOneToOne: false
-            referencedRelation: "bookings"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       bookings: {
         Row: {
           amount_paid: number | null
           booking_number: number
           check_in: string
           check_out: string
-          coupon_code: string | null
           created_at: string | null
           discount_amount: number | null
           extra_meals: number | null
@@ -201,7 +159,6 @@ export type Database = {
           notes: string | null
           payment_method: string | null
           payment_status: Database["public"]["Enums"]["payment_status"] | null
-          referrer_user_id: string | null
           rooms: number
           status: Database["public"]["Enums"]["booking_status"] | null
           total_amount: number
@@ -213,7 +170,6 @@ export type Database = {
           booking_number?: number
           check_in: string
           check_out: string
-          coupon_code?: string | null
           created_at?: string | null
           discount_amount?: number | null
           extra_meals?: number | null
@@ -234,7 +190,6 @@ export type Database = {
           notes?: string | null
           payment_method?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
-          referrer_user_id?: string | null
           rooms?: number
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_amount: number
@@ -246,7 +201,6 @@ export type Database = {
           booking_number?: number
           check_in?: string
           check_out?: string
-          coupon_code?: string | null
           created_at?: string | null
           discount_amount?: number | null
           extra_meals?: number | null
@@ -267,7 +221,6 @@ export type Database = {
           notes?: string | null
           payment_method?: string | null
           payment_status?: Database["public"]["Enums"]["payment_status"] | null
-          referrer_user_id?: string | null
           rooms?: number
           status?: Database["public"]["Enums"]["booking_status"] | null
           total_amount?: number
@@ -374,60 +327,6 @@ export type Database = {
           id?: string
           name_ar?: string
           name_en?: string
-        }
-        Relationships: []
-      }
-      company_requests: {
-        Row: {
-          approved_at: string | null
-          approved_by: string | null
-          commercial_register: string
-          company_name_ar: string
-          company_name_en: string
-          contact_email: string
-          contact_person: string
-          contact_phone: string
-          created_at: string | null
-          id: string
-          rejection_reason: string | null
-          status: string
-          tax_number: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          approved_at?: string | null
-          approved_by?: string | null
-          commercial_register: string
-          company_name_ar: string
-          company_name_en: string
-          contact_email: string
-          contact_person: string
-          contact_phone: string
-          created_at?: string | null
-          id?: string
-          rejection_reason?: string | null
-          status?: string
-          tax_number?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          approved_at?: string | null
-          approved_by?: string | null
-          commercial_register?: string
-          company_name_ar?: string
-          company_name_en?: string
-          contact_email?: string
-          contact_person?: string
-          contact_phone?: string
-          created_at?: string | null
-          id?: string
-          rejection_reason?: string | null
-          status?: string
-          tax_number?: string | null
-          updated_at?: string | null
-          user_id?: string
         }
         Relationships: []
       }
@@ -768,48 +667,6 @@ export type Database = {
         }
         Relationships: []
       }
-      hotel_owners: {
-        Row: {
-          active: boolean | null
-          address: string | null
-          created_at: string | null
-          email: string | null
-          id: string
-          national_id: string | null
-          notes: string | null
-          owner_name_ar: string
-          owner_name_en: string
-          phone: string
-          updated_at: string | null
-        }
-        Insert: {
-          active?: boolean | null
-          address?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          national_id?: string | null
-          notes?: string | null
-          owner_name_ar: string
-          owner_name_en: string
-          phone: string
-          updated_at?: string | null
-        }
-        Update: {
-          active?: boolean | null
-          address?: string | null
-          created_at?: string | null
-          email?: string | null
-          id?: string
-          national_id?: string | null
-          notes?: string | null
-          owner_name_ar?: string
-          owner_name_en?: string
-          phone?: string
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       hotel_responsible_persons: {
         Row: {
           created_at: string | null
@@ -890,10 +747,7 @@ export type Database = {
         Row: {
           active: boolean | null
           amenities: Json | null
-          bed_type_double: string | null
           city_id: string
-          commission_type: string | null
-          commission_value: number | null
           contact_person: string | null
           contact_phone: string | null
           created_at: string | null
@@ -908,7 +762,6 @@ export type Database = {
           meal_plans: Json | null
           name_ar: string
           name_en: string
-          owner_id: string | null
           pinned_to_homepage: boolean | null
           price_per_night: number
           rating: number | null
@@ -921,10 +774,7 @@ export type Database = {
         Insert: {
           active?: boolean | null
           amenities?: Json | null
-          bed_type_double?: string | null
           city_id: string
-          commission_type?: string | null
-          commission_value?: number | null
           contact_person?: string | null
           contact_phone?: string | null
           created_at?: string | null
@@ -939,7 +789,6 @@ export type Database = {
           meal_plans?: Json | null
           name_ar: string
           name_en: string
-          owner_id?: string | null
           pinned_to_homepage?: boolean | null
           price_per_night: number
           rating?: number | null
@@ -952,10 +801,7 @@ export type Database = {
         Update: {
           active?: boolean | null
           amenities?: Json | null
-          bed_type_double?: string | null
           city_id?: string
-          commission_type?: string | null
-          commission_value?: number | null
           contact_person?: string | null
           contact_phone?: string | null
           created_at?: string | null
@@ -970,7 +816,6 @@ export type Database = {
           meal_plans?: Json | null
           name_ar?: string
           name_en?: string
-          owner_id?: string | null
           pinned_to_homepage?: boolean | null
           price_per_night?: number
           rating?: number | null
@@ -986,13 +831,6 @@ export type Database = {
             columns: ["city_id"]
             isOneToOne: false
             referencedRelation: "cities"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "hotels_owner_id_fkey"
-            columns: ["owner_id"]
-            isOneToOne: false
-            referencedRelation: "hotel_owners"
             referencedColumns: ["id"]
           },
         ]
@@ -1119,69 +957,24 @@ export type Database = {
       }
       profiles: {
         Row: {
-          commission_percentage: number | null
           created_at: string | null
           full_name: string | null
           id: string
           phone: string | null
-          referral_code: string | null
-          referred_by: string | null
           updated_at: string | null
         }
         Insert: {
-          commission_percentage?: number | null
           created_at?: string | null
           full_name?: string | null
           id: string
           phone?: string | null
-          referral_code?: string | null
-          referred_by?: string | null
           updated_at?: string | null
         }
         Update: {
-          commission_percentage?: number | null
           created_at?: string | null
           full_name?: string | null
           id?: string
           phone?: string | null
-          referral_code?: string | null
-          referred_by?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      referrals: {
-        Row: {
-          commission_earned: number | null
-          created_at: string | null
-          id: string
-          referral_code: string
-          referred_user_id: string
-          referrer_user_id: string
-          status: string | null
-          total_bookings: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          commission_earned?: number | null
-          created_at?: string | null
-          id?: string
-          referral_code: string
-          referred_user_id: string
-          referrer_user_id: string
-          status?: string | null
-          total_bookings?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          commission_earned?: number | null
-          created_at?: string | null
-          id?: string
-          referral_code?: string
-          referred_user_id?: string
-          referrer_user_id?: string
-          status?: string | null
-          total_bookings?: number | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1517,10 +1310,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      calculate_referral_commission: {
-        Args: { p_booking_id: string }
-        Returns: undefined
-      }
       check_room_availability: {
         Args: {
           p_check_in: string
@@ -1537,10 +1326,6 @@ export type Database = {
       employee_has_assigned_customer: {
         Args: { customer_id: string; employee_id: string }
         Returns: boolean
-      }
-      generate_referral_code: {
-        Args: Record<PropertyKey, never>
-        Returns: string
       }
       get_guest_bookings: {
         Args: { p_phone: string }
@@ -1681,7 +1466,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "employee" | "customer" | "company"
+      app_role: "admin" | "employee" | "customer"
       booking_status: "new" | "pending" | "confirmed" | "cancelled" | "rejected"
       complaint_status: "new" | "pending" | "rejected" | "resolved"
       meal_plan_type:
@@ -1819,7 +1604,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "employee", "customer", "company"],
+      app_role: ["admin", "employee", "customer"],
       booking_status: ["new", "pending", "confirmed", "cancelled", "rejected"],
       complaint_status: ["new", "pending", "rejected", "resolved"],
       meal_plan_type: [

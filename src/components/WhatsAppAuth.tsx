@@ -54,47 +54,9 @@ export function WhatsAppAuth({ open, onOpenChange, redirectUrl }: WhatsAppAuthPr
 
       if (error) {
         console.error('Edge function error:', error);
-        
-        // Check if it's a configuration error
-        if (error.message?.includes('ASENDERAPI_KEY') || error.message?.includes('not configured')) {
-          throw new Error(t({ 
-            ar: "إعدادات WhatsApp غير مكتملة. يرجى مراجعة الإعدادات.", 
-            en: "WhatsApp configuration incomplete. Please check settings." 
-          }));
-        }
-        
         throw new Error(t({ 
           ar: "خدمة واتساب غير متوفرة حالياً. يرجى المحاولة لاحقاً أو استخدام طريقة تسجيل دخول أخرى.", 
           en: "WhatsApp service is currently unavailable. Please try again later or use another sign-in method." 
-        }));
-      }
-
-      // Handle specific error responses from the edge function
-      if (data?.error) {
-        if (data.error.includes('wait before requesting')) {
-          throw new Error(t({ 
-            ar: "يرجى الانتظار قبل طلب رمز تحقق جديد", 
-            en: "Please wait before requesting a new OTP" 
-          }));
-        }
-        if (data.error.includes('Daily OTP limit')) {
-          throw new Error(t({ 
-            ar: "تم الوصول إلى الحد اليومي. يرجى المحاولة غداً", 
-            en: "Daily OTP limit reached. Please try again tomorrow" 
-          }));
-        }
-        if (data.provider_error) {
-          throw new Error(t({ 
-            ar: "خطأ في مزود الخدمة. يرجى المحاولة لاحقاً", 
-            en: "Provider error. Please try again later" 
-          }));
-        }
-      }
-
-      if (!data || !data.success) {
-        throw new Error(t({ 
-          ar: "فشل في إرسال رمز التحقق. يرجى المحاولة مرة أخرى.", 
-          en: "Failed to send verification code. Please try again." 
         }));
       }
 
@@ -105,7 +67,6 @@ export function WhatsAppAuth({ open, onOpenChange, redirectUrl }: WhatsAppAuthPr
         description: t({ ar: "تم إرسال رمز التحقق عبر WhatsApp", en: "Verification code sent via WhatsApp" }),
       });
     } catch (error: any) {
-      console.error('WhatsApp OTP error:', error);
       toast({
         title: t({ ar: "خطأ", en: "Error" }),
         description: error.message || t({ ar: "فشل إرسال رمز التحقق", en: "Failed to send verification code" }),
@@ -284,14 +245,7 @@ export function WhatsAppAuth({ open, onOpenChange, redirectUrl }: WhatsAppAuthPr
                   type="text"
                   placeholder="123456"
                   value={otpCode}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/\D/g, '').slice(0, 6);
-                    setOtpCode(value);
-                    // Auto-submit when 6 digits entered
-                    if (value.length === 6) {
-                      setTimeout(() => handleVerifyOTP(), 100);
-                    }
-                  }}
+                  onChange={(e) => setOtpCode(e.target.value)}
                   maxLength={6}
                   dir="ltr"
                 />

@@ -1,16 +1,12 @@
 {
-  "name": "إثراء ITHRAA - حجز الفنادق",
-  "short_name": "إثراء",
-  "description": "احجز أفضل الفنادق والشقق الفندقية بأسعار تنافسية مع تطبيق إثراء",
+  "name": "جوار الحرم - حجز الفنادق",
+  "short_name": "جوار الحرم",
+  "description": "احجز أفضل الفنادق والشقق الفندقية بأسعار تنافسية",
   "start_url": "/",
-  "scope": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#007dff",
-  "orientation": "portrait-primary",
-  "dir": "rtl",
-  "lang": "ar",
-  "categories": ["travel", "lifestyle"],
+  "orientation": "portrait",
   "icons": [
     {
       "src": "/favicon.ico",
@@ -28,30 +24,6 @@
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/splash-screen.png",
-      "sizes": "512x896",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
-  ],
-  "shortcuts": [
-    {
-      "name": "البحث عن فنادق",
-      "short_name": "بحث",
-      "description": "ابحث عن فندقك المفضل",
-      "url": "/search-results",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
-    },
-    {
-      "name": "حجوزاتي",
-      "short_name": "الحجوزات",
-      "description": "عرض حجوزاتك",
-      "url": "/user-dashboard",
-      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
     }
   ]
 }

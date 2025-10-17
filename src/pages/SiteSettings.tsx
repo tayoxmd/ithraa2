@@ -1421,32 +1421,6 @@ export default function SiteSettings() {
             </div>
           </CardContent>
         </Card>
-
-        {/* Backend Settings Link */}
-        <Card className="mt-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Database className="w-5 h-5" />
-              {t({ ar: "إعدادات Backend", en: "Backend Settings" })}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              {t({ 
-                ar: "إدارة إعدادات قاعدة البيانات، المصادقة، التخزين، والمزيد", 
-                en: "Manage database, authentication, storage settings, and more" 
-              })}
-            </p>
-            <Button 
-              onClick={() => navigate('/backend-settings')}
-              className="w-full"
-              variant="outline"
-            >
-              <Database className="w-4 h-4 mr-2" />
-              {t({ ar: "فتح إعدادات Backend", en: "Open Backend Settings" })}
-            </Button>
-          </CardContent>
-        </Card>
       </div>
 
       <Footer />

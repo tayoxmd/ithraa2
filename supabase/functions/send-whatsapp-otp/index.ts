@@ -26,10 +26,9 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // Create hash of full phone number (including country code with '+') for consistent verification
-    const fullPhoneWithPlus = `${countryCode}${phone}`;
+    // Create hash of phone number for storage
     const encoder = new TextEncoder();
-    const data = encoder.encode(fullPhoneWithPlus);
+    const data = encoder.encode(phone);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     const phoneHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
@@ -121,11 +120,10 @@ serve(async (req) => {
       );
     }
 
-    // Keep the + in the phone number for E.164 format
-    const fullPhone = `${countryCode}${phone}`;
+    const fullPhone = `${countryCode}${phone}`.replace(/\+/g, '');
     const message = `رمز التحقق الخاص بك هو: ${otpCode}\n\nصالح لمدة 10 دقائق.\n\nإثراء للحجز الفندقي`;
 
-    const whatsappResponse = await fetch('https://wasenderapi.com/api/send-message', {
+    const whatsappResponse = await fetch('https://api.asenderapi.com/api/v1/message/text', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -139,15 +137,9 @@ serve(async (req) => {
     });
 
     if (!whatsappResponse.ok) {
-      const responseText = await whatsappResponse.text();
-      console.error('WhatsApp API error - status:', whatsappResponse.status, 'response:', responseText);
-      
+      console.error('WhatsApp API error - status:', whatsappResponse.status);
       return new Response(
-        JSON.stringify({ 
-          error: 'Failed to send WhatsApp message',
-          details: `Provider returned status ${whatsappResponse.status}`,
-          provider_error: true
-        }),
+        JSON.stringify({ error: 'Failed to send WhatsApp message' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
