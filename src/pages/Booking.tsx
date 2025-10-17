@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
-import { CreditCard, Calendar as CalendarIcon, Users, Hotel as HotelIcon, Utensils } from "lucide-react";
+import { CreditCard, Calendar as CalendarIcon, Users, Hotel as HotelIcon } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { bookingSchema } from "@/lib/validations";

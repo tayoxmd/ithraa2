@@ -123,29 +123,31 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
       </div>
 
       <CardContent className="p-4 flex flex-col flex-1">
-        {/* Title Section */}
-        <div className="mb-2">
-          <h3 className="text-lg font-bold text-primary mb-0.5 truncate">{name}</h3>
-          <p className="text-xs text-muted-foreground truncate">{nameEn}</p>
+        {/* Title and Meal Badge Side by Side */}
+        <div className="mb-2 flex items-start gap-2 justify-between">
+          <div className="flex-1 min-w-0">
+            <h3 className="text-lg font-bold text-primary mb-0.5 truncate">{name}</h3>
+            <p className="text-xs text-muted-foreground truncate">{nameEn}</p>
+          </div>
+          {/* Meal Badge - Next to hotel name */}
+          {meal_plans && meal_plans.regular_ar && meal_plans.regular_en && 
+           meal_plans.regular_ar.trim() !== "" && meal_plans.regular_en.trim() !== "" &&
+           meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
+            <div 
+              className="px-2 py-1 rounded text-white text-xs font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
+              style={{ backgroundColor: mealBadgeSettings.color }}
+            >
+              <Utensils className="w-3 h-3" />
+              {language === 'ar' ? 'يشمل وجبات' : 'Meals'}
+            </div>
+          )}
         </div>
 
         {/* Location */}
-        <div className="flex items-center gap-1.5 text-muted-foreground mb-2">
+        <div className="flex items-center gap-1.5 text-muted-foreground mb-3">
           <MapPin className="w-3.5 h-3.5" />
           <span className="text-xs">{location}</span>
         </div>
-
-        {/* Meal Badge - More Prominent Green Badge */}
-        {meal_plans && meal_plans.regular_ar && meal_plans.regular_en && 
-         meal_plans.regular_ar.trim() !== "" && meal_plans.regular_en.trim() !== "" &&
-         meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
-          <div className="mb-3">
-            <div className="inline-flex items-center gap-1.5 bg-green-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md">
-              <Utensils className="w-4 h-4" />
-              <span>{language === 'ar' ? meal_plans.regular_ar : meal_plans.regular_en}</span>
-            </div>
-          </div>
-        )}
 
         {/* Amenities */}
         <div className="flex items-center gap-2.5 mb-3 flex-wrap">

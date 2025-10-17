@@ -21,39 +21,10 @@ serve(async (req) => {
       );
     }
 
-    // Strict phone number validation (9-15 digits only)
-    const cleanPhone = phone.replace(/[\s\-\(\)]/g, '');
-    const phoneRegex = /^[0-9]{9,15}$/;
-    if (!phoneRegex.test(cleanPhone)) {
-      console.log('Invalid phone format:', phone);
-      return new Response(
-        JSON.stringify({ error: 'Invalid phone number format. Please use only digits.' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
-
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
-
-    // Global rate limiting: max 100 OTP requests per hour across all users
-    const oneHourAgo = new Date(Date.now() - 3600000).toISOString();
-    const { count: globalCount } = await supabase
-      .from('guest_verifications')
-      .select('*', { count: 'exact', head: true })
-      .gte('created_at', oneHourAgo);
-
-    if (globalCount && globalCount > 100) {
-      console.log('Global rate limit exceeded:', globalCount, 'requests in last hour');
-      return new Response(
-        JSON.stringify({ 
-          error: 'Service temporarily unavailable. Please try again later.',
-          error_ar: 'الخدمة غير متاحة مؤقتاً. يرجى المحاولة لاحقاً'
-        }),
-        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
 
     // Create hash of full phone number (including country code with '+') for consistent verification
     const fullPhoneWithPlus = `${countryCode}${phone}`;
@@ -76,14 +47,8 @@ serve(async (req) => {
       .limit(1);
 
     if (recentOTP && recentOTP.length > 0) {
-      const remainingSeconds = 60 - Math.floor((Date.now() - new Date(recentOTP[0].created_at).getTime()) / 1000);
-      console.log('Rate limit per phone:', phoneHash.substring(0, 10), 'remaining:', remainingSeconds, 'seconds');
       return new Response(
-        JSON.stringify({ 
-          error: 'Please wait before requesting a new OTP',
-          error_ar: 'يرجى الانتظار دقيقة قبل طلب رمز تحقق جديد',
-          remainingTime: remainingSeconds
-        }),
+        JSON.stringify({ error: 'Please wait before requesting a new OTP' }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -99,12 +64,8 @@ serve(async (req) => {
       .gte('created_at', oneDayAgo.toISOString());
 
     if (count && count >= 5) {
-      console.log('Daily limit exceeded for phone:', phoneHash.substring(0, 10), 'count:', count);
       return new Response(
-        JSON.stringify({ 
-          error: 'Daily OTP limit reached (5 attempts). Please try again tomorrow',
-          error_ar: 'تم تجاوز الحد الأقصى من محاولات التحقق اليومية (5 محاولات). يرجى المحاولة غداً'
-        }),
+        JSON.stringify({ error: 'Daily OTP limit reached. Please try again tomorrow' }),
         { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }

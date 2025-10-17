@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import React, { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export type AppSettings = {
@@ -25,7 +25,7 @@ const defaultSettings: AppSettings = {
 
 const SettingsContext = createContext<{ settings: AppSettings } | undefined>(undefined);
 
-export function SettingsProvider({ children }: { children: ReactNode }) {
+export const SettingsProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<AppSettings>(defaultSettings);
 
   useEffect(() => {
@@ -100,7 +100,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   return (
     <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>
   );
-}
+};
 
 export const useSettings = () => {
   const ctx = useContext(SettingsContext);

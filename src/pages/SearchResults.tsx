@@ -16,9 +16,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Input } from "@/components/ui/input";
-import { format } from "date-fns";
-import { ar } from "date-fns/locale";
 
 interface Hotel {
   id: string;
@@ -172,34 +169,26 @@ export default function SearchResults() {
       <Header />
       
       <div className="container mx-auto px-4 py-8 pt-24">
-        {/* Search Box Card - Inspired by reference design */}
-        <Card className="mb-6 shadow-lg border-2" ref={searchBoxRef}>
-          <CardContent className="p-4">
-            <Collapsible open={isSearchOpen} onOpenChange={setIsSearchOpen}>
-              <div className="flex items-center justify-between mb-2">
-                <h2 className="text-lg font-bold">
-                  {t({ ar: 'تعديل البحث', en: 'Edit Search' })}
-                </h2>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    {isSearchOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  </Button>
-                </CollapsibleTrigger>
+        <div className="mb-6" ref={searchBoxRef}>
+          <Collapsible open={isSearchOpen} onOpenChange={setIsSearchOpen}>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">
+                  {t({ ar: 'نتائج البحث', en: 'Search Results' })}
+                </h1>
+                <p className="text-muted-foreground">
+                  {t({ ar: `تم العثور على ${filteredHotels.length} فندق`, en: `Found ${filteredHotels.length} hotels` })}
+                </p>
               </div>
-              
-              {!isSearchOpen && (
-                <div className="flex flex-wrap gap-2 text-sm text-muted-foreground">
-                  <span>{checkIn && format(new Date(checkIn), 'dd MMM', { locale: ar })}</span>
-                  <span>-</span>
-                  <span>{checkOut && format(new Date(checkOut), 'dd MMM', { locale: ar })}</span>
-                  <span>•</span>
-                  <span>{guests} {t({ ar: 'بالغ', en: 'adults' })}</span>
-                  <span>•</span>
-                  <span>{rooms} {t({ ar: 'غرفة', en: 'room' })}</span>
-                </div>
-              )}
-              
-              <CollapsibleContent className="mt-4">
+              <CollapsibleTrigger asChild>
+                <Button variant="outline" className="flex items-center gap-2">
+                  {isSearchOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  {t({ ar: 'تعديل خيارات البحث', en: 'Edit Search Options' })}
+                </Button>
+              </CollapsibleTrigger>
+            </div>
+            <CollapsibleContent className="mb-8">
+              <div className="scale-95 origin-top">
                 <SearchBox 
                   initialValues={{ 
                     city: cityId,
@@ -209,43 +198,48 @@ export default function SearchResults() {
                     rooms
                   }}
                   onSearch={() => {
-                    setIsSearchOpen(false);
                     searchBoxRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
                 />
-              </CollapsibleContent>
-            </Collapsible>
-          </CardContent>
-        </Card>
-
-        {/* Results Count */}
-        <div className="mb-4">
-          <p className="text-sm text-muted-foreground">
-            {t({ ar: `تم العثور على ${filteredHotels.length} فندق`, en: `Found ${filteredHotels.length} hotels` })}
-          </p>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
         </div>
 
-        {/* Filters Bar - Mobile Friendly */}
-        <div className="mb-6 flex items-center gap-2 flex-wrap bg-card p-3 rounded-lg border">
+        {/* Compact Filters Bar */}
+        <div className="mb-6 flex items-center gap-3 flex-wrap">
           {/* Sort Dropdown */}
-          <Select value={sortBy} onValueChange={setSortBy}>
-            <SelectTrigger className="w-[140px] h-9 text-xs">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-popover text-popover-foreground z-50">
-              <SelectItem value="recommended">{t({ ar: 'موصى به', en: 'Recommended' })}</SelectItem>
-              <SelectItem value="price_low">{t({ ar: 'السعر ↑', en: 'Price ↑' })}</SelectItem>
-              <SelectItem value="price_high">{t({ ar: 'السعر ↓', en: 'Price ↓' })}</SelectItem>
-              <SelectItem value="rating">{t({ ar: 'التقييم', en: 'Rating' })}</SelectItem>
-            </SelectContent>
-          </Select>
+          <div className="flex items-center gap-2">
+            <SlidersHorizontal className="w-4 h-4 text-muted-foreground" />
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger className="w-[180px] h-9">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recommended">{t({ ar: 'موصى به', en: 'Recommended' })}</SelectItem>
+                <SelectItem value="price_low">{t({ ar: 'السعر ↑', en: 'Price ↑' })}</SelectItem>
+                <SelectItem value="price_high">{t({ ar: 'السعر ↓', en: 'Price ↓' })}</SelectItem>
+                <SelectItem value="rating">{t({ ar: 'التقييم', en: 'Rating' })}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Price Range Badge */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="h-9 gap-2"
+            onClick={() => setIsFilterOpen(!isFilterOpen)}
+          >
+            <span className="text-xs">{priceRange[0]}-{priceRange[1]} {t({ ar: 'ريال', en: 'SAR' })}</span>
+          </Button>
 
           {/* Rating Filter */}
           <Select value={minRating.toString()} onValueChange={(v) => setMinRating(Number(v))}>
-            <SelectTrigger className="w-[100px] h-9 text-xs">
+            <SelectTrigger className="w-[120px] h-9">
               <SelectValue placeholder={t({ ar: 'التقييم', en: 'Rating' })} />
             </SelectTrigger>
-            <SelectContent className="bg-popover text-popover-foreground z-50">
+            <SelectContent>
               <SelectItem value="0">{t({ ar: 'الكل', en: 'All' })}</SelectItem>
               <SelectItem value="3">3+ ⭐</SelectItem>
               <SelectItem value="4">4+ ⭐</SelectItem>
@@ -253,162 +247,128 @@ export default function SearchResults() {
             </SelectContent>
           </Select>
 
-          {/* Spacer */}
-          <div className="flex-1" />
-          
-          {/* Filter Button */}
+          {/* Amenity Icons */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant={selectedAmenities.includes('wifi') ? 'default' : 'outline'}
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => toggleAmenity('wifi')}
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M1 9l2 2c4.97-4.97 13.03-4.97 18 0l2-2C16.93 2.93 7.08 2.93 1 9zm8 8l3 3 3-3c-1.65-1.66-4.34-1.66-6 0zm-4-4l2 2c2.76-2.76 7.24-2.76 10 0l2-2C15.14 9.14 8.87 9.14 5 13z"/>
+              </svg>
+            </Button>
+            
+            <Button
+              variant={selectedAmenities.includes('parking') ? 'default' : 'outline'}
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => toggleAmenity('parking')}
+            >
+              <span className="text-sm font-bold">P</span>
+            </Button>
+
+            <Button
+              variant={selectedAmenities.includes('restaurant') ? 'default' : 'outline'}
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => toggleAmenity('restaurant')}
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M16 6v8h3v8h2V2c-2.76 0-5 2.24-5 4zm-5 3H9V2H7v7H5V2H3v7c0 2.21 1.79 4 4 4v9h2v-9c2.21 0 4-1.79 4-4V2h-2v7z"/>
+              </svg>
+            </Button>
+
+            <Button
+              variant={selectedAmenities.includes('meal_plans') ? 'default' : 'outline'}
+              size="icon"
+              className="h-9 w-9"
+              onClick={() => toggleAmenity('meal_plans')}
+            >
+              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8.1 13.34l2.83-2.83L3.91 3.5c-1.56 1.56-1.56 4.09 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.2-1.1-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z"/>
+              </svg>
+            </Button>
+          </div>
+
+          {/* Advanced Filters Toggle */}
           <Button
-            variant={isFilterOpen ? 'default' : 'outline'}
+            variant="ghost"
             size="sm"
-            className="h-9 gap-1.5"
+            className="h-9 gap-1"
             onClick={() => setIsFilterOpen(!isFilterOpen)}
           >
-            <SlidersHorizontal className="w-4 h-4" />
-            <span className="text-xs">{t({ ar: 'الفلترة', en: 'Filter' })}</span>
+            <ChevronDown className={`w-4 h-4 transition-transform ${isFilterOpen ? 'rotate-180' : ''}`} />
+            <span className="text-xs">{t({ ar: 'المزيد', en: 'More' })}</span>
           </Button>
 
+          {/* Reset Button - Only show when filters are active */}
+          {(sortBy !== 'recommended' || minRating > 0 || selectedAmenities.length > 0 || priceRange[0] !== 0 || priceRange[1] !== 5000) && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-9 text-xs text-muted-foreground"
+              onClick={() => {
+                setSortBy('recommended');
+                setPriceRange([0, 5000]);
+                setSelectedAmenities([]);
+                setMinRating(0);
+              }}
+            >
+              {t({ ar: 'إعادة تعيين', en: 'Reset' })}
+            </Button>
+          )}
         </div>
 
         {/* Advanced Filters Panel */}
         {isFilterOpen && (
-          <Card className="mb-6 shadow-lg">
+          <Card className="mb-6">
             <CardContent className="pt-6 space-y-6">
-              <h3 className="text-lg font-bold mb-4">{t({ ar: 'الفلترة', en: 'Filters' })}</h3>
-              
               {/* Price Range */}
               <div>
-                <Label className="text-base font-semibold mb-3 block">{t({ ar: 'نطاق السعر', en: 'Price Range' })}</Label>
-                <div className="flex gap-3 mb-3">
-                  <div className="flex-1">
-                    <Label className="text-xs text-muted-foreground">{t({ ar: 'من', en: 'From' })}</Label>
-                    <Input 
-                      type="number" 
-                      value={priceRange[0]} 
-                      onChange={(e) => setPriceRange([parseInt(e.target.value) || 0, priceRange[1]])}
-                      className="mt-1"
-                    />
-                  </div>
-                  <div className="flex-1">
-                    <Label className="text-xs text-muted-foreground">{t({ ar: 'إلى', en: 'To' })}</Label>
-                    <Input 
-                      type="number" 
-                      value={priceRange[1]} 
-                      onChange={(e) => setPriceRange([priceRange[0], parseInt(e.target.value) || 5000])}
-                      className="mt-1"
-                    />
-                  </div>
+                <Label>{t({ ar: 'نطاق السعر', en: 'Price Range' })}</Label>
+                <div className="pt-4 pb-2">
+                  <Slider
+                    min={0}
+                    max={5000}
+                    step={50}
+                    value={priceRange}
+                    onValueChange={(value) => setPriceRange(value as [number, number])}
+                  />
                 </div>
-                <Slider
-                  min={0}
-                  max={5000}
-                  step={50}
-                  value={priceRange}
-                  onValueChange={(value) => setPriceRange(value as [number, number])}
-                  className="mt-2"
-                />
-              </div>
-
-              {/* Rating Filter with Radio-like interface */}
-              <div>
-                <Label className="text-base font-semibold mb-3 block">{t({ ar: 'أدنى تقييم', en: 'Minimum Rating' })}</Label>
-                <div className="flex gap-2">
-                  {[0, 3, 4, 4.5, 5].map((rating) => (
-                    <Button
-                      key={rating}
-                      variant={minRating === rating ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setMinRating(rating)}
-                      className="flex-1"
-                    >
-                      {rating === 0 ? t({ ar: 'الكل', en: 'All' }) : `${rating}⭐`}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Amenities with larger checkboxes */}
-              <div>
-                <Label className="text-base font-semibold mb-3 block">{t({ ar: 'توفر الوجبات', en: 'Meal Availability' })}</Label>
-                <div className="space-y-3">
-                  <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
-                    <Checkbox
-                      id="meal_plans"
-                      checked={selectedAmenities.includes('meal_plans')}
-                      onCheckedChange={() => toggleAmenity('meal_plans')}
-                      className="h-5 w-5"
-                    />
-                    <span className="text-sm">{t({ ar: 'الإفطار', en: 'Breakfast' })}</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
-                    <Checkbox
-                      id="restaurant"
-                      checked={selectedAmenities.includes('restaurant')}
-                      onCheckedChange={() => toggleAmenity('restaurant')}
-                      className="h-5 w-5"
-                    />
-                    <span className="text-sm">{t({ ar: 'الغداء', en: 'Lunch' })}</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
-                    <Checkbox
-                      id="cafe"
-                      checked={selectedAmenities.includes('cafe')}
-                      onCheckedChange={() => toggleAmenity('cafe')}
-                      className="h-5 w-5"
-                    />
-                    <span className="text-sm">{t({ ar: 'العشاء', en: 'Dinner' })}</span>
-                  </label>
+                <div className="flex justify-between text-sm text-muted-foreground">
+                  <span>{priceRange[0]} {t({ ar: 'ريال', en: 'SAR' })}</span>
+                  <span>{priceRange[1]} {t({ ar: 'ريال', en: 'SAR' })}</span>
                 </div>
               </div>
 
               {/* Additional Amenities */}
               <div>
-                <Label className="text-base font-semibold mb-3 block">{t({ ar: 'المرافق', en: 'Facilities' })}</Label>
-                <div className="space-y-3">
-                  <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
+                <Label className="mb-3 block">{t({ ar: 'المرافق الإضافية', en: 'Additional Amenities' })}</Label>
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
                     <Checkbox
-                      id="wifi"
-                      checked={selectedAmenities.includes('wifi')}
-                      onCheckedChange={() => toggleAmenity('wifi')}
-                      className="h-5 w-5"
+                      id="cafe"
+                      checked={selectedAmenities.includes('cafe')}
+                      onCheckedChange={() => toggleAmenity('cafe')}
                     />
-                    <span className="text-sm">{t({ ar: 'واي فاي مجاني', en: 'Free WiFi' })}</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
-                    <Checkbox
-                      id="parking"
-                      checked={selectedAmenities.includes('parking')}
-                      onCheckedChange={() => toggleAmenity('parking')}
-                      className="h-5 w-5"
-                    />
-                    <span className="text-sm">{t({ ar: 'مواقف سيارات', en: 'Parking' })}</span>
-                  </label>
-                  <label className="flex items-center gap-3 p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors">
+                    <label htmlFor="cafe" className="cursor-pointer">
+                      {t({ ar: 'مقهى', en: 'Cafe' })}
+                    </label>
+                  </div>
+                  <div className="flex items-center gap-2">
                     <Checkbox
                       id="shuttle"
                       checked={selectedAmenities.includes('shuttle')}
                       onCheckedChange={() => toggleAmenity('shuttle')}
-                      className="h-5 w-5"
                     />
-                    <span className="text-sm">{t({ ar: 'مسبح', en: 'Swimming Pool' })}</span>
-                  </label>
+                    <label htmlFor="shuttle" className="cursor-pointer">
+                      {t({ ar: 'خدمة النقل', en: 'Shuttle Service' })}
+                    </label>
+                  </div>
                 </div>
               </div>
-
-              {/* Reset Button */}
-              {(sortBy !== 'recommended' || minRating > 0 || selectedAmenities.length > 0 || priceRange[0] !== 0 || priceRange[1] !== 5000) && (
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => {
-                    setSortBy('recommended');
-                    setPriceRange([0, 5000]);
-                    setSelectedAmenities([]);
-                    setMinRating(0);
-                  }}
-                >
-                  {t({ ar: 'إعادة تعيين الفلاتر', en: 'Reset Filters' })}
-                </Button>
-              )}
             </CardContent>
           </Card>
         )}
