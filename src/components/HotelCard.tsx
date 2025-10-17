@@ -142,7 +142,7 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
           <div className="mb-3">
             <div className="inline-flex items-center gap-1.5 bg-green-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md">
               <Utensils className="w-4 h-4" />
-              <span>{language === 'ar' ? 'شامل جميع الوجبات' : 'All Meals Included'}</span>
+              <span>{language === 'ar' ? meal_plans.regular_ar : meal_plans.regular_en}</span>
             </div>
           </div>
         )}
