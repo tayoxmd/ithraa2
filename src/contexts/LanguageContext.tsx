@@ -15,7 +15,7 @@ type TranslationObject = {
 interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
-  t: (translations: TranslationObject | string, en?: string) => string;
+  t: (translations: Partial<TranslationObject> | string, en?: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -46,13 +46,13 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = language;
   }, [language]);
 
-  const t = (translations: TranslationObject | string, en?: string): string => {
+  const t = (translations: Partial<TranslationObject> | string, en?: string): string => {
     if (typeof translations === "string") {
       // Old format: t('ar text', 'en text')
       return language === "ar" ? translations : en || translations;
     }
     // New format: t({ ar: 'ar text', en: 'en text', ... })
-    return translations[language] || translations.en || translations.ar;
+    return translations[language] || translations.en || translations.ar || "";
   };
 
   return <LanguageContext.Provider value={{ language, setLanguage, t }}>{children}</LanguageContext.Provider>;
