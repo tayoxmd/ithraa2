@@ -258,8 +258,11 @@ export default function AdminDashboard() {
   );
 
   // Admin Sidebar Component (Desktop only)
+  const sidebarSide = language === "ar" ? "right" : "left";
+  const borderClass = language === "ar" ? "border-l" : "border-r";
+  
   const AdminSidebar = () => (
-    <Sidebar side="right" className="border-l z-50">
+    <Sidebar side={sidebarSide} className={`${borderClass} z-50`}>
       <SidebarContent>
         <div className="p-6 border-b border-border">
           <div className="flex items-center gap-3">
