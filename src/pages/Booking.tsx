@@ -119,6 +119,7 @@ export default function Booking() {
   const [customerFullName, setCustomerFullName] = useState("");
   const [availableRooms, setAvailableRooms] = useState<number | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isRedirecting, setIsRedirecting] = useState(false);
 
   // Fetch customer's full name if logged in
   useEffect(() => {
@@ -530,7 +531,8 @@ export default function Booking() {
       
       // التوجيه بناءً على نوع المستخدم
       if (user) {
-        // للمستخدمين المسجلين - توجيه فوري بدون تأخير
+        // للمستخدمين المسجلين - إظهار شاشة التحميل ثم التحويل الفوري
+        setIsRedirecting(true);
         navigate('/customer-dashboard');
       } else {
         // للضيوف - عرض dialog لتشجيعهم على إنشاء حساب
@@ -541,10 +543,15 @@ export default function Booking() {
     }
   };
 
-  if (loadingHotel) {
+  if (loadingHotel || isRedirecting) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
         <LoadingSpinner size="lg" />
+        {isRedirecting && (
+          <p className="text-lg text-muted-foreground animate-pulse">
+            {t({ ar: "جاري التحويل إلى صفحة الطلبات...", en: "Redirecting to your bookings..." })}
+          </p>
+        )}
       </div>
     );
   }
