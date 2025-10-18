@@ -65,8 +65,18 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
       return;
     }
 
+    // Validate dates are selected
+    if (!dateRange?.from || !dateRange?.to) {
+      toast({
+        title: t({ ar: "تنبيه", en: "Warning" }),
+        description: t({ ar: "يرجى اختيار تاريخ الوصول والمغادرة", en: "Please select check-in and check-out dates" }),
+        variant: "destructive",
+      });
+      return;
+    }
+
     // Validate dates before search
-    if (dateRange?.from && dateRange?.to && dateRange.to <= dateRange.from) {
+    if (dateRange.to <= dateRange.from) {
       toast({
         title: t({ ar: "خطأ في التاريخ", en: "Date Error" }),
         description: t({ ar: "تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول", en: "Check-out date must be after check-in date" }),

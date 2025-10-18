@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
-import { CreditCard, Calendar as CalendarIcon, Users, Hotel as HotelIcon } from "lucide-react";
+import { CreditCard, Calendar as CalendarIcon, Users, Hotel as HotelIcon, Utensils } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { bookingSchema } from "@/lib/validations";
@@ -474,38 +474,67 @@ export default function Booking() {
                     </div>
                   </div>
 
-                  {/* Booking Details */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                      <CalendarIcon className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">{t({ ar: 'تاريخ الوصول', en: 'Check-in', fr: 'Arrivée', es: 'Entrada', ru: 'Заезд', id: 'Check-in', ms: 'Daftar masuk' })}</p>
-                        <p className="font-semibold">{format(checkIn, "dd/MM/yyyy")}</p>
+                  {/* Booking Details - Redesigned */}
+                  <div className="space-y-3">
+                    {/* Dates Row */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                        <CalendarIcon className="w-5 h-5 text-primary flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground truncate">{t({ ar: 'تاريخ الوصول', en: 'Check-in' })}</p>
+                          <p className="font-semibold text-sm">{format(checkIn, "dd/MM/yyyy")}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                        <CalendarIcon className="w-5 h-5 text-primary flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground truncate">{t({ ar: 'تاريخ المغادرة', en: 'Check-out' })}</p>
+                          <p className="font-semibold text-sm">{format(checkOut, "dd/MM/yyyy")}</p>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                      <CalendarIcon className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">{t({ ar: 'تاريخ المغادرة', en: 'Check-out', fr: 'Départ', es: 'Salida', ru: 'Выезд', id: 'Check-out', ms: 'Daftar keluar' })}</p>
-                        <p className="font-semibold">{format(checkOut, "dd/MM/yyyy")}</p>
+                    {/* Guests Row */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                        <Users className="w-5 h-5 text-primary flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground truncate">{t({ ar: 'عدد البالغين', en: 'Adults' })}</p>
+                          <p className="font-semibold text-sm">{guests} {t({ ar: 'بالغ', en: 'Adult(s)' })}</p>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                        <Users className="w-5 h-5 text-primary flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground truncate">{t({ ar: 'عدد الأطفال', en: 'Children' })}</p>
+                          <p className="font-semibold text-sm">0 {t({ ar: 'طفل', en: 'Child(ren)' })}</p>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                      <Users className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">{t({ ar: 'عدد النزلاء', en: 'Guests', fr: 'Invités', es: 'Huéspedes', ru: 'Гости', id: 'Tamu', ms: 'Tetamu' })}</p>
-                        <p className="font-semibold">{guests} {t({ ar: 'نزيل', en: 'Guest(s)', fr: 'Invité(s)', es: 'Huésped(es)', ru: 'Гость(и)', id: 'Tamu', ms: 'Tetamu' })}</p>
+                    {/* Rooms & Meals Included */}
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                        <HotelIcon className="w-5 h-5 text-primary flex-shrink-0" />
+                        <div className="min-w-0">
+                          <p className="text-xs text-muted-foreground truncate">{t({ ar: 'عدد الغرف', en: 'Rooms' })}</p>
+                          <p className="font-semibold text-sm">{rooms} {t({ ar: 'غرفة', en: 'Room(s)' })}</p>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                      <HotelIcon className="w-5 h-5 text-primary" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">{t({ ar: 'عدد الغرف', en: 'Rooms', fr: 'Chambres', es: 'Habitaciones', ru: 'Номера', id: 'Kamar', ms: 'Bilik' })}</p>
-                        <p className="font-semibold">{rooms} {t({ ar: 'غرفة', en: 'Room(s)', fr: 'Chambre(s)', es: 'Habitación(es)', ru: 'Номер(а)', id: 'Kamar', ms: 'Bilik' })}</p>
-                      </div>
+                      {hotel?.meal_plans && (
+                        <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
+                          <Utensils className="w-5 h-5 text-primary flex-shrink-0" />
+                          <div className="min-w-0">
+                            <p className="text-xs text-muted-foreground truncate">{t({ ar: 'الوجبات المشمولة', en: 'Meals Included' })}</p>
+                            <p className="font-semibold text-sm">
+                              {hotel.meal_plans.max_persons || 0} {t({ ar: 'شخص', en: 'Person(s)' })}
+                            </p>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -569,7 +598,7 @@ export default function Booking() {
                 </CardContent>
               </Card>
 
-              {/* Extra Meals Section */}
+              {/* Extra Meals Section - Enhanced */}
               {hotel.meal_plans && hotel.meal_plans.max_persons && (
                 <Card className="card-luxury">
                   <CardHeader>
@@ -595,13 +624,17 @@ export default function Booking() {
                       </p>
                       
                       {hotel.meal_plans.extra_meal_price > 0 && (
-                        <div className="pt-3 border-t">
-                          <Label className="mb-2 block">
-                            {t({ ar: 'هل تريد إضافة وجبات؟', en: 'Add extra meals?' })}
+                        <div className="pt-3 border-t space-y-3">
+                          <Label className="block">
+                            {t({ ar: 'هل تريد إضافة وجبات للأشخاص الإضافيين؟', en: 'Add extra meals for additional guests?' })}
                           </Label>
                           <Select 
-                            value={extraMeals.toString()} 
-                            onValueChange={(value) => setExtraMeals(parseInt(value))}
+                            value={extraMeals > 6 ? "custom" : extraMeals.toString()} 
+                            onValueChange={(value) => {
+                              if (value !== "custom") {
+                                setExtraMeals(parseInt(value));
+                              }
+                            }}
                           >
                             <SelectTrigger>
                               <SelectValue />
@@ -610,20 +643,46 @@ export default function Booking() {
                               <SelectItem value="0">
                                 {t({ ar: 'لا توجد وجبات إضافية', en: 'No extra meals' })}
                               </SelectItem>
-                              {Array.from({ length: (hotel.meal_plans.max_persons || 2) * parseInt(rooms) - hotel.meal_plans.max_persons }, (_, i) => {
-                                const mealCount = i + 1;
-                                return (
-                                  <SelectItem key={mealCount} value={mealCount.toString()}>
-                                    {language === 'ar' 
-                                      ? `${mealCount} ${mealCount === 1 ? 'وجبة' : mealCount === 2 ? 'وجبتين' : 'وجبات'} (+${mealCount * hotel.meal_plans.extra_meal_price * nights} ر.س)`
-                                      : `${mealCount} meal${mealCount > 1 ? 's' : ''} (+${mealCount * hotel.meal_plans.extra_meal_price * nights} SAR)`
-                                    }
-                                  </SelectItem>
-                                );
-                              })}
+                              <SelectItem value="1">
+                                {t({ ar: '1 وجبة', en: '1 meal' })} (+{1 * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })})
+                              </SelectItem>
+                              <SelectItem value="2">
+                                {t({ ar: '2 وجبة', en: '2 meals' })} (+{2 * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })})
+                              </SelectItem>
+                              <SelectItem value="3">
+                                {t({ ar: '3 وجبات', en: '3 meals' })} (+{3 * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })})
+                              </SelectItem>
+                              <SelectItem value="4">
+                                {t({ ar: '4 وجبات', en: '4 meals' })} (+{4 * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })})
+                              </SelectItem>
+                              <SelectItem value="5">
+                                {t({ ar: '5 وجبات', en: '5 meals' })} (+{5 * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })})
+                              </SelectItem>
+                              <SelectItem value="6">
+                                {t({ ar: '6 وجبات', en: '6 meals' })} (+{6 * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })})
+                              </SelectItem>
                             </SelectContent>
                           </Select>
-                          <p className="text-xs text-muted-foreground mt-2">
+                          
+                          {/* Custom input for more than 6 meals */}
+                          <div className="space-y-2">
+                            <Label className="text-sm">{t({ ar: 'أو أدخل رقم آخر:', en: 'Or enter another number:' })}</Label>
+                            <Input
+                              type="number"
+                              min="0"
+                              placeholder={t({ ar: 'أدخل عدد الوجبات', en: 'Enter number of meals' })}
+                              value={extraMeals > 6 ? extraMeals : ''}
+                              onChange={(e) => {
+                                const value = parseInt(e.target.value) || 0;
+                                if (value >= 0) {
+                                  setExtraMeals(value);
+                                }
+                              }}
+                              className="w-full"
+                            />
+                          </div>
+                          
+                          <p className="text-xs text-muted-foreground">
                             {t({ 
                               ar: `${hotel.meal_plans.extra_meal_price} ر.س للوجبة الواحدة لليلة`, 
                               en: `${hotel.meal_plans.extra_meal_price} SAR per meal per night` 

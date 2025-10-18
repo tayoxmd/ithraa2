@@ -99,12 +99,26 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
           </div>
         )}
         
+        {/* Meal Badge - Prominent Green Badge on Image */}
+        {meal_plans && meal_plans.regular_ar && meal_plans.regular_en && 
+         meal_plans.regular_ar.trim() !== "" && meal_plans.regular_en.trim() !== "" &&
+         meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
+          <div 
+            className="absolute top-4 right-4 px-4 py-2 rounded-lg text-white text-sm font-bold flex items-center gap-2 shadow-xl"
+            style={{ backgroundColor: '#10b981' }}
+          >
+            <Utensils className="w-5 h-5" />
+            {language === 'ar' ? 'يشمل جميع الوجبات' : 'All Meals Included'}
+          </div>
+        )}
+        
         {featured && (
-          <Badge className="absolute top-4 right-4 bg-gradient-luxury border-0 shadow-luxury">
+          <Badge className="absolute top-16 right-4 bg-gradient-luxury border-0 shadow-luxury">
             عرض مميز
           </Badge>
         )}
-        <div className="absolute top-4 right-4 bg-card/95 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1">
+        
+        <div className="absolute bottom-4 left-4 bg-card/95 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1">
           <Star className="w-4 h-4 fill-primary text-primary" />
           <span className="text-sm font-bold">{rating}</span>
         </div>
@@ -123,24 +137,12 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
       </div>
 
       <CardContent className="p-4 flex flex-col flex-1">
-        {/* Title and Meal Badge Side by Side */}
-        <div className="mb-2 flex items-start gap-2 justify-between">
+        {/* Title */}
+        <div className="mb-2">
           <div className="flex-1 min-w-0">
             <h3 className="text-lg font-bold text-primary mb-0.5 truncate">{name}</h3>
             <p className="text-xs text-muted-foreground truncate">{nameEn}</p>
           </div>
-          {/* Meal Badge - Next to hotel name */}
-          {meal_plans && meal_plans.regular_ar && meal_plans.regular_en && 
-           meal_plans.regular_ar.trim() !== "" && meal_plans.regular_en.trim() !== "" &&
-           meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
-            <div 
-              className="px-2 py-1 rounded text-white text-xs font-semibold whitespace-nowrap shrink-0 flex items-center gap-1"
-              style={{ backgroundColor: mealBadgeSettings.color }}
-            >
-              <Utensils className="w-3 h-3" />
-              {language === 'ar' ? 'يشمل وجبات' : 'Meals'}
-            </div>
-          )}
         </div>
 
         {/* Location */}

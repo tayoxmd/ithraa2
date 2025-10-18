@@ -68,20 +68,28 @@ export default function ManageEmployees() {
 
       // Use edge function to list users
       const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('No active session');
+      }
+
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-users`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${session?.access_token}`,
+          'Authorization': `Bearer ${session.access_token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ action: 'listUsers' })
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch users');
+        const errorText = await response.text();
+        console.error('Error response:', errorText);
+        throw new Error(`Failed to fetch users: ${response.status} ${response.statusText}`);
       }
 
-      const { users: authUsers } = await response.json();
+      const responseData = await response.json();
+      const authUsers = responseData.users || [];
 
       const combinedUsers: UserProfile[] = profilesData?.map(profile => {
         const authUser = authUsers?.find((u: any) => u.id === profile.id);

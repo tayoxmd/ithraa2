@@ -85,19 +85,33 @@ const Index = () => {
       <LiveChatButton />
 
       {/* Hero Section */}
-      <section className="relative min-h-[500px] md:min-h-[650px] flex items-center justify-center pt-20">
-        {/* Background Images with Fade Effect */}
+      <section className="relative min-h-[500px] md:min-h-[650px] flex items-center justify-center pt-20 overflow-hidden">
+        {/* 3D Background Animation */}
         <div className="absolute inset-0 z-0">
-          {heroImages.map((image, index) => (
-            <img
-              key={index}
-              src={image}
-              alt={`Luxury Hotel ${index + 1}`}
-              className={`absolute w-full h-full object-cover transition-opacity duration-1000 ${
-                index === currentImageIndex ? "opacity-100" : "opacity-0"
-              }`}
-            />
-          ))}
+          {/* Gradient Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-secondary/20 to-accent/30" />
+          
+          {/* Animated 3D Shapes */}
+          <div className="absolute inset-0">
+            {/* Floating Circles - Mecca Theme */}
+            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
+            <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
+            <div className="absolute top-1/3 right-1/3 w-56 h-56 bg-accent/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
+            
+            {/* Geometric Patterns */}
+            <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <pattern id="islamic-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+                  <path d="M50 0 L100 50 L50 100 L0 50 Z" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-primary" />
+                  <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-primary" />
+                </pattern>
+              </defs>
+              <rect width="100%" height="100%" fill="url(#islamic-pattern)" />
+            </svg>
+            
+            {/* Subtle moving gradient */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
+          </div>
         </div>
 
         {/* Content */}
