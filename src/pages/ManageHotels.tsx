@@ -681,7 +681,7 @@ export default function ManageHotels() {
                   
                   {/* Mobile/Tablet Layout */}
                   <div className="flex flex-col gap-2 lg:hidden">
-                    {/* Row 1: Status Badge, Activate/Deactivate and Delete Buttons */}
+                    {/* Row 1: Status Badge, Activate/Deactivate, Pin and Delete Buttons */}
                     <div className="flex items-center gap-2">
                       <Badge 
                         style={{ 
@@ -699,6 +699,13 @@ export default function ManageHotels() {
                         {hotel.active ? t({ ar: "إيقاف", en: "Deactivate" }) : t({ ar: "تفعيل", en: "Activate" })}
                       </Button>
                       <Button
+                        variant={hotel.pinned_to_homepage ? "default" : "outline"}
+                        size="sm"
+                        onClick={() => togglePinToHomepage(hotel.id, hotel.pinned_to_homepage || false)}
+                      >
+                        {hotel.pinned_to_homepage ? "📌" : "📍"}
+                      </Button>
+                      <Button
                         variant="destructive"
                         size="sm"
                         onClick={() => handleDeleteHotel(hotel.id)}
@@ -707,7 +714,7 @@ export default function ManageHotels() {
                       </Button>
                     </div>
                     
-                    {/* Row 2: Pricing, Edit and Pin Buttons */}
+                    {/* Row 2: Pricing and Edit Buttons */}
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
@@ -727,14 +734,6 @@ export default function ManageHotels() {
                       >
                         <Edit className="w-4 h-4 ml-1" />
                         {t({ ar: "تعديل", en: "Edit" })}
-                      </Button>
-                      <Button
-                        variant={hotel.pinned_to_homepage ? "default" : "outline"}
-                        size="sm"
-                        onClick={() => togglePinToHomepage(hotel.id, hotel.pinned_to_homepage || false)}
-                        className="flex-1"
-                      >
-                        {hotel.pinned_to_homepage ? "📌" : "📍"}
                       </Button>
                     </div>
                   </div>
