@@ -122,6 +122,35 @@ export function HotelCard({
     return null;
   };
 
+  // Normalize meal plans to a consistent shape
+  const normalizeMealPlan = (mp: any) => {
+    if (!mp) return null;
+    try {
+      if (Array.isArray(mp)) {
+        const m = mp[0];
+        if (!m) return null;
+        return {
+          name_ar: m.name_ar || m.regular_ar || '',
+          name_en: m.name_en || m.regular_en || '',
+          max_persons: Number(m.max_persons || 0),
+          extra_meal_price: Number((m.extra_price ?? m.extra_meal_price) || 0),
+        };
+      }
+      if (typeof mp === 'object') {
+        return {
+          name_ar: mp.regular_ar || mp.name_ar || '',
+          name_en: mp.regular_en || mp.name_en || '',
+          max_persons: Number(mp.max_persons || 0),
+          extra_meal_price: Number((mp.extra_meal_price ?? mp.extra_price) || 0),
+        };
+      }
+    } catch {}
+    return null;
+  };
+
+  const meal = normalizeMealPlan(meal_plans);
+  const mealIncluded = !!(meal && ((meal.name_ar && meal.name_ar.trim() !== '' && !meal.name_ar.includes('بدون') && !meal.name_ar.includes('لا يتضمن')) || (meal.name_en && meal.name_en.trim() !== '' && !/room only/i.test(meal.name_en))));
+
   // Mobile Layout (horizontal card with image on left)
   if (isMobile) {
     return (
@@ -146,12 +175,10 @@ export function HotelCard({
             )}
 
             {/* Meal Badge - Top Right on Image */}
-            {meal_plans && meal_plans.regular_ar && meal_plans.regular_en && 
-             meal_plans.regular_ar.trim() !== "" && meal_plans.regular_en.trim() !== "" &&
-             meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
+            {mealIncluded && (
               <div className="absolute top-2 right-2 bg-green-500 px-2 py-1 rounded text-white text-[10px] font-bold">
                 <Utensils className="w-3 h-3 inline mr-0.5" />
-                {language === 'ar' ? 'وجبات' : 'Meals'}
+                {language === 'ar' ? 'يشمل وجبة' : 'Meal Included'}
               </div>
             )}
           </div>
@@ -220,15 +247,13 @@ export function HotelCard({
         )}
         
         {/* Meal Badge - Prominent Green Badge on Image */}
-        {meal_plans && meal_plans.regular_ar && meal_plans.regular_en && 
-         meal_plans.regular_ar.trim() !== "" && meal_plans.regular_en.trim() !== "" &&
-         meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
+        {mealIncluded && (
           <div 
             className="absolute top-4 right-4 px-4 py-2 rounded-lg text-white text-sm font-bold flex items-center gap-2 shadow-xl"
             style={{ backgroundColor: '#10b981' }}
           >
             <Utensils className="w-5 h-5" />
-            {language === 'ar' ? 'يشمل جميع الوجبات' : 'All Meals Included'}
+            {language === 'ar' ? (meal?.name_ar || 'يشمل وجبة') : (meal?.name_en || 'Meal Included')}
           </div>
         )}
         
@@ -299,30 +324,30 @@ export function HotelCard({
         </div>
 
         {/* Meal Details Badge - Under Amenities */}
-        {meal_plans && meal_plans.regular_ar && meal_plans.regular_en && 
-         meal_plans.regular_ar.trim() !== "" && meal_plans.regular_en.trim() !== "" &&
-         meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
+        {mealIncluded && meal && (
           <div className="mb-3 p-2 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
             <div className="flex items-center gap-2 text-xs">
               <Utensils className="w-4 h-4 text-green-600 dark:text-green-400" />
               <div className="flex-1">
                 <p className="font-semibold text-green-700 dark:text-green-300">
-                  {language === 'ar' ? meal_plans.regular_ar : meal_plans.regular_en}
+                  {language === 'ar' ? meal.name_ar : meal.name_en}
                 </p>
-                <p className="text-green-600 dark:text-green-400 mt-0.5">
-                  {language === 'ar' 
-                    ? `يشمل ${meal_plans.max_persons} ${meal_plans.max_persons === 1 ? 'شخص' : meal_plans.max_persons === 2 ? 'شخصين' : 'أشخاص'}`
-                    : `Includes ${meal_plans.max_persons} ${meal_plans.max_persons === 1 ? 'person' : 'persons'}`
-                  }
-                  {meal_plans.extra_meal_price > 0 && (
-                    <span className="block text-[10px] mt-0.5">
-                      {language === 'ar' 
-                        ? `الوجبة الإضافية: ${meal_plans.extra_meal_price} ر.س/لليلة`
-                        : `Extra meal: ${meal_plans.extra_meal_price} SAR/night`
-                      }
-                    </span>
-                  )}
-                </p>
+                {meal.max_persons > 0 && (
+                  <p className="text-green-600 dark:text-green-400 mt-0.5">
+                    {language === 'ar' 
+                      ? `يشمل ${meal.max_persons} ${meal.max_persons === 1 ? 'شخص' : meal.max_persons === 2 ? 'شخصين' : 'أشخاص'}`
+                      : `Includes ${meal.max_persons} ${meal.max_persons === 1 ? 'person' : 'persons'}`
+                    }
+                    {meal.extra_meal_price > 0 && (
+                      <span className="block text-[10px] mt-0.5">
+                        {language === 'ar' 
+                          ? `الوجبة الإضافية: ${meal.extra_meal_price} ر.س/لليلة`
+                          : `Extra meal: ${meal.extra_meal_price} SAR/night`
+                        }
+                      </span>
+                    )}
+                  </p>
+                )}
               </div>
             </div>
           </div>

@@ -59,12 +59,40 @@ export function MobileBooking(props: MobileBookingProps) {
   useEffect(() => {
     props.setRooms(numRooms);
   }, [numRooms, props.setRooms]);
+ 
+  // Normalize meal plans to a consistent shape
+  const normalizeMealPlan = (mp: any) => {
+    if (!mp) return null;
+    try {
+      if (Array.isArray(mp)) {
+        const m = mp[0];
+        if (!m) return null;
+        return {
+          name_ar: m.name_ar || m.regular_ar || '',
+          name_en: m.name_en || m.regular_en || '',
+          max_persons: Number(m.max_persons || 0),
+          extra_meal_price: Number((m.extra_price ?? m.extra_meal_price) || 0),
+          price: Number(m.price || 0),
+        };
+      }
+      if (typeof mp === 'object') {
+        return {
+          name_ar: mp.regular_ar || mp.name_ar || '',
+          name_en: mp.regular_en || mp.name_en || '',
+          max_persons: Number(mp.max_persons || 0),
+          extra_meal_price: Number((mp.extra_meal_price ?? mp.extra_price) || 0),
+          price: Number(mp.price || 0),
+        };
+      }
+    } catch {}
+    return null;
+  };
+  const meal = normalizeMealPlan(props.hotel?.meal_plans);
 
   const calculateTotal = () => {
-    if (!props.hotel) return { total: 0, nights: 0, extraMealsPerNight: 0 };
+    if (!props.hotel) return { total: 0, nights: 0, extraMealsPerNight: 0, extraGuestCharge: 0, extraGuestsCount: 0, extraMealCharge: 0, tax: 0, subtotal: 0 };
     const nights = Math.ceil((props.checkOut.getTime() - props.checkIn.getTime()) / (1000 * 60 * 60 * 24));
-    if (nights <= 0) return { total: 0, nights: 0, extraMealsPerNight: 0 };
-    
+    if (nights <= 0) return { total: 0, nights: 0, extraMealsPerNight: 0, extraGuestCharge: 0, extraGuestsCount: 0, extraMealCharge: 0, tax: 0, subtotal: 0 };
     const roomsCount = numRooms;
     const guestsCount = numGuests + numChildren;
     const taxRate = (props.hotel.tax_percentage && props.hotel.tax_percentage > 0) ? props.hotel.tax_percentage : 0;
@@ -83,13 +111,12 @@ export function MobileBooking(props: MobileBookingProps) {
     let extraMealCharge = 0;
     let extraMealsPerNight = 0;
     
-    if (props.hotel.meal_plans && props.hotel.meal_plans.max_persons > 0 && props.hotel.meal_plans.extra_meal_price > 0) {
-      const maxMealsIncluded = props.hotel.meal_plans.max_persons * roomsCount;
-      
+    if (meal && meal.max_persons > 0 && meal.extra_meal_price > 0) {
+      const maxMealsIncluded = meal.max_persons * roomsCount;
       if (guestsCount > maxMealsIncluded) {
         extraMealsPerNight = guestsCount - maxMealsIncluded;
         const mealsToCharge = props.extraMeals > 0 ? props.extraMeals : extraMealsPerNight;
-        extraMealCharge = mealsToCharge * (props.hotel.meal_plans.extra_meal_price || 0) * nights;
+        extraMealCharge = mealsToCharge * (meal.extra_meal_price || 0) * nights;
       }
     }
     
@@ -266,7 +293,7 @@ export function MobileBooking(props: MobileBookingProps) {
         </Card>
 
         {/* Meals Section */}
-        {props.hotel?.meal_plans && props.hotel.meal_plans.max_persons > 0 && (
+        {meal && meal.max_persons > 0 && (
           <Card className="shadow-lg">
             <CardContent className="p-4">
               <h3 className="font-semibold text-sm mb-3">
@@ -275,22 +302,21 @@ export function MobileBooking(props: MobileBookingProps) {
               <div className="space-y-3">
                 <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded-lg border border-green-200 dark:border-green-800">
                   <p className="text-xs font-semibold text-green-700 dark:text-green-300 mb-1">
-                    {language === 'ar' ? props.hotel.meal_plans.regular_ar : props.hotel.meal_plans.regular_en}
+                    {language === 'ar' ? meal.name_ar : meal.name_en}
                   </p>
                   <p className="text-xs text-green-600 dark:text-green-400">
-                    {t({ ar: `يشمل ${props.hotel.meal_plans.max_persons * numRooms} وجبات (${props.hotel.meal_plans.max_persons} × ${numRooms} غرف)`, 
-                         en: `Includes ${props.hotel.meal_plans.max_persons * numRooms} meals (${props.hotel.meal_plans.max_persons} × ${numRooms} rooms)` })}
+                    {t({ ar: `يشمل ${meal.max_persons * numRooms} وجبات (${meal.max_persons} × ${numRooms} غرف)`, 
+                         en: `Includes ${meal.max_persons * numRooms} meals (${meal.max_persons} × ${numRooms} rooms)` })}
                   </p>
                 </div>
-                
-                {props.hotel.meal_plans.extra_meal_price > 0 && extraMealsPerNight > 0 && (
+                {meal.extra_meal_price > 0 && extraMealsPerNight > 0 && (
                   <div className="bg-orange-50 dark:bg-orange-950/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800">
                     <p className="text-xs font-semibold text-orange-700 dark:text-orange-300 mb-2">
                       ⚠️ {t({ ar: 'وجبات إضافية مطلوبة', en: 'Extra meals required' })}
                     </p>
                     <p className="text-xs text-muted-foreground mb-2">
-                      {t({ ar: `لديك ${numGuests + numChildren} ضيوف ولكن الوجبات تشمل ${props.hotel.meal_plans.max_persons * numRooms} فقط`, 
-                           en: `You have ${numGuests + numChildren} guests but meals include only ${props.hotel.meal_plans.max_persons * numRooms}` })}
+                      {t({ ar: `لديك ${numGuests + numChildren} ضيوف ولكن الوجبات تشمل ${meal.max_persons * numRooms} فقط`, 
+                           en: `You have ${numGuests + numChildren} guests but meals include only ${meal.max_persons * numRooms}` })}
                     </p>
                     <Select 
                       value={props.extraMeals > 0 ? props.extraMeals.toString() : extraMealsPerNight.toString()} 
@@ -302,7 +328,7 @@ export function MobileBooking(props: MobileBookingProps) {
                       <SelectContent>
                         {extraMealsPerNight > 0 && (
                           <SelectItem value={extraMealsPerNight.toString()}>
-                            {t({ ar: `${extraMealsPerNight} وجبات (مطلوب)`, en: `${extraMealsPerNight} meals (required)` })} - {extraMealsPerNight * props.hotel.meal_plans.extra_meal_price * nights} SAR
+                            {t({ ar: `${extraMealsPerNight} وجبات (مطلوب)`, en: `${extraMealsPerNight} meals (required)` })} - {extraMealsPerNight * meal.extra_meal_price * nights} SAR
                           </SelectItem>
                         )}
                         {[...Array(10)].map((_, i) => {
@@ -310,7 +336,7 @@ export function MobileBooking(props: MobileBookingProps) {
                           if (num === extraMealsPerNight) return null;
                           return (
                             <SelectItem key={num} value={num.toString()}>
-                              +{num} {t({ ar: 'وجبات', en: 'meals' })} - {num * props.hotel.meal_plans.extra_meal_price * nights} SAR
+                              +{num} {t({ ar: 'وجبات', en: 'meals' })} - {num * meal.extra_meal_price * nights} SAR
                             </SelectItem>
                           );
                         })}
@@ -404,6 +430,28 @@ export function MobileBooking(props: MobileBookingProps) {
               className="min-h-20 resize-none"
               placeholder={language === 'ar' ? 'أضف أي ملاحظات...' : 'Add any notes...'}
             />
+          </CardContent>
+        </Card>
+
+        {/* Price Summary */}
+        <Card className="shadow-lg">
+          <CardContent className="p-4 space-y-2 text-sm">
+            {calculateTotal().extraGuestsCount > 0 && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t({ ar: `ضيوف إضافيين (${calculateTotal().extraGuestsCount})`, en: `Extra guests (${calculateTotal().extraGuestsCount})` })}</span>
+                <span className="font-semibold">+{Math.round(calculateTotal().extraGuestCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
+              </div>
+            )}
+            {meal && calculateTotal().extraMealsPerNight > 0 && (
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">{t({ ar: 'وجبات إضافية', en: 'Extra meals' })}</span>
+                <span className="font-semibold">+{Math.round((props.extraMeals > 0 ? props.extraMeals : calculateTotal().extraMealsPerNight) * (meal?.extra_meal_price || 0) * calculateTotal().nights)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
+              </div>
+            )}
+            <div className="flex justify-between pt-2 border-t">
+              <span className="text-muted-foreground">{t({ ar: 'المجموع قبل الضريبة', en: 'Subtotal' })}</span>
+              <span>{Math.round(calculateTotal().subtotal + calculateTotal().extraGuestCharge + calculateTotal().extraMealCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
+            </div>
           </CardContent>
         </Card>
       </div>

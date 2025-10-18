@@ -197,6 +197,35 @@ export default function Booking() {
     };
   }, [id, navigate]);
 
+  // Normalize meal plans to a consistent shape
+  const normalizeMealPlan = (mp: any) => {
+    if (!mp) return null;
+    try {
+      if (Array.isArray(mp)) {
+        const m = mp[0];
+        if (!m) return null;
+        return {
+          name_ar: m.name_ar || m.regular_ar || '',
+          name_en: m.name_en || m.regular_en || '',
+          max_persons: Number(m.max_persons || 0),
+          extra_meal_price: Number((m.extra_price ?? m.extra_meal_price) || 0),
+          price: Number(m.price || 0),
+        };
+      }
+      if (typeof mp === 'object') {
+        return {
+          name_ar: mp.regular_ar || mp.name_ar || '',
+          name_en: mp.regular_en || mp.name_en || '',
+          max_persons: Number(mp.max_persons || 0),
+          extra_meal_price: Number((mp.extra_meal_price ?? mp.extra_price) || 0),
+          price: Number(mp.price || 0),
+        };
+      }
+    } catch {}
+    return null;
+  };
+  const meal = normalizeMealPlan(hotel?.meal_plans);
+
   const calculateTotal = () => {
     if (!hotel) return { subtotal: 0, extraGuestCharge: 0, extraMealCharge: 0, tax: 0, total: 0, extraGuestsCount: 0, requiredExtraMeals: 0, extraMealsPerNight: 0 };
     const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
@@ -229,8 +258,8 @@ export default function Booking() {
     let requiredExtraMeals = 0;
     let extraMealsPerNight = 0;
     
-    if (hotel.meal_plans && hotel.meal_plans.max_persons > 0 && hotel.meal_plans.extra_meal_price > 0) {
-      const maxMealsIncluded = hotel.meal_plans.max_persons * roomsCount;
+    if (meal && meal.max_persons > 0 && meal.extra_meal_price > 0) {
+      const maxMealsIncluded = meal.max_persons * roomsCount;
       
       // Calculate how many extra meals are needed per night
       if (guestsCount > maxMealsIncluded) {
@@ -239,7 +268,7 @@ export default function Booking() {
         
         // Use extraMeals state if user has manually set it, otherwise use required amount
         const mealsToCharge = extraMeals > 0 ? extraMeals : extraMealsPerNight;
-        extraMealCharge = mealsToCharge * (hotel.meal_plans.extra_meal_price || 0) * nights;
+        extraMealCharge = mealsToCharge * (meal.extra_meal_price || 0) * nights;
       }
     }
     
@@ -377,11 +406,11 @@ export default function Booking() {
       payment_status: 'unpaid',
       amount_paid: 0,
       extra_meals: extraMeals,
-      meal_plan_name_ar: hotel?.meal_plans?.regular_ar || null,
-      meal_plan_name_en: hotel?.meal_plans?.regular_en || null,
-      meal_plan_price: hotel?.meal_plans?.price || 0,
-      meal_plan_max_persons: hotel?.meal_plans?.max_persons || 0,
-      meal_plan_extra_price: hotel?.meal_plans?.extra_meal_price || 0,
+      meal_plan_name_ar: meal?.name_ar || hotel?.meal_plans?.regular_ar || null,
+      meal_plan_name_en: meal?.name_en || hotel?.meal_plans?.regular_en || null,
+      meal_plan_price: meal?.price || hotel?.meal_plans?.price || 0,
+      meal_plan_max_persons: meal?.max_persons || hotel?.meal_plans?.max_persons || 0,
+      meal_plan_extra_price: meal?.extra_meal_price || hotel?.meal_plans?.extra_meal_price || 0,
     };
 
     // إضافة معلومات المستخدم أو الضيف
