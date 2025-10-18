@@ -512,6 +512,7 @@ export default function AdminDashboard() {
               </div>
             </main>
           </div>
+        </SidebarProvider>
       )}
     </div>
   );
