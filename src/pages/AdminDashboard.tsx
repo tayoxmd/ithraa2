@@ -423,7 +423,8 @@ export default function AdminDashboard() {
         // Desktop: Persistent Sidebar on Right
         <SidebarProvider defaultOpen={true}>
           <div className="flex min-h-screen w-full">
-            <main className="flex-1 overflow-y-auto mr-[16rem]">
+            <AdminSidebar />
+            <main className="flex-1 overflow-y-auto">
               <div className="p-8">
 
                 {/* Header */}
@@ -510,9 +511,7 @@ export default function AdminDashboard() {
                 </Card>
               </div>
             </main>
-            <AdminSidebar />
           </div>
-        </SidebarProvider>
       )}
     </div>
   );
