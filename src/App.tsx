@@ -57,7 +57,6 @@ const RouterWithTheme = () => {
               <Route path="/auth" element={<Auth />} />
               <Route path="/search" element={<SearchResults />} />
               <Route path="/no-results" element={<NoResults />} />
-              <Route path="/hotel/:id" element={<HotelDetails />} />
               <Route path="/booking/:id" element={<Booking />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />

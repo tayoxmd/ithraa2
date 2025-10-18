@@ -188,7 +188,13 @@ export function HotelCard({
     return (
       <Card 
         className="overflow-hidden hover-lift cursor-pointer group animate-fade-in bg-card shadow-card border border-border/50 rounded-2xl"
-        onClick={() => navigate(`/hotel/${id}`)}
+        onClick={() => {
+          const checkIn = localStorage.getItem('searchCheckIn') || new Date().toISOString().split('T')[0];
+          const checkOut = localStorage.getItem('searchCheckOut') || new Date(Date.now() + 86400000).toISOString().split('T')[0];
+          const guests = localStorage.getItem('searchGuests') || '2';
+          const rooms = localStorage.getItem('searchRooms') || '1';
+          navigate(`/booking/${id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}&rooms=${rooms}`);
+        }}
       >
         <div className="flex h-40">
           {/* Image Section - Left Side */}
@@ -202,16 +208,18 @@ export function HotelCard({
             {/* Meal Badge - Top Right on Image */}
             {mealIncluded && (
               <div 
-                className="absolute top-2 right-2 px-2 py-1 text-white font-bold flex items-center gap-1"
+                className="absolute top-2 right-2 text-white font-bold flex items-center gap-1 justify-center"
                 style={{ 
                   backgroundColor: mealBadgeSettings.color,
                   width: mealBadgeSettings.autoWidthMobile ? 'auto' : `${mealBadgeSettings.widthMobile}px`,
                   height: `${mealBadgeSettings.heightMobile}px`,
                   fontSize: `${mealBadgeSettings.fontSize}px`,
                   borderRadius: `${mealBadgeSettings.borderRadius}px`,
-                  minWidth: mealBadgeSettings.autoWidthMobile ? '60px' : undefined,
-                  maxWidth: mealBadgeSettings.autoWidthMobile ? 'calc(100% - 16px)' : `${mealBadgeSettings.widthMobile}px`,
-                  padding: '0 8px',
+                  minWidth: mealBadgeSettings.autoWidthMobile ? '60px' : `${mealBadgeSettings.widthMobile}px`,
+                  maxWidth: mealBadgeSettings.autoWidthMobile ? 'calc(100% - 16px)' : undefined,
+                  padding: mealBadgeSettings.autoWidthMobile ? '0 8px' : '0 4px',
+                  display: 'flex',
+                  alignItems: 'center',
                 }}
               >
                 <Utensils className="w-3 h-3 flex-shrink-0" />
@@ -275,7 +283,13 @@ export function HotelCard({
   return (
     <Card className="overflow-hidden hover-lift cursor-pointer group animate-fade-in w-full max-w-md mx-auto bg-card shadow-card border border-border/50 rounded-2xl flex flex-col min-h-[520px]">
       {/* Image */}
-      <div className="relative h-64 overflow-hidden flex-shrink-0" onClick={() => navigate(`/hotel/${id}`)}>
+      <div className="relative h-64 overflow-hidden flex-shrink-0" onClick={() => {
+        const checkIn = localStorage.getItem('searchCheckIn') || new Date().toISOString().split('T')[0];
+        const checkOut = localStorage.getItem('searchCheckOut') || new Date(Date.now() + 86400000).toISOString().split('T')[0];
+        const guests = localStorage.getItem('searchGuests') || '2';
+        const rooms = localStorage.getItem('searchRooms') || '1';
+        navigate(`/booking/${id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}&rooms=${rooms}`);
+      }}>
         <img
           src={hotelImages[currentImageIndex]}
           alt={name}
@@ -285,17 +299,17 @@ export function HotelCard({
         {/* Meal Badge - Prominent Badge on Image */}
         {mealIncluded && (
           <div 
-            className="absolute top-4 right-4 text-white font-bold flex items-center gap-2 shadow-xl md:hidden lg:flex"
+            className="absolute top-4 right-4 text-white font-bold items-center gap-2 shadow-xl md:hidden lg:flex justify-center"
             style={{ 
               backgroundColor: mealBadgeSettings.color,
               width: mealBadgeSettings.autoWidthDesktop ? 'auto' : `${mealBadgeSettings.widthDesktop}px`,
               height: `${mealBadgeSettings.heightDesktop}px`,
               fontSize: `${mealBadgeSettings.fontSize}px`,
               borderRadius: `${mealBadgeSettings.borderRadius}px`,
-              minWidth: mealBadgeSettings.autoWidthDesktop ? '80px' : undefined,
+              minWidth: mealBadgeSettings.autoWidthDesktop ? '80px' : `${mealBadgeSettings.widthDesktop}px`,
               maxWidth: mealBadgeSettings.autoWidthDesktop ? '90%' : undefined,
-              paddingLeft: '12px',
-              paddingRight: '12px',
+              padding: mealBadgeSettings.autoWidthDesktop ? '0 12px' : '0 8px',
+              display: 'flex',
             }}
           >
             <Utensils className="w-5 h-5 flex-shrink-0" />
@@ -304,17 +318,17 @@ export function HotelCard({
         )}
         {mealIncluded && (
           <div 
-            className="absolute top-4 right-4 text-white font-bold items-center gap-2 shadow-xl hidden md:flex lg:hidden"
+            className="absolute top-4 right-4 text-white font-bold items-center gap-2 shadow-xl hidden md:flex lg:hidden justify-center"
             style={{ 
               backgroundColor: mealBadgeSettings.color,
               width: mealBadgeSettings.autoWidthTablet ? 'auto' : `${mealBadgeSettings.widthTablet}px`,
               height: `${mealBadgeSettings.heightTablet}px`,
               fontSize: `${mealBadgeSettings.fontSize}px`,
               borderRadius: `${mealBadgeSettings.borderRadius}px`,
-              minWidth: mealBadgeSettings.autoWidthTablet ? '70px' : undefined,
+              minWidth: mealBadgeSettings.autoWidthTablet ? '70px' : `${mealBadgeSettings.widthTablet}px`,
               maxWidth: mealBadgeSettings.autoWidthTablet ? '90%' : undefined,
-              paddingLeft: '12px',
-              paddingRight: '12px',
+              padding: mealBadgeSettings.autoWidthTablet ? '0 12px' : '0 8px',
+              display: 'flex',
             }}
           >
             <Utensils className="w-5 h-5 flex-shrink-0" />
