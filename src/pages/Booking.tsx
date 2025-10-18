@@ -12,7 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
-import { CreditCard, Calendar as CalendarIcon, Users, Hotel as HotelIcon, Utensils } from "lucide-react";
+import { CreditCard, Calendar as CalendarIcon, Users, Hotel as HotelIcon, Utensils, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { bookingSchema } from "@/lib/validations";
@@ -25,6 +25,7 @@ import { calculateSeasonalPrice } from "@/utils/seasonalPricing";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileBooking } from "@/components/MobileBooking";
 import { useTheme } from "@/contexts/ThemeContext";
+import { ImageGallery } from "@/components/ImageGallery";
 
 const paymentMethods = [
   { id: 'cash', name: 'نقدي', nameEn: 'Cash' },
@@ -78,6 +79,22 @@ export default function Booking() {
   const [loadingHotel, setLoadingHotel] = useState(true);
   const [customerFullName, setCustomerFullName] = useState("");
   const [availableRooms, setAvailableRooms] = useState<number | null>(null);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [showGallery, setShowGallery] = useState(false);
+  const [mealBadgeSettings, setMealBadgeSettings] = useState({
+    color: '#007dff',
+    widthMobile: 120,
+    heightMobile: 24,
+    autoWidthMobile: false,
+    widthTablet: 150,
+    heightTablet: 32,
+    autoWidthTablet: false,
+    widthDesktop: 180,
+    heightDesktop: 36,
+    autoWidthDesktop: false,
+    fontSize: 12,
+    borderRadius: 8,
+  });
 
   // Fetch customer's full name if logged in
   useEffect(() => {
@@ -189,14 +206,39 @@ export default function Booking() {
         }
       }
     }
+
+    async function fetchMealBadgeSettings() {
+      const { data } = await supabase
+        .from('site_settings')
+        .select('meal_badge_color, meal_badge_width_mobile, meal_badge_height_mobile, meal_badge_auto_width_mobile, meal_badge_width_tablet, meal_badge_height_tablet, meal_badge_auto_width_tablet, meal_badge_width_desktop, meal_badge_height_desktop, meal_badge_auto_width_desktop, meal_badge_font_size, meal_badge_border_radius')
+        .maybeSingle();
+      
+      if (data && mounted) {
+        setMealBadgeSettings({
+          color: data.meal_badge_color || '#007dff',
+          widthMobile: data.meal_badge_width_mobile || 120,
+          heightMobile: data.meal_badge_height_mobile || 24,
+          autoWidthMobile: data.meal_badge_auto_width_mobile || false,
+          widthTablet: data.meal_badge_width_tablet || 150,
+          heightTablet: data.meal_badge_height_tablet || 32,
+          autoWidthTablet: data.meal_badge_auto_width_tablet || false,
+          widthDesktop: data.meal_badge_width_desktop || 180,
+          heightDesktop: data.meal_badge_height_desktop || 36,
+          autoWidthDesktop: data.meal_badge_auto_width_desktop || false,
+          fontSize: data.meal_badge_font_size || 12,
+          borderRadius: data.meal_badge_border_radius || 8,
+        });
+      }
+    }
     
     fetchHotel();
     fetchSavedGuests();
+    fetchMealBadgeSettings();
     
     return () => {
       mounted = false;
     };
-  }, [id, navigate]);
+  }, [id, navigate, user]);
 
   // Normalize meal plans to a consistent shape
   const normalizeMealPlan = (mp: any) => {
@@ -518,6 +560,17 @@ export default function Booking() {
   }
 
   const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+  const hotelImages = hotel?.images && Array.isArray(hotel.images) && hotel.images.length > 0 
+    ? hotel.images 
+    : [];
+
+  const handlePrevImage = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + hotelImages.length) % hotelImages.length);
+  };
+
+  const handleNextImage = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % hotelImages.length);
+  };
 
   // Render mobile version if on mobile device and theme is design2
   if (isMobile && userTheme === 'design2') {
@@ -571,6 +624,69 @@ export default function Booking() {
                   <CardTitle>{t({ ar: 'ملخص الحجز', en: 'Booking Summary', fr: 'Résumé de la réservation', es: 'Resumen de reserva', ru: 'Резюме бронирования', id: 'Ringkasan Pemesanan', ms: 'Ringkasan Tempahan' })}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
+                  {/* Hotel Images Gallery */}
+                  {hotelImages.length > 0 && (
+                    <div className="relative rounded-lg overflow-hidden group cursor-pointer" onClick={() => setShowGallery(true)}>
+                      <div className="aspect-video w-full">
+                        <img
+                          src={hotelImages[currentImageIndex]}
+                          alt={language === 'ar' ? hotel.name_ar : hotel.name_en}
+                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                        />
+                      </div>
+                      
+                      {/* Meal Badge */}
+                      {meal && (meal.name_ar || meal.name_en) && (
+                        <div 
+                          className="absolute top-2 left-2 px-3 py-1 text-white font-semibold shadow-lg flex items-center gap-1.5"
+                          style={{
+                            backgroundColor: mealBadgeSettings.color,
+                            fontSize: `${mealBadgeSettings.fontSize}px`,
+                            borderRadius: `${mealBadgeSettings.borderRadius}px`,
+                            width: isMobile 
+                              ? mealBadgeSettings.autoWidthMobile ? 'auto' : `${mealBadgeSettings.widthMobile}px`
+                              : `${mealBadgeSettings.widthDesktop}px`,
+                            height: isMobile 
+                              ? `${mealBadgeSettings.heightMobile}px`
+                              : `${mealBadgeSettings.heightDesktop}px`,
+                            minWidth: isMobile ? '80px' : '120px',
+                            maxWidth: isMobile ? '200px' : '300px',
+                          }}
+                        >
+                          <Utensils className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">
+                            {language === 'ar' ? meal.name_ar : meal.name_en}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Navigation Arrows */}
+                      {hotelImages.length > 1 && (
+                        <>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <ChevronRight className="w-5 h-5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); handleNextImage(); }}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <ChevronLeft className="w-5 h-5" />
+                          </button>
+                          
+                          {/* Image counter */}
+                          <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded-full text-xs">
+                            {currentImageIndex + 1} / {hotelImages.length}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  )}
+
                   {/* Hotel Info */}
                   <div className="flex items-start gap-4 pb-4 border-b">
                     <HotelIcon className="w-10 h-10 text-primary flex-shrink-0" />
@@ -1185,6 +1301,16 @@ export default function Booking() {
         onOpenChange={setShowPostBookingDialog}
         onSkip={() => navigate('/guest-dashboard')}
       />
+
+      {/* Image Gallery Dialog */}
+      {hotelImages.length > 0 && (
+        <ImageGallery
+          images={hotelImages}
+          open={showGallery}
+          onClose={() => setShowGallery(false)}
+          initialIndex={currentImageIndex}
+        />
+      )}
 
       <Footer />
     </div>
