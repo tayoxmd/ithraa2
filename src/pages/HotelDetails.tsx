@@ -361,7 +361,13 @@ export default function HotelDetails() {
 
                 <Button 
                   className="w-full btn-luxury mt-4"
-                  onClick={() => navigate(`/booking/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}&rooms=${rooms}`)}
+                  onClick={() => {
+                    if (!hotel?.id) {
+                      console.error('Hotel ID is missing');
+                      return;
+                    }
+                    navigate(`/booking/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}&rooms=${rooms}`)
+                  }}
                 >
                   {t({ ar: 'احجز الآن', en: 'Book Now' })}
                 </Button>

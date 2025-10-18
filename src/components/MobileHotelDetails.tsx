@@ -173,7 +173,13 @@ export function MobileHotelDetails({
             <p className="text-2xl font-bold">${Math.round(calculateTotal())}</p>
           </div>
           <Button
-            onClick={() => navigate(`/booking/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}&rooms=${rooms}`)}
+            onClick={() => {
+              if (!hotel?.id) {
+                console.error('Hotel ID is missing');
+                return;
+              }
+              navigate(`/booking/${hotel.id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}&rooms=${rooms}`)
+            }}
             className="bg-card text-primary hover:bg-card/90 h-12 px-8 rounded-xl font-semibold"
           >
             {t({ ar: 'احجز الآن', en: 'Book Now' })}

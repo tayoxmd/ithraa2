@@ -151,6 +151,10 @@ export function HotelCard({
       <Card 
         className="overflow-hidden hover-lift cursor-pointer group animate-fade-in bg-card shadow-card border border-border/50 rounded-2xl"
         onClick={() => {
+          if (!id) {
+            console.error('Hotel ID is missing');
+            return;
+          }
           const checkIn = localStorage.getItem('searchCheckIn') || new Date().toISOString().split('T')[0];
           const checkOut = localStorage.getItem('searchCheckOut') || new Date(Date.now() + 86400000).toISOString().split('T')[0];
           const guests = localStorage.getItem('searchGuests') || '2';
@@ -250,6 +254,10 @@ export function HotelCard({
     <Card className="overflow-hidden hover-lift cursor-pointer group animate-fade-in w-full max-w-md mx-auto bg-card shadow-card border border-border/50 rounded-2xl flex flex-col min-h-[520px]">
       {/* Image */}
       <div className="relative h-64 overflow-hidden flex-shrink-0" onClick={() => {
+        if (!id) {
+          console.error('Hotel ID is missing');
+          return;
+        }
         const checkIn = localStorage.getItem('searchCheckIn') || new Date().toISOString().split('T')[0];
         const checkOut = localStorage.getItem('searchCheckOut') || new Date(Date.now() + 86400000).toISOString().split('T')[0];
         const guests = localStorage.getItem('searchGuests') || '2';

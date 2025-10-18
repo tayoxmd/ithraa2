@@ -47,9 +47,17 @@ export function PostBookingAuthDialog({ open, onOpenChange, onSkip }: PostBookin
     onSkip();
   };
 
+  const handleDialogClose = (isOpen: boolean) => {
+    // عند إغلاق الـ dialog بأي طريقة (ضغط خارجه أو X)، التوجيه للضيف إلى guest-dashboard
+    if (!isOpen) {
+      onOpenChange(false);
+      onSkip();
+    }
+  };
+
   return (
     <>
-      <Dialog open={open && !showWhatsAppAuth} onOpenChange={onOpenChange}>
+      <Dialog open={open && !showWhatsAppAuth} onOpenChange={handleDialogClose}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-2xl text-center">
