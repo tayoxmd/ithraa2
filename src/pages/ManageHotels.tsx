@@ -464,7 +464,6 @@ export default function ManageHotels() {
           total_rooms: parseInt(formData.total_rooms),
           tax_percentage: parseFloat(formData.tax_percentage),
           room_type: formData.room_type,
-          bed_type_single: formData.max_guests_per_room === "1" ? formData.bed_type_single : null,
           bed_type_double: formData.max_guests_per_room === "2" ? formData.bed_type_double : null,
           images: hotelImages,
           meal_plans: mealPlan,
@@ -537,7 +536,7 @@ export default function ManageHotels() {
       total_rooms: (hotel as any).total_rooms?.toString() || "0",
       tax_percentage: (hotel as any).tax_percentage?.toString() || "0",
       room_type: hotel.room_type || 'hotel_rooms',
-      bed_type_single: (hotel as any).bed_type_single || 'single',
+      bed_type_single: 'single',
       bed_type_double: (hotel as any).bed_type_double || 'king',
     });
 
@@ -1006,19 +1005,6 @@ export default function ManageHotels() {
                   <p className="text-xs text-muted-foreground">{t({ ar: "إذا كان 0 فلا توجد غرف متاحة", en: "If 0, no rooms available" })}</p>
                 </div>
                 <div className="space-y-2">
-                  <Label>{t({ ar: "الحد الأقصى للأشخاص في الغرفة", en: "Max Guests per Room" })}</Label>
-                  <Select value={formData.max_guests_per_room} onValueChange={(value) => setFormData({...formData, max_guests_per_room: value})}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[1, 2, 3, 4, 5, 6].map(num => (
-                        <SelectItem key={num} value={num.toString()}>{num} {t({ ar: 'أشخاص', en: 'persons' })}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
                   <Label>{t({ ar: "نسبة الضريبة %", en: "Tax %" })}</Label>
                   <Input type="number" min="0" max="100" step="0.1" value={formData.tax_percentage || "0"} onChange={(e) => setFormData({...formData, tax_percentage: e.target.value})} placeholder="0" />
                   <p className="text-xs text-muted-foreground">{t({ ar: "إذا كان 0 فلا توجد ضريبة", en: "If 0, no tax" })}</p>
@@ -1388,10 +1374,6 @@ export default function ManageHotels() {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>{t({ ar: "الحد الأقصى للأشخاص في الغرفة", en: "Max Guests per Room", fr: "Maximum d'invités par chambre", es: "Máximo de huéspedes por habitación", ru: "Макс. гостей в номере", id: "Maks. Tamu per Kamar", ms: "Maks. Tetamu setiap Bilik" })}</Label>
-                  <Input type="number" min="1" value={formData.max_guests_per_room} onChange={(e) => setFormData({...formData, max_guests_per_room: e.target.value})} />
-                </div>
                 <div className="space-y-2">
                   <Label>{t({ ar: "سعر الشخص الإضافي", en: "Extra Guest Price", fr: "Prix par invité supplémentaire", es: "Precio por huésped adicional", ru: "Цена за доп. гостя", id: "Harga Tamu Tambahan", ms: "Harga Tetamu Tambahan" })}</Label>
                   <Input type="number" min="0" value={formData.extra_guest_price} onChange={(e) => setFormData({...formData, extra_guest_price: e.target.value})} />
