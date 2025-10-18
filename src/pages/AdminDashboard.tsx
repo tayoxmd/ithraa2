@@ -424,8 +424,8 @@ export default function AdminDashboard() {
         <SidebarProvider defaultOpen={true}>
           <div className="flex min-h-screen w-full">
             <AdminSidebar />
-            <main className="flex-1 overflow-y-auto">
-              <div className="p-8">
+            <main className="flex-1 overflow-y-auto w-full">
+              <div className="p-8 w-full">
 
                 {/* Header */}
                 <div className="mb-8">
