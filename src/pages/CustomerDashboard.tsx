@@ -241,6 +241,27 @@ export default function CustomerDashboard() {
                       </div>
                     </div>
                     
+                    {/* Additional Guests Section */}
+                    {(() => {
+                      const maxGuestsPerRoom = booking.hotels?.max_guests_per_room || 2;
+                      const totalMaxGuests = maxGuestsPerRoom * booking.rooms;
+                      const extraGuests = Math.max(0, booking.guests - totalMaxGuests);
+                      
+                      return extraGuests > 0 && (
+                        <div className="pt-4 border-t">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-muted-foreground font-semibold text-sm sm:text-base whitespace-nowrap">{t({ ar: "عدد الأشخاص:", en: "Number of Persons:" })}</span>
+                            <span className="font-medium text-sm sm:text-base">{booking.guests} {t({ ar: "أشخاص", en: "persons" })}</span>
+                          </div>
+                          <div className="flex items-center justify-between gap-2 mt-2">
+                            <span className="text-muted-foreground text-sm whitespace-nowrap">{t({ ar: "أشخاص إضافيين:", en: "Extra Guests:" })}</span>
+                            <span className="font-medium text-sm">+{extraGuests} {t({ ar: "أشخاص", en: "persons" })}</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+                    
+                    {/* Meal Plan Section */}
                     {booking.meal_plan_name_ar && (
                       <div className="pt-4 border-t">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
