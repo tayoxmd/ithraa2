@@ -1314,6 +1314,9 @@ export type Database = {
           loader_enabled: boolean
           loader_speed_ms: number
           loader_type: string
+          meal_badge_auto_width_desktop: boolean | null
+          meal_badge_auto_width_mobile: boolean | null
+          meal_badge_auto_width_tablet: boolean | null
           meal_badge_border_radius: number | null
           meal_badge_color: string | null
           meal_badge_font_size: number | null
@@ -1360,6 +1363,9 @@ export type Database = {
           loader_enabled?: boolean
           loader_speed_ms?: number
           loader_type?: string
+          meal_badge_auto_width_desktop?: boolean | null
+          meal_badge_auto_width_mobile?: boolean | null
+          meal_badge_auto_width_tablet?: boolean | null
           meal_badge_border_radius?: number | null
           meal_badge_color?: string | null
           meal_badge_font_size?: number | null
@@ -1406,6 +1412,9 @@ export type Database = {
           loader_enabled?: boolean
           loader_speed_ms?: number
           loader_type?: string
+          meal_badge_auto_width_desktop?: boolean | null
+          meal_badge_auto_width_mobile?: boolean | null
+          meal_badge_auto_width_tablet?: boolean | null
           meal_badge_border_radius?: number | null
           meal_badge_color?: string | null
           meal_badge_font_size?: number | null

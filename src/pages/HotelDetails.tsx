@@ -83,7 +83,7 @@ export default function HotelDetails() {
     async function fetchMealBadgeSettings() {
       const { data } = await supabase
         .from('site_settings')
-        .select('meal_badge_color, meal_badge_width, meal_badge_height, meal_badge_font_size, meal_badge_border_radius')
+        .select('meal_badge_color, meal_badge_width_mobile, meal_badge_height_mobile, meal_badge_auto_width_mobile, meal_badge_width_tablet, meal_badge_height_tablet, meal_badge_auto_width_tablet, meal_badge_width_desktop, meal_badge_height_desktop, meal_badge_auto_width_desktop, meal_badge_font_size, meal_badge_border_radius')
         .single();
       
       if (data) {
@@ -173,13 +173,26 @@ export default function HotelDetails() {
                   style={{
                     [language === 'ar' ? 'left' : 'right']: '16px',
                     backgroundColor: mealBadgeSettings.meal_badge_color || '#007dff',
-                    width: `${mealBadgeSettings.meal_badge_width || 150}px`,
-                    height: `${mealBadgeSettings.meal_badge_height || 32}px`,
+                    width: window.innerWidth >= 1024
+                      ? (mealBadgeSettings.meal_badge_auto_width_desktop ? 'auto' : `${mealBadgeSettings.meal_badge_width_desktop || 180}px`)
+                      : window.innerWidth >= 768
+                      ? (mealBadgeSettings.meal_badge_auto_width_tablet ? 'auto' : `${mealBadgeSettings.meal_badge_width_tablet || 150}px`)
+                      : (mealBadgeSettings.meal_badge_auto_width_mobile ? 'auto' : `${mealBadgeSettings.meal_badge_width_mobile || 120}px`),
+                    height: window.innerWidth >= 1024
+                      ? `${mealBadgeSettings.meal_badge_height_desktop || 36}px`
+                      : window.innerWidth >= 768
+                      ? `${mealBadgeSettings.meal_badge_height_tablet || 32}px`
+                      : `${mealBadgeSettings.meal_badge_height_mobile || 24}px`,
                     fontSize: `${mealBadgeSettings.meal_badge_font_size || 12}px`,
                     borderRadius: `${mealBadgeSettings.meal_badge_border_radius || 8}px`,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    minWidth: mealBadgeSettings.meal_badge_auto_width_desktop || mealBadgeSettings.meal_badge_auto_width_tablet || mealBadgeSettings.meal_badge_auto_width_mobile ? '80px' : undefined,
+                    maxWidth: mealBadgeSettings.meal_badge_auto_width_desktop || mealBadgeSettings.meal_badge_auto_width_tablet || mealBadgeSettings.meal_badge_auto_width_mobile ? '90%' : undefined,
                   }}
                 >
                   {language === 'ar' ? hotel.meal_plans.regular_ar : hotel.meal_plans.regular_en}
@@ -247,6 +260,10 @@ export default function HotelDetails() {
                 style={{
                   backgroundColor: mealBadgeSettings.meal_badge_color || '#007dff',
                   fontSize: `${(mealBadgeSettings.meal_badge_font_size || 12) + 2}px`,
+                  width: window.innerWidth >= 1024 && mealBadgeSettings.meal_badge_auto_width_desktop ? 'auto' :
+                         window.innerWidth >= 768 && mealBadgeSettings.meal_badge_auto_width_tablet ? 'auto' :
+                         mealBadgeSettings.meal_badge_auto_width_mobile ? 'auto' : 'fit-content',
+                  whiteSpace: 'nowrap',
                 }}
               >
                 {language === 'ar' ? hotel.meal_plans.regular_ar : hotel.meal_plans.regular_en}

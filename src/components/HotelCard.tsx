@@ -56,10 +56,13 @@ export function HotelCard({
     color: '#007dff',
     widthMobile: 120,
     heightMobile: 24,
+    autoWidthMobile: false,
     widthTablet: 150,
     heightTablet: 32,
+    autoWidthTablet: false,
     widthDesktop: 180,
     heightDesktop: 36,
+    autoWidthDesktop: false,
     fontSize: 12,
     borderRadius: 8,
   });
@@ -70,7 +73,7 @@ export function HotelCard({
     async function fetchMealBadgeSettings() {
       const { data } = await supabase
         .from('site_settings')
-        .select('meal_badge_color, meal_badge_width_mobile, meal_badge_height_mobile, meal_badge_width_tablet, meal_badge_height_tablet, meal_badge_width_desktop, meal_badge_height_desktop, meal_badge_font_size, meal_badge_border_radius')
+        .select('meal_badge_color, meal_badge_width_mobile, meal_badge_height_mobile, meal_badge_auto_width_mobile, meal_badge_width_tablet, meal_badge_height_tablet, meal_badge_auto_width_tablet, meal_badge_width_desktop, meal_badge_height_desktop, meal_badge_auto_width_desktop, meal_badge_font_size, meal_badge_border_radius')
         .maybeSingle();
       
       if (data) {
@@ -78,10 +81,13 @@ export function HotelCard({
           color: data.meal_badge_color || '#007dff',
           widthMobile: data.meal_badge_width_mobile || 120,
           heightMobile: data.meal_badge_height_mobile || 24,
+          autoWidthMobile: data.meal_badge_auto_width_mobile || false,
           widthTablet: data.meal_badge_width_tablet || 150,
           heightTablet: data.meal_badge_height_tablet || 32,
+          autoWidthTablet: data.meal_badge_auto_width_tablet || false,
           widthDesktop: data.meal_badge_width_desktop || 180,
           heightDesktop: data.meal_badge_height_desktop || 36,
+          autoWidthDesktop: data.meal_badge_auto_width_desktop || false,
           fontSize: data.meal_badge_font_size || 12,
           borderRadius: data.meal_badge_border_radius || 8,
         });
@@ -199,10 +205,13 @@ export function HotelCard({
                 className="absolute top-2 right-2 px-2 py-1 text-white font-bold flex items-center gap-1"
                 style={{ 
                   backgroundColor: mealBadgeSettings.color,
-                  width: `${mealBadgeSettings.widthMobile}px`,
+                  width: mealBadgeSettings.autoWidthMobile ? 'auto' : `${mealBadgeSettings.widthMobile}px`,
                   height: `${mealBadgeSettings.heightMobile}px`,
                   fontSize: `${mealBadgeSettings.fontSize}px`,
                   borderRadius: `${mealBadgeSettings.borderRadius}px`,
+                  minWidth: mealBadgeSettings.autoWidthMobile ? '60px' : undefined,
+                  maxWidth: mealBadgeSettings.autoWidthMobile ? '90%' : undefined,
+                  padding: '0 8px',
                 }}
               >
                 <Utensils className="w-3 h-3 flex-shrink-0" />
@@ -279,10 +288,12 @@ export function HotelCard({
             className="absolute top-4 right-4 text-white font-bold flex items-center gap-2 shadow-xl md:hidden lg:flex"
             style={{ 
               backgroundColor: mealBadgeSettings.color,
-              width: `${mealBadgeSettings.widthTablet}px`,
-              height: `${mealBadgeSettings.heightTablet}px`,
+              width: mealBadgeSettings.autoWidthDesktop ? 'auto' : `${mealBadgeSettings.widthDesktop}px`,
+              height: `${mealBadgeSettings.heightDesktop}px`,
               fontSize: `${mealBadgeSettings.fontSize}px`,
               borderRadius: `${mealBadgeSettings.borderRadius}px`,
+              minWidth: mealBadgeSettings.autoWidthDesktop ? '80px' : undefined,
+              maxWidth: mealBadgeSettings.autoWidthDesktop ? '90%' : undefined,
               paddingLeft: '12px',
               paddingRight: '12px',
             }}
@@ -296,10 +307,12 @@ export function HotelCard({
             className="absolute top-4 right-4 text-white font-bold items-center gap-2 shadow-xl hidden md:flex lg:hidden"
             style={{ 
               backgroundColor: mealBadgeSettings.color,
-              width: `${mealBadgeSettings.widthDesktop}px`,
-              height: `${mealBadgeSettings.heightDesktop}px`,
+              width: mealBadgeSettings.autoWidthTablet ? 'auto' : `${mealBadgeSettings.widthTablet}px`,
+              height: `${mealBadgeSettings.heightTablet}px`,
               fontSize: `${mealBadgeSettings.fontSize}px`,
               borderRadius: `${mealBadgeSettings.borderRadius}px`,
+              minWidth: mealBadgeSettings.autoWidthTablet ? '70px' : undefined,
+              maxWidth: mealBadgeSettings.autoWidthTablet ? '90%' : undefined,
               paddingLeft: '12px',
               paddingRight: '12px',
             }}

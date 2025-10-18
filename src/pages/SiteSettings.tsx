@@ -45,10 +45,13 @@ export default function SiteSettings() {
     meal_badge_color: '#007dff',
     meal_badge_width_mobile: 120,
     meal_badge_height_mobile: 24,
+    meal_badge_auto_width_mobile: false,
     meal_badge_width_tablet: 150,
     meal_badge_height_tablet: 32,
+    meal_badge_auto_width_tablet: false,
     meal_badge_width_desktop: 180,
     meal_badge_height_desktop: 36,
+    meal_badge_auto_width_desktop: false,
     meal_badge_font_size: 12,
     meal_badge_border_radius: 8,
   });
@@ -127,10 +130,13 @@ export default function SiteSettings() {
           meal_badge_color: data.meal_badge_color || '#007dff',
           meal_badge_width_mobile: data.meal_badge_width_mobile || 120,
           meal_badge_height_mobile: data.meal_badge_height_mobile || 24,
+          meal_badge_auto_width_mobile: data.meal_badge_auto_width_mobile || false,
           meal_badge_width_tablet: data.meal_badge_width_tablet || 150,
           meal_badge_height_tablet: data.meal_badge_height_tablet || 32,
+          meal_badge_auto_width_tablet: data.meal_badge_auto_width_tablet || false,
           meal_badge_width_desktop: data.meal_badge_width_desktop || 180,
           meal_badge_height_desktop: data.meal_badge_height_desktop || 36,
+          meal_badge_auto_width_desktop: data.meal_badge_auto_width_desktop || false,
           meal_badge_font_size: data.meal_badge_font_size || 12,
           meal_badge_border_radius: data.meal_badge_border_radius || 8,
         });
@@ -816,27 +822,50 @@ export default function SiteSettings() {
                 <h4 className="font-semibold text-sm flex items-center gap-2">
                   📱 {t({ ar: 'أحجام الجوال', en: 'Mobile Sizes' })}
                 </h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>{t({ ar: 'العرض (بكسل)', en: 'Width (px)' })}</Label>
-                    <Input
-                      type="number"
-                      value={mealBadgeSettings.meal_badge_width_mobile}
-                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_width_mobile: parseInt(e.target.value) || 120 })}
-                      min="50"
-                      max="300"
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>{t({ ar: 'عرض تلقائي', en: 'Auto Width' })}</Label>
+                    <Switch
+                      checked={mealBadgeSettings.meal_badge_auto_width_mobile}
+                      onCheckedChange={(checked) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_auto_width_mobile: checked })}
                     />
                   </div>
-                  <div>
-                    <Label>{t({ ar: 'الارتفاع (بكسل)', en: 'Height (px)' })}</Label>
-                    <Input
-                      type="number"
-                      value={mealBadgeSettings.meal_badge_height_mobile}
-                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_height_mobile: parseInt(e.target.value) || 24 })}
-                      min="20"
-                      max="100"
-                    />
-                  </div>
+                  {!mealBadgeSettings.meal_badge_auto_width_mobile && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>{t({ ar: 'العرض (بكسل)', en: 'Width (px)' })}</Label>
+                        <Input
+                          type="number"
+                          value={mealBadgeSettings.meal_badge_width_mobile}
+                          onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_width_mobile: parseInt(e.target.value) || 120 })}
+                          min="50"
+                          max="300"
+                        />
+                      </div>
+                      <div>
+                        <Label>{t({ ar: 'الارتفاع (بكسل)', en: 'Height (px)' })}</Label>
+                        <Input
+                          type="number"
+                          value={mealBadgeSettings.meal_badge_height_mobile}
+                          onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_height_mobile: parseInt(e.target.value) || 24 })}
+                          min="20"
+                          max="100"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {mealBadgeSettings.meal_badge_auto_width_mobile && (
+                    <div>
+                      <Label>{t({ ar: 'الارتفاع (بكسل)', en: 'Height (px)' })}</Label>
+                      <Input
+                        type="number"
+                        value={mealBadgeSettings.meal_badge_height_mobile}
+                        onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_height_mobile: parseInt(e.target.value) || 24 })}
+                        min="20"
+                        max="100"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -845,27 +874,50 @@ export default function SiteSettings() {
                 <h4 className="font-semibold text-sm flex items-center gap-2">
                   📱 {t({ ar: 'أحجام التابلت', en: 'Tablet Sizes' })}
                 </h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>{t({ ar: 'العرض (بكسل)', en: 'Width (px)' })}</Label>
-                    <Input
-                      type="number"
-                      value={mealBadgeSettings.meal_badge_width_tablet}
-                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_width_tablet: parseInt(e.target.value) || 150 })}
-                      min="50"
-                      max="300"
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>{t({ ar: 'عرض تلقائي', en: 'Auto Width' })}</Label>
+                    <Switch
+                      checked={mealBadgeSettings.meal_badge_auto_width_tablet}
+                      onCheckedChange={(checked) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_auto_width_tablet: checked })}
                     />
                   </div>
-                  <div>
-                    <Label>{t({ ar: 'الارتفاع (بكسل)', en: 'Height (px)' })}</Label>
-                    <Input
-                      type="number"
-                      value={mealBadgeSettings.meal_badge_height_tablet}
-                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_height_tablet: parseInt(e.target.value) || 32 })}
-                      min="20"
-                      max="100"
-                    />
-                  </div>
+                  {!mealBadgeSettings.meal_badge_auto_width_tablet && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>{t({ ar: 'العرض (بكسل)', en: 'Width (px)' })}</Label>
+                        <Input
+                          type="number"
+                          value={mealBadgeSettings.meal_badge_width_tablet}
+                          onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_width_tablet: parseInt(e.target.value) || 150 })}
+                          min="50"
+                          max="300"
+                        />
+                      </div>
+                      <div>
+                        <Label>{t({ ar: 'الارتفاع (بكسل)', en: 'Height (px)' })}</Label>
+                        <Input
+                          type="number"
+                          value={mealBadgeSettings.meal_badge_height_tablet}
+                          onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_height_tablet: parseInt(e.target.value) || 32 })}
+                          min="20"
+                          max="100"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {mealBadgeSettings.meal_badge_auto_width_tablet && (
+                    <div>
+                      <Label>{t({ ar: 'الارتفاع (بكسل)', en: 'Height (px)' })}</Label>
+                      <Input
+                        type="number"
+                        value={mealBadgeSettings.meal_badge_height_tablet}
+                        onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_height_tablet: parseInt(e.target.value) || 32 })}
+                        min="20"
+                        max="100"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -874,27 +926,50 @@ export default function SiteSettings() {
                 <h4 className="font-semibold text-sm flex items-center gap-2">
                   💻 {t({ ar: 'أحجام سطح المكتب', en: 'Desktop Sizes' })}
                 </h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <Label>{t({ ar: 'العرض (بكسل)', en: 'Width (px)' })}</Label>
-                    <Input
-                      type="number"
-                      value={mealBadgeSettings.meal_badge_width_desktop}
-                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_width_desktop: parseInt(e.target.value) || 180 })}
-                      min="50"
-                      max="300"
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>{t({ ar: 'عرض تلقائي', en: 'Auto Width' })}</Label>
+                    <Switch
+                      checked={mealBadgeSettings.meal_badge_auto_width_desktop}
+                      onCheckedChange={(checked) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_auto_width_desktop: checked })}
                     />
                   </div>
-                  <div>
-                    <Label>{t({ ar: 'الارتفاع (بكسل)', en: 'Height (px)' })}</Label>
-                    <Input
-                      type="number"
-                      value={mealBadgeSettings.meal_badge_height_desktop}
-                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_height_desktop: parseInt(e.target.value) || 36 })}
-                      min="20"
-                      max="100"
-                    />
-                  </div>
+                  {!mealBadgeSettings.meal_badge_auto_width_desktop && (
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>{t({ ar: 'العرض (بكسل)', en: 'Width (px)' })}</Label>
+                         <Input
+                          type="number"
+                          value={mealBadgeSettings.meal_badge_width_desktop}
+                          onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_width_desktop: parseInt(e.target.value) || 180 })}
+                          min="50"
+                          max="300"
+                        />
+                      </div>
+                      <div>
+                        <Label>{t({ ar: 'الارتفاع (بكسل)', en: 'Height (px)' })}</Label>
+                        <Input
+                          type="number"
+                          value={mealBadgeSettings.meal_badge_height_desktop}
+                          onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_height_desktop: parseInt(e.target.value) || 36 })}
+                          min="20"
+                          max="100"
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {mealBadgeSettings.meal_badge_auto_width_desktop && (
+                    <div>
+                      <Label>{t({ ar: 'الارتفاع (بكسل)', en: 'Height (px)' })}</Label>
+                      <Input
+                        type="number"
+                        value={mealBadgeSettings.meal_badge_height_desktop}
+                        onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_height_desktop: parseInt(e.target.value) || 36 })}
+                        min="20"
+                        max="100"
+                      />
+                    </div>
+                  )}
                 </div>
               </div>
 
