@@ -77,6 +77,7 @@ export default function Booking() {
   const [avgPricePerNight, setAvgPricePerNight] = useState<number | null>(null);
   const [loadingHotel, setLoadingHotel] = useState(true);
   const [customerFullName, setCustomerFullName] = useState("");
+  const [availableRooms, setAvailableRooms] = useState<number | null>(null);
 
   // Fetch customer's full name if logged in
   useEffect(() => {
@@ -318,9 +319,19 @@ export default function Booking() {
       }
 
       if (!isAvailable) {
+        // Get available rooms count
+        const { data: roomsData } = await supabase.rpc('get_available_rooms_count' as any, {
+          p_hotel_id: id!,
+          p_check_in: format(checkIn, 'yyyy-MM-dd'),
+          p_check_out: format(checkOut, 'yyyy-MM-dd')
+        });
+        
+        const availableCount = Number(roomsData) || 0;
         toast({
           title: t({ ar: "غير متوفر", en: "Not Available" }),
-          description: t({ ar: "عدد الغرف المطلوبة غير متوفر في التواريخ المحددة", en: "The requested number of rooms is not available for the selected dates" }),
+          description: availableCount > 0
+            ? t({ ar: `عدد الغرف المطلوبة غير متوفر. الغرف المتاحة: ${availableCount}`, en: `The requested number of rooms is not available. Available rooms: ${availableCount}` })
+            : t({ ar: "عدد الغرف المطلوبة غير متوفر في التواريخ المحددة", en: "The requested number of rooms is not available for the selected dates" }),
           variant: "destructive",
         });
         return;
@@ -618,27 +629,27 @@ export default function Booking() {
                            <Users className="w-4 h-4" />
                            {t({ ar: 'عدد البالغين', en: 'Adults' })}
                          </Label>
-                         <div className="flex items-center gap-2">
-                           <Button
-                             type="button"
-                             variant="outline"
-                             size="sm"
-                             className="h-8 w-8 p-0"
-                             onClick={() => setGuests(Math.max(1, guests - 1))}
-                           >
-                             -
-                           </Button>
-                           <span className="flex-1 text-center font-semibold">{guests}</span>
-                           <Button
-                             type="button"
-                             variant="outline"
-                             size="sm"
-                             className="h-8 w-8 p-0"
-                             onClick={() => setGuests(guests + 1)}
-                           >
-                             +
-                           </Button>
-                         </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-8 w-8 p-0 rounded-md"
+                              onClick={() => setGuests(Math.max(1, guests - 1))}
+                            >
+                              -
+                            </Button>
+                            <span className="flex-1 text-center font-semibold">{guests}</span>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-8 w-8 p-0 rounded-md"
+                              onClick={() => setGuests(guests + 1)}
+                            >
+                              +
+                            </Button>
+                          </div>
                        </div>
 
                        <div className="p-3 bg-muted/50 rounded-lg">
@@ -646,27 +657,27 @@ export default function Booking() {
                            <Users className="w-4 h-4" />
                            {t({ ar: 'عدد الأطفال', en: 'Children' })}
                          </Label>
-                         <div className="flex items-center gap-2">
-                           <Button
-                             type="button"
-                             variant="outline"
-                             size="sm"
-                             className="h-8 w-8 p-0"
-                             onClick={() => setChildren(Math.max(0, children - 1))}
-                           >
-                             -
-                           </Button>
-                           <span className="flex-1 text-center font-semibold">{children}</span>
-                           <Button
-                             type="button"
-                             variant="outline"
-                             size="sm"
-                             className="h-8 w-8 p-0"
-                             onClick={() => setChildren(children + 1)}
-                           >
-                             +
-                           </Button>
-                         </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-8 w-8 p-0 rounded-md"
+                              onClick={() => setChildren(Math.max(0, children - 1))}
+                            >
+                              -
+                            </Button>
+                            <span className="flex-1 text-center font-semibold">{children}</span>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-8 w-8 p-0 rounded-md"
+                              onClick={() => setChildren(children + 1)}
+                            >
+                              +
+                            </Button>
+                          </div>
                        </div>
                      </div>
 
@@ -677,27 +688,27 @@ export default function Booking() {
                            <HotelIcon className="w-4 h-4" />
                            {t({ ar: 'عدد الغرف', en: 'Rooms' })}
                          </Label>
-                         <div className="flex items-center gap-2">
-                           <Button
-                             type="button"
-                             variant="outline"
-                             size="sm"
-                             className="h-8 w-8 p-0"
-                             onClick={() => setRooms(Math.max(1, rooms - 1))}
-                           >
-                             -
-                           </Button>
-                           <span className="flex-1 text-center font-semibold">{rooms}</span>
-                           <Button
-                             type="button"
-                             variant="outline"
-                             size="sm"
-                             className="h-8 w-8 p-0"
-                             onClick={() => setRooms(rooms + 1)}
-                           >
-                             +
-                           </Button>
-                         </div>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-8 w-8 p-0 rounded-md"
+                              onClick={() => setRooms(Math.max(1, rooms - 1))}
+                            >
+                              -
+                            </Button>
+                            <span className="flex-1 text-center font-semibold">{rooms}</span>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="h-8 w-8 p-0 rounded-md"
+                              onClick={() => setRooms(rooms + 1)}
+                            >
+                              +
+                            </Button>
+                          </div>
                        </div>
 
                       {hotel?.meal_plans && hotel.meal_plans.max_persons > 0 && (

@@ -1542,6 +1542,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_available_rooms_count: {
+        Args: { p_check_in: string; p_check_out: string; p_hotel_id: string }
+        Returns: number
+      }
       get_guest_bookings: {
         Args: { p_phone: string }
         Returns: {

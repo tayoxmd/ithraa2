@@ -247,7 +247,7 @@ export function HotelCard({
   
   // Desktop/Tablet Layout (vertical card)
   return (
-    <Card className="overflow-hidden hover-lift cursor-pointer group animate-fade-in w-full max-w-md mx-auto bg-card shadow-card border border-border/50 rounded-2xl flex flex-col h-[520px]">
+    <Card className="overflow-hidden hover-lift cursor-pointer group animate-fade-in w-full max-w-md mx-auto bg-card shadow-card border border-border/50 rounded-2xl flex flex-col min-h-[520px]">
       {/* Image */}
       <div className="relative h-64 overflow-hidden flex-shrink-0" onClick={() => navigate(`/hotel/${id}`)}>
         <img
@@ -353,7 +353,7 @@ export function HotelCard({
                 {meal.max_persons > 0 && (
                   <p className="text-green-600 dark:text-green-400 mt-0.5">
                     {language === 'ar' 
-                      ? `يشمل ${meal.max_persons} ${meal.max_persons === 1 ? 'شخص' : meal.max_persons === 2 ? 'شخصين' : 'أشخاص'}`
+                      ? `يشمل ${meal.max_persons} ${meal.max_persons === 1 ? 'شخص واحد' : meal.max_persons === 2 ? 'شخصين' : meal.max_persons >= 3 && meal.max_persons <= 10 ? 'أشخاص' : 'شخص'}`
                       : `Includes ${meal.max_persons} ${meal.max_persons === 1 ? 'person' : 'persons'}`
                     }
                     {meal.extra_meal_price > 0 && (

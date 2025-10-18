@@ -1026,7 +1026,7 @@ export default function ManageHotels() {
                       <SelectContent>
                         {[1, 2, 3, 4, 5, 6].map(num => (
                           <SelectItem key={num} value={num.toString()}>
-                            {language === 'ar' ? (num === 1 ? '1 شخص واحد' : num === 2 ? 'شخصين' : `${num} شخص`) : `${num} ${t({ ar: 'أشخاص', en: 'persons' })}`}
+                            {language === 'ar' ? (num === 1 ? '1 شخص واحد' : num === 2 ? 'شخصين' : num >= 3 && num <= 10 ? `${num} أشخاص` : `${num} شخص`) : `${num} ${t({ ar: 'أشخاص', en: 'persons' })}`}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -1095,11 +1095,12 @@ export default function ManageHotels() {
                 </div>
               </div>
               
+              <div className="space-y-2">
+                <Label>{t({ ar: "سعر الشخص الإضافي لكل ليلة", en: "Extra Guest Price per Night" })}</Label>
+                <Input type="number" min="0" value={formData.extra_guest_price} onChange={(e) => setFormData({...formData, extra_guest_price: e.target.value})} />
+              </div>
+              
               <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>{t({ ar: "سعر الشخص الإضافي", en: "Extra Guest Price" })}</Label>
-                  <Input type="number" min="0" value={formData.extra_guest_price} onChange={(e) => setFormData({...formData, extra_guest_price: e.target.value})} />
-                </div>
                 <div className="space-y-2">
                   <Label>{t({ ar: "نوع الغرف", en: "Room Type" })}</Label>
                   <Select value={formData.room_type} onValueChange={(value: 'hotel_rooms' | 'owner_rooms') => setFormData({...formData, room_type: value})}>
@@ -1112,7 +1113,8 @@ export default function ManageHotels() {
                     </SelectContent>
                   </Select>
                 </div>
-              </div>
+               </div>
+              
               <div className="space-y-2">
                 <Label>{t({ ar: "صور الفندق", en: "Hotel Images" })}</Label>
                 <div className="space-y-3">
