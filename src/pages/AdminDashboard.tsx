@@ -423,7 +423,7 @@ export default function AdminDashboard() {
         // Desktop: Persistent Sidebar on Right
         <SidebarProvider defaultOpen={true}>
           <div className="flex min-h-screen w-full">
-            <main className="flex-1 overflow-y-auto pr-[16rem]">
+            <main className="flex-1 overflow-y-auto mr-[16rem]">
               <div className="p-8">
 
                 {/* Header */}
