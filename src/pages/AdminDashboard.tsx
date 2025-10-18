@@ -35,11 +35,24 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+} from "@/components/ui/sidebar";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 export default function AdminDashboard() {
   const { userRole, loading, user } = useAuth();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [bookings, setBookings] = useState<any[]>([]);
   const [loadingBookings, setLoadingBookings] = useState(true);
   const [adminMenuOpen, setAdminMenuOpen] = useState(false);
@@ -244,129 +257,94 @@ export default function AdminDashboard() {
     </Card>
   );
 
-  const NavItem = ({ icon: Icon, label, onClick }: any) => (
-    <button
-      onClick={onClick}
-      className="flex items-center gap-3 w-full px-4 py-3 rounded-lg hover:bg-primary/10 transition-colors text-right"
-    >
-      <Icon className="w-5 h-5 text-primary" />
-      <span className="font-medium">{label}</span>
-    </button>
+  // Admin Sidebar Component (Desktop only)
+  const AdminSidebar = () => (
+    <Sidebar className="border-l">
+      <SidebarContent>
+        <div className="p-6 border-b border-border">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-primary-glow flex items-center justify-center">
+              <LayoutDashboard className="w-5 h-5 text-white" />
+            </div>
+            <div>
+              <h2 className="font-bold text-lg">{t({ ar: "إثراء", en: "ITHRAA" })}</h2>
+              <p className="text-xs text-muted-foreground">{t({ ar: "لوحة التحكم", en: "Dashboard" })}</p>
+            </div>
+          </div>
+        </div>
+        
+        <SidebarGroup>
+          <SidebarGroupLabel>{t({ ar: 'إدارة الموقع', en: 'Site Management' })}</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {adminMenuItems.map((item) => (
+                <SidebarMenuItem key={item.path}>
+                  <SidebarMenuButton onClick={() => navigate(item.path)}>
+                    <item.icon className="w-5 h-5" />
+                    <span>{item.label}</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+    </Sidebar>
   );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
-      <div className="flex h-screen">
-        {/* Sidebar */}
-        <aside className="hidden lg:flex flex-col w-64 bg-card border-l border-border shadow-xl">
-          <div className="p-6 border-b border-border">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-primary-glow flex items-center justify-center">
-                <LayoutDashboard className="w-5 h-5 text-white" />
+      {isMobile ? (
+        // Mobile: Sheet Menu
+        <div className="flex h-screen">
+          <main className="flex-1 overflow-y-auto">
+            <div className="p-4 pt-24">
+              {/* Header with Site Management Button */}
+              <div className="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+                <div>
+                  <h1 className="text-3xl font-bold mb-2 text-gradient-luxury">
+                    {t({ ar: "مرحباً بك في لوحة التحكم", en: "Welcome to Dashboard" })}
+                  </h1>
+                  <p className="text-muted-foreground">
+                    {t({ ar: "نظرة عامة على أداء نظامك", en: "Overview of your system performance" })}
+                  </p>
+                </div>
+                
+                <Sheet open={adminMenuOpen} onOpenChange={setAdminMenuOpen}>
+                  <SheetTrigger asChild>
+                    <Button
+                      className="gap-2 shadow-lg"
+                      style={{ backgroundColor: '#237bff', color: 'white', borderColor: '#237bff' }}
+                    >
+                      <Settings className="w-4 h-4" />
+                      {t({ ar: "إدارة الموقع", en: "Site Management" })}
+                    </Button>
+                  </SheetTrigger>
+                  <SheetContent side={language === 'ar' ? 'right' : 'left'} className="w-[280px] sm:w-[350px] overflow-y-auto">
+                    <SheetHeader>
+                      <SheetTitle>{t({ ar: 'إدارة الموقع', en: 'Site Management' })}</SheetTitle>
+                    </SheetHeader>
+                    <div className="mt-6 space-y-2 pb-6">
+                      {adminMenuItems.map((item) => (
+                        <Button
+                          key={item.path}
+                          variant="ghost"
+                          className="w-full justify-start gap-3 h-12"
+                          onClick={() => {
+                            navigate(item.path);
+                            setAdminMenuOpen(false);
+                          }}
+                        >
+                          <item.icon className="w-5 h-5" />
+                          <span className="text-base">{item.label}</span>
+                        </Button>
+                      ))}
+                    </div>
+                  </SheetContent>
+                </Sheet>
               </div>
-              <div>
-                <h2 className="font-bold text-lg">{t({ ar: "إثراء", en: "ITHRAA" })}</h2>
-                <p className="text-xs text-muted-foreground">{t({ ar: "لوحة التحكم", en: "Dashboard" })}</p>
-              </div>
-            </div>
-          </div>
-          
-          <nav className="flex-1 p-4 space-y-2">
-            <NavItem 
-              icon={Home} 
-              label={t({ ar: "الصفحة الرئيسية", en: "Home" })} 
-              onClick={() => navigate('/')} 
-            />
-            <NavItem 
-              icon={FileText} 
-              label={t({ ar: "التقييمات والمراجعات", en: "Reviews & Ratings" })} 
-              onClick={() => navigate('/reviews')} 
-            />
-            <NavItem 
-              icon={Hotel} 
-              label={t({ ar: "إدارة الفنادق", en: "Manage Hotels" })} 
-              onClick={() => navigate('/manage-hotels')} 
-            />
-            <NavItem 
-              icon={UserCog} 
-              label={t({ ar: "إدارة المستخدمين", en: "Manage Users" })} 
-              onClick={() => navigate('/manage-employees')} 
-            />
-            <NavItem 
-              icon={Briefcase} 
-              label={t({ ar: "شؤون الموظفين", en: "Employee Management" })} 
-              onClick={() => navigate('/employee-management')} 
-            />
-            <NavItem 
-              icon={FileText} 
-              label={t({ ar: "إعدادات PDF", en: "PDF Settings" })} 
-              onClick={() => navigate('/pdf-settings')} 
-            />
-            <NavItem 
-              icon={Settings} 
-              label={t({ ar: "الإعدادات", en: "Settings" })} 
-              onClick={() => navigate('/site-settings')} 
-            />
-            <NavItem 
-              icon={User} 
-              label={t({ ar: "الملف الشخصي", en: "Profile" })} 
-              onClick={() => navigate('/profile')} 
-            />
-          </nav>
-        </aside>
 
-        {/* Main Content */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="p-4 lg:p-8 pt-24 lg:pt-8">
-            {/* Header */}
-            <div className="mb-8 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-bold mb-2 text-gradient-luxury">
-                  {t({ ar: "مرحباً بك في لوحة التحكم", en: "Welcome to Dashboard" })}
-                </h1>
-                <p className="text-muted-foreground">
-                  {t({ ar: "نظرة عامة على أداء نظامك", en: "Overview of your system performance" })}
-                </p>
-              </div>
-              
-              {/* Site Management Button - Top Right */}
-              <Sheet open={adminMenuOpen} onOpenChange={setAdminMenuOpen}>
-                <SheetTrigger asChild>
-                  <Button
-                    className="gap-2 shadow-lg"
-                    style={{ backgroundColor: '#237bff', color: 'white', borderColor: '#237bff' }}
-                  >
-                    <Settings className="w-4 h-4" />
-                    {t({ ar: "إدارة الموقع", en: "Site Management" })}
-                  </Button>
-                </SheetTrigger>
-                <SheetContent side={language === 'ar' ? 'right' : 'left'} className="w-[280px] sm:w-[350px] overflow-y-auto">
-                  <SheetHeader>
-                    <SheetTitle>{t({ ar: 'إدارة الموقع', en: 'Site Management' })}</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-6 space-y-2 pb-6">
-                    {adminMenuItems.map((item) => (
-                      <Button
-                        key={item.path}
-                        variant="ghost"
-                        className="w-full justify-start gap-3 h-12"
-                        onClick={() => {
-                          navigate(item.path);
-                          setAdminMenuOpen(false);
-                        }}
-                      >
-                        <item.icon className="w-5 h-5" />
-                        <span className="text-base">{item.label}</span>
-                      </Button>
-                    ))}
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-
-            {/* Mobile: No quick actions - everything in Site Management menu */}
-
-            {/* Financial Stats Grid */}
+              {/* Financial Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               <BigStatCard
                 title={t({ ar: "الأرباح", en: "Profits" })}
@@ -422,25 +400,120 @@ export default function AdminDashboard() {
               />
             </div>
 
-            {/* Recent Bookings */}
-            <Card className="card-luxury">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
-                  {t({ ar: "أحدث الحجوزات", en: "Recent Bookings" })}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                {loadingBookings ? (
-                  <div className="flex justify-center py-8"><LoadingSpinner size="md" /></div>
-                ) : (
-                  <BookingManagement bookings={bookings} onUpdate={fetchBookings} />
-                )}
-              </CardContent>
-            </Card>
+              {/* Recent Bookings */}
+              <Card className="card-luxury">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    {t({ ar: "أحدث الحجوزات", en: "Recent Bookings" })}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {loadingBookings ? (
+                    <div className="flex justify-center py-8"><LoadingSpinner size="md" /></div>
+                  ) : (
+                    <BookingManagement bookings={bookings} onUpdate={fetchBookings} />
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </main>
+        </div>
+      ) : (
+        // Desktop: Persistent Sidebar
+        <SidebarProvider defaultOpen={true}>
+          <div className="flex min-h-screen w-full">
+            <AdminSidebar />
+            
+            <main className="flex-1 overflow-y-auto">
+              <div className="p-8">
+                {/* Header */}
+                <div className="mb-8">
+                  <h1 className="text-3xl font-bold mb-2 text-gradient-luxury">
+                    {t({ ar: "مرحباً بك في لوحة التحكم", en: "Welcome to Dashboard" })}
+                  </h1>
+                  <p className="text-muted-foreground">
+                    {t({ ar: "نظرة عامة على أداء نظامك", en: "Overview of your system performance" })}
+                  </p>
+                </div>
+
+                {/* Financial Stats Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                  <BigStatCard
+                    title={t({ ar: "الأرباح", en: "Profits" })}
+                    value={`${stats.profits || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
+                    icon={TrendingUp}
+                    colorClass="bg-gradient-to-br from-emerald-500 to-emerald-600"
+                  />
+                  <BigStatCard
+                    title={t({ ar: "في انتظار الدفع", en: "Pending Payment" })}
+                    value={`${stats.pendingPayments || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
+                    icon={Clock}
+                    colorClass="bg-gradient-to-br from-amber-500 to-amber-600"
+                  />
+                  <BigStatCard
+                    title={t({ ar: "إجمالي قيمة الطلبات", en: "Total Bookings Value" })}
+                    value={`${stats.totalBookingsValue || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
+                    icon={FileText}
+                    colorClass="bg-gradient-to-br from-sky-500 to-sky-600"
+                  />
+                  <BigStatCard
+                    title={t({ ar: "الخسائر", en: "Losses" })}
+                    value={`${stats.losses || 0} ${t({ ar: "ر.س", en: "SAR" })}`}
+                    icon={TrendingDown}
+                    colorClass="bg-gradient-to-br from-rose-500 to-rose-600"
+                  />
+                </div>
+
+                {/* Stats Grid - Detailed */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                  <StatCard
+                    title={t({ ar: "إجمالي الحجوزات", en: "Total Bookings" })}
+                    value={stats.totalBookings}
+                    icon={Briefcase}
+                    colorClass="bg-gradient-to-br from-purple-500 to-purple-600"
+                  />
+                  <StatCard
+                    title={t({ ar: "قيد الانتظار", en: "Pending" })}
+                    value={stats.pending}
+                    icon={Clock}
+                    colorClass="bg-gradient-to-br from-orange-500 to-orange-600"
+                  />
+                  <StatCard
+                    title={t({ ar: "مؤكد", en: "Confirmed" })}
+                    value={stats.confirmed}
+                    icon={CheckCircle}
+                    colorClass="bg-gradient-to-br from-green-500 to-green-600"
+                  />
+                  <StatCard
+                    title={t({ ar: "عدد العملاء", en: "Customers" })}
+                    value={stats.totalCustomers}
+                    icon={Users}
+                    colorClass="bg-gradient-to-br from-blue-500 to-blue-600"
+                  />
+                </div>
+
+                {/* Recent Bookings */}
+                <Card className="card-luxury">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <FileText className="w-5 h-5" />
+                      {t({ ar: "أحدث الحجوزات", en: "Recent Bookings" })}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    {loadingBookings ? (
+                      <div className="flex justify-center py-8"><LoadingSpinner size="md" /></div>
+                    ) : (
+                      <BookingManagement bookings={bookings} onUpdate={fetchBookings} />
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </main>
           </div>
-        </main>
-      </div>
+        </SidebarProvider>
+      )}
     </div>
   );
 }
