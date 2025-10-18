@@ -92,7 +92,7 @@ export default function ManageHotels() {
     tax_percentage: "0",
     room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
     bed_type_single: "single" as 'single' | 'king',
-    bed_type_double: "king" as 'king' | 'twin' | 'double',
+    bed_type_double: "king" as 'king' | 'twin',
   });
   const [amenities, setAmenities] = useState({
     wifi: true,
@@ -540,9 +540,7 @@ export default function ManageHotels() {
       tax_percentage: (hotel as any).tax_percentage?.toString() || "0",
       room_type: hotel.room_type || 'hotel_rooms',
       bed_type_single: 'single',
-      bed_type_double: ((hotel as any).bed_type_double === 'twin' || (hotel as any).bed_type_double === 'double') 
-        ? (hotel as any).bed_type_double 
-        : 'king',
+      bed_type_double: (hotel as any).bed_type_double === 'twin' ? 'twin' : 'king',
     });
 
     // Set existing images
@@ -616,7 +614,7 @@ export default function ManageHotels() {
       tax_percentage: "0",
       room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
       bed_type_single: "single" as 'single' | 'king',
-      bed_type_double: "king" as 'king' | 'twin' | 'double',
+      bed_type_double: "king" as 'king' | 'twin',
     });
   };
 
@@ -1092,18 +1090,6 @@ export default function ManageHotels() {
                       >
                         <BedIcon type="king" className="w-5 h-5" />
                       </button>
-                      <button
-                        type="button"
-                        onClick={() => setFormData({...formData, bed_type_double: 'double'})}
-                        className={`p-1.5 border-2 rounded transition-all ${
-                          formData.bed_type_double === 'double' 
-                            ? 'border-primary bg-primary/10' 
-                            : 'border-border hover:border-primary/50'
-                        }`}
-                        title={t({ ar: "سرير مزدوج", en: "Double Bed" })}
-                      >
-                        <BedIcon type="king" className="w-5 h-5" />
-                      </button>
                     </div>
                   )}
                 </div>
@@ -1486,18 +1472,6 @@ export default function ManageHotels() {
                             : 'border-border hover:border-primary/50'
                         }`}
                         title={t({ ar: "سرير كينج كبير", en: "King Size Bed" })}
-                      >
-                        <BedIcon type="king" className="w-5 h-5" />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setFormData({...formData, bed_type_double: 'double'})}
-                        className={`p-1.5 border-2 rounded transition-all ${
-                          formData.bed_type_double === 'double' 
-                            ? 'border-primary bg-primary/10' 
-                            : 'border-border hover:border-primary/50'
-                        }`}
-                        title={t({ ar: "سرير مزدوج", en: "Double Bed" })}
                       >
                         <BedIcon type="king" className="w-5 h-5" />
                       </button>

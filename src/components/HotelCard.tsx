@@ -70,45 +70,47 @@ export function HotelCard({
     const arOrEn = (ar: string, en: string) => (language === 'ar' ? ar : en);
 
     if (max_guests_per_room === 1) {
-      const labels: Record<string, { ar: string; en: string }> = {
-        single: { ar: 'سرير مفرد', en: 'Single Bed' },
-        king: { ar: 'سرير كينج', en: 'King Bed' },
-        twin: { ar: 'سريران مفردان', en: 'Twin Beds' },
-        double: { ar: 'سرير مزدوج', en: 'Double Bed' },
-      };
-      const key = String(bed_type_single || '').toLowerCase();
-      const found = labels[key];
-      return found ? arOrEn(found.ar, found.en) : arOrEn('إشغال فردي', 'Single occupancy');
+      return arOrEn('سرير مفرد', 'Single Bed');
     }
 
     if (max_guests_per_room === 2) {
       const labels: Record<string, { ar: string; en: string }> = {
         king: { ar: 'سرير كينج', en: 'King Bed' },
-        twin: { ar: 'سريران مفردان', en: 'Twin Beds' },
-        double: { ar: 'سرير مزدوج', en: 'Double Bed' },
+        twin: { ar: 'سريرين مفردين', en: 'Twin Beds' },
       };
       const key = String(bed_type_double || '').toLowerCase();
       const found = labels[key];
-      return found ? arOrEn(found.ar, found.en) : arOrEn('إشغال لشخصين', 'Double occupancy');
+      return found ? arOrEn(found.ar, found.en) : arOrEn('سرير مزدوج', 'Double Bed');
+    }
+
+    if (max_guests_per_room === 3) {
+      return arOrEn('3 أسرّة مفردة', '3 Single Beds');
+    }
+
+    if (max_guests_per_room === 4) {
+      return arOrEn('4 أسرّة مفردة', '4 Single Beds');
     }
 
     return null;
   };
 
   const getBedTypeIcon = () => {
-    const isSingleOcc = max_guests_per_room === 1;
-    if (isSingleOcc) {
-      const key = String(bed_type_single || '').toLowerCase();
-      if (key === 'twin') return <BedIcon type="twin" className="w-4 h-4" />;
-      if (key === 'king' || key === 'double') return <BedIcon type="king" className="w-4 h-4" />;
-      return <Bed className="w-4 h-4" />;
+    if (max_guests_per_room === 1) {
+      return <BedIcon type="single" className="w-4 h-4" />;
     }
 
     if (max_guests_per_room === 2) {
       const key = String(bed_type_double || '').toLowerCase();
       if (key === 'twin') return <BedIcon type="twin" className="w-4 h-4" />;
-      if (key === 'king' || key === 'double') return <BedIcon type="king" className="w-4 h-4" />;
-      return <Bed className="w-4 h-4" />;
+      return <BedIcon type="king" className="w-4 h-4" />;
+    }
+
+    if (max_guests_per_room === 3) {
+      return <BedIcon type="triple" className="w-4 h-4" />;
+    }
+
+    if (max_guests_per_room === 4) {
+      return <BedIcon type="quad" className="w-4 h-4" />;
     }
 
     return null;

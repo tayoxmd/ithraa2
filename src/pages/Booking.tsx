@@ -29,6 +29,7 @@ import { calculateSeasonalPrice } from "@/utils/seasonalPricing";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileBooking } from "@/components/MobileBooking";
 import { useTheme } from "@/contexts/ThemeContext";
+import { BedIcon } from "@/components/BedIcons";
 
 const paymentMethods = [
   { id: 'cash', name: 'نقدي', nameEn: 'Cash' },

@@ -891,6 +891,8 @@ export type Database = {
           active: boolean | null
           amenities: Json | null
           bed_type_double: string | null
+          bed_type_four: string | null
+          bed_type_three: string | null
           city_id: string
           commission_type: string | null
           commission_value: number | null
@@ -922,6 +924,8 @@ export type Database = {
           active?: boolean | null
           amenities?: Json | null
           bed_type_double?: string | null
+          bed_type_four?: string | null
+          bed_type_three?: string | null
           city_id: string
           commission_type?: string | null
           commission_value?: number | null
@@ -953,6 +957,8 @@ export type Database = {
           active?: boolean | null
           amenities?: Json | null
           bed_type_double?: string | null
+          bed_type_four?: string | null
+          bed_type_three?: string | null
           city_id?: string
           commission_type?: string | null
           commission_value?: number | null
