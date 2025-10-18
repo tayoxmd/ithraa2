@@ -11,8 +11,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Edit, Trash2, Calendar as CalendarIcon } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, Calendar as CalendarIcon, Power, PowerOff } from "lucide-react";
 import { format } from "date-fns";
 import { ar } from "date-fns/locale";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -54,6 +56,7 @@ export default function SeasonalPricing() {
     price_per_night: "",
     is_available: true,
   });
+  const [weekendDays, setWeekendDays] = useState<number[]>([5, 6]); // Friday=5, Saturday=6
 
   const handleDayClick = (day: Date) => {
     // 1st click: start, 2nd: end, 3rd: restart from clicked day
@@ -187,6 +190,28 @@ export default function SeasonalPricing() {
     }
   };
 
+  const toggleAvailability = async (price: SeasonalPrice) => {
+    try {
+      const { error } = await supabase
+        .from('hotel_seasonal_pricing')
+        .update({ is_available: !price.is_available })
+        .eq('id', price.id);
+
+      if (error) throw error;
+      toast({
+        title: t({ ar: "تم التحديث", en: "Updated" }),
+        description: t({ ar: "تم تحديث حالة التسعير", en: "Pricing status updated" }),
+      });
+      fetchPrices();
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm(t({ ar: "هل أنت متأكد من الحذف؟", en: "Are you sure you want to delete?" }))) return;
 
@@ -296,10 +321,21 @@ export default function SeasonalPricing() {
                             {language === 'ar' ? price.season_name_ar : price.season_name_en}
                           </h3>
                           {!price.is_available && (
-                            <Badge variant="secondary">{t({ ar: "غير متاح", en: "Unavailable" })}</Badge>
+                            <Badge variant="secondary">{t({ ar: "معطّل", en: "Disabled" })}</Badge>
+                          )}
+                          {price.is_available && (
+                            <Badge className="bg-green-500">{t({ ar: "مفعّل", en: "Active" })}</Badge>
                           )}
                         </div>
                         <div className="flex gap-2">
+                          <Button 
+                            size="sm" 
+                            variant={price.is_available ? "default" : "outline"}
+                            onClick={() => toggleAvailability(price)}
+                            title={t({ ar: price.is_available ? "إيقاف" : "تشغيل", en: price.is_available ? "Disable" : "Enable" })}
+                          >
+                            {price.is_available ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />}
+                          </Button>
                           <Button size="sm" variant="outline" onClick={() => openEditDialog(price)}>
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -316,12 +352,15 @@ export default function SeasonalPricing() {
                             {language === 'ar' ? price.season_name_ar : price.season_name_en}
                           </h3>
                           {!price.is_available && (
-                            <Badge variant="secondary">{t({ ar: "غير متاح", en: "Unavailable" })}</Badge>
+                            <Badge variant="secondary">{t({ ar: "معطّل", en: "Disabled" })}</Badge>
+                          )}
+                          {price.is_available && (
+                            <Badge className="bg-green-500">{t({ ar: "مفعّل", en: "Active" })}</Badge>
                           )}
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">
                           <div className="flex items-center gap-2">
-                            <Calendar className="w-4 h-4" />
+                            <CalendarIcon className="w-4 h-4" />
                             <span>{format(new Date(price.start_date), 'yyyy-MM-dd')}</span>
                           </div>
                           <span>→</span>
@@ -336,7 +375,7 @@ export default function SeasonalPricing() {
                       {/* Mobile dates and price */}
                       <div className="flex items-center gap-4 text-sm text-muted-foreground lg:hidden">
                         <div className="flex items-center gap-2">
-                          <Calendar className="w-4 h-4" />
+                          <CalendarIcon className="w-4 h-4" />
                           <span>{format(new Date(price.start_date), 'yyyy-MM-dd')}</span>
                         </div>
                         <span>→</span>
@@ -349,6 +388,14 @@ export default function SeasonalPricing() {
 
                       {/* Desktop action buttons */}
                       <div className="hidden lg:flex gap-2">
+                        <Button 
+                          size="sm" 
+                          variant={price.is_available ? "default" : "outline"}
+                          onClick={() => toggleAvailability(price)}
+                          title={t({ ar: price.is_available ? "إيقاف" : "تشغيل", en: price.is_available ? "Disable" : "Enable" })}
+                        >
+                          {price.is_available ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />}
+                        </Button>
                         <Button size="sm" variant="outline" onClick={() => openEditDialog(price)}>
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -398,6 +445,38 @@ export default function SeasonalPricing() {
               </div>
 
               <div>
+                <Label className="mb-3 block">{t({ ar: "أيام نهاية الأسبوع (يتم تطبيق الأسعار عليها دائماً)", en: "Weekend Days (prices always applied)" })}</Label>
+                <div className="flex gap-4 mb-4 flex-wrap">
+                  {[
+                    { day: 0, labelAr: 'الأحد', labelEn: 'Sunday' },
+                    { day: 1, labelAr: 'الإثنين', labelEn: 'Monday' },
+                    { day: 2, labelAr: 'الثلاثاء', labelEn: 'Tuesday' },
+                    { day: 3, labelAr: 'الأربعاء', labelEn: 'Wednesday' },
+                    { day: 4, labelAr: 'الخميس', labelEn: 'Thursday' },
+                    { day: 5, labelAr: 'الجمعة', labelEn: 'Friday' },
+                    { day: 6, labelAr: 'السبت', labelEn: 'Saturday' },
+                  ].map((item) => (
+                    <div key={item.day} className="flex items-center gap-2">
+                      <Checkbox
+                        id={`weekend-${item.day}`}
+                        checked={weekendDays.includes(item.day)}
+                        onCheckedChange={(checked) => {
+                          if (checked) {
+                            setWeekendDays([...weekendDays, item.day]);
+                          } else {
+                            setWeekendDays(weekendDays.filter(d => d !== item.day));
+                          }
+                        }}
+                      />
+                      <Label htmlFor={`weekend-${item.day}`} className="cursor-pointer text-sm">
+                        {language === 'ar' ? item.labelAr : item.labelEn}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
                 <Label>{t({ ar: "تاريخ البداية والنهاية", en: "Start and End Date" })}</Label>
                 <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
                   <PopoverTrigger asChild>
@@ -424,6 +503,12 @@ export default function SeasonalPricing() {
                       locale={ar}
                       className="pointer-events-auto"
                       numberOfMonths={1}
+                      modifiers={{
+                        weekend: (date) => weekendDays.includes(date.getDay())
+                      }}
+                      modifiersClassNames={{
+                        weekend: "bg-primary/10 font-bold text-primary"
+                      }}
                     />
                     <div className="px-3 pb-3 border-t flex items-center justify-end">
                       <Button 
