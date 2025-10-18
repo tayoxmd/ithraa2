@@ -56,8 +56,11 @@ export default function AdminDashboard() {
   });
 
   const adminMenuItems = [
+    { icon: Home, label: t({ ar: 'الصفحة الرئيسية', en: 'Home' }), path: '/' },
     { icon: Hotel, label: t({ ar: 'إدارة الفنادق', en: 'Manage Hotels' }), path: '/manage-hotels' },
-    { icon: Users, label: t({ ar: 'إدارة الموظفين', en: 'Manage Employees' }), path: '/manage-employees' },
+    { icon: Users, label: t({ ar: 'إدارة المستخدمين', en: 'Manage Users' }), path: '/manage-employees' },
+    { icon: Briefcase, label: t({ ar: 'شؤون الموظفين', en: 'Employee Management' }), path: '/employee-management' },
+    { icon: FileText, label: t({ ar: 'التقييمات والمراجعات', en: 'Reviews & Ratings' }), path: '/reviews' },
     { icon: MessageSquare, label: t({ ar: 'الدردشة المباشرة', en: 'Live Chat' }), path: '/live-chat' },
     { icon: Tag, label: t({ ar: 'الكوبونات', en: 'Coupons' }), path: '/coupons' },
     { icon: Gift, label: t({ ar: 'العروض الخاصة', en: 'Special Offers' }), path: '/special-offers' },
@@ -67,6 +70,7 @@ export default function AdminDashboard() {
     { icon: DollarSign, label: t({ ar: 'إعدادات API', en: 'API Settings' }), path: '/api-settings' },
     { icon: FileText, label: t({ ar: 'إعدادات PDF', en: 'PDF Settings' }), path: '/pdf-settings' },
     { icon: FileText, label: t({ ar: 'سجل التدقيق', en: 'Audit Logs' }), path: '/audit-logs' },
+    { icon: User, label: t({ ar: 'الملف الشخصي', en: 'Profile' }), path: '/profile' },
   ];
 
   useEffect(() => {
@@ -362,30 +366,7 @@ export default function AdminDashboard() {
 
             {/* Quick Actions - Mobile Only */}
             <div className="lg:hidden grid grid-cols-2 gap-3 mb-6">
-              <Button onClick={() => navigate('/')} variant="outline" className="h-20 flex-col gap-2">
-                <Home className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "الرئيسية", en: "Home" })}</span>
-              </Button>
-              <Button onClick={() => navigate('/manage-hotels')} variant="outline" className="h-20 flex-col gap-2">
-                <Hotel className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "الفنادق", en: "Hotels" })}</span>
-              </Button>
-              <Button onClick={() => navigate('/manage-employees')} variant="outline" className="h-20 flex-col gap-2">
-                <UserCog className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "المستخدمين", en: "Users" })}</span>
-              </Button>
-              <Button onClick={() => navigate('/employee-management')} variant="outline" className="h-20 flex-col gap-2">
-                <Briefcase className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "شؤون الموظفين", en: "Employees" })}</span>
-              </Button>
-              <Button onClick={() => navigate('/site-settings')} variant="outline" className="h-20 flex-col gap-2">
-                <Settings className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "الإعدادات", en: "Settings" })}</span>
-              </Button>
-              <Button onClick={() => navigate('/audit-logs')} variant="outline" className="h-20 flex-col gap-2">
-                <FileText className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "السجلات", en: "Logs" })}</span>
-              </Button>
+              {/* Removed quick actions - Site Management button is now the main menu */}
             </div>
 
             {/* Financial Stats Grid */}

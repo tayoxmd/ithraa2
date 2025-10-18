@@ -40,7 +40,7 @@ export default function ManageEmployees() {
     password: "",
     full_name: "",
     phone: "",
-    role: "customer" as "admin" | "employee" | "customer"
+    role: "customer" as "admin" | "assistant_manager" | "employee" | "company" | "customer" | "specific_financial_manager" | "specific_financial_employee" | "visa_department_manager" | "visa_department_employee"
   });
 
   useEffect(() => {
@@ -332,10 +332,16 @@ export default function ManageEmployees() {
   const getRoleLabel = (role: string) => {
     const labels: Record<string, { ar: string; en: string }> = {
       admin: { ar: "مدير", en: "Admin" },
+      assistant_manager: { ar: "مساعد مدير", en: "Assistant Manager" },
       employee: { ar: "موظف", en: "Employee" },
-      customer: { ar: "عميل", en: "Customer" }
+      company: { ar: "شركات", en: "Company" },
+      customer: { ar: "عميل", en: "Customer" },
+      specific_financial_manager: { ar: "مدير فرع الحسابات الخاصة", en: "Specific Financial Manager" },
+      specific_financial_employee: { ar: "موظف فرع الحسابات الخاصة", en: "Specific Financial Employee" },
+      visa_department_manager: { ar: "مدير فرع التأشيرات", en: "Visa Department Manager" },
+      visa_department_employee: { ar: "موظف فرع التأشيرات", en: "Visa Department Employee" }
     };
-    return language === 'ar' ? labels[role]?.ar : labels[role]?.en;
+    return language === 'ar' ? labels[role]?.ar || role : labels[role]?.en || role;
   };
 
   return (
@@ -403,6 +409,12 @@ export default function ManageEmployees() {
                         <SelectItem value="customer">{t({ ar: "عميل", en: "Customer" })}</SelectItem>
                         <SelectItem value="employee">{t({ ar: "موظف", en: "Employee" })}</SelectItem>
                         <SelectItem value="admin">{t({ ar: "مدير", en: "Admin" })}</SelectItem>
+                        <SelectItem value="assistant_manager">{t({ ar: "مساعد مدير", en: "Assistant Manager" })}</SelectItem>
+                        <SelectItem value="company">{t({ ar: "شركات", en: "Company" })}</SelectItem>
+                        <SelectItem value="specific_financial_manager">{t({ ar: "مدير فرع الحسابات الخاصة", en: "Specific Financial Manager" })}</SelectItem>
+                        <SelectItem value="specific_financial_employee">{t({ ar: "موظف فرع الحسابات الخاصة", en: "Specific Financial Employee" })}</SelectItem>
+                        <SelectItem value="visa_department_manager">{t({ ar: "مدير فرع التأشيرات", en: "Visa Department Manager" })}</SelectItem>
+                        <SelectItem value="visa_department_employee">{t({ ar: "موظف فرع التأشيرات", en: "Visa Department Employee" })}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -417,21 +429,21 @@ export default function ManageEmployees() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t({ ar: "الاسم", en: "Name" })}</TableHead>
-                  <TableHead>{t({ ar: "البريد الإلكتروني", en: "Email" })}</TableHead>
-                  <TableHead>{t({ ar: "الهاتف", en: "Phone" })}</TableHead>
-                  <TableHead>{t({ ar: "الدور", en: "Role" })}</TableHead>
-                  <TableHead>{t({ ar: "الإجراءات", en: "Actions" })}</TableHead>
+                  <TableHead className="text-right">{t({ ar: "الاسم", en: "Name" })}</TableHead>
+                  <TableHead className="text-right">{t({ ar: "البريد الإلكتروني", en: "Email" })}</TableHead>
+                  <TableHead className="text-right">{t({ ar: "الهاتف", en: "Phone" })}</TableHead>
+                  <TableHead className="text-right">{t({ ar: "الدور", en: "Role" })}</TableHead>
+                  <TableHead className="text-right">{t({ ar: "الإجراءات", en: "Actions" })}</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {users.map((user) => (
                   <TableRow key={user.id}>
-                    <TableCell>{user.full_name}</TableCell>
-                    <TableCell>{user.email}</TableCell>
-                    <TableCell>{user.phone}</TableCell>
-                    <TableCell>{getRoleLabel(user.role)}</TableCell>
-                    <TableCell>
+                    <TableCell className="text-right">{user.full_name}</TableCell>
+                    <TableCell className="text-right">{user.email}</TableCell>
+                    <TableCell className="text-right">{user.phone}</TableCell>
+                    <TableCell className="text-right">{getRoleLabel(user.role)}</TableCell>
+                    <TableCell className="text-right">
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
                           <Pencil className="w-4 h-4" />
@@ -494,6 +506,12 @@ export default function ManageEmployees() {
                     <SelectItem value="customer">{t({ ar: "عميل", en: "Customer" })}</SelectItem>
                     <SelectItem value="employee">{t({ ar: "موظف", en: "Employee" })}</SelectItem>
                     <SelectItem value="admin">{t({ ar: "مدير", en: "Admin" })}</SelectItem>
+                    <SelectItem value="assistant_manager">{t({ ar: "مساعد مدير", en: "Assistant Manager" })}</SelectItem>
+                    <SelectItem value="company">{t({ ar: "شركات", en: "Company" })}</SelectItem>
+                    <SelectItem value="specific_financial_manager">{t({ ar: "مدير فرع الحسابات الخاصة", en: "Specific Financial Manager" })}</SelectItem>
+                    <SelectItem value="specific_financial_employee">{t({ ar: "موظف فرع الحسابات الخاصة", en: "Specific Financial Employee" })}</SelectItem>
+                    <SelectItem value="visa_department_manager">{t({ ar: "مدير فرع التأشيرات", en: "Visa Department Manager" })}</SelectItem>
+                    <SelectItem value="visa_department_employee">{t({ ar: "موظف فرع التأشيرات", en: "Visa Department Employee" })}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

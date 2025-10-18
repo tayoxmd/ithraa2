@@ -113,12 +113,12 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
               {t('الوجهة', 'Destination')}
             </label>
             <Select value={selectedCity} onValueChange={setSelectedCity}>
-              <SelectTrigger className="h-12 bg-white/35 border-white/20 text-white rounded-xl hover:bg-white/55">
-                <SelectValue placeholder={t('اختر المدينة', 'Select City')} />
+              <SelectTrigger className="h-12 bg-white/35 border-white/20 text-white rounded-xl hover:bg-white/55 text-right">
+                <SelectValue placeholder={t('اختر المدينة', 'Select City')} className="text-right" />
               </SelectTrigger>
               <SelectContent className="rounded-xl">
                 {cities.map((city) => (
-                  <SelectItem key={city.id} value={city.id}>
+                  <SelectItem key={city.id} value={city.id} className="text-right">
                     {city.name_ar}
                   </SelectItem>
                 ))}
@@ -281,7 +281,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
           {/* Search Button */}
           <div className="flex items-end">
-            <Button onClick={handleSearch} className="w-full h-12 text-lg bg-white/70 hover:bg-white/80 text-primary rounded-xl font-semibold shadow-lg">
+            <Button onClick={handleSearch} className="w-full h-12 text-lg text-white rounded-xl font-semibold shadow-lg" style={{ backgroundColor: '#237bff' }}>
               <Search className="ml-2 w-5 h-5" />
               {t('ابحث الآن', 'Search Now')}
             </Button>

@@ -181,7 +181,7 @@ export default function SearchResults() {
                 </p>
               </div>
               <CollapsibleTrigger asChild>
-                <Button variant="outline" className="flex items-center gap-2">
+                <Button className="flex items-center gap-2 text-white" style={{ backgroundColor: '#237bff' }}>
                   {isSearchOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                   {t({ ar: 'تعديل خيارات البحث', en: 'Edit Search Options' })}
                 </Button>
