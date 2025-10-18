@@ -278,16 +278,26 @@ export default function CustomerDashboard() {
                             </div>
                           </div>
                           <div className="space-y-2">
-                            <div className="flex items-center justify-between gap-2 text-sm">
-                              <span className="text-muted-foreground whitespace-nowrap">{t({ ar: "عدد الأشخاص:", en: "Persons:" })}</span>
-                              <span className="font-medium">{booking.meal_plan_max_persons} {t({ ar: "أشخاص", en: "persons" })}</span>
-                            </div>
-                            {booking.extra_meals && booking.extra_meals > 0 && (
-                              <div className="flex items-center justify-between gap-2 text-sm">
-                                <span className="text-muted-foreground whitespace-nowrap">{t({ ar: "وجبات إضافية:", en: "Extra Meals:" })}</span>
-                                <span className="font-medium">+{booking.extra_meals}</span>
-                              </div>
-                            )}
+                            {(() => {
+                              const includedPersons = (booking.meal_plan_max_persons || 0) * booking.rooms;
+                              const extraMealsRequired = Math.max(0, booking.guests - includedPersons);
+                              return (
+                                <>
+                                  {booking.meal_plan_max_persons && booking.meal_plan_max_persons > 0 && (
+                                    <div className="flex items-center justify-between gap-2 text-sm">
+                                      <span className="text-muted-foreground whitespace-nowrap">{t({ ar: "عدد الأشخاص:", en: "Persons:" })}</span>
+                                      <span className="font-medium">{includedPersons} {t({ ar: "أشخاص", en: "persons" })}</span>
+                                    </div>
+                                  )}
+                                  {((booking.extra_meals && booking.extra_meals > 0) || extraMealsRequired > 0) && (
+                                    <div className="flex items-center justify-between gap-2 text-sm">
+                                      <span className="text-muted-foreground whitespace-nowrap">{t({ ar: "وجبات إضافية:", en: "Extra Meals:" })}</span>
+                                      <span className="font-medium">+{booking.extra_meals && booking.extra_meals > 0 ? booking.extra_meals : extraMealsRequired}</span>
+                                    </div>
+                                  )}
+                                </>
+                              );
+                            })()}
                           </div>
                         </div>
                       </div>
