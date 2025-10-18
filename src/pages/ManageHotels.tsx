@@ -1410,6 +1410,86 @@ export default function ManageHotels() {
                   <p className="text-xs text-muted-foreground">{t({ ar: "إذا كان 0 فلا توجد ضريبة", en: "If 0, no tax" })}</p>
                 </div>
               </div>
+              
+              {/* Bed Type Selection - Edit Dialog */}
+              <div className="space-y-2">
+                <Label>{t({ ar: "نوع السرير", en: "Bed Type" })}</Label>
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0">
+                    <Select value={formData.max_guests_per_room} onValueChange={(value) => setFormData({...formData, max_guests_per_room: value})}>
+                      <SelectTrigger className="w-[120px] h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[1, 2, 3, 4, 5, 6].map(num => (
+                          <SelectItem key={num} value={num.toString()}>{num} {t({ ar: 'أشخاص', en: 'persons' })}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  
+                  {/* Single Guest - Single Bed or King Bed */}
+                  {formData.max_guests_per_room === "1" && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({...formData, bed_type_single: 'single'})}
+                        className={`p-1.5 border-2 rounded transition-all ${
+                          formData.bed_type_single === 'single' 
+                            ? 'border-primary bg-primary/10' 
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        title={t({ ar: "سرير مفرد", en: "Single Bed" })}
+                      >
+                        <BedIcon type="single" className="w-5 h-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({...formData, bed_type_single: 'king'})}
+                        className={`p-1.5 border-2 rounded transition-all ${
+                          formData.bed_type_single === 'king' 
+                            ? 'border-primary bg-primary/10' 
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        title={t({ ar: "سرير كينج كبير", en: "King Size Bed" })}
+                      >
+                        <BedIcon type="king" className="w-5 h-5" />
+                      </button>
+                    </div>
+                  )}
+                  
+                  {/* Two Guests - Twin Beds or King Bed */}
+                  {formData.max_guests_per_room === "2" && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({...formData, bed_type_double: 'twin'})}
+                        className={`p-1.5 border-2 rounded transition-all ${
+                          formData.bed_type_double === 'twin' 
+                            ? 'border-primary bg-primary/10' 
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        title={t({ ar: "سريرين مفردين", en: "Twin Beds" })}
+                      >
+                        <BedIcon type="twin" className="w-5 h-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({...formData, bed_type_double: 'king'})}
+                        className={`p-1.5 border-2 rounded transition-all ${
+                          formData.bed_type_double === 'king' 
+                            ? 'border-primary bg-primary/10' 
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        title={t({ ar: "سرير كينج كبير", en: "King Size Bed" })}
+                      >
+                        <BedIcon type="king" className="w-5 h-5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+              
               <div className="space-y-2">
                 <Label>{t({ ar: "نوع الغرف", en: "Room Type" })}</Label>
                 <Select value={formData.room_type} onValueChange={(value: 'hotel_rooms' | 'owner_rooms') => setFormData({...formData, room_type: value})}>
