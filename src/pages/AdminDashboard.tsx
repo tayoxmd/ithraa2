@@ -257,64 +257,6 @@ export default function AdminDashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
       <div className="flex h-screen">
-        {/* Sidebar */}
-        <aside className="hidden lg:flex flex-col w-64 bg-card border-l border-border shadow-xl">
-          <div className="p-6 border-b border-border">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-primary-glow flex items-center justify-center">
-                <LayoutDashboard className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h2 className="font-bold text-lg">{t({ ar: "إثراء", en: "ITHRAA" })}</h2>
-                <p className="text-xs text-muted-foreground">{t({ ar: "لوحة التحكم", en: "Dashboard" })}</p>
-              </div>
-            </div>
-          </div>
-          
-          <nav className="flex-1 p-4 space-y-2">
-            <NavItem 
-              icon={Home} 
-              label={t({ ar: "الصفحة الرئيسية", en: "Home" })} 
-              onClick={() => navigate('/')} 
-            />
-            <NavItem 
-              icon={FileText} 
-              label={t({ ar: "التقييمات والمراجعات", en: "Reviews & Ratings" })} 
-              onClick={() => navigate('/reviews')} 
-            />
-            <NavItem 
-              icon={Hotel} 
-              label={t({ ar: "إدارة الفنادق", en: "Manage Hotels" })} 
-              onClick={() => navigate('/manage-hotels')} 
-            />
-            <NavItem 
-              icon={UserCog} 
-              label={t({ ar: "إدارة المستخدمين", en: "Manage Users" })} 
-              onClick={() => navigate('/manage-employees')} 
-            />
-            <NavItem 
-              icon={Briefcase} 
-              label={t({ ar: "شؤون الموظفين", en: "Employee Management" })} 
-              onClick={() => navigate('/employee-management')} 
-            />
-            <NavItem 
-              icon={FileText} 
-              label={t({ ar: "إعدادات PDF", en: "PDF Settings" })} 
-              onClick={() => navigate('/pdf-settings')} 
-            />
-            <NavItem 
-              icon={Settings} 
-              label={t({ ar: "الإعدادات", en: "Settings" })} 
-              onClick={() => navigate('/site-settings')} 
-            />
-            <NavItem 
-              icon={User} 
-              label={t({ ar: "الملف الشخصي", en: "Profile" })} 
-              onClick={() => navigate('/profile')} 
-            />
-          </nav>
-        </aside>
-
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto">
           <div className="p-4 lg:p-8 pt-24 lg:pt-8">

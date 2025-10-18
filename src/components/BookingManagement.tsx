@@ -584,8 +584,10 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
-                <div className="space-y-4">
+              {/* Desktop: 4 columns in a row, Mobile: 1 column */}
+              <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6">
+                {/* Column 1: Booking Details */}
+                <div className="space-y-3 lg:space-y-4">
                   <div className="flex items-center justify-between gap-3 text-sm sm:text-base">
                     <div className="flex items-center gap-2">
                       <CalendarIcon className="w-4 h-4 text-primary flex-shrink-0" />
@@ -646,7 +648,8 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                   )}
                 </div>
 
-                <div className="space-y-4">
+                {/* Column 2: Customer Information */}
+                <div className="space-y-3 lg:space-y-4">
                   <div>
                     <h4 className="font-bold mb-3 text-base sm:text-lg">{t({ ar: "معلومات العميل", en: "Customer Information" })}</h4>
                     <div className="space-y-3 text-sm sm:text-base">
@@ -660,8 +663,10 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                       </div>
                     </div>
                   </div>
+                </div>
 
-                  {/* Hotel Confirmation Number - Editable */}
+                {/* Column 3: Hotel Confirmation Number - Editable */}
+                <div className="space-y-3 lg:space-y-4">
                   <div>
                     {showConfNumberInput === booking.id ? (
                       <div className="flex flex-col gap-3">
@@ -739,9 +744,150 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     )}
                   </div>
                 </div>
+
+                {/* Column 4: Action Buttons */}
+                <div className="space-y-2 lg:space-y-3 flex flex-col">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => openEditDialog(booking)}
+                  >
+                    <Edit className="w-4 h-4 ml-1" />
+                    {t({ ar: "تعديل", en: "Edit" })}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => {
+                      const customerPageUrl = generateCustomerPageUrl(booking.user_id);
+                      const nights = Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24));
+                      const taxRate = booking.hotels?.tax_percentage || 0;
+                      
+                      // Calculate amounts correctly
+                      // total_amount already includes tax, so we need to reverse calculate
+                      const totalAfterDiscount = (booking.manual_total || booking.total_amount) - (booking.discount_amount || 0);
+                      const subtotalBeforeTax = taxRate > 0 ? totalAfterDiscount / (1 + taxRate / 100) : totalAfterDiscount;
+                      const vatAmount = totalAfterDiscount - subtotalBeforeTax;
+                      
+                      downloadBookingPDF({
+                        bookingNumber: booking.booking_number || 0,
+                        hotelConfirmationNumber: booking.hotel_confirmation_number,
+                        guestName: booking.guest_name || booking.profiles?.full_name || '',
+                        clientName: booking.profiles?.full_name || '',
+                        clientEmail: user?.email || '',
+                        clientPhone: booking.profiles?.phone || '',
+                        hotelNameEn: booking.hotels?.name_en || '',
+                        hotelNameAr: booking.hotels?.name_ar || '',
+                        hotelLocation: booking.hotels?.location || '',
+                        hotelLocationUrl: booking.hotels?.location_url,
+                        checkIn: new Date(booking.check_in),
+                        checkOut: new Date(booking.check_out),
+                        nights,
+                        rooms: booking.rooms,
+                        guests: booking.guests,
+                        baseGuests: (booking.hotels?.max_guests_per_room || 2) * booking.rooms,
+                        extraGuests: Math.max(0, booking.guests - ((booking.hotels?.max_guests_per_room || 2) * booking.rooms)),
+                        roomType: booking.hotels?.room_type === 'owner_rooms' ? 'Owner Room' : 'Hotel Room',
+                        pricePerNight: booking.hotels?.price_per_night || 0,
+                        subtotal: subtotalBeforeTax,
+                        extraGuestCharge: 0,
+                        discountAmount: booking.discount_amount,
+                        netAmount: subtotalBeforeTax - (booking.discount_amount || 0),
+                        vatAmount,
+                        totalAmount: booking.total_amount,
+                        paymentMethod: booking.payment_method || '',
+                        notes: booking.notes,
+                        customerPageUrl,
+                      });
+                    }}
+                  >
+                    <Download className="w-4 h-4 ml-1" />
+                    {t({ ar: "PDF", en: "PDF" })}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => shareGeneral(booking)}
+                  >
+                    <Share2 className="w-4 h-4 ml-1" />
+                    {t({ ar: "مشاركة", en: "Share" })}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => {
+                      const customerPageUrl = generateCustomerPageUrl(booking.user_id);
+                      const nights = Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24));
+                      const taxRate = booking.hotels?.tax_percentage || 0;
+                      
+                      // Calculate amounts correctly
+                      // total_amount already includes tax, so we need to reverse calculate
+                      const totalAfterDiscount = (booking.manual_total || booking.total_amount) - (booking.discount_amount || 0);
+                      const subtotalBeforeTax = taxRate > 0 ? totalAfterDiscount / (1 + taxRate / 100) : totalAfterDiscount;
+                      const vatAmount = totalAfterDiscount - subtotalBeforeTax;
+                      
+                      sharePDFViaWhatsApp({
+                        bookingNumber: booking.booking_number || 0,
+                        hotelConfirmationNumber: booking.hotel_confirmation_number,
+                        guestName: booking.guest_name || booking.profiles?.full_name || '',
+                        clientName: booking.profiles?.full_name || '',
+                        clientEmail: user?.email || '',
+                        clientPhone: booking.profiles?.phone || '',
+                        hotelNameEn: booking.hotels?.name_en || '',
+                        hotelNameAr: booking.hotels?.name_ar || '',
+                        hotelLocation: booking.hotels?.location || '',
+                        hotelLocationUrl: booking.hotels?.location_url,
+                        checkIn: new Date(booking.check_in),
+                        checkOut: new Date(booking.check_out),
+                        nights,
+                        rooms: booking.rooms,
+                        guests: booking.guests,
+                        baseGuests: (booking.hotels?.max_guests_per_room || 2) * booking.rooms,
+                        extraGuests: Math.max(0, booking.guests - ((booking.hotels?.max_guests_per_room || 2) * booking.rooms)),
+                        roomType: booking.hotels?.room_type === 'owner_rooms' ? 'Owner Room' : 'Hotel Room',
+                        pricePerNight: booking.hotels?.price_per_night || 0,
+                        subtotal: subtotalBeforeTax,
+                        extraGuestCharge: 0,
+                        discountAmount: booking.discount_amount,
+                        netAmount: subtotalBeforeTax - (booking.discount_amount || 0),
+                        vatAmount,
+                        totalAmount: booking.total_amount,
+                        paymentMethod: booking.payment_method || '',
+                        notes: booking.notes,
+                        customerPageUrl,
+                      });
+                    }}
+                  >
+                    <FileText className="w-4 h-4 ml-1" />
+                    {t({ ar: "PDF واتساب", en: "PDF WhatsApp" })}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => shareViaWhatsApp(booking)}
+                  >
+                    <MessageCircle className="w-4 h-4 ml-1" />
+                    {t({ ar: "واتساب", en: "WhatsApp" })}
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-full"
+                    onClick={() => shareViaEmail(booking)}
+                  >
+                    <Mail className="w-4 h-4 ml-1" />
+                    {t({ ar: "بريد", en: "Email" })}
+                  </Button>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 pt-4 border-t">
+              {/* Mobile only - Keep the old 2-column grid for buttons at the bottom */}
+              <div className="lg:hidden grid grid-cols-2 gap-3 pt-4 border-t">
                     <Button
                       variant="outline"
                       size="default"
@@ -878,7 +1024,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                       <Mail className="w-4 h-4 ml-1" />
                       {t({ ar: "بريد", en: "Email" })}
                     </Button>
-              </div>
+                </div>
             </CardContent>
           </Card>
         ))}
