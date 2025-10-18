@@ -43,6 +43,14 @@ All colors MUST be HSL.
     --input: 220 15% 94%;
     --ring: 220 60% 25%;
 
+    /* Sidebar Tokens */
+    --sidebar: 0 0% 100%;
+    --sidebar-foreground: 220 50% 15%;
+    --sidebar-accent: 220 20% 92%;
+    --sidebar-accent-foreground: 220 50% 15%;
+    --sidebar-border: 220 20% 88%;
+    --sidebar-ring: 220 60% 25%;
+
     /* Status Colors */
     --status-new: 210 100% 50%;
     --status-pending: 30 100% 50%;
@@ -96,6 +104,14 @@ All colors MUST be HSL.
     --border: 220 35% 28%;
     --input: 220 40% 25%;
     --ring: 220 60% 35%;
+
+    /* Sidebar Tokens */
+    --sidebar: 220 55% 18%;
+    --sidebar-foreground: 220 10% 95%;
+    --sidebar-accent: 220 45% 20%;
+    --sidebar-accent-foreground: 220 10% 95%;
+    --sidebar-border: 220 35% 28%;
+    --sidebar-ring: 220 60% 35%;
 
     --gradient-luxury: linear-gradient(135deg, hsl(220 60% 35%), hsl(220 55% 45%));
     --gradient-hero: linear-gradient(135deg, hsl(220 60% 15% / 0.95), hsl(220 55% 22% / 0.9));
