@@ -25,7 +25,6 @@ import { calculateSeasonalPrice } from "@/utils/seasonalPricing";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MobileBooking } from "@/components/MobileBooking";
 import { useTheme } from "@/contexts/ThemeContext";
-import { ImageGallery } from "@/components/ImageGallery";
 
 const paymentMethods = [
   { id: 'cash', name: 'نقدي', nameEn: 'Cash' },
@@ -80,7 +79,6 @@ export default function Booking() {
   const [customerFullName, setCustomerFullName] = useState("");
   const [availableRooms, setAvailableRooms] = useState<number | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [showGallery, setShowGallery] = useState(false);
   const [mealBadgeSettings, setMealBadgeSettings] = useState({
     color: '#007dff',
     widthMobile: 120,
@@ -626,19 +624,19 @@ export default function Booking() {
                 <CardContent className="space-y-6">
                   {/* Hotel Images Gallery */}
                   {hotelImages.length > 0 && (
-                    <div className="relative rounded-lg overflow-hidden group cursor-pointer" onClick={() => setShowGallery(true)}>
+                    <div className="relative rounded-lg overflow-hidden group">
                       <div className="aspect-video w-full">
                         <img
                           src={hotelImages[currentImageIndex]}
                           alt={language === 'ar' ? hotel.name_ar : hotel.name_en}
-                          className="w-full h-full object-cover transition-transform group-hover:scale-105"
+                          className="w-full h-full object-cover"
                         />
                       </div>
                       
                       {/* Meal Badge */}
                       {meal && (meal.name_ar || meal.name_en) && (
                         <div 
-                          className="absolute top-2 left-2 px-3 py-1 text-white font-semibold shadow-lg flex items-center gap-1.5"
+                          className="absolute top-2 left-2 px-3 py-1 text-white font-semibold shadow-lg flex items-center gap-1.5 z-10"
                           style={{
                             backgroundColor: mealBadgeSettings.color,
                             fontSize: `${mealBadgeSettings.fontSize}px`,
@@ -665,21 +663,21 @@ export default function Booking() {
                         <>
                           <button
                             type="button"
-                            onClick={(e) => { e.stopPropagation(); handlePrevImage(); }}
-                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={handlePrevImage}
+                            className="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all z-10"
                           >
                             <ChevronRight className="w-5 h-5" />
                           </button>
                           <button
                             type="button"
-                            onClick={(e) => { e.stopPropagation(); handleNextImage(); }}
-                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={handleNextImage}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all z-10"
                           >
                             <ChevronLeft className="w-5 h-5" />
                           </button>
                           
                           {/* Image counter */}
-                          <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded-full text-xs">
+                          <div className="absolute bottom-2 right-2 bg-black/70 text-white px-2 py-1 rounded-full text-xs z-10">
                             {currentImageIndex + 1} / {hotelImages.length}
                           </div>
                         </>
@@ -1301,16 +1299,6 @@ export default function Booking() {
         onOpenChange={setShowPostBookingDialog}
         onSkip={() => navigate('/guest-dashboard')}
       />
-
-      {/* Image Gallery Dialog */}
-      {hotelImages.length > 0 && (
-        <ImageGallery
-          images={hotelImages}
-          open={showGallery}
-          onClose={() => setShowGallery(false)}
-          initialIndex={currentImageIndex}
-        />
-      )}
 
       <Footer />
     </div>
