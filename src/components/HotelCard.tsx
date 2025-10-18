@@ -170,6 +170,36 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
           )}
         </div>
 
+        {/* Meal Details Badge - Under Amenities */}
+        {meal_plans && meal_plans.regular_ar && meal_plans.regular_en && 
+         meal_plans.regular_ar.trim() !== "" && meal_plans.regular_en.trim() !== "" &&
+         meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
+          <div className="mb-3 p-2 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
+            <div className="flex items-center gap-2 text-xs">
+              <Utensils className="w-4 h-4 text-green-600 dark:text-green-400" />
+              <div className="flex-1">
+                <p className="font-semibold text-green-700 dark:text-green-300">
+                  {language === 'ar' ? meal_plans.regular_ar : meal_plans.regular_en}
+                </p>
+                <p className="text-green-600 dark:text-green-400 mt-0.5">
+                  {language === 'ar' 
+                    ? `يشمل ${meal_plans.max_persons} ${meal_plans.max_persons === 1 ? 'شخص' : meal_plans.max_persons === 2 ? 'شخصين' : 'أشخاص'}`
+                    : `Includes ${meal_plans.max_persons} ${meal_plans.max_persons === 1 ? 'person' : 'persons'}`
+                  }
+                  {meal_plans.extra_meal_price > 0 && (
+                    <span className="block text-[10px] mt-0.5">
+                      {language === 'ar' 
+                        ? `الوجبة الإضافية: ${meal_plans.extra_meal_price} ر.س/لليلة`
+                        : `Extra meal: ${meal_plans.extra_meal_price} SAR/night`
+                      }
+                    </span>
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
 
         {/* Price & CTA */}
         <div className="flex items-center justify-between pt-3 border-t border-border">

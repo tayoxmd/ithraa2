@@ -43,9 +43,14 @@ serve(async (req) => {
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
-      .single()
+      .maybeSingle()
 
-    if (roleError || roleData?.role !== 'admin') {
+    if (roleError) {
+      console.error('Role check error:', roleError)
+      throw new Error('Error checking user role')
+    }
+
+    if (!roleData || roleData.role !== 'admin') {
       throw new Error('Unauthorized: Admin access required')
     }
 

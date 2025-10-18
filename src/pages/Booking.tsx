@@ -538,63 +538,93 @@ export default function Booking() {
                     </div>
                   </div>
 
-                  {/* Price Breakdown */}
-                  <div className="space-y-2 pt-4 border-t">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{t({ ar: 'السعر لليلة', en: 'Price per night' })}</span>
-                      <span>{hotel.price_per_night} {t({ ar: 'ر.س', en: 'SAR' })}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{t({ ar: 'عدد الليالي', en: 'Nights' })}</span>
-                      <span>{nights}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{t({ ar: 'عدد الغرف', en: 'Rooms' })}</span>
-                      <span>{rooms}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{t({ ar: 'أساسي', en: 'Base guests' })}</span>
-                      <span>
-                        {(hotel.max_guests_per_room || 2) * parseInt(rooms)}{' '}
-                        {((hotel.max_guests_per_room || 2) * parseInt(rooms)) === 1 
-                          ? t({ ar: 'شخص', en: 'person' })
-                          : ((hotel.max_guests_per_room || 2) * parseInt(rooms)) === 2
-                          ? t({ ar: 'شخصان', en: 'persons' })
-                          : t({ ar: 'أشخاص', en: 'persons' })
-                        }
-                      </span>
-                    </div>
-                    {calculateTotal().extraGuestsCount > 0 && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          {calculateTotal().extraGuestsCount === 1 
-                            ? t({ ar: 'شخص إضافي واحد', en: 'One extra guest' })
-                            : calculateTotal().extraGuestsCount === 2
-                            ? t({ ar: `شخصين إضافيين`, en: 'Two extra guests' })
-                            : t({ ar: `${calculateTotal().extraGuestsCount} أشخاص إضافيين`, en: `${calculateTotal().extraGuestsCount} extra guests` })
-                          }
-                        </span>
-                        <span>+{Math.round(calculateTotal().extraGuestCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
-                      </div>
-                    )}
-                    {calculateTotal().extraMealCharge > 0 && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-muted-foreground">
-                          {t({ ar: `${extraMeals} ${extraMeals === 1 ? 'وجبة إضافية' : extraMeals === 2 ? 'وجبتين إضافيتين' : 'وجبات إضافية'}`, en: `${extraMeals} extra meal${extraMeals > 1 ? 's' : ''}` })}
-                        </span>
-                        <span>+{Math.round(calculateTotal().extraMealCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between font-bold text-lg pt-2 border-t">
-                      <span>{t({ ar: 'الإجمالي', en: 'Total' })}</span>
-                      <div className="flex flex-col items-end">
-                        <span className="text-primary">
-                          {Math.round(calculateTotal().total)} {t({ ar: 'ر.س', en: 'SAR' })}
-                        </span>
-                        <span className="text-[10px] font-normal text-muted-foreground">{t({ ar: 'شامل الضريبة', en: 'incl. tax' })}</span>
-                      </div>
-                    </div>
-                  </div>
+                   {/* Price Breakdown - Enhanced */}
+                   <div className="space-y-3 pt-4 border-t">
+                     <h4 className="font-semibold text-sm mb-2">{t({ ar: 'تفاصيل السعر', en: 'Price Details' })}</h4>
+                     
+                     <div className="flex justify-between text-sm">
+                       <span className="text-muted-foreground">{t({ ar: 'السعر لليلة', en: 'Price per night' })}</span>
+                       <span>{avgPricePerNight || hotel.price_per_night} {t({ ar: 'ر.س', en: 'SAR' })}</span>
+                     </div>
+                     
+                     <div className="flex justify-between text-sm">
+                       <span className="text-muted-foreground">{t({ ar: 'عدد الليالي', en: 'Number of nights' })}</span>
+                       <span>{nights} {t({ ar: nights === 1 ? 'ليلة' : nights === 2 ? 'ليلتين' : 'ليالي', en: nights === 1 ? 'night' : 'nights' })}</span>
+                     </div>
+                     
+                     <div className="flex justify-between text-sm">
+                       <span className="text-muted-foreground">{t({ ar: 'عدد الغرف', en: 'Number of rooms' })}</span>
+                       <span>{rooms} {t({ ar: parseInt(rooms) === 1 ? 'غرفة' : parseInt(rooms) === 2 ? 'غرفتين' : 'غرف', en: parseInt(rooms) === 1 ? 'room' : 'rooms' })}</span>
+                     </div>
+                     
+                     <div className="p-2 bg-muted/50 rounded-lg space-y-1.5">
+                       <div className="flex justify-between text-xs">
+                         <span className="text-muted-foreground">{t({ ar: 'الأشخاص الأساسيين', en: 'Base guests included' })}</span>
+                         <span className="font-medium">
+                           {(hotel.max_guests_per_room || 2) * parseInt(rooms)}{' '}
+                           {t({ ar: 'شخص', en: 'person(s)' })}
+                         </span>
+                       </div>
+                       
+                       {hotel?.meal_plans && hotel.meal_plans.max_persons > 0 && (
+                         <div className="flex justify-between text-xs">
+                           <span className="text-muted-foreground">{t({ ar: 'الوجبات المشمولة في السعر', en: 'Meals included in price' })}</span>
+                           <span className="font-medium">
+                             {hotel.meal_plans.max_persons} {t({ ar: 'شخص', en: 'person(s)' })}
+                           </span>
+                         </div>
+                       )}
+                       
+                       {hotel?.extra_guest_price > 0 && (
+                         <div className="flex justify-between text-xs">
+                           <span className="text-muted-foreground">{t({ ar: 'سعر الشخص الإضافي', en: 'Extra guest price' })}</span>
+                           <span className="font-medium">
+                             {hotel.extra_guest_price} {t({ ar: 'ر.س/لليلة', en: 'SAR/night' })}
+                           </span>
+                         </div>
+                       )}
+                     </div>
+                     
+                     {calculateTotal().extraGuestsCount > 0 && (
+                       <div className="flex justify-between text-sm text-orange-600 dark:text-orange-400">
+                         <span className="font-medium">
+                           {t({ ar: `ضيوف إضافيين (${calculateTotal().extraGuestsCount})`, en: `Extra guests (${calculateTotal().extraGuestsCount})` })}
+                         </span>
+                         <span className="font-semibold">+{Math.round(calculateTotal().extraGuestCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
+                       </div>
+                     )}
+                     
+                     {calculateTotal().extraMealCharge > 0 && (
+                       <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
+                         <span className="font-medium">
+                           {t({ ar: `وجبات إضافية (${extraMeals})`, en: `Extra meals (${extraMeals})` })}
+                         </span>
+                         <span className="font-semibold">+{Math.round(calculateTotal().extraMealCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
+                       </div>
+                     )}
+                     
+                     <div className="flex justify-between text-sm pt-2 border-t">
+                       <span className="text-muted-foreground">{t({ ar: 'المجموع قبل الضريبة', en: 'Subtotal' })}</span>
+                       <span>{Math.round(calculateTotal().subtotal + calculateTotal().extraGuestCharge + calculateTotal().extraMealCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
+                     </div>
+                     
+                     {calculateTotal().tax > 0 && (
+                       <div className="flex justify-between text-sm">
+                         <span className="text-muted-foreground">{t({ ar: `الضريبة (${hotel.tax_percentage}%)`, en: `Tax (${hotel.tax_percentage}%)` })}</span>
+                         <span>+{Math.round(calculateTotal().tax)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
+                       </div>
+                     )}
+                     
+                     <div className="flex justify-between font-bold text-lg pt-3 border-t-2">
+                       <span className="text-primary">{t({ ar: 'الإجمالي', en: 'Total Amount' })}</span>
+                       <div className="flex flex-col items-end">
+                         <span className="text-primary text-xl">
+                           {Math.round(calculateTotal().total)} {t({ ar: 'ر.س', en: 'SAR' })}
+                         </span>
+                         <span className="text-[10px] font-normal text-muted-foreground">{t({ ar: 'شامل جميع الرسوم', en: 'All fees included' })}</span>
+                       </div>
+                     </div>
+                   </div>
                 </CardContent>
               </Card>
 
