@@ -30,11 +30,21 @@ serve(async (req) => {
       throw new Error('No authorization header')
     }
 
-    // Verify the user is an admin
+    // Extract user id from JWT (the function already verifies JWT at the edge)
     const token = authHeader.replace('Bearer ', '')
-    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token)
-    
-    if (authError || !user) {
+    let userId: string | null = null
+    try {
+      const payloadBase64 = token.split('.')[1]
+      const normalized = payloadBase64.replace(/-/g, '+').replace(/_/g, '/');
+      const payloadJson = atob(normalized)
+      const payload = JSON.parse(payloadJson)
+      userId = payload.sub as string
+    } catch (e) {
+      console.error('JWT decode error:', e)
+      throw new Error('Unauthorized')
+    }
+
+    if (!userId) {
       throw new Error('Unauthorized')
     }
 
@@ -42,7 +52,7 @@ serve(async (req) => {
     const { data: roleData, error: roleError } = await supabaseAdmin
       .from('user_roles')
       .select('role')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .maybeSingle()
 
     if (roleError) {
@@ -53,6 +63,8 @@ serve(async (req) => {
     if (!roleData || roleData.role !== 'admin') {
       throw new Error('Unauthorized: Admin access required')
     }
+
+    console.log('Authorized admin request by', userId)
 
     const { action, ...payload } = await req.json()
 
