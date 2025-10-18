@@ -270,12 +270,12 @@ export default function CustomerDashboard() {
                               <span className="text-muted-foreground font-semibold text-sm sm:text-base whitespace-nowrap">{t({ ar: "الوجبات:", en: "Meals:" })}</span>
                               <span className="font-medium text-sm sm:text-base text-right">{language === 'ar' ? booking.meal_plan_name_ar : booking.meal_plan_name_en}</span>
                             </div>
-                            {booking.meal_plan_price && booking.meal_plan_price > 0 && (
-                              <div className="flex items-center justify-between gap-2 text-sm">
-                                <span className="text-muted-foreground whitespace-nowrap">{t({ ar: "مدفوعة", en: "Paid" })}</span>
-                                <span className="font-medium">+{booking.meal_plan_price} {t({ ar: "ر.س", en: "SAR" })}</span>
-                              </div>
-                            )}
+{(booking.meal_plan_price ?? 0) > 0 && (
+  <div className="flex items-center justify-between gap-2 text-sm">
+    <span className="text-muted-foreground whitespace-nowrap">{t({ ar: "مدفوعة", en: "Paid" })}</span>
+    <span className="font-medium">+{booking.meal_plan_price} {t({ ar: "ر.س", en: "SAR" })}</span>
+  </div>
+)}
                           </div>
                           <div className="space-y-2">
                             {(() => {
@@ -283,12 +283,12 @@ export default function CustomerDashboard() {
                               const extraMealsRequired = Math.max(0, booking.guests - includedPersons);
                               return (
                                 <>
-                                  {booking.meal_plan_max_persons && booking.meal_plan_max_persons > 0 && (
-                                    <div className="flex items-center justify-between gap-2 text-sm">
-                                      <span className="text-muted-foreground whitespace-nowrap">{t({ ar: "عدد الأشخاص:", en: "Persons:" })}</span>
-                                      <span className="font-medium">{includedPersons} {t({ ar: "أشخاص", en: "persons" })}</span>
-                                    </div>
-                                  )}
+{(booking.meal_plan_max_persons ?? 0) > 0 && (
+  <div className="flex items-center justify-between gap-2 text-sm">
+    <span className="text-muted-foreground whitespace-nowrap">{t({ ar: "عدد الأشخاص:", en: "Persons:" })}</span>
+    <span className="font-medium">{includedPersons} {t({ ar: "أشخاص", en: "persons" })}</span>
+  </div>
+)}
                                   {((booking.extra_meals && booking.extra_meals > 0) || extraMealsRequired > 0) && (
                                     <div className="flex items-center justify-between gap-2 text-sm">
                                       <span className="text-muted-foreground whitespace-nowrap">{t({ ar: "وجبات إضافية:", en: "Extra Meals:" })}</span>
