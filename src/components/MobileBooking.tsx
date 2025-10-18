@@ -61,9 +61,9 @@ export function MobileBooking(props: MobileBookingProps) {
   }, [numRooms, props.setRooms]);
 
   const calculateTotal = () => {
-    if (!props.hotel) return { total: 0, nights: 0 };
+    if (!props.hotel) return { total: 0, nights: 0, extraMealsPerNight: 0 };
     const nights = Math.ceil((props.checkOut.getTime() - props.checkIn.getTime()) / (1000 * 60 * 60 * 24));
-    if (nights <= 0) return { total: 0, nights: 0 };
+    if (nights <= 0) return { total: 0, nights: 0, extraMealsPerNight: 0 };
     
     const roomsCount = numRooms;
     const guestsCount = numGuests + numChildren;
@@ -79,20 +79,35 @@ export function MobileBooking(props: MobileBookingProps) {
       extraGuestCharge = extraGuestsCount * (props.hotel.extra_guest_price || 0) * nights;
     }
     
+    // Calculate extra meals based on guests exceeding meal plan coverage
     let extraMealCharge = 0;
-    if (props.hotel.meal_plans && props.extraMeals > 0) {
-      const extraMealPrice = props.hotel.meal_plans.extra_meal_price || 0;
-      extraMealCharge = props.extraMeals * extraMealPrice * nights;
+    let extraMealsPerNight = 0;
+    
+    if (props.hotel.meal_plans && props.hotel.meal_plans.max_persons > 0 && props.hotel.meal_plans.extra_meal_price > 0) {
+      const maxMealsIncluded = props.hotel.meal_plans.max_persons * roomsCount;
+      
+      if (guestsCount > maxMealsIncluded) {
+        extraMealsPerNight = guestsCount - maxMealsIncluded;
+        const mealsToCharge = props.extraMeals > 0 ? props.extraMeals : extraMealsPerNight;
+        extraMealCharge = mealsToCharge * (props.hotel.meal_plans.extra_meal_price || 0) * nights;
+      }
     }
     
     const subtotalBeforeTax = basePrice + extraGuestCharge + extraMealCharge;
     const tax = taxRate > 0 ? (subtotalBeforeTax * taxRate / 100) : 0;
     const total = subtotalBeforeTax + tax;
     
-    return { total, nights };
+    return { total, nights, extraMealsPerNight };
   };
 
-  const { total, nights } = calculateTotal();
+  const { total, nights, extraMealsPerNight } = calculateTotal();
+  
+  // Auto-set extraMeals when guests exceed meal coverage
+  useEffect(() => {
+    if (extraMealsPerNight > 0 && props.extraMeals === 0) {
+      props.setExtraMeals(extraMealsPerNight);
+    }
+  }, [extraMealsPerNight, props.extraMeals]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary to-primary-glow pb-20">
@@ -249,6 +264,64 @@ export function MobileBooking(props: MobileBookingProps) {
             </div>
           </CardContent>
         </Card>
+
+        {/* Meals Section */}
+        {props.hotel?.meal_plans && props.hotel.meal_plans.max_persons > 0 && (
+          <Card className="shadow-lg">
+            <CardContent className="p-4">
+              <h3 className="font-semibold text-sm mb-3">
+                {t({ ar: 'الوجبات', en: 'Meals' })}
+              </h3>
+              <div className="space-y-3">
+                <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded-lg border border-green-200 dark:border-green-800">
+                  <p className="text-xs font-semibold text-green-700 dark:text-green-300 mb-1">
+                    {language === 'ar' ? props.hotel.meal_plans.regular_ar : props.hotel.meal_plans.regular_en}
+                  </p>
+                  <p className="text-xs text-green-600 dark:text-green-400">
+                    {t({ ar: `يشمل ${props.hotel.meal_plans.max_persons * numRooms} وجبات (${props.hotel.meal_plans.max_persons} × ${numRooms} غرف)`, 
+                         en: `Includes ${props.hotel.meal_plans.max_persons * numRooms} meals (${props.hotel.meal_plans.max_persons} × ${numRooms} rooms)` })}
+                  </p>
+                </div>
+                
+                {props.hotel.meal_plans.extra_meal_price > 0 && extraMealsPerNight > 0 && (
+                  <div className="bg-orange-50 dark:bg-orange-950/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800">
+                    <p className="text-xs font-semibold text-orange-700 dark:text-orange-300 mb-2">
+                      ⚠️ {t({ ar: 'وجبات إضافية مطلوبة', en: 'Extra meals required' })}
+                    </p>
+                    <p className="text-xs text-muted-foreground mb-2">
+                      {t({ ar: `لديك ${numGuests + numChildren} ضيوف ولكن الوجبات تشمل ${props.hotel.meal_plans.max_persons * numRooms} فقط`, 
+                           en: `You have ${numGuests + numChildren} guests but meals include only ${props.hotel.meal_plans.max_persons * numRooms}` })}
+                    </p>
+                    <Select 
+                      value={props.extraMeals > 0 ? props.extraMeals.toString() : extraMealsPerNight.toString()} 
+                      onValueChange={(value) => props.setExtraMeals(parseInt(value))}
+                    >
+                      <SelectTrigger className="h-9 text-xs">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {extraMealsPerNight > 0 && (
+                          <SelectItem value={extraMealsPerNight.toString()}>
+                            {t({ ar: `${extraMealsPerNight} وجبات (مطلوب)`, en: `${extraMealsPerNight} meals (required)` })} - {extraMealsPerNight * props.hotel.meal_plans.extra_meal_price * nights} SAR
+                          </SelectItem>
+                        )}
+                        {[...Array(10)].map((_, i) => {
+                          const num = i + 1;
+                          if (num === extraMealsPerNight) return null;
+                          return (
+                            <SelectItem key={num} value={num.toString()}>
+                              +{num} {t({ ar: 'وجبات', en: 'meals' })} - {num * props.hotel.meal_plans.extra_meal_price * nights} SAR
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Contact Details */}
         <Card className="shadow-lg">
