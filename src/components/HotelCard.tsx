@@ -333,10 +333,9 @@ export function HotelCard({
         {hotelImages.length > 1 && (
           <>
             {/* Previous Image Button */}
-            <Button
-              size="icon"
-              variant="ghost"
-              className={`absolute ${language === 'ar' ? 'right-2' : 'left-2'} top-1/2 -translate-y-1/2 h-10 w-10 rounded-[3px] bg-white/90 hover:bg-white backdrop-blur-sm shadow-lg transition-all`}
+            <button
+              className={`absolute ${language === 'ar' ? 'right-2' : 'left-2'} top-1/2 -translate-y-1/2 h-10 w-10 bg-white/90 hover:bg-white backdrop-blur-sm shadow-lg transition-all flex items-center justify-center`}
+              style={{ borderRadius: '3px' }}
               onClick={handlePrevImage}
             >
               {language === 'ar' ? (
@@ -344,13 +343,12 @@ export function HotelCard({
               ) : (
                 <ChevronLeft className="w-5 h-5 text-foreground" />
               )}
-            </Button>
+            </button>
             
             {/* Next Image Button */}
-            <Button
-              size="icon"
-              variant="ghost"
-              className={`absolute ${language === 'ar' ? 'left-2' : 'right-2'} top-1/2 -translate-y-1/2 h-10 w-10 rounded-[3px] bg-white/90 hover:bg-white backdrop-blur-sm shadow-lg transition-all`}
+            <button
+              className={`absolute ${language === 'ar' ? 'left-2' : 'right-2'} top-1/2 -translate-y-1/2 h-10 w-10 bg-white/90 hover:bg-white backdrop-blur-sm shadow-lg transition-all flex items-center justify-center`}
+              style={{ borderRadius: '3px' }}
               onClick={handleNextImage}
             >
               {language === 'ar' ? (
@@ -358,7 +356,7 @@ export function HotelCard({
               ) : (
                 <ChevronRight className="w-5 h-5 text-foreground" />
               )}
-            </Button>
+            </button>
           </>
         )}
       </div>
