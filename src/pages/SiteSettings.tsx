@@ -653,7 +653,7 @@ export default function SiteSettings() {
                           type="text"
                           value={primaryColor}
                           onChange={(e) => setPrimaryColor(e.target.value)}
-                          className="font-mono text-sm"
+                          className="font-mono text-sm text-black dark:text-white"
                         />
                       </div>
                     </PopoverContent>
@@ -707,7 +707,7 @@ export default function SiteSettings() {
                             type="text"
                             value={exceptionColors.owner_room_color}
                             onChange={(e) => setExceptionColors({ ...exceptionColors, owner_room_color: e.target.value })}
-                            className="font-mono text-sm"
+                            className="font-mono text-sm text-black dark:text-white"
                           />
                         </div>
                       </PopoverContent>
@@ -740,7 +740,7 @@ export default function SiteSettings() {
                             type="text"
                             value={exceptionColors.hotel_room_color}
                             onChange={(e) => setExceptionColors({ ...exceptionColors, hotel_room_color: e.target.value })}
-                            className="font-mono text-sm"
+                            className="font-mono text-sm text-black dark:text-white"
                           />
                         </div>
                       </PopoverContent>
@@ -791,7 +791,7 @@ export default function SiteSettings() {
                           type="text"
                           value={mealBadgeSettings.meal_badge_color}
                           onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_color: e.target.value })}
-                          className="font-mono text-sm"
+                          className="font-mono text-sm text-black dark:text-white"
                         />
                       </div>
                     </PopoverContent>
