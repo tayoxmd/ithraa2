@@ -20,14 +20,16 @@ interface HotelCardProps {
   images?: string[];
   featured?: boolean;
   meal_plans?: {
-    regular_ar: string;
-    regular_en: string;
+    regular_ar?: string;
+    regular_en?: string;
     ramadan_ar?: string;
     ramadan_en?: string;
-    price: number;
-    max_persons: number;
-    extra_meal_price: number;
-  } | null;
+    price?: number;
+    max_persons?: number;
+    extra_meal_price?: number;
+    name_ar?: string;
+    name_en?: string;
+  } | any[] | null;
   amenities?: {
     wifi?: boolean;
     cafe?: boolean;
@@ -37,8 +39,8 @@ interface HotelCardProps {
     walking_distance?: number | null;
     walking_distance_unit?: 'm' | 'km';
   };
-  bed_type_single?: 'single' | 'king';
-  bed_type_double?: 'king' | 'twin';
+  bed_type_single?: 'single' | 'king' | 'twin' | 'double' | string;
+  bed_type_double?: 'king' | 'twin' | 'double' | string;
   max_guests_per_room?: number;
 }
 
@@ -91,34 +93,50 @@ export function HotelCard({
   };
 
   const getBedTypeLabel = () => {
-    if (max_guests_per_room === 1 && bed_type_single) {
-      const labels = {
+    const arOrEn = (ar: string, en: string) => (language === 'ar' ? ar : en);
+
+    if (max_guests_per_room === 1) {
+      const labels: Record<string, { ar: string; en: string }> = {
         single: { ar: 'سرير مفرد', en: 'Single Bed' },
-        king: { ar: 'سرير كينج كبير', en: 'King Size Bed' },
+        king: { ar: 'سرير كينج', en: 'King Bed' },
+        twin: { ar: 'سريران مفردان', en: 'Twin Beds' },
+        double: { ar: 'سرير مزدوج', en: 'Double Bed' },
       };
-      return language === 'ar' ? labels[bed_type_single].ar : labels[bed_type_single].en;
+      const key = String(bed_type_single || '').toLowerCase();
+      const found = labels[key];
+      return found ? arOrEn(found.ar, found.en) : arOrEn('إشغال فردي', 'Single occupancy');
     }
-    
-    if (max_guests_per_room === 2 && bed_type_double) {
-      const labels = {
-        king: { ar: 'سرير كينج كبير', en: 'King Size Bed' },
-        twin: { ar: 'سريرين مفردين', en: 'Twin Beds' },
+
+    if (max_guests_per_room === 2) {
+      const labels: Record<string, { ar: string; en: string }> = {
+        king: { ar: 'سرير كينج', en: 'King Bed' },
+        twin: { ar: 'سريران مفردان', en: 'Twin Beds' },
+        double: { ar: 'سرير مزدوج', en: 'Double Bed' },
       };
-      return language === 'ar' ? labels[bed_type_double].ar : labels[bed_type_double].en;
+      const key = String(bed_type_double || '').toLowerCase();
+      const found = labels[key];
+      return found ? arOrEn(found.ar, found.en) : arOrEn('إشغال لشخصين', 'Double occupancy');
     }
-    
+
     return null;
   };
 
   const getBedTypeIcon = () => {
-    if (max_guests_per_room === 1 && bed_type_single) {
-      return <BedIcon type={bed_type_single === 'single' ? 'single' : 'king'} className="w-4 h-4" />;
+    const isSingleOcc = max_guests_per_room === 1;
+    if (isSingleOcc) {
+      const key = String(bed_type_single || '').toLowerCase();
+      if (key === 'twin') return <BedIcon type="twin" className="w-4 h-4" />;
+      if (key === 'king' || key === 'double') return <BedIcon type="king" className="w-4 h-4" />;
+      return <Bed className="w-4 h-4" />;
     }
-    
-    if (max_guests_per_room === 2 && bed_type_double) {
-      return <BedIcon type={bed_type_double === 'twin' ? 'twin' : 'king'} className="w-4 h-4" />;
+
+    if (max_guests_per_room === 2) {
+      const key = String(bed_type_double || '').toLowerCase();
+      if (key === 'twin') return <BedIcon type="twin" className="w-4 h-4" />;
+      if (key === 'king' || key === 'double') return <BedIcon type="king" className="w-4 h-4" />;
+      return <Bed className="w-4 h-4" />;
     }
-    
+
     return null;
   };
 
