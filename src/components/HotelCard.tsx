@@ -210,7 +210,7 @@ export function HotelCard({
                   fontSize: `${mealBadgeSettings.fontSize}px`,
                   borderRadius: `${mealBadgeSettings.borderRadius}px`,
                   minWidth: mealBadgeSettings.autoWidthMobile ? '60px' : undefined,
-                  maxWidth: mealBadgeSettings.autoWidthMobile ? '90%' : undefined,
+                  maxWidth: mealBadgeSettings.autoWidthMobile ? 'calc(100% - 16px)' : `${mealBadgeSettings.widthMobile}px`,
                   padding: '0 8px',
                 }}
               >
@@ -408,8 +408,14 @@ export function HotelCard({
                 {meal.max_persons > 0 && (
                   <p className="text-green-600 dark:text-green-400 mt-0.5">
                     {language === 'ar' 
-                      ? `يشمل ${meal.max_persons} ${meal.max_persons === 1 ? 'شخص واحد' : meal.max_persons === 2 ? 'شخصين' : meal.max_persons >= 3 && meal.max_persons <= 10 ? 'أشخاص' : 'شخص'}`
-                      : `Includes ${meal.max_persons} ${meal.max_persons === 1 ? 'person' : 'persons'}`
+                      ? meal.max_persons === 1 
+                        ? 'يشمل الوجبة لشخص واحد'
+                        : meal.max_persons === 2
+                        ? 'يشمل الوجبة لشخصين'
+                        : meal.max_persons >= 3 && meal.max_persons <= 10
+                        ? `يشمل الوجبة لـ ${meal.max_persons} أشخاص`
+                        : `يشمل الوجبة لـ ${meal.max_persons} شخص`
+                      : `Includes meal for ${meal.max_persons} ${meal.max_persons === 1 ? 'person' : 'persons'}`
                     }
                     {meal.extra_meal_price > 0 && (
                       <span className="block text-[10px] mt-0.5">

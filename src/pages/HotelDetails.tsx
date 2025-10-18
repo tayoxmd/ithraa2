@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
-import { Star, MapPin, ArrowRight, Navigation, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, MapPin, ArrowRight, Navigation, ChevronLeft, ChevronRight, Utensils } from "lucide-react";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -169,7 +169,7 @@ export default function HotelDetails() {
               {/* Meal Badge */}
               {hotel.meal_plans && mealBadgeSettings && (
                 <div 
-                  className="absolute top-4 px-3 py-1 text-white font-semibold shadow-lg"
+                  className="absolute top-4 px-3 py-1 text-white font-semibold shadow-lg flex items-center gap-2"
                   style={{
                     [language === 'ar' ? 'left' : 'right']: '16px',
                     backgroundColor: mealBadgeSettings.meal_badge_color || '#007dff',
@@ -185,17 +185,19 @@ export default function HotelDetails() {
                       : `${mealBadgeSettings.meal_badge_height_mobile || 24}px`,
                     fontSize: `${mealBadgeSettings.meal_badge_font_size || 12}px`,
                     borderRadius: `${mealBadgeSettings.meal_badge_border_radius || 8}px`,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
+                    minWidth: window.innerWidth >= 1024 && mealBadgeSettings.meal_badge_auto_width_desktop ? '80px' :
+                              window.innerWidth >= 768 && mealBadgeSettings.meal_badge_auto_width_tablet ? '70px' :
+                              mealBadgeSettings.meal_badge_auto_width_mobile ? '60px' : undefined,
+                    maxWidth: window.innerWidth >= 1024 && mealBadgeSettings.meal_badge_auto_width_desktop ? 'calc(100% - 32px)' :
+                              window.innerWidth >= 768 && mealBadgeSettings.meal_badge_auto_width_tablet ? 'calc(100% - 32px)' :
+                              mealBadgeSettings.meal_badge_auto_width_mobile ? 'calc(100% - 32px)' : undefined,
                     whiteSpace: 'nowrap',
                     overflow: 'hidden',
                     textOverflow: 'ellipsis',
-                    minWidth: mealBadgeSettings.meal_badge_auto_width_desktop || mealBadgeSettings.meal_badge_auto_width_tablet || mealBadgeSettings.meal_badge_auto_width_mobile ? '80px' : undefined,
-                    maxWidth: mealBadgeSettings.meal_badge_auto_width_desktop || mealBadgeSettings.meal_badge_auto_width_tablet || mealBadgeSettings.meal_badge_auto_width_mobile ? '90%' : undefined,
                   }}
                 >
-                  {language === 'ar' ? hotel.meal_plans.regular_ar : hotel.meal_plans.regular_en}
+                  <Utensils className="w-4 h-4 flex-shrink-0" />
+                  <span className="truncate">{language === 'ar' ? hotel.meal_plans.regular_ar : hotel.meal_plans.regular_en}</span>
                 </div>
               )}
               
@@ -270,10 +272,16 @@ export default function HotelDetails() {
                 {hotel.meal_plans.max_persons && (
                   <span className="mr-2">
                     {' • '}
-                    {t({ 
-                      ar: `يشمل ${hotel.meal_plans.max_persons === 1 ? 'شخص واحد' : hotel.meal_plans.max_persons === 2 ? 'شخصين' : `${hotel.meal_plans.max_persons} أشخاص`}`, 
-                      en: `Includes ${hotel.meal_plans.max_persons} ${hotel.meal_plans.max_persons === 1 ? 'person' : 'persons'}`
-                    })}
+                    {language === 'ar' 
+                      ? hotel.meal_plans.max_persons === 1
+                        ? 'يشمل الوجبة لشخص واحد'
+                        : hotel.meal_plans.max_persons === 2
+                        ? 'يشمل الوجبة لشخصين'
+                        : hotel.meal_plans.max_persons >= 3 && hotel.meal_plans.max_persons <= 10
+                        ? `يشمل الوجبة لـ ${hotel.meal_plans.max_persons} أشخاص`
+                        : `يشمل الوجبة لـ ${hotel.meal_plans.max_persons} شخص`
+                      : `Includes meal for ${hotel.meal_plans.max_persons} ${hotel.meal_plans.max_persons === 1 ? 'person' : 'persons'}`
+                    }
                   </span>
                 )}
               </div>

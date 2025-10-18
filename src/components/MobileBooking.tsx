@@ -305,8 +305,16 @@ export function MobileBooking(props: MobileBookingProps) {
                     {language === 'ar' ? meal.name_ar : meal.name_en}
                   </p>
                   <p className="text-xs text-green-600 dark:text-green-400">
-                    {t({ ar: `يشمل ${meal.max_persons * numRooms} وجبات (${meal.max_persons} × ${numRooms} غرف)`, 
-                         en: `Includes ${meal.max_persons * numRooms} meals (${meal.max_persons} × ${numRooms} rooms)` })}
+                    {language === 'ar' 
+                      ? meal.max_persons === 1
+                        ? `يشمل الوجبة لشخص واحد في كل غرفة (${numRooms} ${numRooms === 1 ? 'غرفة' : 'غرف'} = ${meal.max_persons * numRooms} ${meal.max_persons * numRooms === 1 ? 'وجبة' : meal.max_persons * numRooms === 2 ? 'وجبتين' : 'وجبات'})`
+                        : meal.max_persons === 2
+                        ? `يشمل الوجبة لشخصين في كل غرفة (${numRooms} ${numRooms === 1 ? 'غرفة' : 'غرف'} = ${meal.max_persons * numRooms} ${meal.max_persons * numRooms === 1 ? 'وجبة' : meal.max_persons * numRooms === 2 ? 'وجبتين' : 'وجبات'})`
+                        : meal.max_persons >= 3 && meal.max_persons <= 10
+                        ? `يشمل الوجبة لـ ${meal.max_persons} أشخاص في كل غرفة (${numRooms} ${numRooms === 1 ? 'غرفة' : 'غرف'} = ${meal.max_persons * numRooms} ${meal.max_persons * numRooms === 1 ? 'وجبة' : meal.max_persons * numRooms === 2 ? 'وجبتين' : 'وجبات'})`
+                        : `يشمل الوجبة لـ ${meal.max_persons} شخص في كل غرفة (${numRooms} ${numRooms === 1 ? 'غرفة' : 'غرف'} = ${meal.max_persons * numRooms} ${meal.max_persons * numRooms === 1 ? 'وجبة' : meal.max_persons * numRooms === 2 ? 'وجبتين' : 'وجبات'})`
+                      : `Includes meal for ${meal.max_persons} person(s) per room (${numRooms} room(s) = ${meal.max_persons * numRooms} meal(s))`
+                    }
                   </p>
                 </div>
                 {meal.extra_meal_price > 0 && extraMealsPerNight > 0 && (

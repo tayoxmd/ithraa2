@@ -345,8 +345,9 @@ export default function Booking() {
         extraMealsPerNight = guestsCount - maxMealsIncluded;
         requiredExtraMeals = extraMealsPerNight * nights;
         
-        // Use extraMeals state if user has manually set it, otherwise use required amount
-        const mealsToCharge = extraMeals > 0 ? extraMeals : extraMealsPerNight;
+        // Use extraMeals state only if it's greater than or equal to extraMealsPerNight
+        // This prevents showing 0 SAR when extra meals are actually needed
+        const mealsToCharge = extraMeals >= extraMealsPerNight ? extraMeals : extraMealsPerNight;
         extraMealCharge = mealsToCharge * (meal.extra_meal_price || 0) * nights;
       }
     }
@@ -673,27 +674,23 @@ export default function Booking() {
                       
                       {/* Meal Badge */}
                       {meal && (meal.name_ar || meal.name_en) && (
-                        <div 
-                          className="absolute top-2 left-2 px-3 py-1 text-white font-semibold shadow-lg flex items-center gap-1.5 z-10"
-                          style={{
-                            backgroundColor: mealBadgeSettings.color,
-                            fontSize: `${mealBadgeSettings.fontSize}px`,
-                            borderRadius: `${mealBadgeSettings.borderRadius}px`,
-                            width: isMobile 
-                              ? mealBadgeSettings.autoWidthMobile ? 'auto' : `${mealBadgeSettings.widthMobile}px`
-                              : `${mealBadgeSettings.widthDesktop}px`,
-                            height: isMobile 
-                              ? `${mealBadgeSettings.heightMobile}px`
-                              : `${mealBadgeSettings.heightDesktop}px`,
-                            minWidth: isMobile ? '80px' : '120px',
-                            maxWidth: isMobile ? '200px' : '300px',
-                          }}
-                        >
-                          <Utensils className="w-3 h-3 flex-shrink-0" />
-                          <span className="truncate">
-                            {language === 'ar' ? meal.name_ar : meal.name_en}
-                          </span>
-                        </div>
+          <div 
+            className="absolute top-2 left-2 px-3 py-1 text-white font-semibold shadow-lg flex items-center gap-1.5 z-10"
+            style={{
+              backgroundColor: mealBadgeSettings.color,
+              fontSize: `${mealBadgeSettings.fontSize}px`,
+              borderRadius: `${mealBadgeSettings.borderRadius}px`,
+              width: mealBadgeSettings.autoWidthMobile ? 'auto' : `${mealBadgeSettings.widthMobile}px`,
+              height: `${mealBadgeSettings.heightMobile}px`,
+              minWidth: mealBadgeSettings.autoWidthMobile ? '60px' : undefined,
+              maxWidth: mealBadgeSettings.autoWidthMobile ? 'calc(100% - 16px)' : `${mealBadgeSettings.widthMobile}px`,
+            }}
+          >
+            <Utensils className="w-3 h-3 flex-shrink-0" />
+            <span className="truncate">
+              {language === 'ar' ? meal.name_ar : meal.name_en}
+            </span>
+          </div>
                       )}
                       
                       {/* Navigation Arrows */}
@@ -884,8 +881,16 @@ export default function Booking() {
                                 {language === 'ar' ? hotel.meal_plans.regular_ar : hotel.meal_plans.regular_en}
                               </p>
                               <p className="text-xs text-green-600 dark:text-green-400">
-                                {t({ ar: `يشمل ${hotel.meal_plans.max_persons * rooms} ${hotel.meal_plans.max_persons * rooms === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms === 2 ? 'وجبتين' : 'وجبات'} (${hotel.meal_plans.max_persons} ${hotel.meal_plans.max_persons === 1 ? 'شخص' : hotel.meal_plans.max_persons === 2 ? 'شخصين' : 'أشخاص'} × ${rooms} ${rooms === 1 ? 'غرفة' : 'غرف'})`, 
-                                     en: `Includes ${hotel.meal_plans.max_persons * rooms} meal(s) (${hotel.meal_plans.max_persons} person(s) × ${rooms} room(s))` })}
+                                {language === 'ar' 
+                                  ? hotel.meal_plans.max_persons === 1
+                                    ? `يشمل الوجبة لشخص واحد في كل غرفة (${rooms} ${rooms === 1 ? 'غرفة' : 'غرف'} = ${hotel.meal_plans.max_persons * rooms} ${hotel.meal_plans.max_persons * rooms === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms === 2 ? 'وجبتين' : 'وجبات'})`
+                                    : hotel.meal_plans.max_persons === 2
+                                    ? `يشمل الوجبة لشخصين في كل غرفة (${rooms} ${rooms === 1 ? 'غرفة' : 'غرف'} = ${hotel.meal_plans.max_persons * rooms} ${hotel.meal_plans.max_persons * rooms === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms === 2 ? 'وجبتين' : 'وجبات'})`
+                                    : hotel.meal_plans.max_persons >= 3 && hotel.meal_plans.max_persons <= 10
+                                    ? `يشمل الوجبة لـ ${hotel.meal_plans.max_persons} أشخاص في كل غرفة (${rooms} ${rooms === 1 ? 'غرفة' : 'غرف'} = ${hotel.meal_plans.max_persons * rooms} ${hotel.meal_plans.max_persons * rooms === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms === 2 ? 'وجبتين' : 'وجبات'})`
+                                    : `يشمل الوجبة لـ ${hotel.meal_plans.max_persons} شخص في كل غرفة (${rooms} ${rooms === 1 ? 'غرفة' : 'غرف'} = ${hotel.meal_plans.max_persons * rooms} ${hotel.meal_plans.max_persons * rooms === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms === 2 ? 'وجبتين' : 'وجبات'})`
+                                  : `Includes meal for ${hotel.meal_plans.max_persons} person(s) per room (${rooms} room(s) = ${hotel.meal_plans.max_persons * rooms} meal(s))`
+                                }
                               </p>
                             </div>
                           </div>
@@ -1054,10 +1059,16 @@ export default function Booking() {
                         )}
                       </div>
                       <p className="text-sm text-muted-foreground">
-                        {t({ 
-                          ar: `يشمل ${hotel.meal_plans.max_persons === 1 ? 'شخص واحد' : hotel.meal_plans.max_persons === 2 ? 'شخصين' : `${hotel.meal_plans.max_persons} أشخاص`}`, 
-                          en: `Includes ${hotel.meal_plans.max_persons} ${hotel.meal_plans.max_persons === 1 ? 'person' : 'persons'}`
-                        })}
+                        {language === 'ar' 
+                          ? hotel.meal_plans.max_persons === 1
+                            ? 'يشمل الوجبة لشخص واحد'
+                            : hotel.meal_plans.max_persons === 2
+                            ? 'يشمل الوجبة لشخصين'
+                            : hotel.meal_plans.max_persons >= 3 && hotel.meal_plans.max_persons <= 10
+                            ? `يشمل الوجبة لـ ${hotel.meal_plans.max_persons} أشخاص`
+                            : `يشمل الوجبة لـ ${hotel.meal_plans.max_persons} شخص`
+                          : `Includes meal for ${hotel.meal_plans.max_persons} ${hotel.meal_plans.max_persons === 1 ? 'person' : 'persons'}`
+                        }
                       </p>
                       
                       {hotel.meal_plans.extra_meal_price > 0 && (
