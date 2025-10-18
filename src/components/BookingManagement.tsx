@@ -93,59 +93,41 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     extra_meals: "",
   });
 
-  const handleDateSelect = (newDateRange: DateRange | undefined) => {
-    // If both dates are already selected and user clicks a new date, reset and start fresh
-    if (dateRange?.from && dateRange?.to && newDateRange?.from) {
-      // Check if the new selection is a complete range
-      if (newDateRange.to) {
-        setDateRange(newDateRange);
-        const newTotal = selectedBooking ? calculateTotal(
-          format(newDateRange.from, 'yyyy-MM-dd'),
-          format(newDateRange.to, 'yyyy-MM-dd'),
-          parseInt(editFormData.guests),
-          parseInt(editFormData.rooms),
-          selectedBooking.hotels
-        ) : 0;
-        setEditFormData({ 
-          ...editFormData, 
-          check_in: format(newDateRange.from, 'yyyy-MM-dd'),
-          check_out: format(newDateRange.to, 'yyyy-MM-dd'),
-          manual_total: newTotal.toString(), 
-          total_amount: newTotal.toString() 
-        });
-      } else {
-        // Reset to just the new starting date
-        setDateRange({ from: newDateRange.from, to: undefined });
-        setEditFormData({
-          ...editFormData,
-          check_in: format(newDateRange.from, 'yyyy-MM-dd'),
-          check_out: ""
-        });
-      }
+  const handleDayClick = (day: Date) => {
+    // 1st click: start, 2nd: end, 3rd: restart from clicked day
+    if (!dateRange?.from || (dateRange?.from && dateRange?.to)) {
+      setDateRange({ from: day, to: undefined });
+      setEditFormData({
+        ...editFormData,
+        check_in: format(day, 'yyyy-MM-dd'),
+        check_out: ""
+      });
+      return;
+    }
+
+    if (day < dateRange.from || day.getTime() === dateRange.from.getTime()) {
+      setDateRange({ from: day, to: undefined });
+      setEditFormData({
+        ...editFormData,
+        check_in: format(day, 'yyyy-MM-dd'),
+        check_out: ""
+      });
     } else {
-      setDateRange(newDateRange);
-      if (newDateRange?.from && newDateRange?.to) {
-        const newTotal = selectedBooking ? calculateTotal(
-          format(newDateRange.from, 'yyyy-MM-dd'),
-          format(newDateRange.to, 'yyyy-MM-dd'),
-          parseInt(editFormData.guests),
-          parseInt(editFormData.rooms),
-          selectedBooking.hotels
-        ) : 0;
-        setEditFormData({
-          ...editFormData,
-          check_in: format(newDateRange.from, 'yyyy-MM-dd'),
-          check_out: format(newDateRange.to, 'yyyy-MM-dd'),
-          manual_total: newTotal.toString(),
-          total_amount: newTotal.toString()
-        });
-      } else if (newDateRange?.from) {
-        setEditFormData({
-          ...editFormData,
-          check_in: format(newDateRange.from, 'yyyy-MM-dd'),
-          check_out: ""
-        });
-      }
+      setDateRange({ from: dateRange.from, to: day });
+      const newTotal = selectedBooking ? calculateTotal(
+        format(dateRange.from, 'yyyy-MM-dd'),
+        format(day, 'yyyy-MM-dd'),
+        parseInt(editFormData.guests || '0'),
+        parseInt(editFormData.rooms || '0'),
+        selectedBooking.hotels
+      ) : 0;
+      setEditFormData({
+        ...editFormData,
+        check_in: format(dateRange.from, 'yyyy-MM-dd'),
+        check_out: format(day, 'yyyy-MM-dd'),
+        manual_total: newTotal.toString(),
+        total_amount: newTotal.toString()
+      });
     }
   };
 
@@ -926,7 +908,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                   <Calendar
                     mode="range"
                     selected={dateRange}
-                    onSelect={handleDateSelect}
+                    onDayClick={handleDayClick}
                     disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                     initialFocus
                     locale={ar}

@@ -55,41 +55,32 @@ export default function SeasonalPricing() {
     is_available: true,
   });
 
-  const handleDateSelect = (newDateRange: DateRange | undefined) => {
-    // If both dates are already selected and user clicks a new date, reset and start fresh
-    if (dateRange?.from && dateRange?.to && newDateRange?.from) {
-      // Check if the new selection is a complete range
-      if (newDateRange.to) {
-        setDateRange(newDateRange);
-        setFormData({
-          ...formData,
-          start_date: format(newDateRange.from, 'yyyy-MM-dd'),
-          end_date: format(newDateRange.to, 'yyyy-MM-dd')
-        });
-      } else {
-        // Reset to just the new starting date
-        setDateRange({ from: newDateRange.from, to: undefined });
-        setFormData({
-          ...formData,
-          start_date: format(newDateRange.from, 'yyyy-MM-dd'),
-          end_date: ""
-        });
-      }
+  const handleDayClick = (day: Date) => {
+    // 1st click: start, 2nd: end, 3rd: restart from clicked day
+    if (!dateRange?.from || (dateRange?.from && dateRange?.to)) {
+      setDateRange({ from: day, to: undefined });
+      setFormData({
+        ...formData,
+        start_date: format(day, 'yyyy-MM-dd'),
+        end_date: ""
+      });
+      return;
+    }
+
+    if (day < dateRange.from || day.getTime() === dateRange.from.getTime()) {
+      setDateRange({ from: day, to: undefined });
+      setFormData({
+        ...formData,
+        start_date: format(day, 'yyyy-MM-dd'),
+        end_date: ""
+      });
     } else {
-      setDateRange(newDateRange);
-      if (newDateRange?.from && newDateRange?.to) {
-        setFormData({
-          ...formData,
-          start_date: format(newDateRange.from, 'yyyy-MM-dd'),
-          end_date: format(newDateRange.to, 'yyyy-MM-dd')
-        });
-      } else if (newDateRange?.from) {
-        setFormData({
-          ...formData,
-          start_date: format(newDateRange.from, 'yyyy-MM-dd'),
-          end_date: ""
-        });
-      }
+      setDateRange({ from: dateRange.from, to: day });
+      setFormData({
+        ...formData,
+        start_date: format(dateRange.from, 'yyyy-MM-dd'),
+        end_date: format(day, 'yyyy-MM-dd')
+      });
     }
   };
 
@@ -427,7 +418,7 @@ export default function SeasonalPricing() {
                     <Calendar
                       mode="range"
                       selected={dateRange}
-                      onSelect={handleDateSelect}
+                      onDayClick={handleDayClick}
                       disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                       initialFocus
                       locale={ar}
