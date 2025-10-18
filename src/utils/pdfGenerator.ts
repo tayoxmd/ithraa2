@@ -370,9 +370,135 @@ export function sharePDFViaEmail(data: PDFBookingData) {
   window.location.href = `mailto:${data.clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-export function sharePDFViaWhatsApp(data: PDFBookingData) {
-  const message = `*Booking Confirmation*\n\nBooking Number: ${data.bookingNumber}\nGuest Name: ${data.guestName}\nHotel: ${data.hotelNameEn}\nLocation: ${data.hotelLocation}\nCheck-in: ${format(data.checkIn, 'dd/MM/yyyy')}\nCheck-out: ${format(data.checkOut, 'dd/MM/yyyy')}\nNights: ${data.nights}\nRooms: ${data.rooms}\nGuests: ${data.guests}\nTotal: ${data.totalAmount.toFixed(2)} SAR\n\nView your bookings: ${data.customerPageUrl}`;
+interface SharePDFWhatsAppOptions {
+  language: 'ar' | 'en';
+  mealPlanNameAr?: string;
+  mealPlanNameEn?: string;
+  mealPlanPrice?: number;
+  mealPlanMaxPersons?: number;
+  extraMeals?: number;
+  paymentStatus?: 'paid' | 'partially_paid' | 'unpaid';
+  amountPaid?: number;
+}
+
+export async function sharePDFViaWhatsApp(data: PDFBookingData, options: SharePDFWhatsAppOptions) {
+  // Generate PDF
+  const doc = generateBookingPDF(data);
+  const pdfBlob = doc.output('blob');
   
+  // Create file from blob
+  const fileName = `Confirmation_${data.bookingNumber}_${data.guestName.toUpperCase().replace(/\s+/g, '_')}.pdf`;
+  const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
+
+  const baseGuests = data.baseGuests;
+  const extraGuests = data.extraGuests;
+  const includedPersons = (options.mealPlanMaxPersons || 0) * data.rooms;
+  const extraMealsRequired = Math.max(0, data.guests - includedPersons);
+  
+  // Build message based on language
+  let message = '';
+  
+  if (options.language === 'ar') {
+    message = `*تأكيد حجز فندقي*\n\n`;
+    message += `رقم الحجز: ${data.bookingNumber}\n`;
+    if (data.hotelConfirmationNumber) {
+      message += `رقم حجز الفندق: ${data.hotelConfirmationNumber}\n`;
+    }
+    message += `اسم النزيل: ${data.guestName}\n`;
+    message += `الفندق: ${data.hotelNameAr}\n`;
+    message += `الموقع: ${data.hotelLocation}\n`;
+    message += `تاريخ الوصول: ${format(data.checkIn, 'dd/MM/yyyy')}\n`;
+    message += `تاريخ المغادرة: ${format(data.checkOut, 'dd/MM/yyyy')}\n`;
+    message += `عدد الليالي: ${data.nights}\n`;
+    message += `عدد الغرف: ${data.rooms}\n`;
+    message += `عدد النزلاء: ${data.guests} أشخاص\n`;
+    
+    if (extraGuests > 0) {
+      message += `أشخاص إضافيين: +${extraGuests} أشخاص\n`;
+    }
+    
+    if (options.mealPlanNameAr) {
+      message += `\n*الوجبات:* ${options.mealPlanNameAr}\n`;
+      if ((options.mealPlanPrice || 0) > 0) {
+        message += `مدفوعة: +${options.mealPlanPrice} ر.س\n`;
+      }
+      if ((options.mealPlanMaxPersons || 0) > 0) {
+        message += `عدد الأشخاص: ${includedPersons} أشخاص\n`;
+      }
+      if (extraMealsRequired > 0 || (options.extraMeals && options.extraMeals > 0)) {
+        message += `وجبات إضافية: +${options.extraMeals && options.extraMeals > 0 ? options.extraMeals : extraMealsRequired}\n`;
+      }
+    }
+    
+    message += `\n*المبلغ الإجمالي:* ${data.totalAmount.toFixed(2)} ر.س\n`;
+    
+    if (options.paymentStatus === 'partially_paid' && options.amountPaid) {
+      message += `المبلغ المدفوع: ${options.amountPaid.toFixed(2)} ر.س\n`;
+      message += `المبلغ المتبقي: ${(data.totalAmount - options.amountPaid).toFixed(2)} ر.س\n`;
+    } else if (options.paymentStatus === 'paid') {
+      message += `الدفع: مدفوع بالكامل\n`;
+    }
+    
+    message += `\nعرض حجوزاتك: ${data.customerPageUrl}`;
+  } else {
+    message = `*Hotel Booking Confirmation*\n\n`;
+    message += `Booking Number: ${data.bookingNumber}\n`;
+    if (data.hotelConfirmationNumber) {
+      message += `Hotel Booking#: ${data.hotelConfirmationNumber}\n`;
+    }
+    message += `Guest Name: ${data.guestName}\n`;
+    message += `Hotel: ${data.hotelNameEn}\n`;
+    message += `Location: ${data.hotelLocation}\n`;
+    message += `Check-in: ${format(data.checkIn, 'dd/MM/yyyy')}\n`;
+    message += `Check-out: ${format(data.checkOut, 'dd/MM/yyyy')}\n`;
+    message += `Nights: ${data.nights}\n`;
+    message += `Rooms: ${data.rooms}\n`;
+    message += `Guests: ${data.guests} persons\n`;
+    
+    if (extraGuests > 0) {
+      message += `Extra Guests: +${extraGuests} persons\n`;
+    }
+    
+    if (options.mealPlanNameEn) {
+      message += `\n*Meals:* ${options.mealPlanNameEn}\n`;
+      if ((options.mealPlanPrice || 0) > 0) {
+        message += `Paid: +${options.mealPlanPrice} SAR\n`;
+      }
+      if ((options.mealPlanMaxPersons || 0) > 0) {
+        message += `Persons: ${includedPersons} persons\n`;
+      }
+      if (extraMealsRequired > 0 || (options.extraMeals && options.extraMeals > 0)) {
+        message += `Extra Meals: +${options.extraMeals && options.extraMeals > 0 ? options.extraMeals : extraMealsRequired}\n`;
+      }
+    }
+    
+    message += `\n*Total Amount:* ${data.totalAmount.toFixed(2)} SAR\n`;
+    
+    if (options.paymentStatus === 'partially_paid' && options.amountPaid) {
+      message += `Amount Paid: ${options.amountPaid.toFixed(2)} SAR\n`;
+      message += `Remaining Amount: ${(data.totalAmount - options.amountPaid).toFixed(2)} SAR\n`;
+    } else if (options.paymentStatus === 'paid') {
+      message += `Payment: Fully Paid\n`;
+    }
+    
+    message += `\nView your bookings: ${data.customerPageUrl}`;
+  }
+  
+  // Check if Web Share API is available and supports files
+  if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+    try {
+      await navigator.share({
+        files: [file],
+        title: options.language === 'ar' ? 'تأكيد الحجز' : 'Booking Confirmation',
+        text: message
+      });
+      return;
+    } catch (error) {
+      console.log('Share failed or was cancelled, falling back to URL method');
+    }
+  }
+  
+  // Fallback: Open WhatsApp with message only (file must be sent separately)
   const whatsappUrl = `https://wa.me/${data.clientPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
   window.open(whatsappUrl, '_blank');
 }
