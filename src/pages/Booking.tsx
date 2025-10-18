@@ -690,7 +690,23 @@ export default function Booking() {
 
                   {/* Hotel Info */}
                   <div className="flex items-start gap-4 pb-4 border-b">
-                    <HotelIcon className="w-10 h-10 text-primary flex-shrink-0" />
+                    {hotel.location_url ? (
+                      <button
+                        type="button"
+                        onClick={() => window.open(hotel.location_url, '_blank')}
+                        className="flex flex-col items-center justify-center gap-0.5 w-14 h-14 bg-primary/10 hover:bg-primary/20 rounded-lg transition-all flex-shrink-0 group"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary group-hover:scale-110 transition-transform">
+                          <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                          <circle cx="12" cy="10" r="3"/>
+                        </svg>
+                        <span className="text-[8px] text-primary font-medium leading-tight text-center">
+                          {t({ ar: 'موقع الفندق', en: 'Hotel Location' })}
+                        </span>
+                      </button>
+                    ) : (
+                      <HotelIcon className="w-10 h-10 text-primary flex-shrink-0" />
+                    )}
                     <div className="flex-1">
                       <h3 className="font-bold text-lg mb-1">
                         {language === 'ar' ? hotel.name_ar : hotel.name_en}

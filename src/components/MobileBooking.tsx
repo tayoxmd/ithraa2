@@ -155,11 +155,27 @@ export function MobileBooking(props: MobileBookingProps) {
         <Card className="overflow-hidden shadow-lg">
           <CardContent className="p-0">
             <div className="flex gap-3 p-4">
-              <img
-                src={props.hotel.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945"}
-                alt={language === 'ar' ? props.hotel.name_ar : props.hotel.name_en}
-                className="w-20 h-20 object-cover rounded-lg"
-              />
+              {props.hotel.location_url ? (
+                <button
+                  type="button"
+                  onClick={() => window.open(props.hotel.location_url, '_blank')}
+                  className="flex flex-col items-center justify-center gap-0.5 w-20 h-20 bg-primary/10 hover:bg-primary/20 rounded-lg transition-all flex-shrink-0 group"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-primary group-hover:scale-110 transition-transform">
+                    <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                    <circle cx="12" cy="10" r="3"/>
+                  </svg>
+                  <span className="text-[9px] text-primary font-semibold leading-tight text-center px-1">
+                    {t({ ar: 'موقع الفندق', en: 'Location' })}
+                  </span>
+                </button>
+              ) : (
+                <img
+                  src={props.hotel.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945"}
+                  alt={language === 'ar' ? props.hotel.name_ar : props.hotel.name_en}
+                  className="w-20 h-20 object-cover rounded-lg"
+                />
+              )}
               <div className="flex-1">
                 <h3 className="font-bold text-sm mb-1">
                   {language === 'ar' ? props.hotel.name_ar : props.hotel.name_en}
