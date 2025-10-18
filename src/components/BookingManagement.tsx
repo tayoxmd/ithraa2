@@ -587,14 +587,14 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div className="space-y-3">
                   <div className="flex items-start gap-2 text-sm">
-                    <Calendar className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                    <CalendarIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1">
                       <span className="font-semibold">{t({ ar: "تاريخ الوصول:", en: "Check-in:" })}</span>
                       <span>{format(new Date(booking.check_in), "dd/MM/yyyy")}</span>
                     </div>
                   </div>
                   <div className="flex items-start gap-2 text-sm">
-                    <Calendar className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                    <CalendarIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                     <div className="flex flex-col sm:flex-row sm:items-center gap-1">
                       <span className="font-semibold">{t({ ar: "تاريخ المغادرة:", en: "Check-out:" })}</span>
                       <span>{format(new Date(booking.check_out), "dd/MM/yyyy")}</span>
