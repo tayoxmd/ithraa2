@@ -12,7 +12,6 @@ import kaaba from "@/assets/slideshow/kaaba.jpeg";
 
 const slides = [
   { image: logo, title: "إثراء" },
-  { image: kaaba, title: "الكعبة المشرفة" },
   { image: holySite, title: "المسجد الحرام" },
   { image: madinah, title: "المسجد النبوي" },
   { image: makkahView, title: "برج الساعة" },
