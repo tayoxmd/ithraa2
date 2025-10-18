@@ -1094,8 +1094,12 @@ export type Database = {
           footer_company_name_ar: string | null
           footer_company_name_en: string | null
           footer_height: number | null
+          footer_logo_svg_ar: string | null
+          footer_logo_svg_en: string | null
           header_bg_color: string | null
           header_height: number | null
+          header_logo_svg_ar: string | null
+          header_logo_svg_en: string | null
           header_text_ar: string | null
           header_text_en: string | null
           iban: string | null
@@ -1154,8 +1158,12 @@ export type Database = {
           footer_company_name_ar?: string | null
           footer_company_name_en?: string | null
           footer_height?: number | null
+          footer_logo_svg_ar?: string | null
+          footer_logo_svg_en?: string | null
           header_bg_color?: string | null
           header_height?: number | null
+          header_logo_svg_ar?: string | null
+          header_logo_svg_en?: string | null
           header_text_ar?: string | null
           header_text_en?: string | null
           iban?: string | null
@@ -1214,8 +1222,12 @@ export type Database = {
           footer_company_name_ar?: string | null
           footer_company_name_en?: string | null
           footer_height?: number | null
+          footer_logo_svg_ar?: string | null
+          footer_logo_svg_en?: string | null
           header_bg_color?: string | null
           header_height?: number | null
+          header_logo_svg_ar?: string | null
+          header_logo_svg_en?: string | null
           header_text_ar?: string | null
           header_text_en?: string | null
           iban?: string | null

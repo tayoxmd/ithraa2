@@ -99,6 +99,12 @@ interface PDFSettings {
   company_license?: string;
   company_vat?: string;
   company_cr?: string;
+  
+  // SVG Logos
+  header_logo_svg_en?: string;
+  header_logo_svg_ar?: string;
+  footer_logo_svg_en?: string;
+  footer_logo_svg_ar?: string;
 }
 
 export default function PDFSettings() {
@@ -630,6 +636,57 @@ export default function PDFSettings() {
                             onChange={(e) => setSettings({ ...settings, footer_company_name_en: e.target.value })}
                           />
                         </div>
+                      </div>
+                    </div>
+
+                    {/* SVG Logos */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "شعارات SVG", en: "SVG Logos" })}
+                      </h3>
+                      
+                      <div>
+                        <Label>{t({ ar: "شعار الهيدر (عربي) - كود SVG", en: "Header Logo (Arabic) - SVG Code" })}</Label>
+                        <Textarea
+                          value={settings.header_logo_svg_ar || ''}
+                          onChange={(e) => setSettings({ ...settings, header_logo_svg_ar: e.target.value })}
+                          rows={3}
+                          placeholder="<svg>...</svg>"
+                          className="font-mono text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <Label>{t({ ar: "شعار الهيدر (إنجليزي) - كود SVG", en: "Header Logo (English) - SVG Code" })}</Label>
+                        <Textarea
+                          value={settings.header_logo_svg_en || ''}
+                          onChange={(e) => setSettings({ ...settings, header_logo_svg_en: e.target.value })}
+                          rows={3}
+                          placeholder="<svg>...</svg>"
+                          className="font-mono text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <Label>{t({ ar: "شعار الفوتر (عربي) - كود SVG", en: "Footer Logo (Arabic) - SVG Code" })}</Label>
+                        <Textarea
+                          value={settings.footer_logo_svg_ar || ''}
+                          onChange={(e) => setSettings({ ...settings, footer_logo_svg_ar: e.target.value })}
+                          rows={3}
+                          placeholder="<svg>...</svg>"
+                          className="font-mono text-xs"
+                        />
+                      </div>
+
+                      <div>
+                        <Label>{t({ ar: "شعار الفوتر (إنجليزي) - كود SVG", en: "Footer Logo (English) - SVG Code" })}</Label>
+                        <Textarea
+                          value={settings.footer_logo_svg_en || ''}
+                          onChange={(e) => setSettings({ ...settings, footer_logo_svg_en: e.target.value })}
+                          rows={3}
+                          placeholder="<svg>...</svg>"
+                          className="font-mono text-xs"
+                        />
                       </div>
                     </div>
 
