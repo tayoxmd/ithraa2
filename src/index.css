@@ -178,3 +178,10 @@ body.no-animations *::after {
   transition-duration: 0.01s !important;
   transition-delay: 0s !important;
 }
+
+/* Reserve space for right sidebar on desktop/tablet */
+@media (min-width: 768px) {
+  .pr-sidebar {
+    padding-right: var(--sidebar-width);
+  }
+}
