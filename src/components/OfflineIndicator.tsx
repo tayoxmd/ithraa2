@@ -44,7 +44,7 @@ export function OfflineIndicator() {
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [t]);
 
   if (!showIndicator && isOnline) return null;
 

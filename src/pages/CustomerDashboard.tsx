@@ -217,25 +217,25 @@ export default function CustomerDashboard() {
                       </div>
                     )}
                   </CardHeader>
-                  <CardContent className="space-y-6">
+                    <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-3">
-                        <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                          <span className="text-muted-foreground text-sm sm:text-base">{t({ ar: "تاريخ الوصول:", en: "Check-in:", fr: "Arrivée:", es: "Entrada:", ru: "Заезд:", id: "Check-in:", ms: "Daftar masuk:" })}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "تاريخ الوصول:", en: "Check-in:", fr: "Arrivée:", es: "Entrada:", ru: "Заезд:", id: "Check-in:", ms: "Daftar masuk:" })}</span>
                           <span className="font-semibold text-sm sm:text-base">{format(new Date(booking.check_in), 'yyyy-MM-dd')}</span>
                         </div>
-                        <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                          <span className="text-muted-foreground text-sm sm:text-base">{t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })}</span>
                           <span className="font-semibold text-sm sm:text-base">{format(new Date(booking.check_out), 'yyyy-MM-dd')}</span>
                         </div>
                       </div>
                       <div className="space-y-3">
-                        <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                          <span className="text-muted-foreground text-sm sm:text-base">{t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })}</span>
                           <span className="font-semibold text-sm sm:text-base">{booking.guests}</span>
                         </div>
-                        <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                          <span className="text-muted-foreground text-sm sm:text-base">{t({ ar: "عدد الغرف:", en: "Rooms:" })}</span>
+                        <div className="flex items-center justify-between gap-2">
+                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "عدد الغرف:", en: "Rooms:" })}</span>
                           <span className="font-semibold text-sm sm:text-base">{booking.rooms}</span>
                         </div>
                       </div>
@@ -243,27 +243,27 @@ export default function CustomerDashboard() {
                     
                     {booking.meal_plan_name_ar && (
                       <div className="pt-4 border-t">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
-                              <span className="text-muted-foreground font-semibold text-sm sm:text-base">{t({ ar: "الوجبات:", en: "Meals:" })}</span>
-                              <span className="font-medium text-sm sm:text-base">{language === 'ar' ? booking.meal_plan_name_ar : booking.meal_plan_name_en}</span>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-muted-foreground font-semibold text-sm sm:text-base whitespace-nowrap">{t({ ar: "الوجبات:", en: "Meals:" })}</span>
+                              <span className="font-medium text-sm sm:text-base text-right">{language === 'ar' ? booking.meal_plan_name_ar : booking.meal_plan_name_en}</span>
                             </div>
-                            <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-sm">
-                              <span className="text-muted-foreground">{booking.meal_plan_price && booking.meal_plan_price > 0 ? t({ ar: "مدفوعة", en: "Paid" }) : t({ ar: "مشمولة", en: "Included" })}</span>
+                            <div className="flex items-center justify-between gap-2 text-sm">
+                              <span className="text-muted-foreground whitespace-nowrap">{booking.meal_plan_price && booking.meal_plan_price > 0 ? t({ ar: "مدفوعة", en: "Paid" }) : t({ ar: "مشمولة", en: "Included" })}</span>
                               {booking.meal_plan_price && booking.meal_plan_price > 0 && (
                                 <span className="font-medium">+{booking.meal_plan_price} {t({ ar: "ر.س", en: "SAR" })}</span>
                               )}
                             </div>
                           </div>
                           <div className="space-y-2">
-                            <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-sm">
-                              <span className="text-muted-foreground">{t({ ar: "عدد الأشخاص:", en: "Persons:" })}</span>
+                            <div className="flex items-center justify-between gap-2 text-sm">
+                              <span className="text-muted-foreground whitespace-nowrap">{t({ ar: "عدد الأشخاص:", en: "Persons:" })}</span>
                               <span className="font-medium">{booking.meal_plan_max_persons} {t({ ar: "أشخاص", en: "persons" })}</span>
                             </div>
                             {booking.extra_meals && booking.extra_meals > 0 && (
-                              <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-sm">
-                                <span className="text-muted-foreground">{t({ ar: "وجبات إضافية:", en: "Extra Meals:" })}</span>
+                              <div className="flex items-center justify-between gap-2 text-sm">
+                                <span className="text-muted-foreground whitespace-nowrap">{t({ ar: "وجبات إضافية:", en: "Extra Meals:" })}</span>
                                 <span className="font-medium">+{booking.extra_meals}</span>
                               </div>
                             )}
@@ -272,8 +272,8 @@ export default function CustomerDashboard() {
                       </div>
                     )}
                     
-                    <div className="flex flex-col sm:flex-row sm:justify-between gap-2 pt-4 border-t">
-                      <span className="text-muted-foreground font-semibold text-base sm:text-lg">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })}</span>
+                    <div className="flex items-center justify-between gap-2 pt-4 border-t">
+                      <span className="text-muted-foreground font-semibold text-base sm:text-lg whitespace-nowrap">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })}</span>
                       <span className="font-bold text-xl sm:text-2xl text-primary">{booking.total_amount} {t({ ar: "ر.س", en: "SAR" })}</span>
                     </div>
                     

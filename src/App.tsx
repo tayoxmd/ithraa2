@@ -53,7 +53,7 @@ const RouterWithTheme = () => {
         <Toaster />
         <Sonner />
         <ChatWidget />
-        <OfflineIndicator />
+        {/* <OfflineIndicator /> */}
         <LanguageProvider>
           <AuthProvider>
             <Routes>

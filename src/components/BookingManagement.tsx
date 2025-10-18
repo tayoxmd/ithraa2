@@ -586,57 +586,57 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
             <CardContent className="space-y-6">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
                 <div className="space-y-4">
-                  <div className="flex items-start gap-3 text-sm sm:text-base">
-                    <CalendarIcon className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 flex-1">
-                      <span className="font-semibold">{t({ ar: "تاريخ الوصول:", en: "Check-in:" })}</span>
-                      <span className="sm:ml-auto">{format(new Date(booking.check_in), "dd/MM/yyyy")}</span>
+                  <div className="flex items-center justify-between gap-3 text-sm sm:text-base">
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon className="w-4 h-4 text-primary flex-shrink-0" />
+                      <span className="font-semibold whitespace-nowrap">{t({ ar: "تاريخ الوصول:", en: "Check-in:" })}</span>
                     </div>
+                    <span>{format(new Date(booking.check_in), "dd/MM/yyyy")}</span>
                   </div>
-                  <div className="flex items-start gap-3 text-sm sm:text-base">
-                    <CalendarIcon className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 flex-1">
-                      <span className="font-semibold">{t({ ar: "تاريخ المغادرة:", en: "Check-out:" })}</span>
-                      <span className="sm:ml-auto">{format(new Date(booking.check_out), "dd/MM/yyyy")}</span>
+                  <div className="flex items-center justify-between gap-3 text-sm sm:text-base">
+                    <div className="flex items-center gap-2">
+                      <CalendarIcon className="w-4 h-4 text-primary flex-shrink-0" />
+                      <span className="font-semibold whitespace-nowrap">{t({ ar: "تاريخ المغادرة:", en: "Check-out:" })}</span>
                     </div>
+                    <span>{format(new Date(booking.check_out), "dd/MM/yyyy")}</span>
                   </div>
-                  <div className="flex items-start gap-3 text-sm sm:text-base">
-                    <Users className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 flex-1">
-                      <span className="font-semibold">{t({ ar: "عدد النزلاء:", en: "Guests:" })}</span>
-                      <span className="sm:ml-auto">{booking.guests}</span>
+                  <div className="flex items-center justify-between gap-3 text-sm sm:text-base">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-primary flex-shrink-0" />
+                      <span className="font-semibold whitespace-nowrap">{t({ ar: "عدد النزلاء:", en: "Guests:" })}</span>
                     </div>
+                    <span>{booking.guests}</span>
                   </div>
-                  <div className="flex items-start gap-3 text-sm sm:text-base">
-                    <Users className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 flex-1">
-                      <span className="font-semibold">{t({ ar: "عدد الغرف:", en: "Rooms:" })}</span>
-                      <span className="sm:ml-auto">{booking.rooms}</span>
+                  <div className="flex items-center justify-between gap-3 text-sm sm:text-base">
+                    <div className="flex items-center gap-2">
+                      <Users className="w-4 h-4 text-primary flex-shrink-0" />
+                      <span className="font-semibold whitespace-nowrap">{t({ ar: "عدد الغرف:", en: "Rooms:" })}</span>
                     </div>
+                    <span>{booking.rooms}</span>
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 text-base sm:text-lg pt-2 border-t">
-                    <span className="font-bold">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })}</span>
-                    <span className="text-primary font-bold sm:ml-auto">{booking.total_amount} {t({ ar: "ر.س", en: "SAR" })}</span>
+                  <div className="flex items-center justify-between gap-2 text-base sm:text-lg pt-2 border-t">
+                    <span className="font-bold whitespace-nowrap">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })}</span>
+                    <span className="text-primary font-bold">{booking.total_amount} {t({ ar: "ر.س", en: "SAR" })}</span>
                   </div>
                   {(booking.payment_status === 'partially_paid' || booking.payment_status === 'paid') && (
                     <>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 text-sm sm:text-base">
-                        <span className="font-semibold">{t({ ar: "المبلغ المدفوع:", en: "Amount Paid:" })}</span>
-                        <span className={`font-bold sm:ml-auto ${booking.payment_status === 'paid' ? 'text-green-600' : ''}`}>
+                      <div className="flex items-center justify-between gap-3 text-sm sm:text-base">
+                        <span className="font-semibold whitespace-nowrap">{t({ ar: "المبلغ المدفوع:", en: "Amount Paid:" })}</span>
+                        <span className={`font-bold ${booking.payment_status === 'paid' ? 'text-green-600' : ''}`}>
                           {booking.amount_paid} {t({ ar: "ر.س", en: "SAR" })}
                         </span>
                       </div>
                       {booking.payment_status === 'partially_paid' && (
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 text-sm sm:text-base">
-                          <span className="font-semibold">{t({ ar: "المبلغ المتبقي:", en: "Remaining:" })}</span>
-                          <span className="text-red-600 font-bold sm:ml-auto">{booking.total_amount - booking.amount_paid} {t({ ar: "ر.س", en: "SAR" })}</span>
+                        <div className="flex items-center justify-between gap-3 text-sm sm:text-base">
+                          <span className="font-semibold whitespace-nowrap">{t({ ar: "المبلغ المتبقي:", en: "Remaining:" })}</span>
+                          <span className="text-red-600 font-bold">{booking.total_amount - booking.amount_paid} {t({ ar: "ر.س", en: "SAR" })}</span>
                         </div>
                       )}
                     </>
                   )}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 text-sm sm:text-base">
-                    <span className="font-semibold">{t({ ar: "طريقة الدفع:", en: "Payment Method:" })}</span>
-                    <span className="sm:ml-auto">{booking.payment_method}</span>
+                  <div className="flex items-center justify-between gap-3 text-sm sm:text-base">
+                    <span className="font-semibold whitespace-nowrap">{t({ ar: "طريقة الدفع:", en: "Payment Method:" })}</span>
+                    <span className="break-words text-right">{booking.payment_method}</span>
                   </div>
                   {booking.notes && (
                     <div className="text-sm sm:text-base space-y-1">
@@ -650,13 +650,13 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                   <div>
                     <h4 className="font-bold mb-3 text-base sm:text-lg">{t({ ar: "معلومات العميل", en: "Customer Information" })}</h4>
                     <div className="space-y-3 text-sm sm:text-base">
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-                        <span className="font-semibold">{t({ ar: "الاسم:", en: "Name:" })}</span>
-                        <span className="sm:ml-auto">{booking.profiles?.full_name}</span>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-semibold whitespace-nowrap">{t({ ar: "الاسم:", en: "Name:" })}</span>
+                        <span className="break-words text-right">{booking.profiles?.full_name}</span>
                       </div>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-                        <span className="font-semibold">{t({ ar: "الهاتف:", en: "Phone:" })}</span>
-                        <span className="sm:ml-auto">{booking.profiles?.phone}</span>
+                      <div className="flex items-center justify-between gap-3">
+                        <span className="font-semibold whitespace-nowrap">{t({ ar: "الهاتف:", en: "Phone:" })}</span>
+                        <span className="break-words text-right" dir="ltr">{booking.profiles?.phone}</span>
                       </div>
                     </div>
                   </div>
@@ -741,11 +741,11 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 pt-4 border-t">
+              <div className="grid grid-cols-2 gap-3 pt-4 border-t">
                     <Button
                       variant="outline"
                       size="default"
-                      className="w-full sm:w-auto sm:flex-1"
+                      className="w-full"
                       onClick={() => openEditDialog(booking)}
                     >
                       <Edit className="w-4 h-4 ml-1" />
@@ -754,7 +754,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     <Button
                       variant="outline"
                       size="default"
-                      className="w-full sm:w-auto sm:flex-1"
+                      className="w-full"
                       onClick={() => {
                         const customerPageUrl = generateCustomerPageUrl(booking.user_id);
                         const nights = Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24));
@@ -803,7 +803,8 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     </Button>
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="default"
+                      className="w-full"
                       onClick={() => shareGeneral(booking)}
                     >
                       <Share2 className="w-4 h-4 ml-1" />
@@ -811,7 +812,8 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     </Button>
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="default"
+                      className="w-full"
                       onClick={() => {
                         const customerPageUrl = generateCustomerPageUrl(booking.user_id);
                         const nights = Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24));
@@ -860,7 +862,8 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     </Button>
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="default"
+                      className="w-full"
                       onClick={() => shareViaWhatsApp(booking)}
                     >
                       <MessageCircle className="w-4 h-4 ml-1" />
@@ -868,7 +871,8 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     </Button>
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="default"
+                      className="w-full"
                       onClick={() => shareViaEmail(booking)}
                     >
                       <Mail className="w-4 h-4 ml-1" />
