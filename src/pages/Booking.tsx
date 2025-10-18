@@ -881,8 +881,8 @@ export default function Booking() {
                                   }}
                                 >
                                   {t({ 
-                                    ar: `قيمة الوجبة الإضافية: ${hotel.meal_plans.extra_meal_price} ر.س/لليلة`, 
-                                    en: `Extra meal price: ${hotel.meal_plans.extra_meal_price} SAR/night` 
+                                    ar: `قيمة الوجبة الإضافية: ${hotel.meal_plans.extra_meal_price} ر.س/للشخص/لليلة`, 
+                                    en: `Extra meal price: ${hotel.meal_plans.extra_meal_price} SAR/per person/night` 
                                   })}
                                 </p>
                               )}
@@ -1060,8 +1060,8 @@ export default function Booking() {
                       {hotel.meal_plans.extra_meal_price > 0 && (
                         <p className="text-xs text-muted-foreground pt-2 border-t">
                           {t({ 
-                            ar: `قيمة الوجبة الإضافية: ${hotel.meal_plans.extra_meal_price} ر.س/لليلة`, 
-                            en: `Extra meal price: ${hotel.meal_plans.extra_meal_price} SAR/night` 
+                            ar: `قيمة الوجبة الإضافية: ${hotel.meal_plans.extra_meal_price} ر.س/للشخص/لليلة`, 
+                            en: `Extra meal price: ${hotel.meal_plans.extra_meal_price} SAR/per person/night` 
                           })}
                         </p>
                       )}

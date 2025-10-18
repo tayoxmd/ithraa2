@@ -316,8 +316,8 @@ export function MobileBooking(props: MobileBookingProps) {
                   {meal.extra_meal_price > 0 && (
                     <p className="text-xs text-green-600 dark:text-green-400 mt-1">
                       {t({ 
-                        ar: `قيمة الوجبة الإضافية: ${meal.extra_meal_price} ر.س/لليلة`, 
-                        en: `Extra meal price: ${meal.extra_meal_price} SAR/night` 
+                        ar: `قيمة الوجبة الإضافية: ${meal.extra_meal_price} ر.س/للشخص/لليلة`, 
+                        en: `Extra meal price: ${meal.extra_meal_price} SAR/per person/night` 
                       })}
                     </p>
                   )}
