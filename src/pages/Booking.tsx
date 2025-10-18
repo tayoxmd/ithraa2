@@ -108,6 +108,20 @@ export default function Booking() {
     }
   }, [useCustomerName, customerFullName]);
 
+  // Recalculate seasonal pricing when dates change
+  useEffect(() => {
+    if (hotel && id) {
+      calculateSeasonalPrice(
+        id,
+        checkIn,
+        checkOut,
+        hotel.price_per_night
+      ).then(avgPrice => {
+        setAvgPricePerNight(avgPrice);
+      });
+    }
+  }, [checkIn, checkOut, hotel?.price_per_night, id]);
+
   useEffect(() => {
     let mounted = true;
     
