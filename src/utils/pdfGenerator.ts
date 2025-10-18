@@ -1,5 +1,6 @@
 import jsPDF from 'jspdf';
 import { format } from 'date-fns';
+import logo from '@/assets/logo.png';
 
 // Hijri date converter (basic implementation)
 function toHijri(gregorianDate: Date): string {
@@ -89,6 +90,13 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
     doc.setFillColor(headerBgColor[0], headerBgColor[1], headerBgColor[2]);
     doc.rect(0, 0, pageWidth, headerHeight, 'F');
     
+    // Add logo on the left side
+    try {
+      doc.addImage(logo, 'PNG', marginLeft, 5, 20, 20);
+    } catch (error) {
+      console.error('Error adding logo to PDF:', error);
+    }
+    
     // Booking number in top right
     const bookingNumY = settings.booking_number_y || 15;
     doc.setFillColor(255, 255, 255);
@@ -98,12 +106,12 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
     doc.setFont('helvetica', 'bold');
     doc.text(`#${data.bookingNumber}`, pageWidth - 27.5, bookingNumY, { align: 'center' });
     
-    // Title
+    // Title next to logo
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(fontSizeHeader);
     doc.setFont('helvetica', 'bold');
     const headerText = settings.header_text_en || 'CONFIRMATION';
-    doc.text(headerText, marginLeft, 20);
+    doc.text(headerText, marginLeft + 25, 20);
   }
   
   // Main title
