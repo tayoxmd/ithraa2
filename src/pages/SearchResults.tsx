@@ -375,7 +375,7 @@ export default function SearchResults() {
           </Card>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+        <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
           {filteredHotels.map((hotel) => (
             <div key={hotel.id} className="w-full">
               <HotelCard
