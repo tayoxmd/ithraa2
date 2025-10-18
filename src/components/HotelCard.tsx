@@ -74,6 +74,9 @@ export function HotelCard({
       const { data } = await supabase
         .from('site_settings')
         .select('meal_badge_color, meal_badge_width_mobile, meal_badge_height_mobile, meal_badge_auto_width_mobile, meal_badge_width_tablet, meal_badge_height_tablet, meal_badge_auto_width_tablet, meal_badge_width_desktop, meal_badge_height_desktop, meal_badge_auto_width_desktop, meal_badge_font_size, meal_badge_border_radius')
+        .order('created_at', { ascending: false })
+        .order('updated_at', { ascending: false })
+        .limit(1)
         .maybeSingle();
       
       if (data) {
