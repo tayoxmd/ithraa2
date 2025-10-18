@@ -1601,6 +1601,8 @@ export type Database = {
         Args: { p_hotel_id: string }
         Returns: {
           active: boolean
+          amenities: Json
+          bed_type_double: string
           city_id: string
           city_name_ar: string
           city_name_en: string
@@ -1613,6 +1615,7 @@ export type Database = {
           location: string
           location_url: string
           max_guests_per_room: number
+          meal_plans: Json
           name_ar: string
           name_en: string
           price_per_night: number
@@ -1624,7 +1627,9 @@ export type Database = {
         }[]
       }
       get_public_hotels: {
-        Args: { p_active_only?: boolean; p_city_id?: string }
+        Args:
+          | { p_active_only?: boolean; p_city_id?: string }
+          | { p_active_only?: boolean; p_city_id?: string }
         Returns: {
           active: boolean
           city_id: string
