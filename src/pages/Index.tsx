@@ -21,18 +21,10 @@ interface Hotel {
   images: any;
   city_name_ar: string;
   city_name_en: string;
-  meal_plans?: {
-    regular_ar: string;
-    regular_en: string;
-    ramadan_ar?: string;
-    ramadan_en?: string;
-    price: number;
-    max_persons: number;
-    extra_meal_price: number;
-  } | null;
+  meal_plans?: any;
   amenities?: any;
-  bed_type_single?: 'single' | 'king';
-  bed_type_double?: 'king' | 'twin';
+  bed_type_single?: string;
+  bed_type_double?: string;
   max_guests_per_room?: number;
 }
 
@@ -130,8 +122,8 @@ const Index = () => {
                   featured={index < 2}
                   meal_plans={hotel.meal_plans}
                   amenities={hotel.amenities}
-                  bed_type_single={hotel.bed_type_single}
-                  bed_type_double={hotel.bed_type_double}
+                  bed_type_single={hotel.bed_type_single as any}
+                  bed_type_double={hotel.bed_type_double as any}
                   max_guests_per_room={hotel.max_guests_per_room}
                 />
               </div>

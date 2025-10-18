@@ -23,15 +23,7 @@ interface Hotel {
   images: any;
   description_ar: string;
   description_en: string;
-  meal_plans?: {
-    regular_ar: string;
-    regular_en: string;
-    ramadan_ar?: string;
-    ramadan_en?: string;
-    price: number;
-    max_persons: number;
-    extra_meal_price: number;
-  } | null;
+  meal_plans?: any;
   amenities?: any;
 }
 
