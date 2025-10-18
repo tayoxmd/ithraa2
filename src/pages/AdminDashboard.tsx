@@ -423,9 +423,9 @@ export default function AdminDashboard() {
         // Desktop: Persistent Sidebar
         <SidebarProvider defaultOpen={true}>
           <div className="flex min-h-screen w-full">
-            <main className="flex-1 overflow-y-auto">
+            <AdminSidebar />
+            <main className="flex-1 overflow-y-auto md:peer-data-[side=right]:mr-[var(--sidebar-width)] md:peer-data-[collapsible=icon]:mr-[var(--sidebar-width-icon)] md:peer-data-[collapsible=offcanvas]:mr-0">
               <div className="p-8">
-                
 
                 {/* Header */}
                 <div className="mb-8">
