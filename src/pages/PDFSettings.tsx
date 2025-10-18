@@ -415,15 +415,18 @@ export default function PDFSettings() {
                 type="button"
                 className="w-20 h-20 rounded-lg border-2 border-border shadow-sm hover:scale-105 transition-transform cursor-pointer flex-shrink-0"
                 style={{ backgroundColor: hexColor }}
-                onClick={() => setOpen(true)}
               />
             </PopoverTrigger>
             <PopoverContent 
-              className="w-auto p-3 bg-background z-50" 
+              className="w-auto p-3 bg-background z-50 pointer-events-auto" 
               align="start"
               onInteractOutside={(e) => {
                 e.preventDefault();
               }}
+              onPointerDownOutside={(e) => {
+                e.preventDefault();
+              }}
+              onOpenAutoFocus={(e) => e.preventDefault()}
             >
               <div onPointerDown={(e) => e.stopPropagation()}>
                 <HexColorPicker
@@ -451,12 +454,12 @@ export default function PDFSettings() {
           </Popover>
           <div className="flex-1">
             <Label className="text-xs text-muted-foreground mb-1 block">
-              {manualText} (RGB)
+              {manualText}
             </Label>
             <Input
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              placeholder="255,255,255"
+              value={hexColor}
+              onChange={(e) => handleHexChange(e.target.value)}
+              placeholder="#FFFFFF"
               className="font-mono"
             />
           </div>
