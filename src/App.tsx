@@ -9,6 +9,7 @@ import { SettingsProvider } from "@/contexts/SettingsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { MealSettingsProvider } from "@/contexts/MealSettingsContext";
 import { ChatWidget } from "@/components/ChatWidget";
+import { OfflineIndicator } from "@/components/OfflineIndicator";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -52,6 +53,7 @@ const RouterWithTheme = () => {
         <Toaster />
         <Sonner />
         <ChatWidget />
+        <OfflineIndicator />
         <LanguageProvider>
           <AuthProvider>
             <Routes>
