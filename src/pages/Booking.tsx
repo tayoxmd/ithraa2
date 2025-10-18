@@ -878,20 +878,25 @@ export default function Booking() {
                             <Utensils className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
                             <div className="min-w-0 flex-1">
                               <p className="text-xs text-green-700 dark:text-green-300 font-semibold">
-                                {language === 'ar' ? hotel.meal_plans.regular_ar : hotel.meal_plans.regular_en}
-                              </p>
-                              <p className="text-xs text-green-600 dark:text-green-400">
                                 {language === 'ar' 
                                   ? hotel.meal_plans.max_persons === 1
-                                    ? `يشمل الوجبة لشخص واحد في كل غرفة (${rooms} ${rooms === 1 ? 'غرفة' : 'غرف'} = ${hotel.meal_plans.max_persons * rooms} ${hotel.meal_plans.max_persons * rooms === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms === 2 ? 'وجبتين' : 'وجبات'})`
+                                    ? `يشمل ${hotel.meal_plans.regular_ar} لشخص واحد في كل غرفة (${rooms} ${rooms === 1 ? 'غرفة' : 'غرف'} = ${hotel.meal_plans.max_persons * rooms} ${hotel.meal_plans.max_persons * rooms === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms === 2 ? 'وجبتين' : 'وجبات'})`
                                     : hotel.meal_plans.max_persons === 2
-                                    ? `يشمل الوجبة لشخصين في كل غرفة (${rooms} ${rooms === 1 ? 'غرفة' : 'غرف'} = ${hotel.meal_plans.max_persons * rooms} ${hotel.meal_plans.max_persons * rooms === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms === 2 ? 'وجبتين' : 'وجبات'})`
+                                    ? `يشمل ${hotel.meal_plans.regular_ar} لشخصين في كل غرفة (${rooms} ${rooms === 1 ? 'غرفة' : 'غرف'} = ${hotel.meal_plans.max_persons * rooms} ${hotel.meal_plans.max_persons * rooms === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms === 2 ? 'وجبتين' : 'وجبات'})`
                                     : hotel.meal_plans.max_persons >= 3 && hotel.meal_plans.max_persons <= 10
-                                    ? `يشمل الوجبة لـ ${hotel.meal_plans.max_persons} أشخاص في كل غرفة (${rooms} ${rooms === 1 ? 'غرفة' : 'غرف'} = ${hotel.meal_plans.max_persons * rooms} ${hotel.meal_plans.max_persons * rooms === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms === 2 ? 'وجبتين' : 'وجبات'})`
-                                    : `يشمل الوجبة لـ ${hotel.meal_plans.max_persons} شخص في كل غرفة (${rooms} ${rooms === 1 ? 'غرفة' : 'غرف'} = ${hotel.meal_plans.max_persons * rooms} ${hotel.meal_plans.max_persons * rooms === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms === 2 ? 'وجبتين' : 'وجبات'})`
-                                  : `Includes meal for ${hotel.meal_plans.max_persons} person(s) per room (${rooms} room(s) = ${hotel.meal_plans.max_persons * rooms} meal(s))`
+                                    ? `يشمل ${hotel.meal_plans.regular_ar} لـ ${hotel.meal_plans.max_persons} أشخاص في كل غرفة (${rooms} ${rooms === 1 ? 'غرفة' : 'غرف'} = ${hotel.meal_plans.max_persons * rooms} ${hotel.meal_plans.max_persons * rooms === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms === 2 ? 'وجبتين' : 'وجبات'})`
+                                    : `يشمل ${hotel.meal_plans.regular_ar} لـ ${hotel.meal_plans.max_persons} شخص في كل غرفة (${rooms} ${rooms === 1 ? 'غرفة' : 'غرف'} = ${hotel.meal_plans.max_persons * rooms} ${hotel.meal_plans.max_persons * rooms === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms === 2 ? 'وجبتين' : 'وجبات'})`
+                                  : `Includes ${hotel.meal_plans.regular_en} for ${hotel.meal_plans.max_persons} person(s) per room (${rooms} room(s) = ${hotel.meal_plans.max_persons * rooms} meal(s))`
                                 }
                               </p>
+                              {hotel.meal_plans.extra_meal_price > 0 && (
+                                <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                                  {t({ 
+                                    ar: `قيمة الوجبة الإضافية: ${hotel.meal_plans.extra_meal_price} ر.س/لليلة`, 
+                                    en: `Extra meal price: ${hotel.meal_plans.extra_meal_price} SAR/night` 
+                                  })}
+                                </p>
+                              )}
                             </div>
                           </div>
                           
@@ -906,30 +911,52 @@ export default function Booking() {
                                 {t({ ar: `لديك ${guests + children} ${guests + children === 1 ? 'شخص' : guests + children === 2 ? 'شخصين' : 'أشخاص'} ولكن الوجبات تشمل ${hotel.meal_plans.max_persons * rooms} فقط`, 
                                      en: `You have ${guests + children} guest(s) but meals include only ${hotel.meal_plans.max_persons * rooms}` })}
                               </p>
-                              <Select 
-                                value={extraMeals > 0 ? extraMeals.toString() : calculateTotal().extraMealsPerNight.toString()} 
-                                onValueChange={(value) => setExtraMeals(parseInt(value))}
-                              >
-                                <SelectTrigger className="h-8 text-xs bg-white dark:bg-background">
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {calculateTotal().extraMealsPerNight > 0 && (
-                                    <SelectItem value={calculateTotal().extraMealsPerNight.toString()}>
-                                      {t({ ar: `${calculateTotal().extraMealsPerNight} وجبات (مطلوب)`, en: `${calculateTotal().extraMealsPerNight} meals (required)` })} - {calculateTotal().extraMealsPerNight * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })}
-                                    </SelectItem>
-                                  )}
-                                  {[...Array(10)].map((_, i) => {
-                                    const num = i + 1;
-                                    if (num === calculateTotal().extraMealsPerNight) return null;
-                                    return (
-                                      <SelectItem key={num} value={num.toString()}>
-                                        +{num} {t({ ar: num === 1 ? 'وجبة' : num === 2 ? 'وجبتين' : 'وجبات', en: num === 1 ? 'meal' : 'meals' })} - {num * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })}
+                              <div className="space-y-2">
+                                <Select 
+                                  value={extraMeals > 6 ? "custom" : (extraMeals > 0 ? extraMeals.toString() : calculateTotal().extraMealsPerNight.toString())}
+                                  onValueChange={(value) => {
+                                    if (value !== "custom") {
+                                      setExtraMeals(parseInt(value));
+                                    }
+                                  }}
+                                >
+                                  <SelectTrigger className="h-8 text-xs bg-white dark:bg-background">
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {calculateTotal().extraMealsPerNight > 0 && calculateTotal().extraMealsPerNight <= 6 && (
+                                      <SelectItem value={calculateTotal().extraMealsPerNight.toString()}>
+                                        {t({ ar: `${calculateTotal().extraMealsPerNight} وجبات (مطلوب)`, en: `${calculateTotal().extraMealsPerNight} meals (required)` })} - {calculateTotal().extraMealsPerNight * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })}
                                       </SelectItem>
-                                    );
-                                  })}
-                                </SelectContent>
-                              </Select>
+                                    )}
+                                    {[1, 2, 3, 4, 5, 6].map((num) => {
+                                      if (num === calculateTotal().extraMealsPerNight) return null;
+                                      return (
+                                        <SelectItem key={num} value={num.toString()}>
+                                          +{num} {t({ ar: num === 1 ? 'وجبة' : num === 2 ? 'وجبتين' : 'وجبات', en: num === 1 ? 'meal' : 'meals' })} - {num * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })}
+                                        </SelectItem>
+                                      );
+                                    })}
+                                    <SelectItem value="custom">{t({ ar: 'إدخال عدد آخر', en: 'Enter another number' })}</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                
+                                {extraMeals > 6 && (
+                                  <Input
+                                    type="number"
+                                    min={calculateTotal().extraMealsPerNight}
+                                    value={extraMeals}
+                                    onChange={(e) => {
+                                      const value = parseInt(e.target.value) || 0;
+                                      if (value >= calculateTotal().extraMealsPerNight) {
+                                        setExtraMeals(value);
+                                      }
+                                    }}
+                                    placeholder={t({ ar: 'أدخل عدد الوجبات', en: 'Enter number of meals' })}
+                                    className="h-8 text-xs"
+                                  />
+                                )}
+                              </div>
                             </div>
                           )}
                         </div>
@@ -1064,7 +1091,7 @@ export default function Booking() {
                             ? 'يشمل الوجبة لشخص واحد'
                             : hotel.meal_plans.max_persons === 2
                             ? 'يشمل الوجبة لشخصين'
-                            : hotel.meal_plans.max_persons >= 3 && hotel.meal_plans.max_persons <= 10
+                            : hotel.meal_plans.max_persons >= 3 && hotel.meal_plans <= 10
                             ? `يشمل الوجبة لـ ${hotel.meal_plans.max_persons} أشخاص`
                             : `يشمل الوجبة لـ ${hotel.meal_plans.max_persons} شخص`
                           : `Includes meal for ${hotel.meal_plans.max_persons} ${hotel.meal_plans.max_persons === 1 ? 'person' : 'persons'}`
@@ -1072,71 +1099,12 @@ export default function Booking() {
                       </p>
                       
                       {hotel.meal_plans.extra_meal_price > 0 && (
-                        <div className="pt-3 border-t space-y-3">
-                          <Label className="block">
-                            {t({ ar: 'هل تريد إضافة وجبات للأشخاص الإضافيين؟', en: 'Add extra meals for additional guests?' })}
-                          </Label>
-                          <Select 
-                            value={extraMeals > 6 ? "custom" : extraMeals.toString()} 
-                            onValueChange={(value) => {
-                              if (value !== "custom") {
-                                setExtraMeals(parseInt(value));
-                              }
-                            }}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="0">
-                                {t({ ar: 'لا توجد وجبات إضافية', en: 'No extra meals' })}
-                              </SelectItem>
-                              <SelectItem value="1">
-                                {t({ ar: '1 وجبة', en: '1 meal' })} (+{1 * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })})
-                              </SelectItem>
-                              <SelectItem value="2">
-                                {t({ ar: '2 وجبة', en: '2 meals' })} (+{2 * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })})
-                              </SelectItem>
-                              <SelectItem value="3">
-                                {t({ ar: '3 وجبات', en: '3 meals' })} (+{3 * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })})
-                              </SelectItem>
-                              <SelectItem value="4">
-                                {t({ ar: '4 وجبات', en: '4 meals' })} (+{4 * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })})
-                              </SelectItem>
-                              <SelectItem value="5">
-                                {t({ ar: '5 وجبات', en: '5 meals' })} (+{5 * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })})
-                              </SelectItem>
-                              <SelectItem value="6">
-                                {t({ ar: '6 وجبات', en: '6 meals' })} (+{6 * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })})
-                              </SelectItem>
-                            </SelectContent>
-                          </Select>
-                          
-                          {/* Custom input for more than 6 meals */}
-                          <div className="space-y-2">
-                            <Label className="text-sm">{t({ ar: 'أو أدخل رقم آخر:', en: 'Or enter another number:' })}</Label>
-                            <Input
-                              type="number"
-                              min="0"
-                              placeholder={t({ ar: 'أدخل عدد الوجبات', en: 'Enter number of meals' })}
-                              value={extraMeals > 6 ? extraMeals : ''}
-                              onChange={(e) => {
-                                const value = parseInt(e.target.value) || 0;
-                                if (value >= 0) {
-                                  setExtraMeals(value);
-                                }
-                              }}
-                              className="w-full"
-                            />
-                          </div>
-                          
-                          <p className="text-xs text-muted-foreground">
-                            {t({ 
-                              ar: `${hotel.meal_plans.extra_meal_price} ر.س للوجبة الواحدة لليلة`, 
-                              en: `${hotel.meal_plans.extra_meal_price} SAR per meal per night` 
-                            })}
-                          </p>
-                        </div>
+                        <p className="text-xs text-muted-foreground pt-2 border-t">
+                          {t({ 
+                            ar: `قيمة الوجبة الإضافية: ${hotel.meal_plans.extra_meal_price} ر.س/لليلة`, 
+                            en: `Extra meal price: ${hotel.meal_plans.extra_meal_price} SAR/night` 
+                          })}
+                        </p>
                       )}
                     </div>
                   </CardContent>

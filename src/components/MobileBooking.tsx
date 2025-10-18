@@ -302,20 +302,25 @@ export function MobileBooking(props: MobileBookingProps) {
               <div className="space-y-3">
                 <div className="bg-green-50 dark:bg-green-950/20 p-3 rounded-lg border border-green-200 dark:border-green-800">
                   <p className="text-xs font-semibold text-green-700 dark:text-green-300 mb-1">
-                    {language === 'ar' ? meal.name_ar : meal.name_en}
-                  </p>
-                  <p className="text-xs text-green-600 dark:text-green-400">
                     {language === 'ar' 
                       ? meal.max_persons === 1
-                        ? `يشمل الوجبة لشخص واحد في كل غرفة (${numRooms} ${numRooms === 1 ? 'غرفة' : 'غرف'} = ${meal.max_persons * numRooms} ${meal.max_persons * numRooms === 1 ? 'وجبة' : meal.max_persons * numRooms === 2 ? 'وجبتين' : 'وجبات'})`
+                        ? `يشمل ${meal.name_ar} لشخص واحد في كل غرفة (${numRooms} ${numRooms === 1 ? 'غرفة' : 'غرف'} = ${meal.max_persons * numRooms} ${meal.max_persons * numRooms === 1 ? 'وجبة' : meal.max_persons * numRooms === 2 ? 'وجبتين' : 'وجبات'})`
                         : meal.max_persons === 2
-                        ? `يشمل الوجبة لشخصين في كل غرفة (${numRooms} ${numRooms === 1 ? 'غرفة' : 'غرف'} = ${meal.max_persons * numRooms} ${meal.max_persons * numRooms === 1 ? 'وجبة' : meal.max_persons * numRooms === 2 ? 'وجبتين' : 'وجبات'})`
+                        ? `يشمل ${meal.name_ar} لشخصين في كل غرفة (${numRooms} ${numRooms === 1 ? 'غرفة' : 'غرف'} = ${meal.max_persons * numRooms} ${meal.max_persons * numRooms === 1 ? 'وجبة' : meal.max_persons * numRooms === 2 ? 'وجبتين' : 'وجبات'})`
                         : meal.max_persons >= 3 && meal.max_persons <= 10
-                        ? `يشمل الوجبة لـ ${meal.max_persons} أشخاص في كل غرفة (${numRooms} ${numRooms === 1 ? 'غرفة' : 'غرف'} = ${meal.max_persons * numRooms} ${meal.max_persons * numRooms === 1 ? 'وجبة' : meal.max_persons * numRooms === 2 ? 'وجبتين' : 'وجبات'})`
-                        : `يشمل الوجبة لـ ${meal.max_persons} شخص في كل غرفة (${numRooms} ${numRooms === 1 ? 'غرفة' : 'غرف'} = ${meal.max_persons * numRooms} ${meal.max_persons * numRooms === 1 ? 'وجبة' : meal.max_persons * numRooms === 2 ? 'وجبتين' : 'وجبات'})`
-                      : `Includes meal for ${meal.max_persons} person(s) per room (${numRooms} room(s) = ${meal.max_persons * numRooms} meal(s))`
+                        ? `يشمل ${meal.name_ar} لـ ${meal.max_persons} أشخاص في كل غرفة (${numRooms} ${numRooms === 1 ? 'غرفة' : 'غرف'} = ${meal.max_persons * numRooms} ${meal.max_persons * numRooms === 1 ? 'وجبة' : meal.max_persons * numRooms === 2 ? 'وجبتين' : 'وجبات'})`
+                        : `يشمل ${meal.name_ar} لـ ${meal.max_persons} شخص في كل غرفة (${numRooms} ${numRooms === 1 ? 'غرفة' : 'غرف'} = ${meal.max_persons * numRooms} ${meal.max_persons * numRooms === 1 ? 'وجبة' : meal.max_persons * numRooms === 2 ? 'وجبتين' : 'وجبات'})`
+                      : `Includes ${meal.name_en} for ${meal.max_persons} person(s) per room (${numRooms} room(s) = ${meal.max_persons * numRooms} meal(s))`
                     }
                   </p>
+                  {meal.extra_meal_price > 0 && (
+                    <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                      {t({ 
+                        ar: `قيمة الوجبة الإضافية: ${meal.extra_meal_price} ر.س/لليلة`, 
+                        en: `Extra meal price: ${meal.extra_meal_price} SAR/night` 
+                      })}
+                    </p>
+                  )}
                 </div>
                 {meal.extra_meal_price > 0 && extraMealsPerNight > 0 && (
                   <div className="bg-orange-50 dark:bg-orange-950/20 p-3 rounded-lg border border-orange-200 dark:border-orange-800">
@@ -327,20 +332,23 @@ export function MobileBooking(props: MobileBookingProps) {
                            en: `You have ${numGuests + numChildren} guests but meals include only ${meal.max_persons * numRooms}` })}
                     </p>
                     <Select 
-                      value={props.extraMeals > 0 ? props.extraMeals.toString() : extraMealsPerNight.toString()} 
-                      onValueChange={(value) => props.setExtraMeals(parseInt(value))}
+                      value={props.extraMeals > 6 ? "custom" : (props.extraMeals > 0 ? props.extraMeals.toString() : extraMealsPerNight.toString())}
+                      onValueChange={(value) => {
+                        if (value !== "custom") {
+                          props.setExtraMeals(parseInt(value));
+                        }
+                      }}
                     >
                       <SelectTrigger className="h-9 text-xs">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        {extraMealsPerNight > 0 && (
+                        {extraMealsPerNight > 0 && extraMealsPerNight <= 6 && (
                           <SelectItem value={extraMealsPerNight.toString()}>
                             {t({ ar: `${extraMealsPerNight} وجبات (مطلوب)`, en: `${extraMealsPerNight} meals (required)` })} - {extraMealsPerNight * meal.extra_meal_price * nights} SAR
                           </SelectItem>
                         )}
-                        {[...Array(10)].map((_, i) => {
-                          const num = i + 1;
+                        {[1, 2, 3, 4, 5, 6].map((num) => {
                           if (num === extraMealsPerNight) return null;
                           return (
                             <SelectItem key={num} value={num.toString()}>
@@ -348,8 +356,25 @@ export function MobileBooking(props: MobileBookingProps) {
                             </SelectItem>
                           );
                         })}
+                        <SelectItem value="custom">{t({ ar: 'إدخال عدد آخر', en: 'Enter another number' })}</SelectItem>
                       </SelectContent>
                     </Select>
+                    
+                    {props.extraMeals > 6 && (
+                      <Input
+                        type="number"
+                        min={extraMealsPerNight}
+                        value={props.extraMeals}
+                        onChange={(e) => {
+                          const value = parseInt(e.target.value) || 0;
+                          if (value >= extraMealsPerNight) {
+                            props.setExtraMeals(value);
+                          }
+                        }}
+                        placeholder={t({ ar: 'أدخل عدد الوجبات', en: 'Enter number of meals' })}
+                        className="mt-2 text-xs"
+                      />
+                    )}
                   </div>
                 )}
               </div>

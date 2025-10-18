@@ -268,19 +268,22 @@ export default function HotelDetails() {
                   whiteSpace: 'nowrap',
                 }}
               >
-                {language === 'ar' ? hotel.meal_plans.regular_ar : hotel.meal_plans.regular_en}
-                {hotel.meal_plans.max_persons && (
+                {language === 'ar' 
+                  ? hotel.meal_plans.max_persons === 1
+                    ? `يشمل ${hotel.meal_plans.regular_ar} لشخص واحد`
+                    : hotel.meal_plans.max_persons === 2
+                    ? `يشمل ${hotel.meal_plans.regular_ar} لشخصين`
+                    : hotel.meal_plans.max_persons >= 3 && hotel.meal_plans.max_persons <= 10
+                    ? `يشمل ${hotel.meal_plans.regular_ar} لـ ${hotel.meal_plans.max_persons} أشخاص`
+                    : `يشمل ${hotel.meal_plans.regular_ar} لـ ${hotel.meal_plans.max_persons} شخص`
+                  : `Includes ${hotel.meal_plans.regular_en} for ${hotel.meal_plans.max_persons} ${hotel.meal_plans.max_persons === 1 ? 'person' : 'persons'}`
+                }
+                {hotel.meal_plans.extra_meal_price > 0 && (
                   <span className="mr-2">
                     {' • '}
                     {language === 'ar' 
-                      ? hotel.meal_plans.max_persons === 1
-                        ? 'يشمل الوجبة لشخص واحد'
-                        : hotel.meal_plans.max_persons === 2
-                        ? 'يشمل الوجبة لشخصين'
-                        : hotel.meal_plans.max_persons >= 3 && hotel.meal_plans.max_persons <= 10
-                        ? `يشمل الوجبة لـ ${hotel.meal_plans.max_persons} أشخاص`
-                        : `يشمل الوجبة لـ ${hotel.meal_plans.max_persons} شخص`
-                      : `Includes meal for ${hotel.meal_plans.max_persons} ${hotel.meal_plans.max_persons === 1 ? 'person' : 'persons'}`
+                      ? `قيمة الوجبة الإضافية: ${hotel.meal_plans.extra_meal_price} ر.س/لليلة`
+                      : `Extra meal price: ${hotel.meal_plans.extra_meal_price} SAR/night`
                     }
                   </span>
                 )}

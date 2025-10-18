@@ -401,30 +401,25 @@ export function HotelCard({
           <div className="mb-3 p-2 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
             <div className="flex items-center gap-2 text-xs">
               <Utensils className="w-4 h-4 text-green-600 dark:text-green-400" />
-              <div className="flex-1">
+              <div>
                 <p className="font-semibold text-green-700 dark:text-green-300">
-                  {language === 'ar' ? meal.name_ar : meal.name_en}
+                  {language === 'ar' 
+                    ? meal.max_persons === 1 
+                      ? `يشمل ${meal.name_ar} لشخص واحد`
+                      : meal.max_persons === 2
+                      ? `يشمل ${meal.name_ar} لشخصين`
+                      : meal.max_persons >= 3 && meal.max_persons <= 10
+                      ? `يشمل ${meal.name_ar} لـ ${meal.max_persons} أشخاص`
+                      : `يشمل ${meal.name_ar} لـ ${meal.max_persons} شخص`
+                    : `Includes ${meal.name_en} for ${meal.max_persons} ${meal.max_persons === 1 ? 'person' : 'persons'}`
+                  }
                 </p>
-                {meal.max_persons > 0 && (
-                  <p className="text-green-600 dark:text-green-400 mt-0.5">
+                {meal.extra_meal_price > 0 && (
+                  <p className="text-green-600 dark:text-green-400 text-[10px] mt-0.5">
                     {language === 'ar' 
-                      ? meal.max_persons === 1 
-                        ? 'يشمل الوجبة لشخص واحد'
-                        : meal.max_persons === 2
-                        ? 'يشمل الوجبة لشخصين'
-                        : meal.max_persons >= 3 && meal.max_persons <= 10
-                        ? `يشمل الوجبة لـ ${meal.max_persons} أشخاص`
-                        : `يشمل الوجبة لـ ${meal.max_persons} شخص`
-                      : `Includes meal for ${meal.max_persons} ${meal.max_persons === 1 ? 'person' : 'persons'}`
+                      ? `قيمة الوجبة الإضافية: ${meal.extra_meal_price} ر.س/لليلة`
+                      : `Extra meal price: ${meal.extra_meal_price} SAR/night`
                     }
-                    {meal.extra_meal_price > 0 && (
-                      <span className="block text-[10px] mt-0.5">
-                        {language === 'ar' 
-                          ? `الوجبة الإضافية: ${meal.extra_meal_price} ر.س/لليلة`
-                          : `Extra meal: ${meal.extra_meal_price} SAR/night`
-                        }
-                      </span>
-                    )}
                   </p>
                 )}
               </div>

@@ -298,15 +298,42 @@ export function MealPlansManager({ mealPlan, onChange }: MealPlansManagerProps) 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <Label>{t({ ar: "الحد الأقصى لعدد الوجبات", en: "Max Meals Per Room" })}</Label>
-                <Input
-                  type="number"
-                  min="1"
-                  value={maxPersons}
-                  onChange={(e) => {
-                    setMaxPersons(e.target.value);
-                    updateMealPlan({ max_persons: parseInt(e.target.value) || 2 });
-                  }}
-                />
+                <div className="space-y-2">
+                  <Select
+                    value={parseInt(maxPersons) > 6 ? "custom" : maxPersons}
+                    onValueChange={(value) => {
+                      if (value !== "custom") {
+                        setMaxPersons(value);
+                        updateMealPlan({ max_persons: parseInt(value) });
+                      }
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5, 6].map((num) => (
+                        <SelectItem key={num} value={num.toString()}>
+                          {num} {t({ ar: num === 1 ? 'شخص' : num === 2 ? 'شخصين' : 'أشخاص', en: num === 1 ? 'person' : 'persons' })}
+                        </SelectItem>
+                      ))}
+                      <SelectItem value="custom">{t({ ar: 'إدخال عدد آخر', en: 'Enter another number' })}</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  
+                  {parseInt(maxPersons) > 6 && (
+                    <Input
+                      type="number"
+                      min="1"
+                      value={maxPersons}
+                      onChange={(e) => {
+                        setMaxPersons(e.target.value);
+                        updateMealPlan({ max_persons: parseInt(e.target.value) || 2 });
+                      }}
+                      placeholder={t({ ar: "أدخل العدد", en: "Enter number" })}
+                    />
+                  )}
+                </div>
               </div>
 
               <div>
