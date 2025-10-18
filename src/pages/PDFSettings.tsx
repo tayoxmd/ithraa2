@@ -1121,12 +1121,25 @@ export default function PDFSettings() {
             <CardContent>
               <div className="w-full h-[calc(100vh-280px)] bg-muted rounded-lg overflow-hidden">
                 {showPreview && previewUrl ? (
-                  <iframe
-                    ref={iframeRef}
-                    src={previewUrl}
-                    className="w-full h-full border-0"
-                    title="PDF Preview"
-                  />
+                  <div className="w-full h-full relative">
+                    {/* Primary preview via <object> to avoid blob-in-iframe issues */}
+                    <object
+                      key={previewUrl}
+                      data={previewUrl}
+                      type="application/pdf"
+                      className="w-full h-full"
+                      aria-label="PDF Preview"
+                    >
+                      {/* Fallback to <embed> */}
+                      <embed src={previewUrl} type="application/pdf" className="w-full h-full" />
+                    </object>
+                    {/* Fallback action: open in new tab */}
+                    <div className="absolute inset-x-0 bottom-0 p-2 flex justify-center gap-2 bg-background/60 backdrop-blur-md">
+                      <Button size="sm" variant="outline" onClick={() => window.open(previewUrl, '_blank')}> 
+                        {t({ ar: "فتح في تبويب جديد", en: "Open in new tab" })}
+                      </Button>
+                    </div>
+                  </div>
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
                     <Eye className="w-16 h-16 mb-4 opacity-50" />
