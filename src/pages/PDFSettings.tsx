@@ -10,8 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { FileText, Plus, Trash2, Eye, RefreshCw } from "lucide-react";
+import { FileText, Plus, Trash2, Eye, RefreshCw, Save, Palette, Layout, Type, Settings } from "lucide-react";
 import { logAuditEvent } from "@/utils/auditLogger";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { generateBookingPDF } from "@/utils/pdfGenerator";
@@ -39,6 +41,62 @@ interface PDFSettings {
   bank_location?: string;
   responsible_persons?: ResponsiblePerson[];
   contact_numbers?: string[];
+  
+  // Font settings
+  primary_font?: string;
+  secondary_font?: string;
+  font_size_header?: number;
+  font_size_title?: number;
+  font_size_body?: number;
+  font_size_small?: number;
+  
+  // Color settings
+  primary_color?: string;
+  secondary_color?: string;
+  text_color?: string;
+  header_bg_color?: string;
+  footer_bg_color?: string;
+  
+  // Layout settings
+  header_height?: number;
+  footer_height?: number;
+  logo_width?: number;
+  logo_height?: number;
+  logo_position_x?: number;
+  logo_position_y?: number;
+  
+  // Content positioning
+  booking_number_x?: number;
+  booking_number_y?: number;
+  title_y?: number;
+  client_info_y?: number;
+  booking_table_y?: number;
+  price_section_y?: number;
+  bank_details_y?: number;
+  terms_y?: number;
+  
+  // Margins and spacing
+  page_margin_left?: number;
+  page_margin_right?: number;
+  section_spacing?: number;
+  line_height?: number;
+  
+  // Show/hide sections
+  show_logo?: boolean;
+  show_company_description?: boolean;
+  show_bank_details?: boolean;
+  show_terms?: boolean;
+  show_responsible_persons?: boolean;
+  show_footer_info?: boolean;
+  
+  // Additional content
+  header_text_en?: string;
+  header_text_ar?: string;
+  footer_company_name_en?: string;
+  footer_company_name_ar?: string;
+  company_license?: string;
+  company_vat?: string;
+  company_cr?: string;
 }
 
 export default function PDFSettings() {
@@ -47,13 +105,56 @@ export default function PDFSettings() {
   const navigate = useNavigate();
   const [settings, setSettings] = useState<PDFSettings>({
     responsible_persons: [],
-    contact_numbers: []
+    contact_numbers: [],
+    primary_font: 'helvetica',
+    secondary_font: 'helvetica',
+    font_size_header: 18,
+    font_size_title: 14,
+    font_size_body: 10,
+    font_size_small: 8,
+    primary_color: '75,0,130',
+    secondary_color: '245,245,245',
+    text_color: '0,0,0',
+    header_bg_color: '75,0,130',
+    footer_bg_color: '75,0,130',
+    header_height: 30,
+    footer_height: 20,
+    logo_width: 40,
+    logo_height: 20,
+    logo_position_x: 15,
+    logo_position_y: 5,
+    booking_number_x: 160,
+    booking_number_y: 15,
+    title_y: 38,
+    client_info_y: 60,
+    booking_table_y: 105,
+    price_section_y: 150,
+    bank_details_y: 180,
+    terms_y: 220,
+    page_margin_left: 15,
+    page_margin_right: 15,
+    section_spacing: 10,
+    line_height: 6,
+    show_logo: true,
+    show_company_description: true,
+    show_bank_details: true,
+    show_terms: true,
+    show_responsible_persons: true,
+    show_footer_info: true,
+    header_text_en: 'CONFIRMATION',
+    header_text_ar: 'تأكيد',
+    footer_company_name_en: 'Ethraa Company for Tourist Accommodation',
+    footer_company_name_ar: 'شركة إثراء للإيواء السياحي',
+    company_license: '73105372',
+    company_vat: '302006094600003',
+    company_cr: '4031285856'
   });
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [saving, setSaving] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [showPreview, setShowPreview] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [activeTab, setActiveTab] = useState("content");
 
   useEffect(() => {
     if (!loading) {
@@ -76,7 +177,6 @@ export default function PDFSettings() {
       if (error && error.code !== 'PGRST116') throw error;
       
       if (data) {
-        // Parse JSON strings from database
         const parseJsonField = (field: any, defaultValue: any) => {
           if (!field) return defaultValue;
           if (typeof field === 'string') {
@@ -107,7 +207,6 @@ export default function PDFSettings() {
     try {
       const { id, ...settingsData } = settings;
       
-      // Convert arrays to JSON
       const dataToSave = {
         ...settingsData,
         responsible_persons: JSON.stringify(settingsData.responsible_persons || []),
@@ -134,10 +233,14 @@ export default function PDFSettings() {
         description: t({ ar: "تم حفظ إعدادات PDF بنجاح", en: "PDF settings saved successfully" }),
       });
 
-      // Log audit event (non-blocking)
-      logAuditEvent('UPDATE', 'pdf_settings', id, { settings: settingsData }).catch(() => {}); // Ignore audit logging errors
+      logAuditEvent('UPDATE', 'pdf_settings', id, { settings: settingsData }).catch(() => {});
 
       fetchSettings();
+      
+      // تحديث المعاينة تلقائياً
+      if (showPreview) {
+        generatePreview();
+      }
     } catch (error) {
       console.error('Error saving PDF settings:', error);
       toast({
@@ -193,16 +296,13 @@ export default function PDFSettings() {
 
   const generatePreview = async () => {
     try {
-      // Show loading state
       toast({
         title: t({ ar: "جاري الإنشاء...", en: "Generating..." }),
         description: t({ ar: "يرجى الانتظار", en: "Please wait" }),
       });
 
-      // Use setTimeout to allow UI to update before heavy operation
       await new Promise(resolve => setTimeout(resolve, 100));
 
-      // Create sample booking data for preview
       const sampleData = {
         bookingNumber: 12345,
         hotelConfirmationNumber: "HTL-2024-001",
@@ -237,7 +337,8 @@ export default function PDFSettings() {
           phone: "+966501234567",
           position: "Reservation"
         },
-        customerPageUrl: window.location.origin + "/customer-dashboard"
+        customerPageUrl: window.location.origin + "/customer-dashboard",
+        pdfSettings: settings
       };
 
       const pdf = generateBookingPDF(sampleData);
@@ -277,6 +378,36 @@ export default function PDFSettings() {
     return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
   }
 
+  const ColorInput = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => {
+    const [r, g, b] = (value || '0,0,0').split(',').map(v => parseInt(v.trim()));
+    
+    return (
+      <div className="space-y-2">
+        <Label>{label}</Label>
+        <div className="flex gap-2 items-center">
+          <Input
+            type="color"
+            value={`#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`}
+            onChange={(e) => {
+              const hex = e.target.value.replace('#', '');
+              const r = parseInt(hex.substr(0, 2), 16);
+              const g = parseInt(hex.substr(2, 2), 16);
+              const b = parseInt(hex.substr(4, 2), 16);
+              onChange(`${r},${g},${b}`);
+            }}
+            className="w-20 h-10"
+          />
+          <Input
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            placeholder="R,G,B"
+            className="flex-1"
+          />
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -284,281 +415,721 @@ export default function PDFSettings() {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold flex items-center gap-2">
             <FileText className="w-8 h-8" />
-            {t({ ar: "إعدادات ملف PDF", en: "PDF Settings" })}
+            {t({ ar: "نظام تصميم ملفات PDF", en: "PDF Design System" })}
           </h1>
-          <Button
-            onClick={generatePreview}
-            variant="outline"
-            className="flex items-center gap-2"
-          >
-            {showPreview ? <RefreshCw className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-            {t({ ar: showPreview ? "تحديث المعاينة" : "معاينة PDF", en: showPreview ? "Refresh Preview" : "Preview PDF" })}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={generatePreview}
+              variant="outline"
+              className="flex items-center gap-2"
+            >
+              {showPreview ? <RefreshCw className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              {t({ ar: showPreview ? "تحديث المعاينة" : "معاينة", en: showPreview ? "Refresh" : "Preview" })}
+            </Button>
+            <Button
+              onClick={handleSave}
+              disabled={saving}
+              className="flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" />
+              {saving ? t({ ar: "جاري الحفظ...", en: "Saving..." }) : t({ ar: "حفظ", en: "Save" })}
+            </Button>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Settings Form */}
+          {/* Settings Tabs */}
           <Card className="card-luxury">
             <CardHeader>
               <CardTitle className="text-xl">
-                {t({ ar: "تعديل الإعدادات", en: "Edit Settings" })}
+                {t({ ar: "إعدادات التصميم", en: "Design Settings" })}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <ScrollArea className="h-[calc(100vh-280px)] pr-4">
-                <div className="space-y-8">
-            {/* Company Info */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">{t({ ar: "معلومات الشركة", en: "Company Information" })}</h3>
-              
-              <div>
-                <Label>{t({ ar: "رابط شعار الشركة", en: "Company Logo URL" })}</Label>
-                <Input
-                  value={settings.company_logo_url || ''}
-                  onChange={(e) => setSettings({ ...settings, company_logo_url: e.target.value })}
-                  placeholder="https://..."
-                />
-              </div>
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid grid-cols-5 w-full mb-4">
+                  <TabsTrigger value="content" className="text-xs">
+                    <FileText className="w-4 h-4 mr-1" />
+                    {t({ ar: "المحتوى", en: "Content" })}
+                  </TabsTrigger>
+                  <TabsTrigger value="colors" className="text-xs">
+                    <Palette className="w-4 h-4 mr-1" />
+                    {t({ ar: "الألوان", en: "Colors" })}
+                  </TabsTrigger>
+                  <TabsTrigger value="fonts" className="text-xs">
+                    <Type className="w-4 h-4 mr-1" />
+                    {t({ ar: "الخطوط", en: "Fonts" })}
+                  </TabsTrigger>
+                  <TabsTrigger value="layout" className="text-xs">
+                    <Layout className="w-4 h-4 mr-1" />
+                    {t({ ar: "التخطيط", en: "Layout" })}
+                  </TabsTrigger>
+                  <TabsTrigger value="visibility" className="text-xs">
+                    <Settings className="w-4 h-4 mr-1" />
+                    {t({ ar: "العرض", en: "Display" })}
+                  </TabsTrigger>
+                </TabsList>
 
-              <div>
-                <Label>{t({ ar: "وصف الشركة (عربي)", en: "Company Description (Arabic)" })}</Label>
-                <Textarea
-                  value={settings.company_description_ar || ''}
-                  onChange={(e) => setSettings({ ...settings, company_description_ar: e.target.value })}
-                  rows={2}
-                />
-              </div>
+                <ScrollArea className="h-[calc(100vh-320px)]">
+                  {/* Content Tab */}
+                  <TabsContent value="content" className="space-y-6 pr-4">
+                    {/* Company Info */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "معلومات الشركة", en: "Company Information" })}
+                      </h3>
+                      
+                      <div>
+                        <Label>{t({ ar: "رابط الشعار", en: "Logo URL" })}</Label>
+                        <Input
+                          value={settings.company_logo_url || ''}
+                          onChange={(e) => setSettings({ ...settings, company_logo_url: e.target.value })}
+                          placeholder="https://..."
+                        />
+                      </div>
 
-              <div>
-                <Label>{t({ ar: "وصف الشركة (إنجليزي)", en: "Company Description (English)" })}</Label>
-                <Textarea
-                  value={settings.company_description_en || ''}
-                  onChange={(e) => setSettings({ ...settings, company_description_en: e.target.value })}
-                  rows={2}
-                />
-              </div>
-            </div>
+                      <div>
+                        <Label>{t({ ar: "وصف الشركة (عربي)", en: "Description (Arabic)" })}</Label>
+                        <Textarea
+                          value={settings.company_description_ar || ''}
+                          onChange={(e) => setSettings({ ...settings, company_description_ar: e.target.value })}
+                          rows={2}
+                        />
+                      </div>
 
-            {/* Bank Details */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">{t({ ar: "تفاصيل البنك", en: "Bank Details" })}</h3>
-              
-              <div>
-                <Label>{t({ ar: "اسم البنك", en: "Bank Name" })}</Label>
-                <Input
-                  value={settings.bank_name || ''}
-                  onChange={(e) => setSettings({ ...settings, bank_name: e.target.value })}
-                />
-              </div>
+                      <div>
+                        <Label>{t({ ar: "وصف الشركة (إنجليزي)", en: "Description (English)" })}</Label>
+                        <Textarea
+                          value={settings.company_description_en || ''}
+                          onChange={(e) => setSettings({ ...settings, company_description_en: e.target.value })}
+                          rows={2}
+                        />
+                      </div>
 
-              <div>
-                <Label>{t({ ar: "رقم الحساب", en: "Account Number" })}</Label>
-                <Input
-                  value={settings.bank_account_number || ''}
-                  onChange={(e) => setSettings({ ...settings, bank_account_number: e.target.value })}
-                />
-              </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "رقم الترخيص", en: "License #" })}</Label>
+                          <Input
+                            value={settings.company_license || ''}
+                            onChange={(e) => setSettings({ ...settings, company_license: e.target.value })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "رقم الضريبة", en: "VAT #" })}</Label>
+                          <Input
+                            value={settings.company_vat || ''}
+                            onChange={(e) => setSettings({ ...settings, company_vat: e.target.value })}
+                          />
+                        </div>
+                      </div>
 
-              <div>
-                <Label>{t({ ar: "رقم الآيبان", en: "IBAN" })}</Label>
-                <Input
-                  value={settings.iban || ''}
-                  onChange={(e) => setSettings({ ...settings, iban: e.target.value })}
-                />
-              </div>
+                      <div>
+                        <Label>{t({ ar: "رقم السجل التجاري", en: "CR #" })}</Label>
+                        <Input
+                          value={settings.company_cr || ''}
+                          onChange={(e) => setSettings({ ...settings, company_cr: e.target.value })}
+                        />
+                      </div>
+                    </div>
 
-              <div>
-                <Label>{t({ ar: "موقع البنك", en: "Bank Location" })}</Label>
-                <Input
-                  value={settings.bank_location || ''}
-                  onChange={(e) => setSettings({ ...settings, bank_location: e.target.value })}
-                />
-              </div>
-            </div>
+                    {/* Header & Footer Text */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "نصوص الرأس والتذييل", en: "Header & Footer Text" })}
+                      </h3>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "نص الرأس (عربي)", en: "Header (Arabic)" })}</Label>
+                          <Input
+                            value={settings.header_text_ar || ''}
+                            onChange={(e) => setSettings({ ...settings, header_text_ar: e.target.value })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "نص الرأس (إنجليزي)", en: "Header (English)" })}</Label>
+                          <Input
+                            value={settings.header_text_en || ''}
+                            onChange={(e) => setSettings({ ...settings, header_text_en: e.target.value })}
+                          />
+                        </div>
+                      </div>
 
-            {/* Terms & Conditions */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">{t({ ar: "الشروط والأحكام", en: "Terms & Conditions" })}</h3>
-              
-              <div>
-                <Label>{t({ ar: "الشروط (عربي)", en: "Terms (Arabic)" })}</Label>
-                <Textarea
-                  value={settings.terms_ar || ''}
-                  onChange={(e) => setSettings({ ...settings, terms_ar: e.target.value })}
-                  rows={4}
-                />
-              </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "اسم الشركة بالتذييل (عربي)", en: "Footer Name (Arabic)" })}</Label>
+                          <Input
+                            value={settings.footer_company_name_ar || ''}
+                            onChange={(e) => setSettings({ ...settings, footer_company_name_ar: e.target.value })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "اسم الشركة بالتذييل (إنجليزي)", en: "Footer Name (English)" })}</Label>
+                          <Input
+                            value={settings.footer_company_name_en || ''}
+                            onChange={(e) => setSettings({ ...settings, footer_company_name_en: e.target.value })}
+                          />
+                        </div>
+                      </div>
+                    </div>
 
-              <div>
-                <Label>{t({ ar: "الشروط (إنجليزي)", en: "Terms (English)" })}</Label>
-                <Textarea
-                  value={settings.terms_en || ''}
-                  onChange={(e) => setSettings({ ...settings, terms_en: e.target.value })}
-                  rows={4}
-                />
-              </div>
-            </div>
+                    {/* Bank Details */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "تفاصيل البنك", en: "Bank Details" })}
+                      </h3>
+                      
+                      <div>
+                        <Label>{t({ ar: "اسم البنك", en: "Bank Name" })}</Label>
+                        <Input
+                          value={settings.bank_name || ''}
+                          onChange={(e) => setSettings({ ...settings, bank_name: e.target.value })}
+                        />
+                      </div>
 
-            {/* Booking Policy */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold">{t({ ar: "سياسة الحجز", en: "Booking Policy" })}</h3>
-              
-              <div>
-                <Label>{t({ ar: "سياسة الحجز (عربي)", en: "Booking Policy (Arabic)" })}</Label>
-                <Textarea
-                  value={settings.cancellation_policy_ar || ''}
-                  onChange={(e) => setSettings({ ...settings, cancellation_policy_ar: e.target.value })}
-                  rows={4}
-                />
-              </div>
+                      <div>
+                        <Label>{t({ ar: "رقم الحساB", en: "Account Number" })}</Label>
+                        <Input
+                          value={settings.bank_account_number || ''}
+                          onChange={(e) => setSettings({ ...settings, bank_account_number: e.target.value })}
+                        />
+                      </div>
 
-              <div>
-                <Label>{t({ ar: "سياسة الحجز (إنجليزي)", en: "Booking Policy (English)" })}</Label>
-                <Textarea
-                  value={settings.cancellation_policy_en || ''}
-                  onChange={(e) => setSettings({ ...settings, cancellation_policy_en: e.target.value })}
-                  rows={4}
-                />
-              </div>
-            </div>
+                      <div>
+                        <Label>{t({ ar: "رقم الآيبان", en: "IBAN" })}</Label>
+                        <Input
+                          value={settings.iban || ''}
+                          onChange={(e) => setSettings({ ...settings, iban: e.target.value })}
+                        />
+                      </div>
 
-            {/* Responsible Persons */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">{t({ ar: "الأشخاص المسؤولين", en: "Responsible Persons" })}</h3>
-                <Button onClick={addResponsiblePerson} size="sm" variant="outline">
-                  <Plus className="w-4 h-4 mr-2" />
-                  {t({ ar: "إضافة شخص", en: "Add Person" })}
-                </Button>
-              </div>
+                      <div>
+                        <Label>{t({ ar: "موقع البنك", en: "Bank Location" })}</Label>
+                        <Input
+                          value={settings.bank_location || ''}
+                          onChange={(e) => setSettings({ ...settings, bank_location: e.target.value })}
+                        />
+                      </div>
+                    </div>
 
-              {settings.responsible_persons?.map((person, index) => (
-                <Card key={index} className="p-4 space-y-3">
-                  <div className="flex justify-between items-center">
-                    <h4 className="font-medium">{t({ ar: "شخص", en: "Person" })} {index + 1}</h4>
-                    <Button
-                      onClick={() => removeResponsiblePerson(index)}
-                      size="sm"
-                      variant="destructive"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <Label>{t({ ar: "الاسم", en: "Name" })}</Label>
-                      <Input
-                        value={person.name}
-                        onChange={(e) => updateResponsiblePerson(index, 'name', e.target.value)}
+                    {/* Terms */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "الشروط والأحكام", en: "Terms & Conditions" })}
+                      </h3>
+                      
+                      <div>
+                        <Label>{t({ ar: "الشروط (عربي)", en: "Terms (Arabic)" })}</Label>
+                        <Textarea
+                          value={settings.terms_ar || ''}
+                          onChange={(e) => setSettings({ ...settings, terms_ar: e.target.value })}
+                          rows={4}
+                        />
+                      </div>
+
+                      <div>
+                        <Label>{t({ ar: "الشروط (إنجليزي)", en: "Terms (English)" })}</Label>
+                        <Textarea
+                          value={settings.terms_en || ''}
+                          onChange={(e) => setSettings({ ...settings, terms_en: e.target.value })}
+                          rows={4}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Cancellation Policy */}
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "سياسة الإلغاء", en: "Cancellation Policy" })}
+                      </h3>
+                      
+                      <div>
+                        <Label>{t({ ar: "سياسة الإلغاء (عربي)", en: "Policy (Arabic)" })}</Label>
+                        <Textarea
+                          value={settings.cancellation_policy_ar || ''}
+                          onChange={(e) => setSettings({ ...settings, cancellation_policy_ar: e.target.value })}
+                          rows={4}
+                        />
+                      </div>
+
+                      <div>
+                        <Label>{t({ ar: "سياسة الإلغاء (إنجليزي)", en: "Policy (English)" })}</Label>
+                        <Textarea
+                          value={settings.cancellation_policy_en || ''}
+                          onChange={(e) => setSettings({ ...settings, cancellation_policy_en: e.target.value })}
+                          rows={4}
+                        />
+                      </div>
+                    </div>
+
+                    {/* Responsible Persons */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between border-b pb-2">
+                        <h3 className="text-lg font-semibold">
+                          {t({ ar: "الأشخاص المسؤولين", en: "Responsible Persons" })}
+                        </h3>
+                        <Button onClick={addResponsiblePerson} size="sm" variant="outline">
+                          <Plus className="w-4 h-4 mr-2" />
+                          {t({ ar: "إضافة", en: "Add" })}
+                        </Button>
+                      </div>
+
+                      {settings.responsible_persons?.map((person, index) => (
+                        <Card key={index} className="p-4 space-y-3">
+                          <div className="flex justify-between items-center">
+                            <h4 className="font-medium">
+                              {t({ ar: "شخص", en: "Person" })} {index + 1}
+                            </h4>
+                            <Button
+                              onClick={() => removeResponsiblePerson(index)}
+                              size="sm"
+                              variant="destructive"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div>
+                              <Label>{t({ ar: "الاسم", en: "Name" })}</Label>
+                              <Input
+                                value={person.name}
+                                onChange={(e) => updateResponsiblePerson(index, 'name', e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label>{t({ ar: "البريد", en: "Email" })}</Label>
+                              <Input
+                                type="email"
+                                value={person.email}
+                                onChange={(e) => updateResponsiblePerson(index, 'email', e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label>{t({ ar: "الجوال", en: "Phone" })}</Label>
+                              <Input
+                                value={person.phone}
+                                onChange={(e) => updateResponsiblePerson(index, 'phone', e.target.value)}
+                              />
+                            </div>
+                            <div>
+                              <Label>{t({ ar: "المسمى", en: "Position" })}</Label>
+                              <Input
+                                value={person.position}
+                                onChange={(e) => updateResponsiblePerson(index, 'position', e.target.value)}
+                              />
+                            </div>
+                          </div>
+                        </Card>
+                      ))}
+                    </div>
+
+                    {/* Contact Numbers */}
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between border-b pb-2">
+                        <h3 className="text-lg font-semibold">
+                          {t({ ar: "أرقام التواصل", en: "Contact Numbers" })}
+                        </h3>
+                        <Button onClick={addContactNumber} size="sm" variant="outline">
+                          <Plus className="w-4 h-4 mr-2" />
+                          {t({ ar: "إضافة", en: "Add" })}
+                        </Button>
+                      </div>
+
+                      {settings.contact_numbers?.map((number, index) => (
+                        <div key={index} className="flex gap-2">
+                          <Input
+                            value={number}
+                            onChange={(e) => updateContactNumber(index, e.target.value)}
+                            placeholder="+966..."
+                            className="flex-1"
+                          />
+                          <Button
+                            onClick={() => removeContactNumber(index)}
+                            size="sm"
+                            variant="destructive"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  </TabsContent>
+
+                  {/* Colors Tab */}
+                  <TabsContent value="colors" className="space-y-6 pr-4">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "الألوان الأساسية", en: "Primary Colors" })}
+                      </h3>
+                      
+                      <ColorInput
+                        label={t({ ar: "اللون الأساسي", en: "Primary Color" })}
+                        value={settings.primary_color || '75,0,130'}
+                        onChange={(v) => setSettings({ ...settings, primary_color: v })}
+                      />
+
+                      <ColorInput
+                        label={t({ ar: "اللون الثانوي", en: "Secondary Color" })}
+                        value={settings.secondary_color || '245,245,245'}
+                        onChange={(v) => setSettings({ ...settings, secondary_color: v })}
+                      />
+
+                      <ColorInput
+                        label={t({ ar: "لون النص", en: "Text Color" })}
+                        value={settings.text_color || '0,0,0'}
+                        onChange={(v) => setSettings({ ...settings, text_color: v })}
                       />
                     </div>
-                    <div>
-                      <Label>{t({ ar: "البريد الإلكتروني", en: "Email" })}</Label>
-                      <Input
-                        type="email"
-                        value={person.email}
-                        onChange={(e) => updateResponsiblePerson(index, 'email', e.target.value)}
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "ألوان الخلفية", en: "Background Colors" })}
+                      </h3>
+                      
+                      <ColorInput
+                        label={t({ ar: "خلفية الرأس", en: "Header Background" })}
+                        value={settings.header_bg_color || '75,0,130'}
+                        onChange={(v) => setSettings({ ...settings, header_bg_color: v })}
+                      />
+
+                      <ColorInput
+                        label={t({ ar: "خلفية التذييل", en: "Footer Background" })}
+                        value={settings.footer_bg_color || '75,0,130'}
+                        onChange={(v) => setSettings({ ...settings, footer_bg_color: v })}
                       />
                     </div>
-                    <div>
-                      <Label>{t({ ar: "رقم الجوال", en: "Phone" })}</Label>
-                      <Input
-                        value={person.phone}
-                        onChange={(e) => updateResponsiblePerson(index, 'phone', e.target.value)}
-                      />
+                  </TabsContent>
+
+                  {/* Fonts Tab */}
+                  <TabsContent value="fonts" className="space-y-6 pr-4">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "أحجام الخطوط", en: "Font Sizes" })}
+                      </h3>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "حجم العنوان الرئيسي", en: "Header Size" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.font_size_header || 18}
+                            onChange={(e) => setSettings({ ...settings, font_size_header: parseInt(e.target.value) })}
+                            min="10"
+                            max="30"
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "حجم العنوان الفرعي", en: "Title Size" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.font_size_title || 14}
+                            onChange={(e) => setSettings({ ...settings, font_size_title: parseInt(e.target.value) })}
+                            min="8"
+                            max="20"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "حجم النص الأساسي", en: "Body Size" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.font_size_body || 10}
+                            onChange={(e) => setSettings({ ...settings, font_size_body: parseInt(e.target.value) })}
+                            min="6"
+                            max="16"
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "حجم النص الصغير", en: "Small Size" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.font_size_small || 8}
+                            onChange={(e) => setSettings({ ...settings, font_size_small: parseInt(e.target.value) })}
+                            min="4"
+                            max="12"
+                          />
+                        </div>
+                      </div>
                     </div>
-                    <div>
-                      <Label>{t({ ar: "المسمى الوظيفي", en: "Position" })}</Label>
-                      <Input
-                        value={person.position}
-                        onChange={(e) => updateResponsiblePerson(index, 'position', e.target.value)}
-                      />
+                  </TabsContent>
+
+                  {/* Layout Tab */}
+                  <TabsContent value="layout" className="space-y-6 pr-4">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "أبعاد الرأس والتذييل", en: "Header & Footer Dimensions" })}
+                      </h3>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "ارتفاع الرأس", en: "Header Height" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.header_height || 30}
+                            onChange={(e) => setSettings({ ...settings, header_height: parseInt(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "ارتفاع التذييل", en: "Footer Height" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.footer_height || 20}
+                            onChange={(e) => setSettings({ ...settings, footer_height: parseInt(e.target.value) })}
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
-            </div>
 
-            {/* Contact Numbers */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-semibold">{t({ ar: "أرقام التواصل", en: "Contact Numbers" })}</h3>
-                <Button onClick={addContactNumber} size="sm" variant="outline">
-                  <Plus className="w-4 h-4 mr-2" />
-                  {t({ ar: "إضافة رقم", en: "Add Number" })}
-                </Button>
-              </div>
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "موضع الشعار", en: "Logo Position" })}
+                      </h3>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "عرض الشعار", en: "Logo Width" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.logo_width || 40}
+                            onChange={(e) => setSettings({ ...settings, logo_width: parseInt(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "ارتفاع الشعار", en: "Logo Height" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.logo_height || 20}
+                            onChange={(e) => setSettings({ ...settings, logo_height: parseInt(e.target.value) })}
+                          />
+                        </div>
+                      </div>
 
-              {settings.contact_numbers?.map((number, index) => (
-                <div key={index} className="flex gap-2">
-                  <Input
-                    value={number}
-                    onChange={(e) => updateContactNumber(index, e.target.value)}
-                    placeholder="+966..."
-                  />
-                  <Button
-                    onClick={() => removeContactNumber(index)}
-                    size="icon"
-                    variant="destructive"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))}
-            </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "موضع X", en: "Position X" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.logo_position_x || 15}
+                            onChange={(e) => setSettings({ ...settings, logo_position_x: parseInt(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "موضع Y", en: "Position Y" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.logo_position_y || 5}
+                            onChange={(e) => setSettings({ ...settings, logo_position_y: parseInt(e.target.value) })}
+                          />
+                        </div>
+                      </div>
+                    </div>
 
-                  {/* Save Button */}
-                  <div className="flex justify-end pt-4">
-                    <Button onClick={handleSave} disabled={saving} className="btn-luxury w-full">
-                      {saving ? <LoadingSpinner size="sm" /> : t({ ar: "حفظ الإعدادات", en: "Save Settings" })}
-                    </Button>
-                  </div>
-                </div>
-              </ScrollArea>
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "مواضع المحتوى (Y)", en: "Content Positions (Y)" })}
+                      </h3>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "رقم الحجز Y", en: "Booking# Y" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.booking_number_y || 15}
+                            onChange={(e) => setSettings({ ...settings, booking_number_y: parseInt(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "العنوان Y", en: "Title Y" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.title_y || 38}
+                            onChange={(e) => setSettings({ ...settings, title_y: parseInt(e.target.value) })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "معلومات العميل Y", en: "Client Info Y" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.client_info_y || 60}
+                            onChange={(e) => setSettings({ ...settings, client_info_y: parseInt(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "جدول الحجز Y", en: "Booking Table Y" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.booking_table_y || 105}
+                            onChange={(e) => setSettings({ ...settings, booking_table_y: parseInt(e.target.value) })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "الأسعار Y", en: "Prices Y" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.price_section_y || 150}
+                            onChange={(e) => setSettings({ ...settings, price_section_y: parseInt(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "البنك Y", en: "Bank Y" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.bank_details_y || 180}
+                            onChange={(e) => setSettings({ ...settings, bank_details_y: parseInt(e.target.value) })}
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <Label>{t({ ar: "الشروط Y", en: "Terms Y" })}</Label>
+                        <Input
+                          type="number"
+                          value={settings.terms_y || 220}
+                          onChange={(e) => setSettings({ ...settings, terms_y: parseInt(e.target.value) })}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "الهوامش والمسافات", en: "Margins & Spacing" })}
+                      </h3>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "الهامش الأيسر", en: "Left Margin" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.page_margin_left || 15}
+                            onChange={(e) => setSettings({ ...settings, page_margin_left: parseInt(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "الهامش الأيمن", en: "Right Margin" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.page_margin_right || 15}
+                            onChange={(e) => setSettings({ ...settings, page_margin_right: parseInt(e.target.value) })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "المسافة بين الأقسام", en: "Section Spacing" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.section_spacing || 10}
+                            onChange={(e) => setSettings({ ...settings, section_spacing: parseInt(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "ارتفاع السطر", en: "Line Height" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.line_height || 6}
+                            onChange={(e) => setSettings({ ...settings, line_height: parseInt(e.target.value) })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </TabsContent>
+
+                  {/* Visibility Tab */}
+                  <TabsContent value="visibility" className="space-y-6 pr-4">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "إظهار/إخفاء الأقسام", en: "Show/Hide Sections" })}
+                      </h3>
+                      
+                      <div className="flex items-center justify-between py-2">
+                        <Label>{t({ ar: "عرض الشعار", en: "Show Logo" })}</Label>
+                        <Switch
+                          checked={settings.show_logo}
+                          onCheckedChange={(checked) => setSettings({ ...settings, show_logo: checked })}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between py-2">
+                        <Label>{t({ ar: "عرض وصف الشركة", en: "Show Company Description" })}</Label>
+                        <Switch
+                          checked={settings.show_company_description}
+                          onCheckedChange={(checked) => setSettings({ ...settings, show_company_description: checked })}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between py-2">
+                        <Label>{t({ ar: "عرض تفاصيل البنك", en: "Show Bank Details" })}</Label>
+                        <Switch
+                          checked={settings.show_bank_details}
+                          onCheckedChange={(checked) => setSettings({ ...settings, show_bank_details: checked })}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between py-2">
+                        <Label>{t({ ar: "عرض الشروط", en: "Show Terms" })}</Label>
+                        <Switch
+                          checked={settings.show_terms}
+                          onCheckedChange={(checked) => setSettings({ ...settings, show_terms: checked })}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between py-2">
+                        <Label>{t({ ar: "عرض المسؤولين", en: "Show Responsible Persons" })}</Label>
+                        <Switch
+                          checked={settings.show_responsible_persons}
+                          onCheckedChange={(checked) => setSettings({ ...settings, show_responsible_persons: checked })}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-between py-2">
+                        <Label>{t({ ar: "عرض معلومات التذييل", en: "Show Footer Info" })}</Label>
+                        <Switch
+                          checked={settings.show_footer_info}
+                          onCheckedChange={(checked) => setSettings({ ...settings, show_footer_info: checked })}
+                        />
+                      </div>
+                    </div>
+                  </TabsContent>
+                </ScrollArea>
+              </Tabs>
             </CardContent>
           </Card>
 
-          {/* PDF Preview */}
+          {/* Preview Section */}
           <Card className="card-luxury">
             <CardHeader>
-              <CardTitle className="text-xl flex items-center gap-2">
-                <Eye className="w-5 h-5" />
-                {t({ ar: "معاينة PDF", en: "PDF Preview" })}
+              <CardTitle className="text-xl">
+                {t({ ar: "معاينة مباشرة", en: "Live Preview" })}
               </CardTitle>
             </CardHeader>
             <CardContent>
-              {showPreview && previewUrl ? (
-                <div className="h-[calc(100vh-280px)] border rounded-lg overflow-hidden bg-gray-100">
+              <div className="w-full h-[calc(100vh-280px)] bg-muted rounded-lg overflow-hidden">
+                {showPreview && previewUrl ? (
                   <iframe
                     ref={iframeRef}
                     src={previewUrl}
-                    className="w-full h-full"
+                    className="w-full h-full border-0"
                     title="PDF Preview"
                   />
-                </div>
-              ) : (
-                <div className="h-[calc(100vh-280px)] border rounded-lg flex items-center justify-center bg-muted/30">
-                  <div className="text-center space-y-4">
-                    <FileText className="w-16 h-16 mx-auto text-muted-foreground/50" />
-                    <div>
-                      <p className="text-lg font-medium text-muted-foreground">
-                        {t({ ar: "لا توجد معاينة", en: "No Preview" })}
-                      </p>
-                      <p className="text-sm text-muted-foreground/70">
-                        {t({ 
-                          ar: "اضغط على زر 'معاينة PDF' لإنشاء نموذج", 
-                          en: "Click 'Preview PDF' to generate a sample" 
-                        })}
-                      </p>
-                    </div>
-                    <Button onClick={generatePreview} variant="outline">
-                      <Eye className="w-4 h-4 mr-2" />
-                      {t({ ar: "إنشاء المعاينة", en: "Generate Preview" })}
-                    </Button>
+                ) : (
+                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                    <Eye className="w-16 h-16 mb-4 opacity-50" />
+                    <p className="text-lg">
+                      {t({ ar: "اضغط على زر المعاينة لعرض PDF", en: "Click Preview to view PDF" })}
+                    </p>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </CardContent>
           </Card>
         </div>

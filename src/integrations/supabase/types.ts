@@ -1069,56 +1069,182 @@ export type Database = {
       pdf_settings: {
         Row: {
           bank_account_number: string | null
+          bank_details_y: number | null
           bank_location: string | null
           bank_name: string | null
+          booking_number_x: number | null
+          booking_number_y: number | null
+          booking_table_y: number | null
           cancellation_policy_ar: string | null
           cancellation_policy_en: string | null
+          client_info_y: number | null
+          company_cr: string | null
           company_description_ar: string | null
           company_description_en: string | null
+          company_license: string | null
           company_logo_url: string | null
+          company_vat: string | null
           contact_numbers: Json | null
           created_at: string | null
+          font_size_body: number | null
+          font_size_header: number | null
+          font_size_small: number | null
+          font_size_title: number | null
+          footer_bg_color: string | null
+          footer_company_name_ar: string | null
+          footer_company_name_en: string | null
+          footer_height: number | null
+          header_bg_color: string | null
+          header_height: number | null
+          header_text_ar: string | null
+          header_text_en: string | null
           iban: string | null
           id: string
+          line_height: number | null
+          logo_height: number | null
+          logo_position_x: number | null
+          logo_position_y: number | null
+          logo_width: number | null
+          page_margin_left: number | null
+          page_margin_right: number | null
+          price_section_y: number | null
+          primary_color: string | null
+          primary_font: string | null
           responsible_persons: Json | null
+          secondary_color: string | null
+          secondary_font: string | null
+          section_spacing: number | null
+          show_bank_details: boolean | null
+          show_company_description: boolean | null
+          show_footer_info: boolean | null
+          show_logo: boolean | null
+          show_responsible_persons: boolean | null
+          show_terms: boolean | null
           terms_ar: string | null
           terms_en: string | null
+          terms_y: number | null
+          text_color: string | null
+          title_y: number | null
           updated_at: string | null
         }
         Insert: {
           bank_account_number?: string | null
+          bank_details_y?: number | null
           bank_location?: string | null
           bank_name?: string | null
+          booking_number_x?: number | null
+          booking_number_y?: number | null
+          booking_table_y?: number | null
           cancellation_policy_ar?: string | null
           cancellation_policy_en?: string | null
+          client_info_y?: number | null
+          company_cr?: string | null
           company_description_ar?: string | null
           company_description_en?: string | null
+          company_license?: string | null
           company_logo_url?: string | null
+          company_vat?: string | null
           contact_numbers?: Json | null
           created_at?: string | null
+          font_size_body?: number | null
+          font_size_header?: number | null
+          font_size_small?: number | null
+          font_size_title?: number | null
+          footer_bg_color?: string | null
+          footer_company_name_ar?: string | null
+          footer_company_name_en?: string | null
+          footer_height?: number | null
+          header_bg_color?: string | null
+          header_height?: number | null
+          header_text_ar?: string | null
+          header_text_en?: string | null
           iban?: string | null
           id?: string
+          line_height?: number | null
+          logo_height?: number | null
+          logo_position_x?: number | null
+          logo_position_y?: number | null
+          logo_width?: number | null
+          page_margin_left?: number | null
+          page_margin_right?: number | null
+          price_section_y?: number | null
+          primary_color?: string | null
+          primary_font?: string | null
           responsible_persons?: Json | null
+          secondary_color?: string | null
+          secondary_font?: string | null
+          section_spacing?: number | null
+          show_bank_details?: boolean | null
+          show_company_description?: boolean | null
+          show_footer_info?: boolean | null
+          show_logo?: boolean | null
+          show_responsible_persons?: boolean | null
+          show_terms?: boolean | null
           terms_ar?: string | null
           terms_en?: string | null
+          terms_y?: number | null
+          text_color?: string | null
+          title_y?: number | null
           updated_at?: string | null
         }
         Update: {
           bank_account_number?: string | null
+          bank_details_y?: number | null
           bank_location?: string | null
           bank_name?: string | null
+          booking_number_x?: number | null
+          booking_number_y?: number | null
+          booking_table_y?: number | null
           cancellation_policy_ar?: string | null
           cancellation_policy_en?: string | null
+          client_info_y?: number | null
+          company_cr?: string | null
           company_description_ar?: string | null
           company_description_en?: string | null
+          company_license?: string | null
           company_logo_url?: string | null
+          company_vat?: string | null
           contact_numbers?: Json | null
           created_at?: string | null
+          font_size_body?: number | null
+          font_size_header?: number | null
+          font_size_small?: number | null
+          font_size_title?: number | null
+          footer_bg_color?: string | null
+          footer_company_name_ar?: string | null
+          footer_company_name_en?: string | null
+          footer_height?: number | null
+          header_bg_color?: string | null
+          header_height?: number | null
+          header_text_ar?: string | null
+          header_text_en?: string | null
           iban?: string | null
           id?: string
+          line_height?: number | null
+          logo_height?: number | null
+          logo_position_x?: number | null
+          logo_position_y?: number | null
+          logo_width?: number | null
+          page_margin_left?: number | null
+          page_margin_right?: number | null
+          price_section_y?: number | null
+          primary_color?: string | null
+          primary_font?: string | null
           responsible_persons?: Json | null
+          secondary_color?: string | null
+          secondary_font?: string | null
+          section_spacing?: number | null
+          show_bank_details?: boolean | null
+          show_company_description?: boolean | null
+          show_footer_info?: boolean | null
+          show_logo?: boolean | null
+          show_responsible_persons?: boolean | null
+          show_terms?: boolean | null
           terms_ar?: string | null
           terms_en?: string | null
+          terms_y?: number | null
+          text_color?: string | null
+          title_y?: number | null
           updated_at?: string | null
         }
         Relationships: []

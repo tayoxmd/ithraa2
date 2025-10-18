@@ -49,6 +49,7 @@ interface PDFBookingData {
     phone: string;
   };
   customerPageUrl: string;
+  pdfSettings?: any; // إعدادات التصميم المخصصة
 }
 
 export function generateBookingPDF(data: PDFBookingData): jsPDF {
@@ -56,60 +57,97 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
   
-  // Colors matching the uploaded PDF
-  const primaryColor: [number, number, number] = [75, 0, 130]; // Darker purple/indigo
-  const lightGray: [number, number, number] = [245, 245, 245];
+  // استخدام الإعدادات المخصصة أو القيم الافتراضية
+  const settings = data.pdfSettings || {};
+  
+  const parseColor = (colorStr: string, defaultColor: [number, number, number]): [number, number, number] => {
+    if (!colorStr) return defaultColor;
+    const parts = colorStr.split(',').map(v => parseInt(v.trim()));
+    return [parts[0] || 0, parts[1] || 0, parts[2] || 0];
+  };
+  
+  const primaryColor = parseColor(settings.primary_color, [75, 0, 130]);
+  const lightGray = parseColor(settings.secondary_color, [245, 245, 245]);
   const borderGray: [number, number, number] = [200, 200, 200];
-  const darkText: [number, number, number] = [0, 0, 0];
+  const darkText = parseColor(settings.text_color, [0, 0, 0]);
+  const headerBgColor = parseColor(settings.header_bg_color, [75, 0, 130]);
+  const footerBgColor = parseColor(settings.footer_bg_color, [75, 0, 130]);
+  
+  // Font sizes
+  const fontSizeHeader = settings.font_size_header || 18;
+  const fontSizeTitle = settings.font_size_title || 14;
+  const fontSizeBody = settings.font_size_body || 10;
+  const fontSizeSmall = settings.font_size_small || 8;
+  
+  // Layout settings
+  const headerHeight = settings.header_height || 30;
+  const footerHeight = settings.footer_height || 20;
+  const marginLeft = settings.page_margin_left || 15;
+  const marginRight = settings.page_margin_right || 15;
+  const sectionSpacing = settings.section_spacing || 10;
+  const lineHeight = settings.line_height || 6;
   
   // Header with booking number
-  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(0, 0, pageWidth, 30, 'F');
-  
-  // Booking number in top right corner with white background
-  doc.setFillColor(255, 255, 255);
-  doc.roundedRect(pageWidth - 45, 8, 35, 10, 2, 2, 'F');
-  doc.setTextColor(0, 0, 0);
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.text(`#${data.bookingNumber}`, pageWidth - 27.5, 15, { align: 'center' });
-  
-  // Title
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(18);
-  doc.setFont('helvetica', 'bold');
-  doc.text('CONFIRMATION', 15, 20);
+  if (settings.show_logo !== false) {
+    doc.setFillColor(headerBgColor[0], headerBgColor[1], headerBgColor[2]);
+    doc.rect(0, 0, pageWidth, headerHeight, 'F');
+    
+    // Booking number in top right corner with white background
+    const bookingNumX = settings.booking_number_x || 160;
+    const bookingNumY = settings.booking_number_y || 15;
+    doc.setFillColor(255, 255, 255);
+    doc.roundedRect(pageWidth - 45, 8, 35, 10, 2, 2, 'F');
+    doc.setTextColor(0, 0, 0);
+    doc.setFontSize(fontSizeBody);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`#${data.bookingNumber}`, pageWidth - 27.5, bookingNumY, { align: 'center' });
+    
+    // Title
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(fontSizeHeader);
+    doc.setFont('helvetica', 'bold');
+    const headerText = settings.header_text_en || 'CONFIRMATION';
+    doc.text(headerText, marginLeft, 20);
+  }
   
   // Main title
-  let yPos = 38;
+  let yPos = settings.title_y || 38;
   doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-  doc.setFontSize(14);
+  doc.setFontSize(fontSizeTitle);
   doc.setFont('helvetica', 'bold');
-  doc.text('Hotel Booking Confirmation', 15, yPos);
-  yPos += 10;
+  doc.text('Hotel Booking Confirmation', marginLeft, yPos);
+  yPos += sectionSpacing;
   
   // Greeting section
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Dear Sir:', 15, yPos);
-  yPos += 6;
-  
-  doc.setFont('helvetica', 'bold');
-  doc.text('Greeting From Ethraa Company for Tourist Accommodation', 15, yPos);
-  yPos += 7;
-  
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.text('First of All, We would like to take this opportunity to welcome you at Ethraa Company for Tourist', 15, yPos);
-  yPos += 4;
-  doc.text('Accommodation. We are pleased to confirm the following reservation on a definite basis.', 15, yPos);
-  yPos += 10;
+  if (settings.show_company_description !== false) {
+    doc.setFontSize(fontSizeBody);
+    doc.setFont('helvetica', 'normal');
+    doc.text('Dear Sir:', marginLeft, yPos);
+    yPos += lineHeight;
+    
+    doc.setFont('helvetica', 'bold');
+    const companyName = settings.footer_company_name_en || 'Ethraa Company for Tourist Accommodation';
+    doc.text(`Greeting From ${companyName}`, marginLeft, yPos);
+    yPos += lineHeight + 1;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(fontSizeSmall + 1);
+    const companyDesc = settings.company_description_en || 'First of All, We would like to take this opportunity to welcome you at Ethraa Company for Tourist';
+    const descLines = doc.splitTextToSize(companyDesc, pageWidth - (marginLeft + marginRight));
+    descLines.forEach((line: string) => {
+      doc.text(line, marginLeft, yPos);
+      yPos += 4;
+    });
+    doc.text('Accommodation. We are pleased to confirm the following reservation on a definite basis.', marginLeft, yPos);
+    yPos += sectionSpacing;
+  }
   
   // Client Information Table
+  yPos = settings.client_info_y || yPos;
   const infoTableHeight = 30;
   doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2]);
   doc.setLineWidth(0.5);
-  doc.rect(15, yPos, pageWidth - 30, infoTableHeight, 'S');
+  doc.rect(marginLeft, yPos, pageWidth - (marginLeft + marginRight), infoTableHeight, 'S');
   
   // Draw horizontal lines
   const lineSpacing = infoTableHeight / 5;
@@ -324,30 +362,36 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
   doc.textWithLink(data.customerPageUrl, 40, yPos, { url: data.customerPageUrl });
   
   // Footer section
-  const footerY = pageHeight - 20;
-  doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(0, footerY, pageWidth, 20, 'F');
+  if (settings.show_footer_info !== false) {
+    const footerY = pageHeight - footerHeight;
+    doc.setFillColor(footerBgColor[0], footerBgColor[1], footerBgColor[2]);
+    doc.rect(0, footerY, pageWidth, footerHeight, 'F');
+    
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(fontSizeSmall - 1);
+    doc.setFont('helvetica', 'bold');
+    const footerCompanyName = settings.footer_company_name_en || 'Ethraa Company for Tourist Accommodation';
+    doc.text(`Official Business Name: ${footerCompanyName}`, pageWidth / 2, footerY + 4, { align: 'center' });
   
-  doc.setTextColor(255, 255, 255);
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Official Business Name: Ethraa Company for Tourist Accommodation', pageWidth / 2, footerY + 4, { align: 'center' });
-  
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(6);
-  const today = new Date();
-  
-  // Left column
-  doc.text(`Date: ${format(today, 'dd/MM/yyyy')}`, 15, footerY + 9);
-  doc.text(`Hijri Date: ${toHijri(today)}`, 15, footerY + 13);
-  
-  // Center column
-  doc.text('CR N°: 4031285856', pageWidth / 2 - 25, footerY + 9);
-  doc.text('VAT N°: 302006094600003', pageWidth / 2 - 25, footerY + 13);
-  
-  // Right column
-  doc.text('LIC N°: 73105372', pageWidth - 40, footerY + 9);
-  doc.text('Class: 5 Star', pageWidth - 40, footerY + 13);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(fontSizeSmall - 2);
+    const today = new Date();
+    
+    // Left column
+    doc.text(`Date: ${format(today, 'dd/MM/yyyy')}`, marginLeft, footerY + 9);
+    doc.text(`Hijri Date: ${toHijri(today)}`, marginLeft, footerY + 13);
+    
+    // Center column
+    const crNumber = settings.company_cr || '4031285856';
+    const vatNumber = settings.company_vat || '302006094600003';
+    doc.text(`CR N°: ${crNumber}`, pageWidth / 2 - 25, footerY + 9);
+    doc.text(`VAT N°: ${vatNumber}`, pageWidth / 2 - 25, footerY + 13);
+    
+    // Right column
+    const licNumber = settings.company_license || '73105372';
+    doc.text(`LIC N°: ${licNumber}`, pageWidth - 40, footerY + 9);
+    doc.text('Class: 5 Star', pageWidth - 40, footerY + 13);
+  }
   
   return doc;
 }
