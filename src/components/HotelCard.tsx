@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { MapPin, Star, Wifi, Coffee, Utensils, ChevronLeft, ChevronRight, Bus, MapPinned, Bed } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { BedIcon } from "@/components/BedIcons";
+import { useMealSettings } from "@/contexts/MealSettingsContext";
 
 interface HotelCardProps {
   id: string;
@@ -52,68 +52,9 @@ export function HotelCard({
   const { t, language } = useLanguage();
   const isMobile = useIsMobile();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [mealBadgeSettings, setMealBadgeSettings] = useState({
-    color: '#007dff',
-    textColor: '#ffffff',
-    widthMobile: 120,
-    heightMobile: 24,
-    autoWidthMobile: false,
-    widthTablet: 150,
-    heightTablet: 32,
-    autoWidthTablet: false,
-    widthDesktop: 180,
-    heightDesktop: 36,
-    autoWidthDesktop: false,
-    fontSize: 12,
-    borderRadius: 8,
-  });
-  const [mealDescriptionSettings, setMealDescriptionSettings] = useState({
-    bgColor: '#f0fdf4',
-    textColor: '#15803d',
-    fontSize: 12,
-    borderRadius: 8,
-    borderColor: '#86efac',
-  });
+  const { mealBadgeSettings, mealDescriptionSettings } = useMealSettings();
   
   const hotelImages = images && Array.isArray(images) && images.length > 0 ? images : [image];
-
-  useEffect(() => {
-    async function fetchMealBadgeSettings() {
-      const { data } = await supabase
-        .from('site_settings')
-        .select('meal_badge_color, meal_badge_text_color, meal_badge_width_mobile, meal_badge_height_mobile, meal_badge_auto_width_mobile, meal_badge_width_tablet, meal_badge_height_tablet, meal_badge_auto_width_tablet, meal_badge_width_desktop, meal_badge_height_desktop, meal_badge_auto_width_desktop, meal_badge_font_size, meal_badge_border_radius, meal_description_bg_color, meal_description_text_color, meal_description_font_size, meal_description_border_radius, meal_description_border_color')
-        .order('created_at', { ascending: false })
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      
-      if (data) {
-        setMealBadgeSettings({
-          color: data.meal_badge_color || '#007dff',
-          textColor: data.meal_badge_text_color || '#ffffff',
-          widthMobile: data.meal_badge_width_mobile || 120,
-          heightMobile: data.meal_badge_height_mobile || 24,
-          autoWidthMobile: data.meal_badge_auto_width_mobile || false,
-          widthTablet: data.meal_badge_width_tablet || 150,
-          heightTablet: data.meal_badge_height_tablet || 32,
-          autoWidthTablet: data.meal_badge_auto_width_tablet || false,
-          widthDesktop: data.meal_badge_width_desktop || 180,
-          heightDesktop: data.meal_badge_height_desktop || 36,
-          autoWidthDesktop: data.meal_badge_auto_width_desktop || false,
-          fontSize: data.meal_badge_font_size || 12,
-          borderRadius: data.meal_badge_border_radius || 8,
-        });
-        setMealDescriptionSettings({
-          bgColor: data.meal_description_bg_color || '#f0fdf4',
-          textColor: data.meal_description_text_color || '#15803d',
-          fontSize: data.meal_description_font_size || 12,
-          borderRadius: data.meal_description_border_radius || 8,
-          borderColor: data.meal_description_border_color || '#86efac',
-        });
-      }
-    }
-    fetchMealBadgeSettings();
-  }, []);
   
   const handlePrevImage = (e: React.MouseEvent) => {
     e.stopPropagation();

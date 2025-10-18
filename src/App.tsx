@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { MealSettingsProvider } from "@/contexts/MealSettingsContext";
 import { ChatWidget } from "@/components/ChatWidget";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -94,9 +95,11 @@ const RouterWithTheme = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <SettingsProvider>
-      <BrowserRouter>
-        <RouterWithTheme />
-      </BrowserRouter>
+      <MealSettingsProvider>
+        <BrowserRouter>
+          <RouterWithTheme />
+        </BrowserRouter>
+      </MealSettingsProvider>
     </SettingsProvider>
   </QueryClientProvider>
 );

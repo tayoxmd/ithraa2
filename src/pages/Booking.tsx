@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
+import { useMealSettings } from "@/contexts/MealSettingsContext";
 import { toast } from "@/hooks/use-toast";
 import { CreditCard, Calendar as CalendarIcon, Users, Hotel as HotelIcon, Utensils, ChevronLeft, ChevronRight } from "lucide-react";
 import { format, differenceInDays } from "date-fns";
@@ -23,7 +24,6 @@ import { cn } from "@/lib/utils";
 import { BookingAuthDialog } from "@/components/BookingAuthDialog";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { PostBookingAuthDialog } from "@/components/PostBookingAuthDialog";
-import { useRef } from "react";
 import { countries } from "@/data/countries";
 import { calculateSeasonalPrice } from "@/utils/seasonalPricing";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -52,6 +52,7 @@ export default function Booking() {
   const { t, language } = useLanguage();
   const isMobile = useIsMobile();
   const { userTheme } = useTheme();
+  const { mealBadgeSettings, mealDescriptionSettings } = useMealSettings();
   const [hotel, setHotel] = useState<any>(null);
   
   // Get booking details from URL params and make them editable
@@ -117,28 +118,6 @@ export default function Booking() {
   const [customerFullName, setCustomerFullName] = useState("");
   const [availableRooms, setAvailableRooms] = useState<number | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [mealBadgeSettings, setMealBadgeSettings] = useState({
-    color: '#007dff',
-    textColor: '#ffffff',
-    widthMobile: 120,
-    heightMobile: 24,
-    autoWidthMobile: false,
-    widthTablet: 150,
-    heightTablet: 32,
-    autoWidthTablet: false,
-    widthDesktop: 180,
-    heightDesktop: 36,
-    autoWidthDesktop: false,
-    fontSize: 12,
-    borderRadius: 8,
-  });
-  const [mealDescriptionSettings, setMealDescriptionSettings] = useState({
-    bgColor: '#f0fdf4',
-    textColor: '#15803d',
-    fontSize: 12,
-    borderRadius: 8,
-    borderColor: '#86efac',
-  });
 
   // Fetch customer's full name if logged in
   useEffect(() => {
@@ -251,44 +230,8 @@ export default function Booking() {
       }
     }
 
-    async function fetchMealBadgeSettings() {
-      const { data } = await supabase
-        .from('site_settings')
-        .select('meal_badge_color, meal_badge_text_color, meal_badge_width_mobile, meal_badge_height_mobile, meal_badge_auto_width_mobile, meal_badge_width_tablet, meal_badge_height_tablet, meal_badge_auto_width_tablet, meal_badge_width_desktop, meal_badge_height_desktop, meal_badge_auto_width_desktop, meal_badge_font_size, meal_badge_border_radius, meal_description_bg_color, meal_description_text_color, meal_description_font_size, meal_description_border_radius, meal_description_border_color')
-        .order('created_at', { ascending: false })
-        .order('updated_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-      
-      if (data && mounted) {
-        setMealBadgeSettings({
-          color: data.meal_badge_color || '#007dff',
-          textColor: data.meal_badge_text_color || '#ffffff',
-          widthMobile: data.meal_badge_width_mobile || 120,
-          heightMobile: data.meal_badge_height_mobile || 24,
-          autoWidthMobile: data.meal_badge_auto_width_mobile || false,
-          widthTablet: data.meal_badge_width_tablet || 150,
-          heightTablet: data.meal_badge_height_tablet || 32,
-          autoWidthTablet: data.meal_badge_auto_width_tablet || false,
-          widthDesktop: data.meal_badge_width_desktop || 180,
-          heightDesktop: data.meal_badge_height_desktop || 36,
-          autoWidthDesktop: data.meal_badge_auto_width_desktop || false,
-          fontSize: data.meal_badge_font_size || 12,
-          borderRadius: data.meal_badge_border_radius || 8,
-        });
-        setMealDescriptionSettings({
-          bgColor: data.meal_description_bg_color || '#f0fdf4',
-          textColor: data.meal_description_text_color || '#15803d',
-          fontSize: data.meal_description_font_size || 12,
-          borderRadius: data.meal_description_border_radius || 8,
-          borderColor: data.meal_description_border_color || '#86efac',
-        });
-      }
-    }
-    
     fetchHotel();
     fetchSavedGuests();
-    fetchMealBadgeSettings();
     
     return () => {
       mounted = false;
