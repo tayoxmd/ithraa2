@@ -31,7 +31,8 @@ interface Hotel {
     extra_meal_price: number;
   } | null;
   amenities?: any;
-  bed_type_double?: 'king' | 'twin' | 'double';
+  bed_type_single?: 'single' | 'king';
+  bed_type_double?: 'king' | 'twin';
   max_guests_per_room?: number;
 }
 
@@ -129,6 +130,7 @@ const Index = () => {
                   featured={index < 2}
                   meal_plans={hotel.meal_plans}
                   amenities={hotel.amenities}
+                  bed_type_single={hotel.bed_type_single}
                   bed_type_double={hotel.bed_type_double}
                   max_guests_per_room={hotel.max_guests_per_room}
                 />

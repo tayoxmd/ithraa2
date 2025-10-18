@@ -16,6 +16,7 @@ import { MapPin, Phone, Star, Calendar, Plus, Edit, Search, Upload, X, Image as 
 import { MealPlansManager } from "@/components/MealPlansManager";
 import { ImageGallery } from "@/components/ImageGallery";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { BedIcon } from "@/components/BedIcons";
 
 interface City {
   id: string;
@@ -90,7 +91,8 @@ export default function ManageHotels() {
     total_rooms: "10",
     tax_percentage: "0",
     room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
-    bed_type_double: "king" as 'king' | 'twin' | 'double',
+    bed_type_single: "single" as 'single' | 'king',
+    bed_type_double: "king" as 'king' | 'twin',
   });
   const [amenities, setAmenities] = useState({
     wifi: true,
@@ -462,6 +464,7 @@ export default function ManageHotels() {
           total_rooms: parseInt(formData.total_rooms),
           tax_percentage: parseFloat(formData.tax_percentage),
           room_type: formData.room_type,
+          bed_type_single: formData.max_guests_per_room === "1" ? formData.bed_type_single : null,
           bed_type_double: formData.max_guests_per_room === "2" ? formData.bed_type_double : null,
           images: hotelImages,
           meal_plans: mealPlan,
@@ -534,6 +537,7 @@ export default function ManageHotels() {
       total_rooms: (hotel as any).total_rooms?.toString() || "0",
       tax_percentage: (hotel as any).tax_percentage?.toString() || "0",
       room_type: hotel.room_type || 'hotel_rooms',
+      bed_type_single: (hotel as any).bed_type_single || 'single',
       bed_type_double: (hotel as any).bed_type_double || 'king',
     });
 
@@ -607,7 +611,8 @@ export default function ManageHotels() {
       total_rooms: "0",
       tax_percentage: "0",
       room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
-      bed_type_double: "king" as 'king' | 'twin' | 'double',
+      bed_type_single: "single" as 'single' | 'king',
+      bed_type_double: "king" as 'king' | 'twin',
     });
   };
 
@@ -1021,45 +1026,84 @@ export default function ManageHotels() {
                 </div>
               </div>
               
-              {/* Bed Type Selection - Only show if max_guests_per_room is 2 */}
-              {formData.max_guests_per_room === "2" && (
-                <div className="space-y-2">
-                  <Label>{t({ ar: "نوع السرير", en: "Bed Type" })}</Label>
-                  <div className="flex gap-4">
-                    <button
-                      type="button"
-                      onClick={() => setFormData({...formData, bed_type_double: 'king'})}
-                      className={`flex-1 p-4 border-2 rounded-lg transition-all ${
-                        formData.bed_type_double === 'king' 
-                          ? 'border-primary bg-primary/10' 
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                    >
-                      <div className="flex flex-col items-center gap-2">
-                        <HotelIcon className="w-8 h-8" />
-                        <span className="font-medium">{t({ ar: "سرير كينج كبير", en: "King Size Bed" })}</span>
-                      </div>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setFormData({...formData, bed_type_double: 'twin'})}
-                      className={`flex-1 p-4 border-2 rounded-lg transition-all ${
-                        formData.bed_type_double === 'twin' 
-                          ? 'border-primary bg-primary/10' 
-                          : 'border-border hover:border-primary/50'
-                      }`}
-                    >
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="flex gap-1">
-                          <HotelIcon className="w-6 h-6" />
-                          <HotelIcon className="w-6 h-6" />
-                        </div>
-                        <span className="font-medium">{t({ ar: "سريرين مفردين", en: "Twin Beds" })}</span>
-                      </div>
-                    </button>
+              {/* Bed Type Selection */}
+              <div className="space-y-2">
+                <Label>{t({ ar: "نوع السرير", en: "Bed Type" })}</Label>
+                <div className="flex items-center gap-3">
+                  <div className="flex-shrink-0">
+                    <Select value={formData.max_guests_per_room} onValueChange={(value) => setFormData({...formData, max_guests_per_room: value})}>
+                      <SelectTrigger className="w-[120px] h-8">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[1, 2, 3, 4, 5, 6].map(num => (
+                          <SelectItem key={num} value={num.toString()}>{num} {t({ ar: 'أشخاص', en: 'persons' })}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
+                  
+                  {/* Single Guest - Single Bed or King Bed */}
+                  {formData.max_guests_per_room === "1" && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({...formData, bed_type_single: 'single'})}
+                        className={`p-1.5 border-2 rounded transition-all ${
+                          formData.bed_type_single === 'single' 
+                            ? 'border-primary bg-primary/10' 
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        title={t({ ar: "سرير مفرد", en: "Single Bed" })}
+                      >
+                        <BedIcon type="single" className="w-5 h-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({...formData, bed_type_single: 'king'})}
+                        className={`p-1.5 border-2 rounded transition-all ${
+                          formData.bed_type_single === 'king' 
+                            ? 'border-primary bg-primary/10' 
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        title={t({ ar: "سرير كينج كبير", en: "King Size Bed" })}
+                      >
+                        <BedIcon type="king" className="w-5 h-5" />
+                      </button>
+                    </div>
+                  )}
+                  
+                  {/* Two Guests - Twin Beds or King Bed */}
+                  {formData.max_guests_per_room === "2" && (
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({...formData, bed_type_double: 'twin'})}
+                        className={`p-1.5 border-2 rounded transition-all ${
+                          formData.bed_type_double === 'twin' 
+                            ? 'border-primary bg-primary/10' 
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        title={t({ ar: "سريرين مفردين", en: "Twin Beds" })}
+                      >
+                        <BedIcon type="twin" className="w-5 h-5" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setFormData({...formData, bed_type_double: 'king'})}
+                        className={`p-1.5 border-2 rounded transition-all ${
+                          formData.bed_type_double === 'king' 
+                            ? 'border-primary bg-primary/10' 
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                        title={t({ ar: "سرير كينج كبير", en: "King Size Bed" })}
+                      >
+                        <BedIcon type="king" className="w-5 h-5" />
+                      </button>
+                    </div>
+                  )}
                 </div>
-              )}
+              </div>
               
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">

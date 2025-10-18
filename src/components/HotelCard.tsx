@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { BedIcon } from "@/components/BedIcons";
 
 interface HotelCardProps {
   id: string;
@@ -36,13 +37,14 @@ interface HotelCardProps {
     walking_distance?: number | null;
     walking_distance_unit?: 'm' | 'km';
   };
-  bed_type_double?: 'king' | 'twin' | 'double';
+  bed_type_single?: 'single' | 'king';
+  bed_type_double?: 'king' | 'twin';
   max_guests_per_room?: number;
 }
 
 export function HotelCard({ 
   id, name, nameEn, location, price, rating, image, images, featured, 
-  meal_plans, amenities, bed_type_double, max_guests_per_room 
+  meal_plans, amenities, bed_type_single, bed_type_double, max_guests_per_room 
 }: HotelCardProps) {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
@@ -89,27 +91,35 @@ export function HotelCard({
   };
 
   const getBedTypeLabel = () => {
-    if (!bed_type_double || max_guests_per_room !== 2) return null;
+    if (max_guests_per_room === 1 && bed_type_single) {
+      const labels = {
+        single: { ar: 'سرير مفرد', en: 'Single Bed' },
+        king: { ar: 'سرير كينج كبير', en: 'King Size Bed' },
+      };
+      return language === 'ar' ? labels[bed_type_single].ar : labels[bed_type_single].en;
+    }
     
-    const labels = {
-      king: { ar: 'سرير كينج كبير', en: 'King Size Bed' },
-      twin: { ar: 'سريرين مفردين', en: 'Twin Beds' },
-      double: { ar: 'سرير مزدوج', en: 'Double Bed' }
-    };
+    if (max_guests_per_room === 2 && bed_type_double) {
+      const labels = {
+        king: { ar: 'سرير كينج كبير', en: 'King Size Bed' },
+        twin: { ar: 'سريرين مفردين', en: 'Twin Beds' },
+      };
+      return language === 'ar' ? labels[bed_type_double].ar : labels[bed_type_double].en;
+    }
     
-    return language === 'ar' ? labels[bed_type_double].ar : labels[bed_type_double].en;
+    return null;
   };
 
   const getBedTypeIcon = () => {
-    if (bed_type_double === 'twin') {
-      return (
-        <div className="flex gap-0.5">
-          <Bed className="w-4 h-4" />
-          <Bed className="w-4 h-4" />
-        </div>
-      );
+    if (max_guests_per_room === 1 && bed_type_single) {
+      return <BedIcon type={bed_type_single === 'single' ? 'single' : 'king'} className="w-4 h-4" />;
     }
-    return <Bed className="w-5 h-5" />;
+    
+    if (max_guests_per_room === 2 && bed_type_double) {
+      return <BedIcon type={bed_type_double === 'twin' ? 'twin' : 'king'} className="w-4 h-4" />;
+    }
+    
+    return null;
   };
 
   // Mobile Layout (horizontal card with image on left)
@@ -162,8 +172,8 @@ export function HotelCard({
                 </div>
               </div>
 
-              {/* Bed Type - Only show if 2 guests */}
-              {bed_type_double && max_guests_per_room === 2 && (
+              {/* Bed Type */}
+              {(max_guests_per_room === 1 || max_guests_per_room === 2) && getBedTypeLabel() && (
                 <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
                   {getBedTypeIcon()}
                   <span>{getBedTypeLabel()}</span>
