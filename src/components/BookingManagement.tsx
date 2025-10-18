@@ -530,28 +530,28 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
 
   return (
     <>
-      <div className="grid gap-4">
+      <div className="space-y-6">
         {bookings.map((booking) => (
           <Card 
             key={booking.id}
-            className="card-luxury md:mx-0 mx-auto max-w-[calc(100vw-32px)] md:max-w-none"
+            className="card-luxury w-full max-w-full"
             style={(booking.hotels?.room_type === 'owner_rooms' ? (highlightColors.owner ? { backgroundColor: highlightColors.owner } : undefined) : (highlightColors.hotel ? { backgroundColor: highlightColors.hotel } : undefined))}
           >
-            <CardHeader className="pb-3">
-              <CardTitle className="flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                  <Hotel className="w-5 h-5 text-primary flex-shrink-0" />
-                  <span className="text-base sm:text-lg">
+            <CardHeader className="pb-4">
+              <CardTitle className="flex flex-col gap-4">
+                <div className="flex items-center gap-3">
+                  <Hotel className="w-6 h-6 text-primary flex-shrink-0" />
+                  <span className="text-lg sm:text-xl md:text-2xl">
                     {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
                   </span>
                 </div>
-                <div className="flex flex-row gap-2 w-full">
+                <div className="flex flex-col sm:flex-row gap-3 w-full">
                   <Select
                     value={booking.status}
                     onValueChange={(value) => handleStatusChange(booking.id, value as any)}
                   >
                     <SelectTrigger 
-                      className={`flex-1 lg:w-[140px] h-9 ${statusColors[booking.status]}`}
+                      className={`flex-1 sm:min-w-[160px] h-10 text-sm sm:text-base ${statusColors[booking.status]}`}
                       style={{ backgroundColor: getStatusColor(booking.status) }}
                     >
                       <SelectValue />
@@ -569,7 +569,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     onValueChange={(value) => handlePaymentStatusChange(booking.id, value as any)}
                   >
                     <SelectTrigger 
-                      className={`flex-1 lg:w-[140px] h-9 ${paymentStatusColors[booking.payment_status]}`}
+                      className={`flex-1 sm:min-w-[160px] h-10 text-sm sm:text-base ${paymentStatusColors[booking.payment_status]}`}
                       style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}
                     >
                       <SelectValue />
@@ -584,79 +584,79 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                <div className="space-y-3">
-                  <div className="flex items-start gap-2 text-sm">
-                    <CalendarIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8">
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3 text-sm sm:text-base">
+                    <CalendarIcon className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 flex-1">
                       <span className="font-semibold">{t({ ar: "تاريخ الوصول:", en: "Check-in:" })}</span>
-                      <span>{format(new Date(booking.check_in), "dd/MM/yyyy")}</span>
+                      <span className="sm:ml-auto">{format(new Date(booking.check_in), "dd/MM/yyyy")}</span>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <CalendarIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                  <div className="flex items-start gap-3 text-sm sm:text-base">
+                    <CalendarIcon className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 flex-1">
                       <span className="font-semibold">{t({ ar: "تاريخ المغادرة:", en: "Check-out:" })}</span>
-                      <span>{format(new Date(booking.check_out), "dd/MM/yyyy")}</span>
+                      <span className="sm:ml-auto">{format(new Date(booking.check_out), "dd/MM/yyyy")}</span>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Users className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                  <div className="flex items-start gap-3 text-sm sm:text-base">
+                    <Users className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 flex-1">
                       <span className="font-semibold">{t({ ar: "عدد النزلاء:", en: "Guests:" })}</span>
-                      <span>{booking.guests}</span>
+                      <span className="sm:ml-auto">{booking.guests}</span>
                     </div>
                   </div>
-                  <div className="flex items-start gap-2 text-sm">
-                    <Users className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+                  <div className="flex items-start gap-3 text-sm sm:text-base">
+                    <Users className="w-5 h-5 text-primary flex-shrink-0 mt-1" />
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 flex-1">
                       <span className="font-semibold">{t({ ar: "عدد الغرف:", en: "Rooms:" })}</span>
-                      <span>{booking.rooms}</span>
+                      <span className="sm:ml-auto">{booking.rooms}</span>
                     </div>
                   </div>
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 text-sm">
-                    <span className="font-semibold">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })}</span>
-                    <span className="text-primary font-bold">{booking.total_amount} {t({ ar: "ر.س", en: "SAR" })}</span>
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 text-base sm:text-lg pt-2 border-t">
+                    <span className="font-bold">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })}</span>
+                    <span className="text-primary font-bold sm:ml-auto">{booking.total_amount} {t({ ar: "ر.س", en: "SAR" })}</span>
                   </div>
                   {(booking.payment_status === 'partially_paid' || booking.payment_status === 'paid') && (
                     <>
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 text-sm">
+                      <div className="flex flex-col sm:flex-row sm:items-center gap-1 text-sm sm:text-base">
                         <span className="font-semibold">{t({ ar: "المبلغ المدفوع:", en: "Amount Paid:" })}</span>
-                        <span className={`font-bold ${booking.payment_status === 'paid' ? 'text-green-600' : ''}`}>
+                        <span className={`font-bold sm:ml-auto ${booking.payment_status === 'paid' ? 'text-green-600' : ''}`}>
                           {booking.amount_paid} {t({ ar: "ر.س", en: "SAR" })}
                         </span>
                       </div>
                       {booking.payment_status === 'partially_paid' && (
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 text-sm">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-1 text-sm sm:text-base">
                           <span className="font-semibold">{t({ ar: "المبلغ المتبقي:", en: "Remaining:" })}</span>
-                          <span className="text-red-600 font-bold">{booking.total_amount - booking.amount_paid} {t({ ar: "ر.س", en: "SAR" })}</span>
+                          <span className="text-red-600 font-bold sm:ml-auto">{booking.total_amount - booking.amount_paid} {t({ ar: "ر.س", en: "SAR" })}</span>
                         </div>
                       )}
                     </>
                   )}
-                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 text-sm">
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-1 text-sm sm:text-base">
                     <span className="font-semibold">{t({ ar: "طريقة الدفع:", en: "Payment Method:" })}</span>
-                    <span>{booking.payment_method}</span>
+                    <span className="sm:ml-auto">{booking.payment_method}</span>
                   </div>
                   {booking.notes && (
-                    <div className="text-sm space-y-1">
+                    <div className="text-sm sm:text-base space-y-1">
                       <span className="font-semibold">{t({ ar: "ملاحظات:", en: "Notes:" })}</span>
                       <p className="text-muted-foreground">{booking.notes}</p>
                     </div>
                   )}
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <div>
-                    <h4 className="font-semibold mb-2 text-sm">{t({ ar: "معلومات العميل", en: "Customer Information" })}</h4>
-                    <div className="space-y-2 text-sm">
+                    <h4 className="font-bold mb-3 text-base sm:text-lg">{t({ ar: "معلومات العميل", en: "Customer Information" })}</h4>
+                    <div className="space-y-3 text-sm sm:text-base">
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1">
                         <span className="font-semibold">{t({ ar: "الاسم:", en: "Name:" })}</span>
-                        <span>{booking.profiles?.full_name}</span>
+                        <span className="sm:ml-auto">{booking.profiles?.full_name}</span>
                       </div>
                       <div className="flex flex-col sm:flex-row sm:items-center gap-1">
                         <span className="font-semibold">{t({ ar: "الهاتف:", en: "Phone:" })}</span>
-                        <span>{booking.profiles?.phone}</span>
+                        <span className="sm:ml-auto">{booking.profiles?.phone}</span>
                       </div>
                     </div>
                   </div>
@@ -664,12 +664,12 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                   {/* Hotel Confirmation Number - Editable */}
                   <div>
                     {showConfNumberInput === booking.id ? (
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-3">
                         <Input
                           value={hotelConfNumber}
                           onChange={(e) => setHotelConfNumber(e.target.value)}
                           placeholder={t({ ar: "رقم حجز الفندق", en: "Hotel Booking Number" })}
-                          className="w-full"
+                          className="w-full text-sm sm:text-base"
                         />
                         <div className="flex gap-2">
                           <Button
@@ -717,14 +717,14 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                         </div>
                       </div>
                     ) : (
-                      <div className="flex flex-col gap-2">
-                        <div className="w-full px-3 py-2 bg-white border-4 border-purple-600 rounded-md">
-                          <p className="text-xs font-semibold text-black break-words">
+                      <div className="flex flex-col gap-3">
+                        <div className="w-full px-4 py-3 bg-white border-4 border-purple-600 rounded-md">
+                          <p className="text-sm sm:text-base font-bold text-black break-words">
                             {t({ ar: "رقم حجز الفندق:", en: "Hotel Booking#:" })} {booking.hotel_confirmation_number || t({ ar: "غير متوفر", en: "N/A" })}
                           </p>
                         </div>
                         <Button
-                          size="sm"
+                          size="default"
                           variant="ghost"
                           className="w-full"
                           onClick={() => {
@@ -741,10 +741,11 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-2 pt-2 border-t">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap gap-3 pt-4 border-t">
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="default"
+                      className="w-full sm:w-auto sm:flex-1"
                       onClick={() => openEditDialog(booking)}
                     >
                       <Edit className="w-4 h-4 ml-1" />
@@ -752,7 +753,8 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     </Button>
                     <Button
                       variant="outline"
-                      size="sm"
+                      size="default"
+                      className="w-full sm:w-auto sm:flex-1"
                       onClick={() => {
                         const customerPageUrl = generateCustomerPageUrl(booking.user_id);
                         const nights = Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24));

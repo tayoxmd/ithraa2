@@ -190,84 +190,97 @@ export default function CustomerDashboard() {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid gap-6 grid-cols-1">
+            <div className="space-y-6">
               {bookings.map((booking) => (
-                <Card key={booking.id} className="card-luxury w-full">
-                  <CardHeader>
-                    <div className="flex justify-between items-start flex-wrap gap-3">
-                      <CardTitle className="text-lg sm:text-xl flex-1 min-w-0">
+                <Card key={booking.id} className="card-luxury w-full max-w-full">
+                  <CardHeader className="pb-4">
+                    <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
+                      <CardTitle className="text-lg sm:text-xl md:text-2xl w-full sm:flex-1">
                         {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
                       </CardTitle>
-                      <div className="flex gap-2 flex-wrap items-center">
-                        <Badge className="text-white px-3 py-1.5 min-w-[100px] justify-center text-xs sm:text-sm rounded-sm" style={{ backgroundColor: getStatusColor(booking.status) }}>
+                      <div className="flex gap-2 flex-wrap items-center w-full sm:w-auto">
+                        <Badge className="text-white px-4 py-2 min-w-[120px] justify-center text-sm rounded-sm flex-1 sm:flex-initial" style={{ backgroundColor: getStatusColor(booking.status) }}>
                           {language === 'ar' ? getStatusText(booking.status).ar : getStatusText(booking.status).en}
                         </Badge>
-                        <Badge className="text-white px-3 py-1.5 min-w-[100px] justify-center text-xs sm:text-sm rounded-sm" style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}>
+                        <Badge className="text-white px-4 py-2 min-w-[120px] justify-center text-sm rounded-sm flex-1 sm:flex-initial" style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}>
                           {language === 'ar' ? getPaymentStatusText(booking.payment_status).ar : getPaymentStatusText(booking.payment_status).en}
                         </Badge>
                       </div>
                     </div>
                     {booking.hotel_confirmation_number && (
                       <div className="mt-3">
-                        <div className="inline-block px-3 py-1.5 bg-white border-2 border-purple-600 rounded-md">
-                          <span className="text-xs font-semibold text-black">
+                        <div className="inline-block w-full sm:w-auto px-4 py-2 bg-white border-2 border-purple-600 rounded-md">
+                          <span className="text-sm font-semibold text-black">
                             {t({ ar: "رقم حجز الفندق:", en: "Hotel Booking#:" })} {booking.hotel_confirmation_number}
                           </span>
                         </div>
                       </div>
                     )}
                   </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">{t({ ar: "تاريخ الوصول:", en: "Check-in:", fr: "Arrivée:", es: "Entrada:", ru: "Заезд:", id: "Check-in:", ms: "Daftar masuk:" })}</span>
-                        <span className="font-medium">{format(new Date(booking.check_in), 'yyyy-MM-dd')}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">{t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })}</span>
-                        <span className="font-medium">{format(new Date(booking.check_out), 'yyyy-MM-dd')}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">{t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })}</span>
-                        <span className="font-medium">{booking.guests}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-muted-foreground">{t({ ar: "عدد الغرف:", en: "Rooms:" })}</span>
-                        <span className="font-medium">{booking.rooms}</span>
-                      </div>
-                      {booking.meal_plan_name_ar && (
-                        <div className="pt-3 border-t space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground font-semibold">{t({ ar: "الوجبات:", en: "Meals:" })}</span>
-                            <span className="font-medium">{language === 'ar' ? booking.meal_plan_name_ar : booking.meal_plan_name_en}</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">{booking.meal_plan_price && booking.meal_plan_price > 0 ? t({ ar: "مدفوعة", en: "Paid" }) : t({ ar: "مشمولة", en: "Included" })}</span>
-                            {booking.meal_plan_price && booking.meal_plan_price > 0 && (
-                              <span className="font-medium">+{booking.meal_plan_price} {t({ ar: "ر.س", en: "SAR" })}</span>
-                            )}
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">{t({ ar: "عدد الأشخاص:", en: "Persons:" })}</span>
-                            <span className="font-medium">{booking.meal_plan_max_persons} {t({ ar: "أشخاص", en: "persons" })}</span>
-                          </div>
-                          {booking.extra_meals && booking.extra_meals > 0 && (
-                            <div className="flex justify-between text-sm">
-                              <span className="text-muted-foreground">{t({ ar: "وجبات إضافية:", en: "Extra Meals:" })}</span>
-                              <span className="font-medium">+{booking.extra_meals}</span>
-                            </div>
-                          )}
+                  <CardContent className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                          <span className="text-muted-foreground text-sm sm:text-base">{t({ ar: "تاريخ الوصول:", en: "Check-in:", fr: "Arrivée:", es: "Entrada:", ru: "Заезд:", id: "Check-in:", ms: "Daftar masuk:" })}</span>
+                          <span className="font-semibold text-sm sm:text-base">{format(new Date(booking.check_in), 'yyyy-MM-dd')}</span>
                         </div>
-                      )}
-                      <div className="flex justify-between pt-3 border-t">
-                        <span className="text-muted-foreground font-semibold">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })}</span>
-                        <span className="font-bold text-lg text-primary">{booking.total_amount} {t({ ar: "ر.س", en: "SAR" })}</span>
+                        <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                          <span className="text-muted-foreground text-sm sm:text-base">{t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })}</span>
+                          <span className="font-semibold text-sm sm:text-base">{format(new Date(booking.check_out), 'yyyy-MM-dd')}</span>
+                        </div>
+                      </div>
+                      <div className="space-y-3">
+                        <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                          <span className="text-muted-foreground text-sm sm:text-base">{t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })}</span>
+                          <span className="font-semibold text-sm sm:text-base">{booking.guests}</span>
+                        </div>
+                        <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                          <span className="text-muted-foreground text-sm sm:text-base">{t({ ar: "عدد الغرف:", en: "Rooms:" })}</span>
+                          <span className="font-semibold text-sm sm:text-base">{booking.rooms}</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="mt-4">
+                    
+                    {booking.meal_plan_name_ar && (
+                      <div className="pt-4 border-t">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                              <span className="text-muted-foreground font-semibold text-sm sm:text-base">{t({ ar: "الوجبات:", en: "Meals:" })}</span>
+                              <span className="font-medium text-sm sm:text-base">{language === 'ar' ? booking.meal_plan_name_ar : booking.meal_plan_name_en}</span>
+                            </div>
+                            <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-sm">
+                              <span className="text-muted-foreground">{booking.meal_plan_price && booking.meal_plan_price > 0 ? t({ ar: "مدفوعة", en: "Paid" }) : t({ ar: "مشمولة", en: "Included" })}</span>
+                              {booking.meal_plan_price && booking.meal_plan_price > 0 && (
+                                <span className="font-medium">+{booking.meal_plan_price} {t({ ar: "ر.س", en: "SAR" })}</span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-sm">
+                              <span className="text-muted-foreground">{t({ ar: "عدد الأشخاص:", en: "Persons:" })}</span>
+                              <span className="font-medium">{booking.meal_plan_max_persons} {t({ ar: "أشخاص", en: "persons" })}</span>
+                            </div>
+                            {booking.extra_meals && booking.extra_meals > 0 && (
+                              <div className="flex flex-col sm:flex-row sm:justify-between gap-1 text-sm">
+                                <span className="text-muted-foreground">{t({ ar: "وجبات إضافية:", en: "Extra Meals:" })}</span>
+                                <span className="font-medium">+{booking.extra_meals}</span>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
+                    <div className="flex flex-col sm:flex-row sm:justify-between gap-2 pt-4 border-t">
+                      <span className="text-muted-foreground font-semibold text-base sm:text-lg">{t({ ar: "المبلغ الإجمالي:", en: "Total Amount:" })}</span>
+                      <span className="font-bold text-xl sm:text-2xl text-primary">{booking.total_amount} {t({ ar: "ر.س", en: "SAR" })}</span>
+                    </div>
+                    
+                    <div className="mt-6">
                       <Button
-                        size="sm"
-                        className="w-full"
+                        size="default"
+                        className="w-full sm:w-auto sm:min-w-[200px]"
                         onClick={() => {
                           const customerPageUrl = generateCustomerPageUrl(booking.user_id);
                           const nights = Math.ceil((new Date(booking.check_out).getTime() - new Date(booking.check_in).getTime()) / (1000 * 60 * 60 * 24));
