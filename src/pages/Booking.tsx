@@ -70,6 +70,21 @@ export default function Booking() {
       to: new Date(Date.now() + 86400000)
     };
   });
+
+  const handleDateSelect = (newDateRange: DateRange | undefined) => {
+    // If both dates are already selected and user clicks a new date, reset and start fresh
+    if (dateRange?.from && dateRange?.to && newDateRange?.from) {
+      // Check if the new selection is a complete range
+      if (newDateRange.to) {
+        setDateRange(newDateRange);
+      } else {
+        // Reset to just the new starting date
+        setDateRange({ from: newDateRange.from, to: undefined });
+      }
+    } else {
+      setDateRange(newDateRange);
+    }
+  };
   const [guests, setGuests] = useState<number>(parseInt(searchParams.get('guests') || "2"));
   const [children, setChildren] = useState<number>(0);
   const [rooms, setRooms] = useState<number>(parseInt(searchParams.get('rooms') || "1"));
@@ -745,7 +760,7 @@ export default function Booking() {
                             <Calendar
                               mode="range"
                               selected={dateRange}
-                              onSelect={setDateRange}
+                              onSelect={handleDateSelect}
                               disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                               initialFocus
                               locale={ar}

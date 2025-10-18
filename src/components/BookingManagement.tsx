@@ -11,11 +11,16 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, Users, Hotel, Mail, MessageCircle, Edit, Share2, FileText, Download } from "lucide-react";
-import { format } from "date-fns";
+import { Calendar as CalendarIcon, Users, Hotel, Mail, MessageCircle, Edit, Share2, FileText, Download } from "lucide-react";
+import { format, differenceInDays } from "date-fns";
+import { ar } from "date-fns/locale";
 import { downloadBookingPDF, sharePDFViaEmail, sharePDFViaWhatsApp } from "@/utils/pdfGenerator";
 import { generateCustomerPageUrl } from "@/utils/customerLinks";
 import { logAuditEvent } from "@/utils/auditLogger";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { DateRange } from "react-day-picker";
+import { cn } from "@/lib/utils";
 
 interface Booking {
   id: string;
@@ -67,6 +72,8 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [hotelConfNumber, setHotelConfNumber] = useState<string>("");
   const [showConfNumberInput, setShowConfNumberInput] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [editFormData, setEditFormData] = useState({
     check_in: "",
     check_out: "",
@@ -85,6 +92,62 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     meal_plan_extra_price: "",
     extra_meals: "",
   });
+
+  const handleDateSelect = (newDateRange: DateRange | undefined) => {
+    // If both dates are already selected and user clicks a new date, reset and start fresh
+    if (dateRange?.from && dateRange?.to && newDateRange?.from) {
+      // Check if the new selection is a complete range
+      if (newDateRange.to) {
+        setDateRange(newDateRange);
+        const newTotal = selectedBooking ? calculateTotal(
+          format(newDateRange.from, 'yyyy-MM-dd'),
+          format(newDateRange.to, 'yyyy-MM-dd'),
+          parseInt(editFormData.guests),
+          parseInt(editFormData.rooms),
+          selectedBooking.hotels
+        ) : 0;
+        setEditFormData({ 
+          ...editFormData, 
+          check_in: format(newDateRange.from, 'yyyy-MM-dd'),
+          check_out: format(newDateRange.to, 'yyyy-MM-dd'),
+          manual_total: newTotal.toString(), 
+          total_amount: newTotal.toString() 
+        });
+      } else {
+        // Reset to just the new starting date
+        setDateRange({ from: newDateRange.from, to: undefined });
+        setEditFormData({
+          ...editFormData,
+          check_in: format(newDateRange.from, 'yyyy-MM-dd'),
+          check_out: ""
+        });
+      }
+    } else {
+      setDateRange(newDateRange);
+      if (newDateRange?.from && newDateRange?.to) {
+        const newTotal = selectedBooking ? calculateTotal(
+          format(newDateRange.from, 'yyyy-MM-dd'),
+          format(newDateRange.to, 'yyyy-MM-dd'),
+          parseInt(editFormData.guests),
+          parseInt(editFormData.rooms),
+          selectedBooking.hotels
+        ) : 0;
+        setEditFormData({
+          ...editFormData,
+          check_in: format(newDateRange.from, 'yyyy-MM-dd'),
+          check_out: format(newDateRange.to, 'yyyy-MM-dd'),
+          manual_total: newTotal.toString(),
+          total_amount: newTotal.toString()
+        });
+      } else if (newDateRange?.from) {
+        setEditFormData({
+          ...editFormData,
+          check_in: format(newDateRange.from, 'yyyy-MM-dd'),
+          check_out: ""
+        });
+      }
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -259,6 +322,10 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
       meal_plan_max_persons: ((booking as any).meal_plan_max_persons || 0).toString(),
       meal_plan_extra_price: ((booking as any).meal_plan_extra_price || 0).toString(),
       extra_meals: ((booking as any).extra_meals || 0).toString(),
+    });
+    setDateRange({
+      from: new Date(booking.check_in),
+      to: new Date(booking.check_out)
     });
     setIsEditDialogOpen(true);
   };
@@ -839,38 +906,47 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="space-y-2">
-              <Label>{t({ ar: "تاريخ الوصول", en: "Check-in Date" })}</Label>
-              <Input
-                type="date"
-                value={editFormData.check_in}
-                onChange={(e) => {
-                  const newTotal = selectedBooking ? calculateTotal(
-                    e.target.value,
-                    editFormData.check_out,
-                    parseInt(editFormData.guests),
-                    parseInt(editFormData.rooms),
-                    selectedBooking.hotels
-                  ) : 0;
-                  setEditFormData({ ...editFormData, check_in: e.target.value, manual_total: newTotal.toString(), total_amount: newTotal.toString() });
-                }}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>{t({ ar: "تاريخ المغادرة", en: "Check-out Date" })}</Label>
-              <Input
-                type="date"
-                value={editFormData.check_out}
-                onChange={(e) => {
-                  const newTotal = selectedBooking ? calculateTotal(
-                    editFormData.check_in,
-                    e.target.value,
-                    parseInt(editFormData.guests),
-                    parseInt(editFormData.rooms),
-                    selectedBooking.hotels
-                  ) : 0;
-                  setEditFormData({ ...editFormData, check_out: e.target.value, manual_total: newTotal.toString(), total_amount: newTotal.toString() });
-                }}
-              />
+              <Label>{t({ ar: "تاريخ الوصول والمغادرة", en: "Check-in & Check-out" })}</Label>
+              <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-right font-normal",
+                      !dateRange && "text-muted-foreground"
+                    )}
+                  >
+                    <CalendarIcon className="ml-2 h-4 w-4" />
+                    {dateRange?.from && dateRange?.to
+                      ? `${format(dateRange.from, "dd MMM yyyy", { locale: ar })} - ${format(dateRange.to, "dd MMM yyyy", { locale: ar })}`
+                      : t({ ar: "اختر التواريخ", en: "Pick dates" })}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 rounded-xl" align="start">
+                  <Calendar
+                    mode="range"
+                    selected={dateRange}
+                    onSelect={handleDateSelect}
+                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                    initialFocus
+                    locale={ar}
+                    className="pointer-events-auto"
+                    numberOfMonths={1}
+                  />
+                  <div className="px-3 pb-3 border-t flex items-center justify-between">
+                    <span className="text-sm">
+                      {t({ ar: 'عدد الأيام', en: 'Number of days' })}: <strong>{dateRange?.from && dateRange?.to ? differenceInDays(dateRange.to, dateRange.from) : 0}</strong>
+                    </span>
+                    <Button 
+                      size="default"
+                      className="min-w-28 h-10 px-6 text-base rounded-xl"
+                      onClick={() => setIsDatePickerOpen(false)}
+                    >
+                      {t({ ar: 'موافق', en: 'OK' })}
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="space-y-2">
               <Label>{t({ ar: "عدد النزلاء", en: "Number of Guests" })}</Label>

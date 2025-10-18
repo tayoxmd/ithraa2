@@ -12,9 +12,14 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, Plus, Edit, Trash2, Calendar } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
+import { ar } from "date-fns/locale";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { DateRange } from "react-day-picker";
+import { cn } from "@/lib/utils";
 
 interface SeasonalPrice {
   id: string;
@@ -39,6 +44,8 @@ export default function SeasonalPricing() {
   const [loadingData, setLoadingData] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingPrice, setEditingPrice] = useState<SeasonalPrice | null>(null);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [formData, setFormData] = useState({
     season_name_ar: "",
     season_name_en: "",
@@ -47,6 +54,44 @@ export default function SeasonalPricing() {
     price_per_night: "",
     is_available: true,
   });
+
+  const handleDateSelect = (newDateRange: DateRange | undefined) => {
+    // If both dates are already selected and user clicks a new date, reset and start fresh
+    if (dateRange?.from && dateRange?.to && newDateRange?.from) {
+      // Check if the new selection is a complete range
+      if (newDateRange.to) {
+        setDateRange(newDateRange);
+        setFormData({
+          ...formData,
+          start_date: format(newDateRange.from, 'yyyy-MM-dd'),
+          end_date: format(newDateRange.to, 'yyyy-MM-dd')
+        });
+      } else {
+        // Reset to just the new starting date
+        setDateRange({ from: newDateRange.from, to: undefined });
+        setFormData({
+          ...formData,
+          start_date: format(newDateRange.from, 'yyyy-MM-dd'),
+          end_date: ""
+        });
+      }
+    } else {
+      setDateRange(newDateRange);
+      if (newDateRange?.from && newDateRange?.to) {
+        setFormData({
+          ...formData,
+          start_date: format(newDateRange.from, 'yyyy-MM-dd'),
+          end_date: format(newDateRange.to, 'yyyy-MM-dd')
+        });
+      } else if (newDateRange?.from) {
+        setFormData({
+          ...formData,
+          start_date: format(newDateRange.from, 'yyyy-MM-dd'),
+          end_date: ""
+        });
+      }
+    }
+  };
 
   useEffect(() => {
     if (!loading && userRole !== 'admin') {
@@ -185,6 +230,10 @@ export default function SeasonalPricing() {
       price_per_night: price.price_per_night.toString(),
       is_available: price.is_available,
     });
+    setDateRange({
+      from: new Date(price.start_date),
+      to: new Date(price.end_date)
+    });
     setIsDialogOpen(true);
   };
 
@@ -197,6 +246,7 @@ export default function SeasonalPricing() {
       price_per_night: "",
       is_available: true,
     });
+    setDateRange(undefined);
   };
 
   if (loading || loadingData) {
@@ -356,23 +406,45 @@ export default function SeasonalPricing() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>{t({ ar: "تاريخ البداية", en: "Start Date" })}</Label>
-                  <Input
-                    type="date"
-                    value={formData.start_date}
-                    onChange={(e) => setFormData({ ...formData, start_date: e.target.value })}
-                  />
-                </div>
-                <div>
-                  <Label>{t({ ar: "تاريخ النهاية", en: "End Date" })}</Label>
-                  <Input
-                    type="date"
-                    value={formData.end_date}
-                    onChange={(e) => setFormData({ ...formData, end_date: e.target.value })}
-                  />
-                </div>
+              <div>
+                <Label>{t({ ar: "تاريخ البداية والنهاية", en: "Start and End Date" })}</Label>
+                <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-right font-normal",
+                        !dateRange && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="ml-2 h-4 w-4" />
+                      {dateRange?.from && dateRange?.to
+                        ? `${format(dateRange.from, "dd MMM yyyy", { locale: ar })} - ${format(dateRange.to, "dd MMM yyyy", { locale: ar })}`
+                        : t({ ar: "اختر التواريخ", en: "Pick dates" })}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 rounded-xl" align="start">
+                    <Calendar
+                      mode="range"
+                      selected={dateRange}
+                      onSelect={handleDateSelect}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      initialFocus
+                      locale={ar}
+                      className="pointer-events-auto"
+                      numberOfMonths={1}
+                    />
+                    <div className="px-3 pb-3 border-t flex items-center justify-end">
+                      <Button 
+                        size="default"
+                        className="min-w-28 h-10 px-6 text-base rounded-xl"
+                        onClick={() => setIsDatePickerOpen(false)}
+                      >
+                        {t({ ar: 'موافق', en: 'OK' })}
+                      </Button>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
 
               <div>

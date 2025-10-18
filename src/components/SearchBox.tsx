@@ -32,6 +32,21 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
     }
     return undefined;
   });
+
+  const handleDateSelect = (newDateRange: DateRange | undefined) => {
+    // If both dates are already selected and user clicks a new date, reset and start fresh
+    if (dateRange?.from && dateRange?.to && newDateRange?.from) {
+      // Check if the new selection is a complete range
+      if (newDateRange.to) {
+        setDateRange(newDateRange);
+      } else {
+        // Reset to just the new starting date
+        setDateRange({ from: newDateRange.from, to: undefined });
+      }
+    } else {
+      setDateRange(newDateRange);
+    }
+  };
   const [rooms, setRooms] = useState(parseInt(initialValues?.rooms) || 1);
   const [adults, setAdults] = useState(parseInt(initialValues?.guests) || 2);
   const [children, setChildren] = useState(0);
@@ -159,7 +174,7 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                   <Calendar
                     mode="range"
                     selected={dateRange}
-                    onSelect={setDateRange}
+                    onSelect={handleDateSelect}
                     disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                     initialFocus
                     locale={ar}
