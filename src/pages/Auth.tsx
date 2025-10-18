@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { countries } from "@/data/countries";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WhatsAppAuth } from "@/components/WhatsAppAuth";
-import logo from "@/assets/logo-3d.png";
+import logo from "@/assets/logo.png";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();

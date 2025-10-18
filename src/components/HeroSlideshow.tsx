@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo3D from "@/assets/logo-3d.png";
+import logoWithBg from "@/assets/logo-with-bg.png";
 import vocoMakkah1 from "@/assets/slideshow/voco-makkah-1.webp";
 import vocoMakkah2 from "@/assets/slideshow/voco-makkah-2.webp";
 import rafflesMakkah from "@/assets/slideshow/raffles-makkah.jpg";
@@ -83,13 +83,13 @@ export const HeroSlideshow = () => {
           
           {/* 3D Logo with Rotation */}
           <img
-            src={logo3D}
-            alt="جوار الحرم - شعار"
-            className="relative w-64 h-64 md:w-80 md:h-80 object-contain animate-[spin_20s_linear_infinite] drop-shadow-2xl"
+            src={logoWithBg}
+            alt="إثراء - شعار"
+            className="relative w-72 h-72 md:w-96 md:h-96 object-contain drop-shadow-2xl"
             style={{
-              filter: "drop-shadow(0 0 40px rgba(251, 191, 36, 0.6)) drop-shadow(0 0 80px rgba(251, 191, 36, 0.4))",
-              transform: "perspective(1000px) rotateY(0deg)",
-              animation: "logoFloat 6s ease-in-out infinite, logoRotate 20s linear infinite"
+              filter: "drop-shadow(0 0 50px rgba(251, 191, 36, 0.8)) drop-shadow(0 0 100px rgba(251, 191, 36, 0.5))",
+              transform: "perspective(1200px) rotateY(0deg)",
+              animation: "logoFloat3D 8s ease-in-out infinite, logoRotate3D 25s linear infinite, logoPulse 4s ease-in-out infinite"
             }}
           />
         </div>
@@ -110,21 +110,42 @@ export const HeroSlideshow = () => {
       </div>
 
       <style>{`
-        @keyframes logoFloat {
+        @keyframes logoFloat3D {
           0%, 100% {
-            transform: perspective(1000px) translateY(0) rotateX(0deg);
+            transform: perspective(1200px) translateY(0) translateZ(0) rotateX(0deg);
+          }
+          25% {
+            transform: perspective(1200px) translateY(-30px) translateZ(50px) rotateX(15deg);
           }
           50% {
-            transform: perspective(1000px) translateY(-20px) rotateX(10deg);
+            transform: perspective(1200px) translateY(-40px) translateZ(80px) rotateX(25deg);
+          }
+          75% {
+            transform: perspective(1200px) translateY(-30px) translateZ(50px) rotateX(15deg);
           }
         }
 
-        @keyframes logoRotate {
+        @keyframes logoRotate3D {
           0% {
-            transform: perspective(1000px) rotateY(0deg);
+            transform: perspective(1200px) rotateY(0deg) rotateZ(0deg);
+          }
+          33% {
+            transform: perspective(1200px) rotateY(120deg) rotateZ(10deg);
+          }
+          66% {
+            transform: perspective(1200px) rotateY(240deg) rotateZ(-10deg);
           }
           100% {
-            transform: perspective(1000px) rotateY(360deg);
+            transform: perspective(1200px) rotateY(360deg) rotateZ(0deg);
+          }
+        }
+
+        @keyframes logoPulse {
+          0%, 100% {
+            filter: drop-shadow(0 0 50px rgba(251, 191, 36, 0.8)) drop-shadow(0 0 100px rgba(251, 191, 36, 0.5));
+          }
+          50% {
+            filter: drop-shadow(0 0 70px rgba(251, 191, 36, 1)) drop-shadow(0 0 140px rgba(251, 191, 36, 0.7));
           }
         }
       `}</style>
