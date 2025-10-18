@@ -139,25 +139,25 @@ export default function ManageHotels() {
 
   const fetchEmployees = async () => {
     try {
-      // Get all employee user IDs from user_roles table
-      const { data: employeeRoles, error: rolesError } = await supabase
+      // Get all non-customer user IDs from user_roles table
+      const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
-        .select('user_id')
-        .eq('role', 'employee');
+        .select('user_id, role')
+        .neq('role', 'customer');
 
       if (rolesError) throw rolesError;
 
-      if (employeeRoles && employeeRoles.length > 0) {
-        const employeeIds = employeeRoles.map(r => r.user_id);
+      if (userRoles && userRoles.length > 0) {
+        const userIds = userRoles.map(r => r.user_id);
         
-        // Get profiles for these employees
-        const { data: employeeProfiles, error: profilesError } = await supabase
+        // Get profiles for these users
+        const { data: userProfiles, error: profilesError } = await supabase
           .from('profiles')
           .select('id, full_name')
-          .in('id', employeeIds);
+          .in('id', userIds);
 
         if (profilesError) throw profilesError;
-        setEmployees(employeeProfiles || []);
+        setEmployees(userProfiles || []);
       }
     } catch (error: any) {
       console.error('Error fetching employees:', error);

@@ -32,7 +32,7 @@ export async function calculateSeasonalPrice(
   let totalPrice = 0;
   const currentDate = new Date(checkIn);
 
-  // Calculate price for each night
+  // Calculate total price by summing each night's price
   for (let i = 0; i < nights; i++) {
     const dateStr = currentDate.toISOString().split('T')[0];
     
@@ -44,7 +44,7 @@ export async function calculateSeasonalPrice(
       return current >= startDate && current <= endDate;
     });
 
-    // Add either seasonal price or base price
+    // Add either seasonal price or base price for each night
     totalPrice += seasonalPrice ? seasonalPrice.price_per_night : basePrice;
     
     // Move to next day
@@ -52,5 +52,6 @@ export async function calculateSeasonalPrice(
   }
 
   // Return average price per night
+  // Formula: Sum of all nights' prices / number of nights
   return totalPrice / nights;
 }

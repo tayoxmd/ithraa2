@@ -16,6 +16,8 @@ import { Palette, Type, Languages, Layout, Percent, Key, Loader2, Code, Utensils
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Switch } from "@/components/ui/switch";
 
+import { BackupManager } from "@/components/BackupManager";
+
 export default function SiteSettings() {
   const { t } = useLanguage();
   const { userRole, loading } = useAuth();
@@ -79,6 +81,7 @@ export default function SiteSettings() {
     created_at: string | null;
     version: number | null;
   }>({ created_at: null, version: null });
+  const [showBackupManager, setShowBackupManager] = useState(false);
 
   useEffect(() => {
     if (!loading && userRole !== 'admin') {
@@ -1382,7 +1385,7 @@ export default function SiteSettings() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Button 
                 onClick={handleCreateBackup} 
                 disabled={backupLoading}
@@ -1409,6 +1412,14 @@ export default function SiteSettings() {
                 <Download className="w-4 h-4 mr-2" />
                 {t({ ar: "تحميل النسخة الاحتياطية", en: "Download Backup" })}
               </Button>
+              
+              <Button 
+                onClick={() => setShowBackupManager(true)}
+                variant="outline"
+              >
+                <Database className="w-4 h-4 mr-2" />
+                {t({ ar: "إدارة جميع النسخ", en: "Manage All Backups" })}
+              </Button>
             </div>
 
             <div className="p-3 bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 rounded-lg">
@@ -1422,6 +1433,8 @@ export default function SiteSettings() {
           </CardContent>
         </Card>
       </div>
+
+      <BackupManager open={showBackupManager} onOpenChange={setShowBackupManager} />
 
       <Footer />
     </div>
