@@ -270,12 +270,12 @@ export default function CustomerDashboard() {
                               <span className="text-muted-foreground font-semibold text-sm sm:text-base whitespace-nowrap">{t({ ar: "الوجبات:", en: "Meals:" })}</span>
                               <span className="font-medium text-sm sm:text-base text-right">{language === 'ar' ? booking.meal_plan_name_ar : booking.meal_plan_name_en}</span>
                             </div>
-                            <div className="flex items-center justify-between gap-2 text-sm">
-                              <span className="text-muted-foreground whitespace-nowrap">{booking.meal_plan_price && booking.meal_plan_price > 0 ? t({ ar: "مدفوعة", en: "Paid" }) : t({ ar: "مشمولة", en: "Included" })}</span>
-                              {booking.meal_plan_price && booking.meal_plan_price > 0 && (
+                            {booking.meal_plan_price && booking.meal_plan_price > 0 && (
+                              <div className="flex items-center justify-between gap-2 text-sm">
+                                <span className="text-muted-foreground whitespace-nowrap">{t({ ar: "مدفوعة", en: "Paid" })}</span>
                                 <span className="font-medium">+{booking.meal_plan_price} {t({ ar: "ر.س", en: "SAR" })}</span>
-                              )}
-                            </div>
+                              </div>
+                            )}
                           </div>
                           <div className="space-y-2">
                             {(() => {
