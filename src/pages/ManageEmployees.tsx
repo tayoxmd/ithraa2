@@ -58,21 +58,29 @@ export default function ManageEmployees() {
         .from('profiles')
         .select('id, full_name, phone');
 
-      if (profilesError) throw profilesError;
+      if (profilesError) {
+        console.error('Profiles error:', profilesError);
+        throw profilesError;
+      }
 
       const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role');
 
-      if (rolesError) throw rolesError;
+      if (rolesError) {
+        console.error('Roles error:', rolesError);
+        throw rolesError;
+      }
 
       // Use edge function to list users
       const { data: { session } } = await supabase.auth.getSession();
       
       if (!session) {
-        throw new Error('No active session');
+        console.error('No active session found');
+        throw new Error('No active session. Please log in again.');
       }
 
+      console.log('Fetching users from edge function...');
       const response = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/manage-users`, {
         method: 'POST',
         headers: {
@@ -84,11 +92,19 @@ export default function ManageEmployees() {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('Error response:', errorText);
-        throw new Error(`Failed to fetch users: ${response.status} ${response.statusText}`);
+        console.error('Edge function error response:', response.status, errorText);
+        
+        // Try to parse error JSON
+        try {
+          const errorJson = JSON.parse(errorText);
+          throw new Error(errorJson.error || `Server error: ${response.status}`);
+        } catch {
+          throw new Error(`Failed to fetch users: ${response.status} - ${errorText}`);
+        }
       }
 
       const responseData = await response.json();
+      console.log('Edge function response:', responseData);
       const authUsers = responseData.users || [];
 
       const combinedUsers: UserProfile[] = profilesData?.map(profile => {
@@ -112,12 +128,13 @@ export default function ManageEmployees() {
         return aOrder - bOrder;
       });
 
+      console.log('Successfully fetched and combined users:', combinedUsers.length);
       setUsers(combinedUsers);
     } catch (error: any) {
       console.error('Error fetching users:', error);
       toast({
         title: t({ ar: "خطأ", en: "Error" }),
-        description: t({ ar: "فشل في تحميل المستخدمين", en: "Failed to load users" }),
+        description: error.message || t({ ar: "فشل في تحميل المستخدمين. يرجى المحاولة مرة أخرى.", en: "Failed to load users. Please try again." }),
         variant: "destructive",
       });
     } finally {

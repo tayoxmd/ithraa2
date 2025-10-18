@@ -524,15 +524,43 @@ export default function Booking() {
                         </div>
                       </div>
 
-                      {hotel?.meal_plans && (
-                        <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                          <Utensils className="w-5 h-5 text-primary flex-shrink-0" />
-                          <div className="min-w-0">
-                            <p className="text-xs text-muted-foreground truncate">{t({ ar: 'الوجبات المشمولة', en: 'Meals Included' })}</p>
-                            <p className="font-semibold text-sm">
-                              {hotel.meal_plans.max_persons || 0} {t({ ar: 'شخص', en: 'Person(s)' })}
-                            </p>
+                      {hotel?.meal_plans && hotel.meal_plans.max_persons > 0 && (
+                        <div className="flex flex-col gap-2 p-3 bg-muted/50 rounded-lg">
+                          <div className="flex items-center gap-3">
+                            <Utensils className="w-5 h-5 text-primary flex-shrink-0" />
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs text-muted-foreground truncate">{t({ ar: 'الوجبات المشمولة', en: 'Meals Included' })}</p>
+                              <p className="font-semibold text-sm">
+                                {hotel.meal_plans.max_persons} {t({ ar: 'شخص', en: 'Person(s)' })} - {language === 'ar' ? hotel.meal_plans.regular_ar : hotel.meal_plans.regular_en}
+                              </p>
+                            </div>
                           </div>
+                          
+                          {hotel.meal_plans.extra_meal_price > 0 && (
+                            <div className="space-y-1.5">
+                              <Label className="text-xs text-muted-foreground">
+                                {t({ ar: 'إضافة وجبات', en: 'Add Meals' })}
+                              </Label>
+                              <Select 
+                                value={extraMeals.toString()} 
+                                onValueChange={(value) => setExtraMeals(parseInt(value))}
+                              >
+                                <SelectTrigger className="h-8 text-xs">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="0">
+                                    {t({ ar: 'بدون إضافة', en: 'No extra' })}
+                                  </SelectItem>
+                                  {[1, 2, 3, 4, 5, 6].map(num => (
+                                    <SelectItem key={num} value={num.toString()}>
+                                      +{num} {t({ ar: 'وجبة', en: 'meal(s)' })} ({num * hotel.meal_plans.extra_meal_price * nights} {t({ ar: 'ر.س', en: 'SAR' })})
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -557,51 +585,65 @@ export default function Booking() {
                        <span>{rooms} {t({ ar: parseInt(rooms) === 1 ? 'غرفة' : parseInt(rooms) === 2 ? 'غرفتين' : 'غرف', en: parseInt(rooms) === 1 ? 'room' : 'rooms' })}</span>
                      </div>
                      
-                     <div className="p-2 bg-muted/50 rounded-lg space-y-1.5">
-                       <div className="flex justify-between text-xs">
-                         <span className="text-muted-foreground">{t({ ar: 'الأشخاص الأساسيين', en: 'Base guests included' })}</span>
-                         <span className="font-medium">
-                           {(hotel.max_guests_per_room || 2) * parseInt(rooms)}{' '}
-                           {t({ ar: 'شخص', en: 'person(s)' })}
-                         </span>
-                       </div>
-                       
-                       {hotel?.meal_plans && hotel.meal_plans.max_persons > 0 && (
-                         <div className="flex justify-between text-xs">
-                           <span className="text-muted-foreground">{t({ ar: 'الوجبات المشمولة في السعر', en: 'Meals included in price' })}</span>
-                           <span className="font-medium">
-                             {hotel.meal_plans.max_persons} {t({ ar: 'شخص', en: 'person(s)' })}
-                           </span>
-                         </div>
-                       )}
-                       
-                       {hotel?.extra_guest_price > 0 && (
-                         <div className="flex justify-between text-xs">
-                           <span className="text-muted-foreground">{t({ ar: 'سعر الشخص الإضافي', en: 'Extra guest price' })}</span>
-                           <span className="font-medium">
-                             {hotel.extra_guest_price} {t({ ar: 'ر.س/لليلة', en: 'SAR/night' })}
-                           </span>
-                         </div>
-                       )}
-                     </div>
-                     
-                     {calculateTotal().extraGuestsCount > 0 && (
-                       <div className="flex justify-between text-sm text-orange-600 dark:text-orange-400">
-                         <span className="font-medium">
-                           {t({ ar: `ضيوف إضافيين (${calculateTotal().extraGuestsCount})`, en: `Extra guests (${calculateTotal().extraGuestsCount})` })}
-                         </span>
-                         <span className="font-semibold">+{Math.round(calculateTotal().extraGuestCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
-                       </div>
-                     )}
-                     
-                     {calculateTotal().extraMealCharge > 0 && (
-                       <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
-                         <span className="font-medium">
-                           {t({ ar: `وجبات إضافية (${extraMeals})`, en: `Extra meals (${extraMeals})` })}
-                         </span>
-                         <span className="font-semibold">+{Math.round(calculateTotal().extraMealCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
-                       </div>
-                     )}
+                      <div className="p-2 bg-muted/50 rounded-lg space-y-1.5">
+                        <div className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">{t({ ar: 'الأشخاص الأساسيين', en: 'Base guests included' })}</span>
+                          <span className="font-medium">
+                            {(hotel.max_guests_per_room || 2) * parseInt(rooms)}{' '}
+                            {t({ ar: 'شخص', en: 'person(s)' })}
+                          </span>
+                        </div>
+                        
+                        {hotel?.extra_guest_price > 0 && (
+                          <div className="flex justify-between text-xs">
+                            <span className="text-muted-foreground">{t({ ar: 'سعر الشخص الإضافي', en: 'Extra guest price' })}</span>
+                            <span className="font-medium">
+                              {hotel.extra_guest_price} {t({ ar: 'ر.س/لليلة', en: 'SAR/night' })}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {calculateTotal().extraGuestsCount > 0 && (
+                        <div className="flex justify-between text-sm text-orange-600 dark:text-orange-400">
+                          <span className="font-medium">
+                            {t({ ar: `ضيوف إضافيين (${calculateTotal().extraGuestsCount})`, en: `Extra guests (${calculateTotal().extraGuestsCount})` })}
+                          </span>
+                          <span className="font-semibold">+{Math.round(calculateTotal().extraGuestCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
+                        </div>
+                      )}
+                      
+                      {/* Meals Details Section */}
+                      {hotel?.meal_plans && hotel.meal_plans.max_persons > 0 && (
+                        <div className="space-y-2 pt-2 border-t">
+                          <div className="flex justify-between text-sm">
+                            <span className="text-muted-foreground">
+                              {t({ ar: 'الوجبات المشمولة في السعر', en: 'Meals included in price' })}
+                            </span>
+                            <span className="font-medium">
+                              {hotel.meal_plans.max_persons * nights}{' '}
+                              {language === 'ar' 
+                                ? (hotel.meal_plans.max_persons * nights === 1 ? 'وجبة' : hotel.meal_plans.max_persons * nights === 2 ? 'وجبتين' : 'وجبات')
+                                : (hotel.meal_plans.max_persons * nights === 1 ? 'meal' : 'meals')
+                              }{' '}
+                              ({language === 'ar' ? hotel.meal_plans.regular_ar : hotel.meal_plans.regular_en})
+                            </span>
+                          </div>
+                          
+                          {extraMeals > 0 && (
+                            <div className="flex justify-between text-sm text-green-600 dark:text-green-400">
+                              <span className="font-medium">
+                                {t({ ar: 'وجبات إضافية', en: 'Extra meals' })}: {extraMeals * nights}{' '}
+                                {language === 'ar' 
+                                  ? (extraMeals * nights === 1 ? 'وجبة' : extraMeals * nights === 2 ? 'وجبتين' : 'وجبات')
+                                  : (extraMeals * nights === 1 ? 'meal' : 'meals')
+                                }
+                              </span>
+                              <span className="font-semibold">+{Math.round(calculateTotal().extraMealCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
                      
                      <div className="flex justify-between text-sm pt-2 border-t">
                        <span className="text-muted-foreground">{t({ ar: 'المجموع قبل الضريبة', en: 'Subtotal' })}</span>
