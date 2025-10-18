@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Apple, Chrome, Phone, Mail } from "lucide-react";
+import { Phone, Mail } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useEffect } from "react";
 import { authSchema } from "@/lib/validations";
@@ -41,40 +41,6 @@ export default function Auth() {
       navigate('/');
     }
   }, [user, navigate]);
-
-  const handleGoogleSignIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}${redirectUrl || '/'}`,
-      }
-    });
-    
-    if (error) {
-      toast({
-        title: "خطأ",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleAppleSignIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'apple',
-      options: {
-        redirectTo: `${window.location.origin}${redirectUrl || '/'}`,
-      }
-    });
-    
-    if (error) {
-      toast({
-        title: "خطأ",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleWhatsAppSignup = () => {
     setWhatsappAuthOpen(true);
@@ -399,8 +365,7 @@ export default function Auth() {
               </div>
             </div>
 
-            <div className="mt-6 space-y-3">
-              {/* WhatsApp Button - Prominent at top */}
+            <div className="mt-6">
               <Button
                 type="button"
                 onClick={handleWhatsAppSignup}
@@ -414,40 +379,9 @@ export default function Auth() {
                   {t({ ar: "دخول سريع عبر واتساب", en: "Quick Sign in with WhatsApp" })}
                 </span>
               </Button>
-
-              <div className="relative py-2">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    {t({ ar: "طرق أخرى", en: "Other Methods" })}
-                  </span>
-                </div>
-              </div>
-              
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleGoogleSignIn}
-                disabled={loading}
-                className="w-full h-11 gap-2"
-              >
-                <Chrome className="w-5 h-5" />
-                Google
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleAppleSignIn}
-                disabled={loading}
-                className="w-full h-11 gap-2"
-              >
-                <Apple className="w-5 h-5" />
-                Apple
-              </Button>
             </div>
           </div>
+
           <div className="mt-4 text-center">
             <button
               type="button"

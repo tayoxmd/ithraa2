@@ -8,7 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useNavigate } from "react-router-dom";
-import { Chrome, Apple, Mail, Phone } from "lucide-react";
+import { Mail } from "lucide-react";
 import { useState } from "react";
 import { WhatsAppAuth } from "./WhatsAppAuth";
 
@@ -26,16 +26,6 @@ export function PostBookingAuthDialog({ open, onOpenChange, onSkip }: PostBookin
   const handleEmailSignup = () => {
     onOpenChange(false);
     navigate('/auth?mode=signup');
-  };
-
-  const handleGoogleSignup = () => {
-    onOpenChange(false);
-    navigate('/auth?mode=signup&provider=google');
-  };
-
-  const handleAppleSignup = () => {
-    onOpenChange(false);
-    navigate('/auth?mode=signup&provider=apple');
   };
 
   const handleWhatsAppSignup = () => {
@@ -92,24 +82,6 @@ export function PostBookingAuthDialog({ open, onOpenChange, onSkip }: PostBookin
             >
               <Mail className="w-5 h-5" />
               {t({ ar: "إنشاء حساب بالبريد", en: "Sign up with Email" })}
-            </Button>
-
-            <Button
-              onClick={handleGoogleSignup}
-              variant="outline"
-              className="w-full h-11 gap-2"
-            >
-              <Chrome className="w-5 h-5" />
-              {t({ ar: "إنشاء حساب عبر Google", en: "Sign up with Google" })}
-            </Button>
-
-            <Button
-              onClick={handleAppleSignup}
-              variant="outline"
-              className="w-full h-11 gap-2"
-            >
-              <Apple className="w-5 h-5" />
-              {t({ ar: "إنشاء حساب عبر Apple", en: "Sign up with Apple" })}
             </Button>
 
             <div className="relative py-3">

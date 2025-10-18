@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { countries } from "@/data/countries";
-import { Search, UserCircle, Apple, Chrome } from "lucide-react";
+import { Search, UserCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -76,40 +76,6 @@ export function BookingAuthDialog({ open, onClose, onGuestContinue }: BookingAut
       const fullPhone = `${countryCode}${phoneNumber}`;
       onGuestContinue(fullPhone, countryCode);
       onClose();
-    }
-  };
-
-  const handleAppleSignIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'apple',
-      options: {
-        redirectTo: `${window.location.origin}/booking`,
-      }
-    });
-    
-    if (error) {
-      toast({
-        title: t({ ar: "خطأ", en: "Error" }),
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleGoogleSignIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/booking`,
-      }
-    });
-    
-    if (error) {
-      toast({
-        title: t({ ar: "خطأ", en: "Error" }),
-        description: error.message,
-        variant: "destructive",
-      });
     }
   };
 
@@ -240,24 +206,6 @@ export function BookingAuthDialog({ open, onClose, onGuestContinue }: BookingAut
                   </svg>
                   {t({ ar: "التحقق عبر واتساب", en: "WhatsApp Verification" })}
                 </Button>
-
-              <Button
-                variant="outline"
-                className="w-full h-14 text-lg gap-3"
-                onClick={handleAppleSignIn}
-              >
-                <Apple className="w-6 h-6" />
-                {t({ ar: "الدخول عبر Apple", en: "Sign in with Apple" })}
-              </Button>
-
-              <Button
-                variant="outline"
-                className="w-full h-14 text-lg gap-3"
-                onClick={handleGoogleSignIn}
-              >
-                <Chrome className="w-6 h-6" />
-                {t({ ar: "الدخول عبر Google", en: "Sign in with Google" })}
-              </Button>
 
               <Button
                 variant="outline"
