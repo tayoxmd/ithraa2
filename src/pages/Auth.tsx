@@ -16,7 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { countries } from "@/data/countries";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WhatsAppAuth } from "@/components/WhatsAppAuth";
-import logo from "@/assets/logo.png";
+import logo from "@/assets/logo.svg";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
@@ -196,14 +196,14 @@ export default function Auth() {
       <Card className="w-full max-w-md bg-card shadow-luxury border-0 rounded-2xl">
         <CardHeader className="text-center">
           <div className="relative w-24 h-24 mx-auto mb-4">
-            <div className="absolute inset-0 blur-xl bg-gradient-to-r from-yellow-400/30 via-yellow-500/40 to-yellow-600/30 animate-pulse" />
+            <div className="absolute inset-0 blur-2xl bg-gradient-to-r from-yellow-200/40 via-yellow-300/50 to-yellow-200/40 animate-pulse" />
             <img 
               src={logo} 
               alt="جوار الحرم" 
-              className="relative w-full h-full object-contain animate-[spin_20s_linear_infinite] drop-shadow-2xl"
+              className="relative w-full h-full object-contain drop-shadow-2xl"
               style={{
-                filter: "drop-shadow(0 0 20px rgba(251, 191, 36, 0.6))",
-                animation: "logoFloat 6s ease-in-out infinite, logoRotate 20s linear infinite"
+                filter: "drop-shadow(0 0 30px rgba(254, 240, 138, 0.7)) drop-shadow(0 0 15px rgba(253, 224, 71, 0.5))",
+                animation: "logoFloat 6s ease-in-out infinite"
               }}
             />
           </div>

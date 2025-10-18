@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logoWithBg from "@/assets/logo-with-bg.png";
+import logo from "@/assets/logo.svg";
 import vocoMakkah1 from "@/assets/slideshow/voco-makkah-1.webp";
 import vocoMakkah2 from "@/assets/slideshow/voco-makkah-2.webp";
 import rafflesMakkah from "@/assets/slideshow/raffles-makkah.jpg";
@@ -11,7 +11,7 @@ import holySite from "@/assets/slideshow/holy-site.jpg";
 import kaaba from "@/assets/slideshow/kaaba.jpeg";
 
 const slides = [
-  { image: logoWithBg, title: "إثراء" },
+  { image: logo, title: "إثراء" },
   { image: kaaba, title: "الكعبة المشرفة" },
   { image: holySite, title: "المسجد الحرام" },
   { image: madinah, title: "المسجد النبوي" },
