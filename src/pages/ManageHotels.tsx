@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, MapPin, Phone, Star, Calendar, Plus, Edit, Search, Upload, X, Image as ImageIcon, Trash2, Wifi, Coffee, Utensils, Users, Hotel as HotelIcon, Bus, MapPinned } from "lucide-react";
+import { MapPin, Phone, Star, Calendar, Plus, Edit, Search, Upload, X, Image as ImageIcon, Trash2, Wifi, Coffee, Utensils, Users, Hotel as HotelIcon, Bus, MapPinned, Bed, ArrowLeft } from "lucide-react";
 import { MealPlansManager } from "@/components/MealPlansManager";
 import { ImageGallery } from "@/components/ImageGallery";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -90,6 +90,7 @@ export default function ManageHotels() {
     total_rooms: "10",
     tax_percentage: "0",
     room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
+    bed_type_double: "king" as 'king' | 'twin' | 'double',
   });
   const [amenities, setAmenities] = useState({
     wifi: true,
@@ -401,6 +402,7 @@ export default function ManageHotels() {
           total_rooms: parseInt(formData.total_rooms),
           tax_percentage: parseFloat(formData.tax_percentage),
           room_type: formData.room_type,
+          bed_type_double: formData.max_guests_per_room === "2" ? formData.bed_type_double : null,
           images: hotelImages,
           meal_plans: mealPlan,
           amenities: {
@@ -460,6 +462,7 @@ export default function ManageHotels() {
           total_rooms: parseInt(formData.total_rooms),
           tax_percentage: parseFloat(formData.tax_percentage),
           room_type: formData.room_type,
+          bed_type_double: formData.max_guests_per_room === "2" ? formData.bed_type_double : null,
           images: hotelImages,
           meal_plans: mealPlan,
           amenities: {
@@ -531,6 +534,7 @@ export default function ManageHotels() {
       total_rooms: (hotel as any).total_rooms?.toString() || "0",
       tax_percentage: (hotel as any).tax_percentage?.toString() || "0",
       room_type: hotel.room_type || 'hotel_rooms',
+      bed_type_double: (hotel as any).bed_type_double || 'king',
     });
 
     // Set existing images
@@ -603,6 +607,7 @@ export default function ManageHotels() {
       total_rooms: "0",
       tax_percentage: "0",
       room_type: "hotel_rooms" as 'hotel_rooms' | 'owner_rooms',
+      bed_type_double: "king" as 'king' | 'twin' | 'double',
     });
   };
 
@@ -1015,6 +1020,47 @@ export default function ManageHotels() {
                   <p className="text-xs text-muted-foreground">{t({ ar: "إذا كان 0 فلا توجد ضريبة", en: "If 0, no tax" })}</p>
                 </div>
               </div>
+              
+              {/* Bed Type Selection - Only show if max_guests_per_room is 2 */}
+              {formData.max_guests_per_room === "2" && (
+                <div className="space-y-2">
+                  <Label>{t({ ar: "نوع السرير", en: "Bed Type" })}</Label>
+                  <div className="flex gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setFormData({...formData, bed_type_double: 'king'})}
+                      className={`flex-1 p-4 border-2 rounded-lg transition-all ${
+                        formData.bed_type_double === 'king' 
+                          ? 'border-primary bg-primary/10' 
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <HotelIcon className="w-8 h-8" />
+                        <span className="font-medium">{t({ ar: "سرير كينج كبير", en: "King Size Bed" })}</span>
+                      </div>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFormData({...formData, bed_type_double: 'twin'})}
+                      className={`flex-1 p-4 border-2 rounded-lg transition-all ${
+                        formData.bed_type_double === 'twin' 
+                          ? 'border-primary bg-primary/10' 
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                    >
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="flex gap-1">
+                          <HotelIcon className="w-6 h-6" />
+                          <HotelIcon className="w-6 h-6" />
+                        </div>
+                        <span className="font-medium">{t({ ar: "سريرين مفردين", en: "Twin Beds" })}</span>
+                      </div>
+                    </button>
+                  </div>
+                </div>
+              )}
+              
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>{t({ ar: "سعر الشخص الإضافي", en: "Extra Guest Price" })}</Label>

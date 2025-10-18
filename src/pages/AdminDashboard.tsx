@@ -340,11 +340,11 @@ export default function AdminDashboard() {
                     {t({ ar: "إدارة الموقع", en: "Site Management" })}
                   </Button>
                 </SheetTrigger>
-                <SheetContent side={language === 'ar' ? 'right' : 'left'} className="w-[280px] sm:w-[350px]">
+                <SheetContent side={language === 'ar' ? 'right' : 'left'} className="w-[280px] sm:w-[350px] overflow-y-auto">
                   <SheetHeader>
                     <SheetTitle>{t({ ar: 'إدارة الموقع', en: 'Site Management' })}</SheetTitle>
                   </SheetHeader>
-                  <div className="mt-6 space-y-2">
+                  <div className="mt-6 space-y-2 pb-6">
                     {adminMenuItems.map((item) => (
                       <Button
                         key={item.path}
@@ -364,10 +364,7 @@ export default function AdminDashboard() {
               </Sheet>
             </div>
 
-            {/* Quick Actions - Mobile Only */}
-            <div className="lg:hidden grid grid-cols-2 gap-3 mb-6">
-              {/* Removed quick actions - Site Management button is now the main menu */}
-            </div>
+            {/* Mobile: No quick actions - everything in Site Management menu */}
 
             {/* Financial Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

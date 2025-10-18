@@ -32,6 +32,8 @@ interface Hotel {
     extra_meal_price: number;
   } | null;
   amenities?: any;
+  bed_type_double?: 'king' | 'twin' | 'double';
+  max_guests_per_room?: number;
 }
 
 const Index = () => {
@@ -144,7 +146,7 @@ const Index = () => {
             <LoadingSpinner size="lg" />
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
+          <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-6 justify-items-center">
             {hotels.map((hotel, index) => (
               <div key={hotel.id} style={{ animationDelay: `${index * 100}ms` }} className="animate-fade-in-up w-full">
                 <HotelCard
@@ -163,6 +165,8 @@ const Index = () => {
                   featured={index < 2}
                   meal_plans={hotel.meal_plans}
                   amenities={hotel.amenities}
+                  bed_type_double={hotel.bed_type_double}
+                  max_guests_per_room={hotel.max_guests_per_room}
                 />
               </div>
             ))}

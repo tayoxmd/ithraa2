@@ -38,6 +38,8 @@ interface Hotel {
   } | null;
   amenities?: any;
   location_url?: string;
+  bed_type_double?: 'king' | 'twin' | 'double';
+  max_guests_per_room?: number;
 }
 
 export default function SearchResults() {
@@ -388,6 +390,8 @@ export default function SearchResults() {
               images={hotel.images}
               meal_plans={hotel.meal_plans}
               amenities={hotel.amenities}
+              bed_type_double={hotel.bed_type_double}
+              max_guests_per_room={hotel.max_guests_per_room}
             />
             </div>
           ))}

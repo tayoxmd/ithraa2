@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { MapPin, Star, Wifi, Coffee, Utensils, ChevronLeft, ChevronRight, Bus, MapPinned } from "lucide-react";
+import { MapPin, Star, Wifi, Coffee, Utensils, ChevronLeft, ChevronRight, Bus, MapPinned, Bed } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface HotelCardProps {
   id: string;
@@ -35,11 +36,17 @@ interface HotelCardProps {
     walking_distance?: number | null;
     walking_distance_unit?: 'm' | 'km';
   };
+  bed_type_double?: 'king' | 'twin' | 'double';
+  max_guests_per_room?: number;
 }
 
-export function HotelCard({ id, name, nameEn, location, price, rating, image, images, featured, meal_plans, amenities }: HotelCardProps) {
+export function HotelCard({ 
+  id, name, nameEn, location, price, rating, image, images, featured, 
+  meal_plans, amenities, bed_type_double, max_guests_per_room 
+}: HotelCardProps) {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
+  const isMobile = useIsMobile();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [mealBadgeSettings, setMealBadgeSettings] = useState({
     color: '#007dff',
@@ -80,7 +87,110 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
     e.stopPropagation();
     setCurrentImageIndex((prev) => (prev + 1) % hotelImages.length);
   };
+
+  const getBedTypeLabel = () => {
+    if (!bed_type_double || max_guests_per_room !== 2) return null;
+    
+    const labels = {
+      king: { ar: 'سرير كينج كبير', en: 'King Size Bed' },
+      twin: { ar: 'سريرين مفردين', en: 'Twin Beds' },
+      double: { ar: 'سرير مزدوج', en: 'Double Bed' }
+    };
+    
+    return language === 'ar' ? labels[bed_type_double].ar : labels[bed_type_double].en;
+  };
+
+  const getBedTypeIcon = () => {
+    if (bed_type_double === 'twin') {
+      return (
+        <div className="flex gap-0.5">
+          <Bed className="w-4 h-4" />
+          <Bed className="w-4 h-4" />
+        </div>
+      );
+    }
+    return <Bed className="w-5 h-5" />;
+  };
+
+  // Mobile Layout (horizontal card with image on left)
+  if (isMobile) {
+    return (
+      <Card 
+        className="overflow-hidden hover-lift cursor-pointer group animate-fade-in bg-card shadow-card border border-border/50 rounded-2xl"
+        onClick={() => navigate(`/hotel/${id}`)}
+      >
+        <div className="flex h-40">
+          {/* Image Section - Left Side */}
+          <div className="relative w-1/3 flex-shrink-0">
+            <img
+              src={hotelImages[currentImageIndex]}
+              alt={name}
+              className="w-full h-full object-cover"
+            />
+            
+            {/* Image Counter */}
+            {hotelImages.length > 1 && (
+              <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-foreground px-2 py-0.5 rounded text-xs font-semibold">
+                {currentImageIndex + 1}/{hotelImages.length}
+              </div>
+            )}
+
+            {/* Meal Badge - Top Right on Image */}
+            {meal_plans && meal_plans.regular_ar && meal_plans.regular_en && 
+             meal_plans.regular_ar.trim() !== "" && meal_plans.regular_en.trim() !== "" &&
+             meal_plans.regular_ar !== "لا يتضمن وجبات" && meal_plans.regular_en !== "Room Only" && (
+              <div className="absolute top-2 right-2 bg-green-500 px-2 py-1 rounded text-white text-[10px] font-bold">
+                <Utensils className="w-3 h-3 inline mr-0.5" />
+                {language === 'ar' ? 'وجبات' : 'Meals'}
+              </div>
+            )}
+          </div>
+
+          {/* Content Section - Right Side */}
+          <CardContent className="p-3 flex-1 flex flex-col justify-between">
+            {/* Title & Rating */}
+            <div>
+              <h3 className="text-sm font-bold text-primary mb-0.5 line-clamp-1">{name}</h3>
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <MapPin className="w-3 h-3" />
+                  <span className="line-clamp-1">{location}</span>
+                </div>
+                <div className="flex items-center gap-0.5 bg-card/95 px-1.5 py-0.5 rounded-full">
+                  <Star className="w-3 h-3 fill-primary text-primary" />
+                  <span className="text-xs font-bold">{rating}</span>
+                </div>
+              </div>
+
+              {/* Bed Type - Only show if 2 guests */}
+              {bed_type_double && max_guests_per_room === 2 && (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground mb-2">
+                  {getBedTypeIcon()}
+                  <span>{getBedTypeLabel()}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Price & CTA */}
+            <div className="flex items-center justify-between pt-2 border-t border-border">
+              <div className="flex items-baseline gap-1">
+                <span className="text-lg font-bold text-primary">{price}</span>
+                <span className="text-[10px] text-muted-foreground">ريال/ليلة</span>
+              </div>
+              <Button 
+                size="sm" 
+                className="bg-secondary hover:bg-secondary/90 text-secondary-foreground h-7 text-xs px-3"
+              >
+                احجز
+              </Button>
+            </div>
+          </CardContent>
+        </div>
+      </Card>
+    );
+  }
   
+  // Desktop/Tablet Layout (vertical card)
   return (
     <Card className="overflow-hidden hover-lift cursor-pointer group animate-fade-in w-full max-w-md mx-auto bg-card shadow-card border border-border/50 rounded-2xl flex flex-col h-[520px]">
       {/* Image */}
@@ -151,6 +261,14 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
           <span className="text-xs">{location}</span>
         </div>
 
+        {/* Bed Type - Only show if 2 guests */}
+        {bed_type_double && max_guests_per_room === 2 && (
+          <div className="flex items-center gap-2 mb-3 text-sm text-muted-foreground">
+            {getBedTypeIcon()}
+            <span>{getBedTypeLabel()}</span>
+          </div>
+        )}
+
         {/* Amenities */}
         <div className="flex items-center gap-2.5 mb-3 flex-wrap">
           {amenities?.wifi && <Wifi className="w-4 h-4 text-muted-foreground" />}
@@ -202,7 +320,7 @@ export function HotelCard({ id, name, nameEn, location, price, rating, image, im
 
 
         {/* Price & CTA */}
-        <div className="flex items-center justify-between pt-3 border-t border-border">
+        <div className="flex items-center justify-between pt-3 border-t border-border mt-auto">
           <div>
             <div className="flex items-baseline gap-1.5">
               <span className="text-xl font-bold text-primary">{price}</span>
