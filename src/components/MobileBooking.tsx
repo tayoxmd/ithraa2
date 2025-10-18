@@ -34,61 +34,55 @@ interface MobileBookingProps {
   loading: boolean;
   fieldErrors: {[key: string]: boolean};
   paymentMethods: any[];
+  children: number;
+  setChildren: (children: number) => void;
+  setGuests: (guests: number) => void;
+  setRooms: (rooms: number) => void;
 }
 
-export function MobileBooking({
-  hotel,
-  checkIn,
-  checkOut,
-  guests,
-  rooms,
-  avgPricePerNight,
-  guestName,
-  setGuestName,
-  guestPhone,
-  setGuestPhone,
-  guestCountryCode,
-  setGuestCountryCode,
-  paymentMethod,
-  setPaymentMethod,
-  notes,
-  setNotes,
-  extraMeals,
-  setExtraMeals,
-  onSubmit,
-  loading,
-  fieldErrors,
-  paymentMethods,
-}: MobileBookingProps) {
+export function MobileBooking(props: MobileBookingProps) {
   const { t, language } = useLanguage();
   const navigate = useNavigate();
-  const [numGuests, setNumGuests] = useState(parseInt(guests) || 2);
-  const [numChildren, setNumChildren] = useState(0);
-  const [numRooms, setNumRooms] = useState(parseInt(rooms) || 1);
+  const [numGuests, setNumGuests] = useState(parseInt(props.guests) || 2);
+  const [numChildren, setNumChildren] = useState(props.children);
+  const [numRooms, setNumRooms] = useState(parseInt(props.rooms) || 1);
+
+  // Update parent state when local state changes
+  useEffect(() => {
+    props.setGuests(numGuests);
+  }, [numGuests, props.setGuests]);
+
+  useEffect(() => {
+    props.setChildren(numChildren);
+  }, [numChildren, props.setChildren]);
+
+  useEffect(() => {
+    props.setRooms(numRooms);
+  }, [numRooms, props.setRooms]);
 
   const calculateTotal = () => {
-    if (!hotel) return { total: 0, nights: 0 };
-    const nights = Math.ceil((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24));
+    if (!props.hotel) return { total: 0, nights: 0 };
+    const nights = Math.ceil((props.checkOut.getTime() - props.checkIn.getTime()) / (1000 * 60 * 60 * 24));
     if (nights <= 0) return { total: 0, nights: 0 };
     
     const roomsCount = numRooms;
     const guestsCount = numGuests + numChildren;
-    const taxRate = (hotel.tax_percentage && hotel.tax_percentage > 0) ? hotel.tax_percentage : 0;
-    const pricePerNight = avgPricePerNight !== null ? avgPricePerNight : hotel.price_per_night;
+    const taxRate = (props.hotel.tax_percentage && props.hotel.tax_percentage > 0) ? props.hotel.tax_percentage : 0;
+    const pricePerNight = props.avgPricePerNight !== null ? props.avgPricePerNight : props.hotel.price_per_night;
     const basePrice = pricePerNight * nights * roomsCount;
     
-    const maxGuestsIncluded = (hotel.max_guests_per_room || 2) * roomsCount;
+    const maxGuestsIncluded = (props.hotel.max_guests_per_room || 2) * roomsCount;
     let extraGuestCharge = 0;
     
     if (guestsCount > maxGuestsIncluded) {
       const extraGuestsCount = guestsCount - maxGuestsIncluded;
-      extraGuestCharge = extraGuestsCount * (hotel.extra_guest_price || 0) * nights;
+      extraGuestCharge = extraGuestsCount * (props.hotel.extra_guest_price || 0) * nights;
     }
     
     let extraMealCharge = 0;
-    if (hotel.meal_plans && extraMeals > 0) {
-      const extraMealPrice = hotel.meal_plans.extra_meal_price || 0;
-      extraMealCharge = extraMeals * extraMealPrice * nights;
+    if (props.hotel.meal_plans && props.extraMeals > 0) {
+      const extraMealPrice = props.hotel.meal_plans.extra_meal_price || 0;
+      extraMealCharge = props.extraMeals * extraMealPrice * nights;
     }
     
     const subtotalBeforeTax = basePrice + extraGuestCharge + extraMealCharge;
@@ -120,21 +114,21 @@ export function MobileBooking({
           <CardContent className="p-0">
             <div className="flex gap-3 p-4">
               <img
-                src={hotel.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945"}
-                alt={language === 'ar' ? hotel.name_ar : hotel.name_en}
+                src={props.hotel.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945"}
+                alt={language === 'ar' ? props.hotel.name_ar : props.hotel.name_en}
                 className="w-20 h-20 object-cover rounded-lg"
               />
               <div className="flex-1">
                 <h3 className="font-bold text-sm mb-1">
-                  {language === 'ar' ? hotel.name_ar : hotel.name_en}
+                  {language === 'ar' ? props.hotel.name_ar : props.hotel.name_en}
                 </h3>
-                <p className="text-xs text-muted-foreground mb-2">{hotel.location}</p>
+                <p className="text-xs text-muted-foreground mb-2">{props.hotel.location}</p>
                 <div className="flex items-center gap-2 text-xs">
                   <span className="text-primary font-bold">
-                    ${avgPricePerNight !== null ? Math.round(avgPricePerNight) : hotel.price_per_night}
+                    ${props.avgPricePerNight !== null ? Math.round(props.avgPricePerNight) : props.hotel.price_per_night}
                   </span>
                   <span className="text-muted-foreground">
-                    {t({ ar: '٣ ليالي', en: '3 nights' })}
+                    {t({ ar: `${nights} ليالي`, en: `${nights} nights` })}
                   </span>
                 </div>
               </div>
@@ -153,13 +147,13 @@ export function MobileBooking({
                 <p className="text-xs text-muted-foreground mb-1">
                   {t({ ar: 'تسجيل الدخول', en: 'Check In' })}
                 </p>
-                <p className="text-sm font-semibold">{format(checkIn, "dd MMM yyyy")}</p>
+                <p className="text-sm font-semibold">{format(props.checkIn, "dd MMM yyyy")}</p>
               </div>
               <div className="bg-muted/30 p-3 rounded-lg">
                 <p className="text-xs text-muted-foreground mb-1">
                   {t({ ar: 'تسجيل الخروج', en: 'Check Out' })}
                 </p>
-                <p className="text-sm font-semibold">{format(checkOut, "dd MMM yyyy")}</p>
+                <p className="text-sm font-semibold">{format(props.checkOut, "dd MMM yyyy")}</p>
               </div>
             </div>
           </CardContent>
@@ -268,9 +262,9 @@ export function MobileBooking({
                   {t({ ar: 'الاسم الكامل', en: 'Full Name' })}
                 </Label>
                 <Input
-                  value={guestName}
-                  onChange={(e) => setGuestName(e.target.value)}
-                  className={`h-10 ${fieldErrors.guestName ? 'border-destructive' : ''}`}
+                  value={props.guestName}
+                  onChange={(e) => props.setGuestName(e.target.value)}
+                  className={`h-10 ${props.fieldErrors.guestName ? 'border-destructive' : ''}`}
                   placeholder={language === 'ar' ? 'أدخل اسمك' : 'Enter your name'}
                 />
               </div>
@@ -280,7 +274,7 @@ export function MobileBooking({
                   {t({ ar: 'رقم الهاتف', en: 'Phone Number' })}
                 </Label>
                 <div className="flex gap-2">
-                  <Select value={guestCountryCode} onValueChange={setGuestCountryCode}>
+                  <Select value={props.guestCountryCode} onValueChange={props.setGuestCountryCode}>
                     <SelectTrigger className="w-24 h-10">
                       <SelectValue />
                     </SelectTrigger>
@@ -293,8 +287,8 @@ export function MobileBooking({
                     </SelectContent>
                   </Select>
                   <Input
-                    value={guestPhone}
-                    onChange={(e) => setGuestPhone(e.target.value)}
+                    value={props.guestPhone}
+                    onChange={(e) => props.setGuestPhone(e.target.value)}
                     className="flex-1 h-10"
                     placeholder="123456789"
                   />
@@ -310,12 +304,12 @@ export function MobileBooking({
             <h3 className="font-semibold text-sm mb-3">
               {t({ ar: 'طريقة الدفع', en: 'Payment Method' })}
             </h3>
-            <Select value={paymentMethod} onValueChange={setPaymentMethod}>
-              <SelectTrigger className={`h-10 ${fieldErrors.paymentMethod ? 'border-destructive' : ''}`}>
+            <Select value={props.paymentMethod} onValueChange={props.setPaymentMethod}>
+              <SelectTrigger className={`h-10 ${props.fieldErrors.paymentMethod ? 'border-destructive' : ''}`}>
                 <SelectValue placeholder={language === 'ar' ? 'اختر طريقة الدفع' : 'Select payment method'} />
               </SelectTrigger>
               <SelectContent>
-                {paymentMethods.map((method) => (
+                {props.paymentMethods.map((method) => (
                   <SelectItem key={method.id} value={method.id}>
                     {language === 'ar' ? method.name : method.nameEn}
                   </SelectItem>
@@ -332,8 +326,8 @@ export function MobileBooking({
               {t({ ar: 'ملاحظات إضافية', en: 'Additional Notes' })}
             </Label>
             <Textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
+              value={props.notes}
+              onChange={(e) => props.setNotes(e.target.value)}
               className="min-h-20 resize-none"
               placeholder={language === 'ar' ? 'أضف أي ملاحظات...' : 'Add any notes...'}
             />
@@ -352,11 +346,11 @@ export function MobileBooking({
           </span>
         </div>
         <Button
-          onClick={onSubmit}
-          disabled={loading}
+          onClick={props.onSubmit}
+          disabled={props.loading}
           className="w-full h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold rounded-xl"
         >
-          {loading ? t({ ar: 'جاري الحجز...', en: 'Booking...' }) : t({ ar: 'احجز الآن', en: 'Book Now' })}
+          {props.loading ? t({ ar: 'جاري الحجز...', en: 'Booking...' }) : t({ ar: 'احجز الآن', en: 'Book Now' })}
         </Button>
       </div>
     </div>

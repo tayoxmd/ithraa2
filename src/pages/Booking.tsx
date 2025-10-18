@@ -50,12 +50,13 @@ export default function Booking() {
   const { userTheme } = useTheme();
   const [hotel, setHotel] = useState<any>(null);
   
-  // Get booking details from URL params
+  // Get booking details from URL params and make them editable
   const searchParams = new URLSearchParams(location.search);
-  const checkIn = searchParams.get('checkIn') ? new Date(searchParams.get('checkIn')!) : new Date();
-  const checkOut = searchParams.get('checkOut') ? new Date(searchParams.get('checkOut')!) : new Date(Date.now() + 86400000);
-  const guests = searchParams.get('guests') || "2";
-  const rooms = searchParams.get('rooms') || "1";
+  const [checkIn, setCheckIn] = useState<Date>(searchParams.get('checkIn') ? new Date(searchParams.get('checkIn')!) : new Date());
+  const [checkOut, setCheckOut] = useState<Date>(searchParams.get('checkOut') ? new Date(searchParams.get('checkOut')!) : new Date(Date.now() + 86400000));
+  const [guests, setGuests] = useState<number>(parseInt(searchParams.get('guests') || "2"));
+  const [children, setChildren] = useState<number>(0);
+  const [rooms, setRooms] = useState<number>(parseInt(searchParams.get('rooms') || "1"));
   
   const [paymentMethod, setPaymentMethod] = useState("");
   const [notes, setNotes] = useState("");
@@ -189,8 +190,8 @@ export default function Booking() {
     // Check for invalid dates
     if (nights <= 0) return { subtotal: 0, extraGuestCharge: 0, extraMealCharge: 0, tax: 0, total: 0, extraGuestsCount: 0 };
     
-    const roomsCount = parseInt(rooms) || 1;
-    const guestsCount = parseInt(guests) || 1;
+    const roomsCount = rooms;
+    const guestsCount = guests + children;
     
     // Get tax rate (0 means no tax)
     const taxRate = (hotel.tax_percentage && hotel.tax_percentage > 0) ? hotel.tax_percentage : 0;
@@ -228,7 +229,7 @@ export default function Booking() {
     return { subtotal: basePrice, extraGuestCharge, extraMealCharge, tax, total, extraGuestsCount };
   };
 
-  const initiateBooking = (e: React.FormEvent) => {
+  const initiateBooking = async (e: React.FormEvent) => {
     e.preventDefault();
     setFieldErrors({});
     
@@ -237,6 +238,43 @@ export default function Booking() {
       toast({
         title: t({ ar: "خطأ", en: "Error" }),
         description: t({ ar: "تاريخ المغادرة يجب أن يكون بعد تاريخ الوصول", en: "Check-out date must be after check-in date" }),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check room availability before booking
+    try {
+      const { data: isAvailable, error } = await supabase.rpc('check_room_availability', {
+        p_hotel_id: id!,
+        p_check_in: format(checkIn, 'yyyy-MM-dd'),
+        p_check_out: format(checkOut, 'yyyy-MM-dd'),
+        p_rooms_needed: rooms
+      });
+
+      if (error) {
+        console.error('Error checking availability:', error);
+        toast({
+          title: t({ ar: "خطأ", en: "Error" }),
+          description: t({ ar: "حدث خطأ في التحقق من التوفر", en: "Error checking availability" }),
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!isAvailable) {
+        toast({
+          title: t({ ar: "غير متوفر", en: "Not Available" }),
+          description: t({ ar: "عدد الغرف المطلوبة غير متوفر في التواريخ المحددة", en: "The requested number of rooms is not available for the selected dates" }),
+          variant: "destructive",
+        });
+        return;
+      }
+    } catch (err) {
+      console.error('Error checking availability:', err);
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: t({ ar: "حدث خطأ في التحقق من التوفر", en: "Error checking availability" }),
         variant: "destructive",
       });
       return;
@@ -303,8 +341,8 @@ export default function Booking() {
       hotel_id: id!,
       check_in: format(checkIn, 'yyyy-MM-dd'),
       check_out: format(checkOut, 'yyyy-MM-dd'),
-      guests: parseInt(guests),
-      rooms: parseInt(rooms),
+      guests: guests + children,
+      rooms: rooms,
       total_amount: totalData.total,
       payment_method: paymentMethod,
       notes: notes || null,
@@ -422,8 +460,8 @@ export default function Booking() {
         hotel={hotel}
         checkIn={checkIn}
         checkOut={checkOut}
-        guests={guests}
-        rooms={rooms}
+        guests={guests.toString()}
+        rooms={rooms.toString()}
         avgPricePerNight={avgPricePerNight}
         guestName={guestName}
         setGuestName={setGuestName}
@@ -441,6 +479,10 @@ export default function Booking() {
         loading={loading}
         fieldErrors={fieldErrors}
         paymentMethods={paymentMethods}
+        children={children}
+        setChildren={setChildren}
+        setGuests={setGuests}
+        setRooms={setRooms}
       />
     );
   }
@@ -474,55 +516,134 @@ export default function Booking() {
                     </div>
                   </div>
 
-                  {/* Booking Details - Redesigned */}
+                  {/* Booking Details - Editable */}
                   <div className="space-y-3">
                     {/* Dates Row */}
                     <div className="grid grid-cols-2 gap-3">
-                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                        <CalendarIcon className="w-5 h-5 text-primary flex-shrink-0" />
-                        <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground truncate">{t({ ar: 'تاريخ الوصول', en: 'Check-in' })}</p>
-                          <p className="font-semibold text-sm">{format(checkIn, "dd/MM/yyyy")}</p>
-                        </div>
+                      <div className="p-3 bg-muted/50 rounded-lg">
+                        <Label className="text-xs text-muted-foreground mb-2 flex items-center gap-2">
+                          <CalendarIcon className="w-4 h-4" />
+                          {t({ ar: 'تاريخ الوصول', en: 'Check-in' })}
+                        </Label>
+                        <Input
+                          type="date"
+                          value={format(checkIn, 'yyyy-MM-dd')}
+                          onChange={(e) => {
+                            const newDate = new Date(e.target.value);
+                            if (!isNaN(newDate.getTime())) {
+                              setCheckIn(newDate);
+                            }
+                          }}
+                          className="h-9 text-sm"
+                        />
                       </div>
-
-                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                        <CalendarIcon className="w-5 h-5 text-primary flex-shrink-0" />
-                        <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground truncate">{t({ ar: 'تاريخ المغادرة', en: 'Check-out' })}</p>
-                          <p className="font-semibold text-sm">{format(checkOut, "dd/MM/yyyy")}</p>
-                        </div>
+                      <div className="p-3 bg-muted/50 rounded-lg">
+                        <Label className="text-xs text-muted-foreground mb-2 flex items-center gap-2">
+                          <CalendarIcon className="w-4 h-4" />
+                          {t({ ar: 'تاريخ المغادرة', en: 'Check-out' })}
+                        </Label>
+                        <Input
+                          type="date"
+                          value={format(checkOut, 'yyyy-MM-dd')}
+                          onChange={(e) => {
+                            const newDate = new Date(e.target.value);
+                            if (!isNaN(newDate.getTime())) {
+                              setCheckOut(newDate);
+                            }
+                          }}
+                           className="h-9 text-sm"
+                        />
                       </div>
                     </div>
 
-                    {/* Guests Row */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                        <Users className="w-5 h-5 text-primary flex-shrink-0" />
-                        <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground truncate">{t({ ar: 'عدد البالغين', en: 'Adults' })}</p>
-                          <p className="font-semibold text-sm">{guests} {t({ ar: 'بالغ', en: 'Adult(s)' })}</p>
-                        </div>
-                      </div>
+                     {/* Guests Row - Editable */}
+                     <div className="grid grid-cols-2 gap-3">
+                       <div className="p-3 bg-muted/50 rounded-lg">
+                         <Label className="text-xs text-muted-foreground mb-2 flex items-center gap-2">
+                           <Users className="w-4 h-4" />
+                           {t({ ar: 'عدد البالغين', en: 'Adults' })}
+                         </Label>
+                         <div className="flex items-center gap-2">
+                           <Button
+                             type="button"
+                             variant="outline"
+                             size="sm"
+                             className="h-8 w-8 p-0"
+                             onClick={() => setGuests(Math.max(1, guests - 1))}
+                           >
+                             -
+                           </Button>
+                           <span className="flex-1 text-center font-semibold">{guests}</span>
+                           <Button
+                             type="button"
+                             variant="outline"
+                             size="sm"
+                             className="h-8 w-8 p-0"
+                             onClick={() => setGuests(guests + 1)}
+                           >
+                             +
+                           </Button>
+                         </div>
+                       </div>
 
-                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                        <Users className="w-5 h-5 text-primary flex-shrink-0" />
-                        <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground truncate">{t({ ar: 'عدد الأطفال', en: 'Children' })}</p>
-                          <p className="font-semibold text-sm">0 {t({ ar: 'طفل', en: 'Child(ren)' })}</p>
-                        </div>
-                      </div>
-                    </div>
+                       <div className="p-3 bg-muted/50 rounded-lg">
+                         <Label className="text-xs text-muted-foreground mb-2 flex items-center gap-2">
+                           <Users className="w-4 h-4" />
+                           {t({ ar: 'عدد الأطفال', en: 'Children' })}
+                         </Label>
+                         <div className="flex items-center gap-2">
+                           <Button
+                             type="button"
+                             variant="outline"
+                             size="sm"
+                             className="h-8 w-8 p-0"
+                             onClick={() => setChildren(Math.max(0, children - 1))}
+                           >
+                             -
+                           </Button>
+                           <span className="flex-1 text-center font-semibold">{children}</span>
+                           <Button
+                             type="button"
+                             variant="outline"
+                             size="sm"
+                             className="h-8 w-8 p-0"
+                             onClick={() => setChildren(children + 1)}
+                           >
+                             +
+                           </Button>
+                         </div>
+                       </div>
+                     </div>
 
-                    {/* Rooms & Meals Included */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg">
-                        <HotelIcon className="w-5 h-5 text-primary flex-shrink-0" />
-                        <div className="min-w-0">
-                          <p className="text-xs text-muted-foreground truncate">{t({ ar: 'عدد الغرف', en: 'Rooms' })}</p>
-                          <p className="font-semibold text-sm">{rooms} {t({ ar: 'غرفة', en: 'Room(s)' })}</p>
-                        </div>
-                      </div>
+                     {/* Rooms & Meals - Editable */}
+                     <div className="grid grid-cols-2 gap-3">
+                       <div className="p-3 bg-muted/50 rounded-lg">
+                         <Label className="text-xs text-muted-foreground mb-2 flex items-center gap-2">
+                           <HotelIcon className="w-4 h-4" />
+                           {t({ ar: 'عدد الغرف', en: 'Rooms' })}
+                         </Label>
+                         <div className="flex items-center gap-2">
+                           <Button
+                             type="button"
+                             variant="outline"
+                             size="sm"
+                             className="h-8 w-8 p-0"
+                             onClick={() => setRooms(Math.max(1, rooms - 1))}
+                           >
+                             -
+                           </Button>
+                           <span className="flex-1 text-center font-semibold">{rooms}</span>
+                           <Button
+                             type="button"
+                             variant="outline"
+                             size="sm"
+                             className="h-8 w-8 p-0"
+                             onClick={() => setRooms(rooms + 1)}
+                           >
+                             +
+                           </Button>
+                         </div>
+                       </div>
 
                       {hotel?.meal_plans && hotel.meal_plans.max_persons > 0 && (
                         <div className="flex flex-col gap-2 p-3 bg-muted/50 rounded-lg">
@@ -580,19 +701,19 @@ export default function Booking() {
                        <span>{nights} {t({ ar: nights === 1 ? 'ليلة' : nights === 2 ? 'ليلتين' : 'ليالي', en: nights === 1 ? 'night' : 'nights' })}</span>
                      </div>
                      
-                     <div className="flex justify-between text-sm">
-                       <span className="text-muted-foreground">{t({ ar: 'عدد الغرف', en: 'Number of rooms' })}</span>
-                       <span>{rooms} {t({ ar: parseInt(rooms) === 1 ? 'غرفة' : parseInt(rooms) === 2 ? 'غرفتين' : 'غرف', en: parseInt(rooms) === 1 ? 'room' : 'rooms' })}</span>
-                     </div>
-                     
-                      <div className="p-2 bg-muted/50 rounded-lg space-y-1.5">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-muted-foreground">{t({ ar: 'الأشخاص الأساسيين', en: 'Base guests included' })}</span>
-                          <span className="font-medium">
-                            {(hotel.max_guests_per_room || 2) * parseInt(rooms)}{' '}
-                            {t({ ar: 'شخص', en: 'person(s)' })}
-                          </span>
-                        </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">{t({ ar: 'عدد الغرف', en: 'Number of rooms' })}</span>
+                        <span>{rooms} {t({ ar: rooms === 1 ? 'غرفة' : rooms === 2 ? 'غرفتين' : 'غرف', en: rooms === 1 ? 'room' : 'rooms' })}</span>
+                      </div>
+                      
+                       <div className="p-2 bg-muted/50 rounded-lg space-y-1.5">
+                         <div className="flex justify-between text-xs">
+                           <span className="text-muted-foreground">{t({ ar: 'الأشخاص الأساسيين', en: 'Base guests included' })}</span>
+                           <span className="font-medium">
+                             {(hotel.max_guests_per_room || 2) * rooms}{' '}
+                             {t({ ar: 'شخص', en: 'person(s)' })}
+                           </span>
+                         </div>
                         
                         {hotel?.extra_guest_price > 0 && (
                           <div className="flex justify-between text-xs">
