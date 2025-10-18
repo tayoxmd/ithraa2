@@ -15,6 +15,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Palette, Type, Languages, Layout, Percent, Key, Loader2, Code, Utensils, MessageCircle, Download, Database, Save } from "lucide-react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Switch } from "@/components/ui/switch";
+import { HexColorPicker } from "react-colorful";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import { BackupManager } from "@/components/BackupManager";
 
@@ -41,8 +43,12 @@ export default function SiteSettings() {
   });
   const [mealBadgeSettings, setMealBadgeSettings] = useState({
     meal_badge_color: '#007dff',
-    meal_badge_width: 150,
-    meal_badge_height: 32,
+    meal_badge_width_mobile: 120,
+    meal_badge_height_mobile: 24,
+    meal_badge_width_tablet: 150,
+    meal_badge_height_tablet: 32,
+    meal_badge_width_desktop: 180,
+    meal_badge_height_desktop: 36,
     meal_badge_font_size: 12,
     meal_badge_border_radius: 8,
   });
@@ -119,8 +125,12 @@ export default function SiteSettings() {
         });
         setMealBadgeSettings({
           meal_badge_color: data.meal_badge_color || '#007dff',
-          meal_badge_width: data.meal_badge_width || 150,
-          meal_badge_height: data.meal_badge_height || 32,
+          meal_badge_width_mobile: data.meal_badge_width_mobile || 120,
+          meal_badge_height_mobile: data.meal_badge_height_mobile || 24,
+          meal_badge_width_tablet: data.meal_badge_width_tablet || 150,
+          meal_badge_height_tablet: data.meal_badge_height_tablet || 32,
+          meal_badge_width_desktop: data.meal_badge_width_desktop || 180,
+          meal_badge_height_desktop: data.meal_badge_height_desktop || 36,
           meal_badge_font_size: data.meal_badge_font_size || 12,
           meal_badge_border_radius: data.meal_badge_border_radius || 8,
         });
@@ -624,20 +634,41 @@ export default function SiteSettings() {
             </CardHeader>
             <CardContent className="space-y-4">
               <div>
-                <Label>{t({ ar: 'اللون الأساسي', en: 'Primary Color' })}</Label>
-                <div className="flex gap-2 mt-2">
-                  <Input 
-                    type="color" 
-                    value={primaryColor}
-                    onChange={(e) => setPrimaryColor(e.target.value)}
-                    className="w-20 h-12 cursor-pointer rounded-full border-4 border-primary/20"
-                  />
-                  <Input 
-                    type="text" 
-                    value={primaryColor}
-                    onChange={(e) => setPrimaryColor(e.target.value)}
-                    className="flex-1"
-                  />
+                <Label className="mb-3 block">{t({ ar: 'اللون الأساسي', en: 'Primary Color' })}</Label>
+                <div className="flex gap-3 items-start">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        className="w-20 h-20 rounded-lg border-2 border-border shadow-sm hover:scale-105 transition-transform cursor-pointer"
+                        style={{ backgroundColor: primaryColor }}
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-3" align="start">
+                      <HexColorPicker
+                        color={primaryColor}
+                        onChange={setPrimaryColor}
+                      />
+                      <div className="mt-3">
+                        <Input
+                          type="text"
+                          value={primaryColor}
+                          onChange={(e) => setPrimaryColor(e.target.value)}
+                          className="font-mono text-sm"
+                        />
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                  <div className="flex-1">
+                    <Input
+                      type="text"
+                      value={primaryColor}
+                      onChange={(e) => setPrimaryColor(e.target.value)}
+                      className="font-mono"
+                    />
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {t({ ar: 'انقر على المربع الملون لفتح منتقي الألوان', en: 'Click the color box to open color picker' })}
+                    </p>
+                  </div>
                 </div>
               </div>
               <Button onClick={handleSaveColors} className="w-full btn-luxury">
@@ -657,36 +688,68 @@ export default function SiteSettings() {
             <CardContent className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label>{t({ ar: 'غرف مُلّاك', en: 'Owner Rooms' })}</Label>
-                  <div className="flex gap-2 mt-2 items-center">
-                    <Input
-                      type="color"
-                      value={exceptionColors.owner_room_color}
-                      onChange={(e) => setExceptionColors({ ...exceptionColors, owner_room_color: e.target.value })}
-                      className="w-20 h-12 cursor-pointer rounded-full border-4 border-primary/20"
-                    />
+                  <Label className="mb-3 block">{t({ ar: 'غرف مُلّاك', en: 'Owner Rooms' })}</Label>
+                  <div className="flex gap-2 items-start">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          className="w-16 h-16 rounded-lg border-2 border-border shadow-sm hover:scale-105 transition-transform cursor-pointer flex-shrink-0"
+                          style={{ backgroundColor: exceptionColors.owner_room_color }}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-3" align="start">
+                        <HexColorPicker
+                          color={exceptionColors.owner_room_color}
+                          onChange={(color) => setExceptionColors({ ...exceptionColors, owner_room_color: color })}
+                        />
+                        <div className="mt-3">
+                          <Input
+                            type="text"
+                            value={exceptionColors.owner_room_color}
+                            onChange={(e) => setExceptionColors({ ...exceptionColors, owner_room_color: e.target.value })}
+                            className="font-mono text-sm"
+                          />
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                     <Input
                       type="text"
                       value={exceptionColors.owner_room_color}
                       onChange={(e) => setExceptionColors({ ...exceptionColors, owner_room_color: e.target.value })}
-                      className="flex-1"
+                      className="flex-1 font-mono"
                     />
                   </div>
                 </div>
                 <div>
-                  <Label>{t({ ar: 'غرف فندقية', en: 'Hotel Rooms' })}</Label>
-                  <div className="flex gap-2 mt-2 items-center">
-                    <Input
-                      type="color"
-                      value={exceptionColors.hotel_room_color}
-                      onChange={(e) => setExceptionColors({ ...exceptionColors, hotel_room_color: e.target.value })}
-                      className="w-20 h-12 cursor-pointer rounded-full border-4 border-primary/20"
-                    />
+                  <Label className="mb-3 block">{t({ ar: 'غرف فندقية', en: 'Hotel Rooms' })}</Label>
+                  <div className="flex gap-2 items-start">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          className="w-16 h-16 rounded-lg border-2 border-border shadow-sm hover:scale-105 transition-transform cursor-pointer flex-shrink-0"
+                          style={{ backgroundColor: exceptionColors.hotel_room_color || '#ffffff' }}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-3" align="start">
+                        <HexColorPicker
+                          color={exceptionColors.hotel_room_color || '#ffffff'}
+                          onChange={(color) => setExceptionColors({ ...exceptionColors, hotel_room_color: color })}
+                        />
+                        <div className="mt-3">
+                          <Input
+                            type="text"
+                            value={exceptionColors.hotel_room_color}
+                            onChange={(e) => setExceptionColors({ ...exceptionColors, hotel_room_color: e.target.value })}
+                            className="font-mono text-sm"
+                          />
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                     <Input
                       type="text"
                       value={exceptionColors.hotel_room_color}
                       onChange={(e) => setExceptionColors({ ...exceptionColors, hotel_room_color: e.target.value })}
-                      className="flex-1"
+                      className="flex-1 font-mono"
                     />
                   </div>
                 </div>
@@ -700,82 +763,174 @@ export default function SiteSettings() {
 
 
           {/* Meal Badge Settings */}
-          <Card className="card-luxury">
+          <Card className="card-luxury lg:col-span-2">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Utensils className="w-5 h-5" />
                 {t({ ar: 'إعدادات شريط الوجبات', en: 'Meal Badge Settings' })}
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
+            <CardContent className="space-y-6">
               <div>
-                <Label>{t({ ar: 'لون شريط الوجبات', en: 'Meal Badge Color' })}</Label>
-                <div className="flex gap-2 mt-2 items-center">
-                  <Input
-                    type="color"
-                    value={mealBadgeSettings.meal_badge_color}
-                    onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_color: e.target.value })}
-                    className="w-20 h-12 cursor-pointer rounded-full border-4 border-primary/20"
-                  />
-                  <Input
-                    type="text"
-                    value={mealBadgeSettings.meal_badge_color}
-                    onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_color: e.target.value })}
-                    className="flex-1"
-                  />
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>{t({ ar: 'العرض (بكسل)', en: 'Width (px)' })}</Label>
-                  <Input
-                    type="number"
-                    value={mealBadgeSettings.meal_badge_width}
-                    onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_width: parseInt(e.target.value) || 150 })}
-                    min="50"
-                    max="300"
-                  />
-                </div>
-                <div>
-                  <Label>{t({ ar: 'الارتفاع (بكسل)', en: 'Height (px)' })}</Label>
-                  <Input
-                    type="number"
-                    value={mealBadgeSettings.meal_badge_height}
-                    onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_height: parseInt(e.target.value) || 32 })}
-                    min="20"
-                    max="100"
-                  />
+                <Label className="mb-3 block">{t({ ar: 'لون شريط الوجبات', en: 'Meal Badge Color' })}</Label>
+                <div className="flex gap-3 items-start">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        className="w-24 h-24 rounded-lg border-2 border-border shadow-sm hover:scale-105 transition-transform cursor-pointer"
+                        style={{ backgroundColor: mealBadgeSettings.meal_badge_color }}
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-3" align="start">
+                      <HexColorPicker
+                        color={mealBadgeSettings.meal_badge_color}
+                        onChange={(color) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_color: color })}
+                      />
+                      <div className="mt-3 flex gap-2">
+                        <Input
+                          type="text"
+                          value={mealBadgeSettings.meal_badge_color}
+                          onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_color: e.target.value })}
+                          className="font-mono text-sm"
+                        />
+                      </div>
+                    </PopoverContent>
+                  </Popover>
+                  <div className="flex-1">
+                    <Input
+                      type="text"
+                      value={mealBadgeSettings.meal_badge_color}
+                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_color: e.target.value })}
+                      className="font-mono"
+                      placeholder="#007dff"
+                    />
+                    <p className="text-xs text-muted-foreground mt-2">
+                      {t({ ar: 'انقر على المربع الملون لفتح منتقي الألوان', en: 'Click the color box to open color picker' })}
+                    </p>
+                  </div>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>{t({ ar: 'حجم الخط (بكسل)', en: 'Font Size (px)' })}</Label>
-                  <Input
-                    type="number"
-                    value={mealBadgeSettings.meal_badge_font_size}
-                    onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_font_size: parseInt(e.target.value) || 12 })}
-                    min="8"
-                    max="24"
-                  />
+              {/* Mobile Sizes */}
+              <div className="space-y-3">
+                <h4 className="font-semibold text-sm flex items-center gap-2">
+                  📱 {t({ ar: 'أحجام الجوال', en: 'Mobile Sizes' })}
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>{t({ ar: 'العرض (بكسل)', en: 'Width (px)' })}</Label>
+                    <Input
+                      type="number"
+                      value={mealBadgeSettings.meal_badge_width_mobile}
+                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_width_mobile: parseInt(e.target.value) || 120 })}
+                      min="50"
+                      max="300"
+                    />
+                  </div>
+                  <div>
+                    <Label>{t({ ar: 'الارتفاع (بكسل)', en: 'Height (px)' })}</Label>
+                    <Input
+                      type="number"
+                      value={mealBadgeSettings.meal_badge_height_mobile}
+                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_height_mobile: parseInt(e.target.value) || 24 })}
+                      min="20"
+                      max="100"
+                    />
+                  </div>
                 </div>
-                <div>
-                  <Label>{t({ ar: 'انحناء الزوايا (بكسل)', en: 'Border Radius (px)' })}</Label>
-                  <Input
-                    type="number"
-                    value={mealBadgeSettings.meal_badge_border_radius}
-                    onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_border_radius: parseInt(e.target.value) || 8 })}
-                    min="0"
-                    max="50"
-                  />
+              </div>
+
+              {/* Tablet Sizes */}
+              <div className="space-y-3">
+                <h4 className="font-semibold text-sm flex items-center gap-2">
+                  📱 {t({ ar: 'أحجام التابلت', en: 'Tablet Sizes' })}
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>{t({ ar: 'العرض (بكسل)', en: 'Width (px)' })}</Label>
+                    <Input
+                      type="number"
+                      value={mealBadgeSettings.meal_badge_width_tablet}
+                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_width_tablet: parseInt(e.target.value) || 150 })}
+                      min="50"
+                      max="300"
+                    />
+                  </div>
+                  <div>
+                    <Label>{t({ ar: 'الارتفاع (بكسل)', en: 'Height (px)' })}</Label>
+                    <Input
+                      type="number"
+                      value={mealBadgeSettings.meal_badge_height_tablet}
+                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_height_tablet: parseInt(e.target.value) || 32 })}
+                      min="20"
+                      max="100"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop Sizes */}
+              <div className="space-y-3">
+                <h4 className="font-semibold text-sm flex items-center gap-2">
+                  💻 {t({ ar: 'أحجام سطح المكتب', en: 'Desktop Sizes' })}
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>{t({ ar: 'العرض (بكسل)', en: 'Width (px)' })}</Label>
+                    <Input
+                      type="number"
+                      value={mealBadgeSettings.meal_badge_width_desktop}
+                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_width_desktop: parseInt(e.target.value) || 180 })}
+                      min="50"
+                      max="300"
+                    />
+                  </div>
+                  <div>
+                    <Label>{t({ ar: 'الارتفاع (بكسل)', en: 'Height (px)' })}</Label>
+                    <Input
+                      type="number"
+                      value={mealBadgeSettings.meal_badge_height_desktop}
+                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_height_desktop: parseInt(e.target.value) || 36 })}
+                      min="20"
+                      max="100"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Common Settings */}
+              <div className="space-y-3">
+                <h4 className="font-semibold text-sm">
+                  {t({ ar: 'إعدادات عامة', en: 'Common Settings' })}
+                </h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>{t({ ar: 'حجم الخط (بكسل)', en: 'Font Size (px)' })}</Label>
+                    <Input
+                      type="number"
+                      value={mealBadgeSettings.meal_badge_font_size}
+                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_font_size: parseInt(e.target.value) || 12 })}
+                      min="8"
+                      max="24"
+                    />
+                  </div>
+                  <div>
+                    <Label>{t({ ar: 'انحناء الزوايا (بكسل)', en: 'Border Radius (px)' })}</Label>
+                    <Input
+                      type="number"
+                      value={mealBadgeSettings.meal_badge_border_radius}
+                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_border_radius: parseInt(e.target.value) || 8 })}
+                      min="0"
+                      max="50"
+                    />
+                  </div>
                 </div>
               </div>
 
               <p className="text-xs text-muted-foreground">
                 {t({ 
-                  ar: 'يُستخدم هذا الشريط لعرض معلومات الوجبات على بطاقات الفنادق', 
-                  en: 'This badge is used to display meal information on hotel cards' 
+                  ar: 'يُستخدم هذا الشريط لعرض معلومات الوجبات على بطاقات الفنادق. يمكنك تحديد أحجام مختلفة لكل نوع جهاز', 
+                  en: 'This badge is used to display meal information on hotel cards. You can set different sizes for each device type' 
                 })}
               </p>
               
