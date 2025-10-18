@@ -13,9 +13,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import { CreditCard, Calendar as CalendarIcon, Users, Hotel as HotelIcon, Utensils, ChevronLeft, ChevronRight } from "lucide-react";
-import { format } from "date-fns";
+import { format, differenceInDays } from "date-fns";
 import { ar } from "date-fns/locale";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import type { DateRange } from "react-day-picker";
 import { bookingSchema } from "@/lib/validations";
+import { cn } from "@/lib/utils";
 import { BookingAuthDialog } from "@/components/BookingAuthDialog";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { PostBookingAuthDialog } from "@/components/PostBookingAuthDialog";
@@ -52,11 +56,28 @@ export default function Booking() {
   
   // Get booking details from URL params and make them editable
   const searchParams = new URLSearchParams(location.search);
-  const [checkIn, setCheckIn] = useState<Date>(searchParams.get('checkIn') ? new Date(searchParams.get('checkIn')!) : new Date());
-  const [checkOut, setCheckOut] = useState<Date>(searchParams.get('checkOut') ? new Date(searchParams.get('checkOut')!) : new Date(Date.now() + 86400000));
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(() => {
+    const checkInParam = searchParams.get('checkIn');
+    const checkOutParam = searchParams.get('checkOut');
+    if (checkInParam && checkOutParam) {
+      return {
+        from: new Date(checkInParam),
+        to: new Date(checkOutParam)
+      };
+    }
+    return {
+      from: new Date(),
+      to: new Date(Date.now() + 86400000)
+    };
+  });
   const [guests, setGuests] = useState<number>(parseInt(searchParams.get('guests') || "2"));
   const [children, setChildren] = useState<number>(0);
   const [rooms, setRooms] = useState<number>(parseInt(searchParams.get('rooms') || "1"));
+  const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+
+  // Computed values from dateRange for backwards compatibility
+  const checkIn = dateRange?.from || new Date();
+  const checkOut = dateRange?.to || new Date(Date.now() + 86400000);
   
   const [paymentMethod, setPaymentMethod] = useState("");
   const [notes, setNotes] = useState("");
@@ -698,42 +719,54 @@ export default function Booking() {
 
                   {/* Booking Details - Editable */}
                   <div className="space-y-3">
-                    {/* Dates Row */}
-                    <div className="grid grid-cols-2 gap-3">
-                      <div className="p-3 bg-muted/50 rounded-lg">
-                        <Label className="text-xs text-muted-foreground mb-2 flex items-center gap-2">
-                          <CalendarIcon className="w-4 h-4" />
-                          {t({ ar: 'تاريخ الوصول', en: 'Check-in' })}
-                        </Label>
-                        <Input
-                          type="date"
-                          value={format(checkIn, 'yyyy-MM-dd')}
-                          onChange={(e) => {
-                            const newDate = new Date(e.target.value);
-                            if (!isNaN(newDate.getTime())) {
-                              setCheckIn(newDate);
-                            }
-                          }}
-                          className="h-9 text-sm"
-                        />
-                      </div>
-                      <div className="p-3 bg-muted/50 rounded-lg">
-                        <Label className="text-xs text-muted-foreground mb-2 flex items-center gap-2">
-                          <CalendarIcon className="w-4 h-4" />
-                          {t({ ar: 'تاريخ المغادرة', en: 'Check-out' })}
-                        </Label>
-                        <Input
-                          type="date"
-                          value={format(checkOut, 'yyyy-MM-dd')}
-                          onChange={(e) => {
-                            const newDate = new Date(e.target.value);
-                            if (!isNaN(newDate.getTime())) {
-                              setCheckOut(newDate);
-                            }
-                          }}
-                           className="h-9 text-sm"
-                        />
-                      </div>
+                    {/* Dates - Single Popover */}
+                    <div className="p-3 bg-muted/50 rounded-lg">
+                      <Label className="text-xs text-muted-foreground mb-2 flex items-center gap-2">
+                        <CalendarIcon className="w-4 h-4" />
+                        {t({ ar: 'تاريخ الوصول والمغادرة', en: 'Check-in & Check-out' })}
+                      </Label>
+                      <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full h-9 justify-start text-right font-normal",
+                              !dateRange && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="ml-2 h-4 w-4" />
+                            {dateRange?.from && dateRange?.to
+                              ? `${format(dateRange.from, "dd MMM yyyy", { locale: ar })} - ${format(dateRange.to, "dd MMM yyyy", { locale: ar })}`
+                              : t({ ar: "اختر التواريخ", en: "Pick dates" })}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0 rounded-xl" align="start">
+                          <div>
+                            <Calendar
+                              mode="range"
+                              selected={dateRange}
+                              onSelect={setDateRange}
+                              disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                              initialFocus
+                              locale={ar}
+                              className="pointer-events-auto"
+                              numberOfMonths={1}
+                            />
+                            <div className="px-3 pb-3 border-t flex items-center justify-between">
+                              <span className="text-sm">
+                                {t({ ar: 'عدد الأيام', en: 'Number of days' })}: <strong>{dateRange?.from && dateRange?.to ? differenceInDays(dateRange.to, dateRange.from) : 0}</strong>
+                              </span>
+                              <Button 
+                                size="default"
+                                className="min-w-28 h-10 px-6 text-base rounded-xl"
+                                onClick={() => setIsDatePickerOpen(false)}
+                              >
+                                {t({ ar: 'موافق', en: 'OK' })}
+                              </Button>
+                            </div>
+                          </div>
+                        </PopoverContent>
+                      </Popover>
                     </div>
 
                      {/* Guests Row - Editable */}
