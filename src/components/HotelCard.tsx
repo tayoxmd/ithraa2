@@ -185,18 +185,27 @@ export function HotelCard({
               className="w-full h-full object-cover"
             />
             
-            {/* Image Counter */}
-            {hotelImages.length > 1 && (
-              <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm text-foreground px-2 py-0.5 rounded text-xs font-semibold">
-                {currentImageIndex + 1}/{hotelImages.length}
+            {/* Meal Badge - Top Right on Image */}
+            {mealIncluded && (
+              <div 
+                className="absolute top-2 right-2 px-2 py-1 text-white font-bold flex items-center gap-1"
+                style={{ 
+                  backgroundColor: mealBadgeSettings.color,
+                  width: `${mealBadgeSettings.width}px`,
+                  height: `${mealBadgeSettings.height}px`,
+                  fontSize: `${mealBadgeSettings.fontSize}px`,
+                  borderRadius: `${mealBadgeSettings.borderRadius}px`,
+                }}
+              >
+                <Utensils className="w-3 h-3 flex-shrink-0" />
+                <span className="truncate">{language === 'ar' ? (meal?.name_ar || 'يشمل وجبة') : (meal?.name_en || 'Meal Included')}</span>
               </div>
             )}
 
-            {/* Meal Badge - Top Right on Image */}
-            {mealIncluded && (
-              <div className="absolute top-2 right-2 bg-green-500 px-2 py-1 rounded text-white text-[10px] font-bold">
-                <Utensils className="w-3 h-3 inline mr-0.5" />
-                {language === 'ar' ? 'يشمل وجبة' : 'Meal Included'}
+            {/* Image Counter - Bottom Left */}
+            {hotelImages.length > 1 && (
+              <div className="absolute bottom-2 left-2 bg-white/90 backdrop-blur-sm text-foreground px-2 py-0.5 rounded text-xs font-semibold">
+                {currentImageIndex + 1}/{hotelImages.length}
               </div>
             )}
           </div>
@@ -256,22 +265,30 @@ export function HotelCard({
           className="w-full h-full object-cover transition-all duration-300"
         />
         
-        {/* Image Counter - Always visible top left */}
-        {hotelImages.length > 1 && (
-          <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm text-foreground px-3 py-1 rounded-lg text-sm font-semibold">
-            {String(currentImageIndex + 1).padStart(2, '0')}
-            <span className="text-muted-foreground text-xs"> / {String(hotelImages.length).padStart(2, '0')}</span>
-          </div>
-        )}
-        
-        {/* Meal Badge - Prominent Green Badge on Image */}
+        {/* Meal Badge - Prominent Badge on Image */}
         {mealIncluded && (
           <div 
-            className="absolute top-4 right-4 px-4 py-2 rounded-lg text-white text-sm font-bold flex items-center gap-2 shadow-xl"
-            style={{ backgroundColor: '#10b981' }}
+            className="absolute top-4 right-4 text-white font-bold flex items-center gap-2 shadow-xl"
+            style={{ 
+              backgroundColor: mealBadgeSettings.color,
+              width: `${mealBadgeSettings.width}px`,
+              height: `${mealBadgeSettings.height}px`,
+              fontSize: `${mealBadgeSettings.fontSize}px`,
+              borderRadius: `${mealBadgeSettings.borderRadius}px`,
+              paddingLeft: '12px',
+              paddingRight: '12px',
+            }}
           >
-            <Utensils className="w-5 h-5" />
-            {language === 'ar' ? (meal?.name_ar || 'يشمل وجبة') : (meal?.name_en || 'Meal Included')}
+            <Utensils className="w-5 h-5 flex-shrink-0" />
+            <span className="truncate">{language === 'ar' ? (meal?.name_ar || 'يشمل وجبة') : (meal?.name_en || 'Meal Included')}</span>
+          </div>
+        )}
+
+        {/* Image Counter - Bottom Left */}
+        {hotelImages.length > 1 && (
+          <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-sm text-foreground px-3 py-1 rounded-lg text-sm font-semibold">
+            {String(currentImageIndex + 1).padStart(2, '0')}
+            <span className="text-muted-foreground text-xs"> / {String(hotelImages.length).padStart(2, '0')}</span>
           </div>
         )}
         
