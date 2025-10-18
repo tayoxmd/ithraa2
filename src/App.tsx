@@ -37,6 +37,7 @@ import LoyaltyProgram from "./pages/LoyaltyProgram";
 import HotelComparison from "./pages/HotelComparison";
 import SpecialOffers from "./pages/SpecialOffers";
 import LiveChatManagement from "./pages/LiveChatManagement";
+import Install from "./pages/Install";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -72,6 +73,7 @@ const RouterWithTheme = () => {
               <Route path="/loyalty-program" element={<LoyaltyProgram />} />
               <Route path="/hotel-comparison" element={<HotelComparison />} />
               <Route path="/special-offers" element={<SpecialOffers />} />
+              <Route path="/install" element={<Install />} />
               <Route path="/live-chat" element={<ProtectedRoute><LiveChatManagement /></ProtectedRoute>} />
               <Route path="/live-chat-management" element={<ProtectedRoute><LiveChatManagement /></ProtectedRoute>} />
               <Route path="/manage-hotels" element={<ProtectedRoute><ManageHotels /></ProtectedRoute>} />
