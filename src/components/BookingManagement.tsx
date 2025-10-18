@@ -21,6 +21,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { DateRange } from "react-day-picker";
 import { cn } from "@/lib/utils";
+import { calculateSeasonalPrice } from "@/utils/seasonalPricing";
 
 interface Booking {
   id: string;
@@ -93,7 +94,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     extra_meals: "",
   });
 
-  const handleDayClick = (day: Date) => {
+  const handleDayClick = async (day: Date) => {
     // 1st click: start, 2nd: end, 3rd: restart from clicked day
     if (!dateRange?.from || (dateRange?.from && dateRange?.to)) {
       setDateRange({ from: day, to: undefined });
@@ -114,7 +115,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
       });
     } else {
       setDateRange({ from: dateRange.from, to: day });
-      const newTotal = selectedBooking ? calculateTotal(
+      const newTotal = selectedBooking ? await calculateTotal(
         format(dateRange.from, 'yyyy-MM-dd'),
         format(day, 'yyyy-MM-dd'),
         parseInt(editFormData.guests || '0'),
@@ -179,7 +180,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     unpaid: { ar: "غير مدفوع", en: "Unpaid" },
   };
 
-  const calculateTotal = (checkIn: string, checkOut: string, guests: number, rooms: number, hotel: Booking['hotels']) => {
+  const calculateTotal = async (checkIn: string, checkOut: string, guests: number, rooms: number, hotel: Booking['hotels']) => {
     if (!hotel) return 0;
     
     const startDate = new Date(checkIn);
@@ -191,8 +192,16 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     // Get tax rate (0 means no tax)
     const taxRate = (hotel.tax_percentage && hotel.tax_percentage > 0) ? hotel.tax_percentage : 0;
     
-    // Calculate base room price
-    let subtotal = nights * hotel.price_per_night * rooms;
+    // Calculate seasonal price
+    const avgPricePerNight = await calculateSeasonalPrice(
+      selectedBooking!.hotel_id,
+      startDate,
+      endDate,
+      hotel.price_per_night
+    );
+    
+    // Calculate base room price using seasonal pricing
+    let subtotal = nights * avgPricePerNight * rooms;
     
     // Calculate extra guests charge
     const maxGuestsIncluded = (hotel.max_guests_per_room || 2) * rooms;
@@ -284,9 +293,9 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
     }
   };
 
-  const openEditDialog = (booking: Booking) => {
+  const openEditDialog = async (booking: Booking) => {
     setSelectedBooking(booking);
-    const calculatedTotal = calculateTotal(booking.check_in, booking.check_out, booking.guests, booking.rooms, booking.hotels);
+    const calculatedTotal = await calculateTotal(booking.check_in, booking.check_out, booking.guests, booking.rooms, booking.hotels);
     setEditFormData({
       check_in: booking.check_in,
       check_out: booking.check_out,

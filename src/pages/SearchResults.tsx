@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { calculateSeasonalPrice } from "@/utils/seasonalPricing";
 
 interface Hotel {
   id: string;
@@ -33,6 +34,7 @@ interface Hotel {
   bed_type_single?: string;
   bed_type_double?: string;
   max_guests_per_room?: number;
+  seasonal_price?: number;
 }
 
 export default function SearchResults() {
@@ -78,12 +80,31 @@ export default function SearchResults() {
       }
       
       if (data) {
-        setHotels(data);
-        setFilteredHotels(data);
+        // Calculate seasonal prices for all hotels
+        const checkInDate = checkIn ? new Date(checkIn) : new Date();
+        const checkOutDate = checkOut ? new Date(checkOut) : new Date(Date.now() + 86400000);
         
-        // Set initial price range based on actual hotel prices
-        if (data.length > 0) {
-          const prices = data.map((h: Hotel) => h.price_per_night);
+        const hotelsWithSeasonalPrice = await Promise.all(
+          data.map(async (hotel: Hotel) => {
+            const seasonalPrice = await calculateSeasonalPrice(
+              hotel.id,
+              checkInDate,
+              checkOutDate,
+              hotel.price_per_night
+            );
+            return {
+              ...hotel,
+              seasonal_price: seasonalPrice
+            };
+          })
+        );
+        
+        setHotels(hotelsWithSeasonalPrice);
+        setFilteredHotels(hotelsWithSeasonalPrice);
+        
+        // Set initial price range based on seasonal prices
+        if (hotelsWithSeasonalPrice.length > 0) {
+          const prices = hotelsWithSeasonalPrice.map((h: Hotel) => h.seasonal_price || h.price_per_night);
           const minPrice = Math.min(...prices);
           const maxPrice = Math.max(...prices);
           setPriceRange([minPrice, maxPrice]);
@@ -92,16 +113,17 @@ export default function SearchResults() {
       setLoading(false);
     }
     fetchHotels();
-  }, [cityId]);
+  }, [cityId, checkIn, checkOut]);
 
   // Apply filters and sorting
   useEffect(() => {
     let result = [...hotels];
 
-    // Filter by price
-    result = result.filter(h => 
-      h.price_per_night >= priceRange[0] && h.price_per_night <= priceRange[1]
-    );
+    // Filter by price (use seasonal price if available)
+    result = result.filter(h => {
+      const price = h.seasonal_price || h.price_per_night;
+      return price >= priceRange[0] && price <= priceRange[1];
+    });
 
     // Filter by rating
     if (minRating > 0) {
@@ -121,13 +143,13 @@ export default function SearchResults() {
       result = result.filter(h => h.meal_plans !== null);
     }
 
-    // Sort
+    // Sort (use seasonal price if available)
     switch (sortBy) {
       case 'price_low':
-        result.sort((a, b) => a.price_per_night - b.price_per_night);
+        result.sort((a, b) => (a.seasonal_price || a.price_per_night) - (b.seasonal_price || b.price_per_night));
         break;
       case 'price_high':
-        result.sort((a, b) => b.price_per_night - a.price_per_night);
+        result.sort((a, b) => (b.seasonal_price || b.price_per_night) - (a.seasonal_price || a.price_per_night));
         break;
       case 'rating':
         result.sort((a, b) => b.rating - a.rating);
@@ -377,7 +399,7 @@ export default function SearchResults() {
               name={language === 'ar' ? hotel.name_ar : hotel.name_en}
               nameEn={hotel.name_en}
               location={hotel.location}
-              price={Number(hotel.price_per_night)}
+              price={Number(hotel.seasonal_price || hotel.price_per_night)}
               rating={Number(hotel.rating)}
               image={hotel.images && hotel.images[0] ? hotel.images[0] : "https://images.unsplash.com/photo-1566073771259-6a8506099945?q=80&w=1000"}
               images={hotel.images}
