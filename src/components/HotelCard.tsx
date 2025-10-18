@@ -262,7 +262,7 @@ export function HotelCard({
         const checkOut = localStorage.getItem('searchCheckOut') || new Date(Date.now() + 86400000).toISOString().split('T')[0];
         const guests = localStorage.getItem('searchGuests') || '2';
         const rooms = localStorage.getItem('searchRooms') || '1';
-        navigate(`/booking/${id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}&rooms=${rooms}`);
+        navigate(`/hotel/${id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}&rooms=${rooms}`);
       }}>
         <img
           src={hotelImages[currentImageIndex]}
@@ -475,7 +475,18 @@ export function HotelCard({
           <Button 
             size="sm" 
             className="bg-secondary hover:bg-secondary/90 text-secondary-foreground h-8 text-sm px-4"
-            onClick={() => navigate(`/hotel/${id}`)}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!id) {
+                console.error('Hotel ID is missing');
+                return;
+              }
+              const checkIn = localStorage.getItem('searchCheckIn') || new Date().toISOString().split('T')[0];
+              const checkOut = localStorage.getItem('searchCheckOut') || new Date(Date.now() + 86400000).toISOString().split('T')[0];
+              const guests = localStorage.getItem('searchGuests') || '2';
+              const rooms = localStorage.getItem('searchRooms') || '1';
+              navigate(`/booking/${id}?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}&rooms=${rooms}`);
+            }}
           >
             احجز الآن
           </Button>
