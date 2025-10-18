@@ -185,13 +185,13 @@ export default function ManageEmployees() {
           .update({ role: formData.role })
           .eq('user_id', newUser.id);
         
-        // Log audit event for role assignment
-        await logAuditEvent(
+        // Log audit event for role assignment (non-blocking)
+        logAuditEvent(
           'assign_user_role',
           'user',
           newUser.id,
           { role: formData.role }
-        );
+        ).catch(() => {}); // Ignore audit logging errors
       }
 
       toast({
@@ -236,8 +236,8 @@ export default function ManageEmployees() {
 
       if (roleError) throw roleError;
 
-      // Log audit event for role change
-      await logAuditEvent(
+      // Log audit event for role change (non-blocking)
+      logAuditEvent(
         'update_user_role',
         'user',
         selectedUser.id,
@@ -245,7 +245,7 @@ export default function ManageEmployees() {
           old_role: selectedUser.role,
           new_role: formData.role
         }
-      );
+      ).catch(() => {}); // Ignore audit logging errors
 
       if (formData.password) {
         const { data: { session } } = await supabase.auth.getSession();

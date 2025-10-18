@@ -18,9 +18,11 @@ export async function logAuditEvent(
     });
 
     if (error) {
-      console.error('Error logging audit event:', error);
+      // Silently log error without throwing - audit logging is non-critical
+      console.warn('Audit logging failed (non-critical):', error.message);
     }
-  } catch (error) {
-    console.error('Error logging audit event:', error);
+  } catch (error: any) {
+    // Silently catch errors - audit logging should not break the application
+    console.warn('Audit logging failed (non-critical):', error?.message || error);
   }
 }

@@ -215,18 +215,18 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
 
       if (error) throw error;
 
-      // Log audit event
-      await logAuditEvent(
-        'update_booking_status',
-        'booking',
-        bookingId,
-        { new_status: newStatus }
-      );
-
       toast({
         title: t({ ar: "تم التحديث", en: "Updated" }),
         description: t({ ar: "تم تحديث حالة الطلب", en: "Booking status updated" }),
       });
+
+      // Log audit event (non-blocking)
+      logAuditEvent(
+        'update_booking_status',
+        'booking',
+        bookingId,
+        { new_status: newStatus }
+      ).catch(() => {}); // Ignore audit logging errors
 
       onUpdate();
     } catch (error: any) {
@@ -257,8 +257,13 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
 
       if (error) throw error;
 
-      // Log audit event
-      await logAuditEvent(
+      toast({
+        title: t({ ar: "تم التحديث", en: "Updated" }),
+        description: t({ ar: "تم تحديث حالة الدفع", en: "Payment status updated" }),
+      });
+
+      // Log audit event (non-blocking)
+      logAuditEvent(
         'update_payment_status',
         'booking',
         bookingId,
@@ -266,12 +271,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
           new_payment_status: newPaymentStatus,
           amount_paid: updateData.amount_paid
         }
-      );
-
-      toast({
-        title: t({ ar: "تم التحديث", en: "Updated" }),
-        description: t({ ar: "تم تحديث حالة الدفع", en: "Payment status updated" }),
-      });
+      ).catch(() => {}); // Ignore audit logging errors
 
       onUpdate();
     } catch (error: any) {
@@ -365,8 +365,13 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
 
       if (error) throw error;
 
-      // Log audit event
-      await logAuditEvent(
+      toast({
+        title: t({ ar: "تم التحديث", en: "Updated" }),
+        description: t({ ar: "تم تحديث معلومات الحجز", en: "Booking information updated" }),
+      });
+
+      // Log audit event (non-blocking)
+      logAuditEvent(
         'update_booking',
         'booking',
         selectedBooking.id,
@@ -380,12 +385,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
           amount_paid: amountPaid,
           payment_status: paymentStatus
         }
-      );
-
-      toast({
-        title: t({ ar: "تم التحديث", en: "Updated" }),
-        description: t({ ar: "تم تحديث معلومات الحجز", en: "Booking information updated" }),
-      });
+      ).catch(() => {}); // Ignore audit logging errors
 
       setIsEditDialogOpen(false);
       setSelectedBooking(null);
@@ -584,7 +584,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid grid-cols-2 gap-4 md:gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div className="space-y-3">
                   <div className="flex items-start gap-2 text-sm">
                     <Calendar className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />

@@ -129,12 +129,13 @@ export default function PDFSettings() {
         if (error) throw error;
       }
 
-      await logAuditEvent('UPDATE', 'pdf_settings', id, { settings: settingsData });
-
       toast({
         title: t({ ar: "تم الحفظ بنجاح", en: "Saved Successfully" }),
         description: t({ ar: "تم حفظ إعدادات PDF بنجاح", en: "PDF settings saved successfully" }),
       });
+
+      // Log audit event (non-blocking)
+      logAuditEvent('UPDATE', 'pdf_settings', id, { settings: settingsData }).catch(() => {}); // Ignore audit logging errors
 
       fetchSettings();
     } catch (error) {
