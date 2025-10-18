@@ -326,12 +326,6 @@ export function HotelCard({
           </div>
         )}
         
-        {featured && (
-          <Badge className="absolute top-16 right-4 bg-gradient-luxury border-0 shadow-luxury">
-            عرض مميز
-          </Badge>
-        )}
-        
         <div className="absolute bottom-4 left-4 bg-card/95 backdrop-blur-sm px-3 py-1 rounded-full flex items-center gap-1">
           <Star className="w-4 h-4 fill-primary text-primary" />
           <span className="text-sm font-bold">{rating}</span>
