@@ -54,6 +54,7 @@ export function HotelCard({
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [mealBadgeSettings, setMealBadgeSettings] = useState({
     color: '#007dff',
+    textColor: '#ffffff',
     widthMobile: 120,
     heightMobile: 24,
     autoWidthMobile: false,
@@ -66,6 +67,13 @@ export function HotelCard({
     fontSize: 12,
     borderRadius: 8,
   });
+  const [mealDescriptionSettings, setMealDescriptionSettings] = useState({
+    bgColor: '#f0fdf4',
+    textColor: '#15803d',
+    fontSize: 12,
+    borderRadius: 8,
+    borderColor: '#86efac',
+  });
   
   const hotelImages = images && Array.isArray(images) && images.length > 0 ? images : [image];
 
@@ -73,7 +81,7 @@ export function HotelCard({
     async function fetchMealBadgeSettings() {
       const { data } = await supabase
         .from('site_settings')
-        .select('meal_badge_color, meal_badge_width_mobile, meal_badge_height_mobile, meal_badge_auto_width_mobile, meal_badge_width_tablet, meal_badge_height_tablet, meal_badge_auto_width_tablet, meal_badge_width_desktop, meal_badge_height_desktop, meal_badge_auto_width_desktop, meal_badge_font_size, meal_badge_border_radius')
+        .select('meal_badge_color, meal_badge_text_color, meal_badge_width_mobile, meal_badge_height_mobile, meal_badge_auto_width_mobile, meal_badge_width_tablet, meal_badge_height_tablet, meal_badge_auto_width_tablet, meal_badge_width_desktop, meal_badge_height_desktop, meal_badge_auto_width_desktop, meal_badge_font_size, meal_badge_border_radius, meal_description_bg_color, meal_description_text_color, meal_description_font_size, meal_description_border_radius, meal_description_border_color')
         .order('created_at', { ascending: false })
         .order('updated_at', { ascending: false })
         .limit(1)
@@ -82,6 +90,7 @@ export function HotelCard({
       if (data) {
         setMealBadgeSettings({
           color: data.meal_badge_color || '#007dff',
+          textColor: data.meal_badge_text_color || '#ffffff',
           widthMobile: data.meal_badge_width_mobile || 120,
           heightMobile: data.meal_badge_height_mobile || 24,
           autoWidthMobile: data.meal_badge_auto_width_mobile || false,
@@ -93,6 +102,13 @@ export function HotelCard({
           autoWidthDesktop: data.meal_badge_auto_width_desktop || false,
           fontSize: data.meal_badge_font_size || 12,
           borderRadius: data.meal_badge_border_radius || 8,
+        });
+        setMealDescriptionSettings({
+          bgColor: data.meal_description_bg_color || '#f0fdf4',
+          textColor: data.meal_description_text_color || '#15803d',
+          fontSize: data.meal_description_font_size || 12,
+          borderRadius: data.meal_description_border_radius || 8,
+          borderColor: data.meal_description_border_color || '#86efac',
         });
       }
     }
@@ -211,9 +227,13 @@ export function HotelCard({
             {/* Meal Badge - Top Right on Image */}
             {mealIncluded && (
               <div 
-                className="absolute top-2 right-2 text-white font-bold flex items-center gap-1 justify-center"
+                className="font-bold flex items-center gap-1 justify-center"
                 style={{ 
+                  position: 'absolute',
+                  top: '8px',
+                  right: '8px',
                   backgroundColor: mealBadgeSettings.color,
+                  color: mealBadgeSettings.textColor,
                   width: mealBadgeSettings.autoWidthMobile ? 'auto' : `${mealBadgeSettings.widthMobile}px`,
                   height: `${mealBadgeSettings.heightMobile}px`,
                   fontSize: `${mealBadgeSettings.fontSize}px`,
@@ -302,9 +322,13 @@ export function HotelCard({
         {/* Meal Badge - Prominent Badge on Image */}
         {mealIncluded && (
           <div 
-            className="absolute top-4 right-4 text-white font-bold items-center gap-2 shadow-xl md:hidden lg:flex justify-center"
+            className="font-bold items-center gap-2 shadow-xl md:hidden lg:flex justify-center"
             style={{ 
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
               backgroundColor: mealBadgeSettings.color,
+              color: mealBadgeSettings.textColor,
               width: mealBadgeSettings.autoWidthDesktop ? 'auto' : `${mealBadgeSettings.widthDesktop}px`,
               height: `${mealBadgeSettings.heightDesktop}px`,
               fontSize: `${mealBadgeSettings.fontSize}px`,
@@ -321,9 +345,13 @@ export function HotelCard({
         )}
         {mealIncluded && (
           <div 
-            className="absolute top-4 right-4 text-white font-bold items-center gap-2 shadow-xl hidden md:flex lg:hidden justify-center"
+            className="font-bold items-center gap-2 shadow-xl hidden md:flex lg:hidden justify-center"
             style={{ 
+              position: 'absolute',
+              top: '16px',
+              right: '16px',
               backgroundColor: mealBadgeSettings.color,
+              color: mealBadgeSettings.textColor,
               width: mealBadgeSettings.autoWidthTablet ? 'auto' : `${mealBadgeSettings.widthTablet}px`,
               height: `${mealBadgeSettings.heightTablet}px`,
               fontSize: `${mealBadgeSettings.fontSize}px`,
@@ -415,11 +443,27 @@ export function HotelCard({
 
         {/* Meal Details Badge - Under Amenities */}
         {mealIncluded && meal && (
-          <div className="mb-3 p-2 bg-green-50 dark:bg-green-950/30 rounded-lg border border-green-200 dark:border-green-800">
-            <div className="flex items-center gap-2 text-xs">
-              <Utensils className="w-4 h-4 text-green-600 dark:text-green-400" />
+          <div 
+            className="mb-3 p-2 rounded-lg border" 
+            style={{
+              backgroundColor: mealDescriptionSettings.bgColor,
+              borderColor: mealDescriptionSettings.borderColor,
+              borderRadius: `${mealDescriptionSettings.borderRadius}px`,
+            }}
+          >
+            <div 
+              className="flex items-center gap-2"
+              style={{
+                fontSize: `${mealDescriptionSettings.fontSize}px`,
+                color: mealDescriptionSettings.textColor,
+              }}
+            >
+              <Utensils 
+                className="w-4 h-4 flex-shrink-0" 
+                style={{ color: mealDescriptionSettings.textColor }}
+              />
               <div>
-                <p className="font-semibold text-green-700 dark:text-green-300">
+                <p className="font-semibold">
                   {language === 'ar' 
                     ? meal.max_persons === 1 
                       ? `يشمل ${meal.name_ar} لشخص واحد`
@@ -432,7 +476,12 @@ export function HotelCard({
                   }
                 </p>
                 {meal.extra_meal_price > 0 && (
-                  <p className="text-green-600 dark:text-green-400 text-[10px] mt-0.5">
+                  <p 
+                    className="mt-0.5 opacity-90"
+                    style={{
+                      fontSize: `${mealDescriptionSettings.fontSize - 2}px`,
+                    }}
+                  >
                     {language === 'ar' 
                       ? `قيمة الوجبة الإضافية: ${meal.extra_meal_price} ر.س/لليلة`
                       : `Extra meal price: ${meal.extra_meal_price} SAR/night`

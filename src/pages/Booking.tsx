@@ -119,6 +119,7 @@ export default function Booking() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [mealBadgeSettings, setMealBadgeSettings] = useState({
     color: '#007dff',
+    textColor: '#ffffff',
     widthMobile: 120,
     heightMobile: 24,
     autoWidthMobile: false,
@@ -130,6 +131,13 @@ export default function Booking() {
     autoWidthDesktop: false,
     fontSize: 12,
     borderRadius: 8,
+  });
+  const [mealDescriptionSettings, setMealDescriptionSettings] = useState({
+    bgColor: '#f0fdf4',
+    textColor: '#15803d',
+    fontSize: 12,
+    borderRadius: 8,
+    borderColor: '#86efac',
   });
 
   // Fetch customer's full name if logged in
@@ -246,7 +254,7 @@ export default function Booking() {
     async function fetchMealBadgeSettings() {
       const { data } = await supabase
         .from('site_settings')
-        .select('meal_badge_color, meal_badge_width_mobile, meal_badge_height_mobile, meal_badge_auto_width_mobile, meal_badge_width_tablet, meal_badge_height_tablet, meal_badge_auto_width_tablet, meal_badge_width_desktop, meal_badge_height_desktop, meal_badge_auto_width_desktop, meal_badge_font_size, meal_badge_border_radius')
+        .select('meal_badge_color, meal_badge_text_color, meal_badge_width_mobile, meal_badge_height_mobile, meal_badge_auto_width_mobile, meal_badge_width_tablet, meal_badge_height_tablet, meal_badge_auto_width_tablet, meal_badge_width_desktop, meal_badge_height_desktop, meal_badge_auto_width_desktop, meal_badge_font_size, meal_badge_border_radius, meal_description_bg_color, meal_description_text_color, meal_description_font_size, meal_description_border_radius, meal_description_border_color')
         .order('created_at', { ascending: false })
         .order('updated_at', { ascending: false })
         .limit(1)
@@ -255,6 +263,7 @@ export default function Booking() {
       if (data && mounted) {
         setMealBadgeSettings({
           color: data.meal_badge_color || '#007dff',
+          textColor: data.meal_badge_text_color || '#ffffff',
           widthMobile: data.meal_badge_width_mobile || 120,
           heightMobile: data.meal_badge_height_mobile || 24,
           autoWidthMobile: data.meal_badge_auto_width_mobile || false,
@@ -266,6 +275,13 @@ export default function Booking() {
           autoWidthDesktop: data.meal_badge_auto_width_desktop || false,
           fontSize: data.meal_badge_font_size || 12,
           borderRadius: data.meal_badge_border_radius || 8,
+        });
+        setMealDescriptionSettings({
+          bgColor: data.meal_description_bg_color || '#f0fdf4',
+          textColor: data.meal_description_text_color || '#15803d',
+          fontSize: data.meal_description_font_size || 12,
+          borderRadius: data.meal_description_border_radius || 8,
+          borderColor: data.meal_description_border_color || '#86efac',
         });
       }
     }
@@ -678,9 +694,14 @@ export default function Booking() {
                       {/* Meal Badge */}
                       {meal && (meal.name_ar || meal.name_en) && (
           <div 
-            className="absolute top-2 left-2 px-3 py-1 text-white font-semibold shadow-lg flex items-center gap-1.5 z-10"
+            className="font-semibold shadow-lg flex items-center gap-1.5 z-10"
             style={{
+              position: 'absolute',
+              top: '8px',
+              left: '8px',
+              padding: '4px 12px',
               backgroundColor: mealBadgeSettings.color,
+              color: mealBadgeSettings.textColor,
               fontSize: `${mealBadgeSettings.fontSize}px`,
               borderRadius: `${mealBadgeSettings.borderRadius}px`,
               width: mealBadgeSettings.autoWidthMobile ? 'auto' : `${mealBadgeSettings.widthMobile}px`,
@@ -876,11 +897,27 @@ export default function Booking() {
                        </div>
 
                       {hotel?.meal_plans && hotel.meal_plans.max_persons > 0 && (
-                        <div className="flex flex-col gap-2 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
+                        <div 
+                          className="flex flex-col gap-2 p-3 rounded-lg border"
+                          style={{
+                            backgroundColor: mealDescriptionSettings.bgColor,
+                            borderColor: mealDescriptionSettings.borderColor,
+                            borderRadius: `${mealDescriptionSettings.borderRadius}px`,
+                          }}
+                        >
                           <div className="flex items-center gap-3">
-                            <Utensils className="w-5 h-5 text-green-600 dark:text-green-400 flex-shrink-0" />
+                            <Utensils 
+                              className="w-5 h-5 flex-shrink-0" 
+                              style={{ color: mealDescriptionSettings.textColor }}
+                            />
                             <div className="min-w-0 flex-1">
-                              <p className="text-xs text-green-700 dark:text-green-300 font-semibold">
+                              <p 
+                                className="font-semibold"
+                                style={{
+                                  fontSize: `${mealDescriptionSettings.fontSize}px`,
+                                  color: mealDescriptionSettings.textColor,
+                                }}
+                              >
                                 {language === 'ar' 
                                   ? hotel.meal_plans.max_persons === 1
                                     ? `يشمل ${hotel.meal_plans.regular_ar} لشخص واحد في كل غرفة (${rooms} ${rooms === 1 ? 'غرفة' : 'غرف'} = ${hotel.meal_plans.max_persons * rooms} ${hotel.meal_plans.max_persons * rooms === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms === 2 ? 'وجبتين' : 'وجبات'})`
@@ -893,7 +930,13 @@ export default function Booking() {
                                 }
                               </p>
                               {hotel.meal_plans.extra_meal_price > 0 && (
-                                <p className="text-xs text-green-600 dark:text-green-400 mt-1">
+                                <p 
+                                  className="mt-1 opacity-90"
+                                  style={{
+                                    fontSize: `${mealDescriptionSettings.fontSize - 2}px`,
+                                    color: mealDescriptionSettings.textColor,
+                                  }}
+                                >
                                   {t({ 
                                     ar: `قيمة الوجبة الإضافية: ${hotel.meal_plans.extra_meal_price} ر.س/لليلة`, 
                                     en: `Extra meal price: ${hotel.meal_plans.extra_meal_price} SAR/night` 

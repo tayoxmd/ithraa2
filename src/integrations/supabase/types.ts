@@ -1324,10 +1324,16 @@ export type Database = {
           meal_badge_height_desktop: number | null
           meal_badge_height_mobile: number | null
           meal_badge_height_tablet: number | null
+          meal_badge_text_color: string | null
           meal_badge_width: number | null
           meal_badge_width_desktop: number | null
           meal_badge_width_mobile: number | null
           meal_badge_width_tablet: number | null
+          meal_description_bg_color: string | null
+          meal_description_border_color: string | null
+          meal_description_border_radius: number | null
+          meal_description_font_size: number | null
+          meal_description_text_color: string | null
           owner_room_color: string | null
           phone: string | null
           tax_percentage: number
@@ -1373,10 +1379,16 @@ export type Database = {
           meal_badge_height_desktop?: number | null
           meal_badge_height_mobile?: number | null
           meal_badge_height_tablet?: number | null
+          meal_badge_text_color?: string | null
           meal_badge_width?: number | null
           meal_badge_width_desktop?: number | null
           meal_badge_width_mobile?: number | null
           meal_badge_width_tablet?: number | null
+          meal_description_bg_color?: string | null
+          meal_description_border_color?: string | null
+          meal_description_border_radius?: number | null
+          meal_description_font_size?: number | null
+          meal_description_text_color?: string | null
           owner_room_color?: string | null
           phone?: string | null
           tax_percentage?: number
@@ -1422,10 +1434,16 @@ export type Database = {
           meal_badge_height_desktop?: number | null
           meal_badge_height_mobile?: number | null
           meal_badge_height_tablet?: number | null
+          meal_badge_text_color?: string | null
           meal_badge_width?: number | null
           meal_badge_width_desktop?: number | null
           meal_badge_width_mobile?: number | null
           meal_badge_width_tablet?: number | null
+          meal_description_bg_color?: string | null
+          meal_description_border_color?: string | null
+          meal_description_border_radius?: number | null
+          meal_description_font_size?: number | null
+          meal_description_text_color?: string | null
           owner_room_color?: string | null
           phone?: string | null
           tax_percentage?: number

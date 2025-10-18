@@ -43,6 +43,7 @@ export default function SiteSettings() {
   });
   const [mealBadgeSettings, setMealBadgeSettings] = useState({
     meal_badge_color: '#007dff',
+    meal_badge_text_color: '#ffffff',
     meal_badge_width_mobile: 120,
     meal_badge_height_mobile: 24,
     meal_badge_auto_width_mobile: false,
@@ -54,6 +55,13 @@ export default function SiteSettings() {
     meal_badge_auto_width_desktop: false,
     meal_badge_font_size: 12,
     meal_badge_border_radius: 8,
+  });
+  const [mealDescriptionSettings, setMealDescriptionSettings] = useState({
+    meal_description_bg_color: '#f0fdf4',
+    meal_description_text_color: '#15803d',
+    meal_description_font_size: 12,
+    meal_description_border_radius: 8,
+    meal_description_border_color: '#86efac',
   });
   const [chatCodes, setChatCodes] = useState({
     chat_widget_code: '',
@@ -128,6 +136,7 @@ export default function SiteSettings() {
         });
         setMealBadgeSettings({
           meal_badge_color: data.meal_badge_color || '#007dff',
+          meal_badge_text_color: data.meal_badge_text_color || '#ffffff',
           meal_badge_width_mobile: data.meal_badge_width_mobile || 120,
           meal_badge_height_mobile: data.meal_badge_height_mobile || 24,
           meal_badge_auto_width_mobile: data.meal_badge_auto_width_mobile || false,
@@ -139,6 +148,13 @@ export default function SiteSettings() {
           meal_badge_auto_width_desktop: data.meal_badge_auto_width_desktop || false,
           meal_badge_font_size: data.meal_badge_font_size || 12,
           meal_badge_border_radius: data.meal_badge_border_radius || 8,
+        });
+        setMealDescriptionSettings({
+          meal_description_bg_color: data.meal_description_bg_color || '#f0fdf4',
+          meal_description_text_color: data.meal_description_text_color || '#15803d',
+          meal_description_font_size: data.meal_description_font_size || 12,
+          meal_description_border_radius: data.meal_description_border_radius || 8,
+          meal_description_border_color: data.meal_description_border_color || '#86efac',
         });
         setChatCodes({
           chat_widget_code: data.chat_widget_code || '',
@@ -777,42 +793,77 @@ export default function SiteSettings() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div>
-                <Label className="mb-3 block">{t({ ar: 'لون شريط الوجبات', en: 'Meal Badge Color' })}</Label>
-                <div className="flex gap-3 items-start">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button
-                        className="w-24 h-24 rounded-lg border-2 border-border shadow-sm hover:scale-105 transition-transform cursor-pointer"
-                        style={{ backgroundColor: mealBadgeSettings.meal_badge_color }}
-                      />
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-3" align="start">
-                      <HexColorPicker
-                        color={mealBadgeSettings.meal_badge_color}
-                        onChange={(color) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_color: color })}
-                      />
-                      <div className="mt-3 flex gap-2">
-                        <Input
-                          type="text"
-                          value={mealBadgeSettings.meal_badge_color}
-                          onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_color: e.target.value })}
-                          className="font-mono text-sm text-black dark:text-white"
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <Label className="mb-3 block">{t({ ar: 'لون خلفية شريط الوجبات', en: 'Meal Badge Background Color' })}</Label>
+                  <div className="flex gap-3 items-start">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          className="w-20 h-20 rounded-lg border-2 border-border shadow-sm hover:scale-105 transition-transform cursor-pointer"
+                          style={{ backgroundColor: mealBadgeSettings.meal_badge_color }}
                         />
-                      </div>
-                    </PopoverContent>
-                  </Popover>
-                  <div className="flex-1">
-                    <Input
-                      type="text"
-                      value={mealBadgeSettings.meal_badge_color}
-                      onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_color: e.target.value })}
-                      className="font-mono"
-                      placeholder="#007dff"
-                    />
-                    <p className="text-xs text-muted-foreground mt-2">
-                      {t({ ar: 'انقر على المربع الملون لفتح منتقي الألوان', en: 'Click the color box to open color picker' })}
-                    </p>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-3" align="start">
+                        <HexColorPicker
+                          color={mealBadgeSettings.meal_badge_color}
+                          onChange={(color) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_color: color })}
+                        />
+                        <div className="mt-3 flex gap-2">
+                          <Input
+                            type="text"
+                            value={mealBadgeSettings.meal_badge_color}
+                            onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_color: e.target.value })}
+                            className="font-mono text-sm text-black dark:text-white"
+                          />
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <div className="flex-1">
+                      <Input
+                        type="text"
+                        value={mealBadgeSettings.meal_badge_color}
+                        onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_color: e.target.value })}
+                        className="font-mono"
+                        placeholder="#007dff"
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <Label className="mb-3 block">{t({ ar: 'لون نص شريط الوجبات', en: 'Meal Badge Text Color' })}</Label>
+                  <div className="flex gap-3 items-start">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button
+                          className="w-20 h-20 rounded-lg border-2 border-border shadow-sm hover:scale-105 transition-transform cursor-pointer"
+                          style={{ backgroundColor: mealBadgeSettings.meal_badge_text_color }}
+                        />
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-3" align="start">
+                        <HexColorPicker
+                          color={mealBadgeSettings.meal_badge_text_color}
+                          onChange={(color) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_text_color: color })}
+                        />
+                        <div className="mt-3 flex gap-2">
+                          <Input
+                            type="text"
+                            value={mealBadgeSettings.meal_badge_text_color}
+                            onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_text_color: e.target.value })}
+                            className="font-mono text-sm text-black dark:text-white"
+                          />
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <div className="flex-1">
+                      <Input
+                        type="text"
+                        value={mealBadgeSettings.meal_badge_text_color}
+                        onChange={(e) => setMealBadgeSettings({ ...mealBadgeSettings, meal_badge_text_color: e.target.value })}
+                        className="font-mono"
+                        placeholder="#ffffff"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1002,12 +1053,159 @@ export default function SiteSettings() {
                 </div>
               </div>
 
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground mb-4">
                 {t({ 
                   ar: 'يُستخدم هذا الشريط لعرض معلومات الوجبات على بطاقات الفنادق. يمكنك تحديد أحجام مختلفة لكل نوع جهاز', 
                   en: 'This badge is used to display meal information on hotel cards. You can set different sizes for each device type' 
                 })}
               </p>
+
+              {/* Meal Description Settings */}
+              <div className="border-t pt-6 mt-6 space-y-4">
+                <h4 className="font-semibold text-lg flex items-center gap-2">
+                  📝 {t({ ar: 'إعدادات مربع وصف الوجبات', en: 'Meal Description Box Settings' })}
+                </h4>
+                <p className="text-xs text-muted-foreground">
+                  {t({ 
+                    ar: 'يُستخدم لعرض وصف الوجبات أسفل بطاقات الفنادق وفي صفحة إكمال الحجز', 
+                    en: 'Used to display meal descriptions under hotel cards and in the booking page' 
+                  })}
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Background Color */}
+                  <div>
+                    <Label className="mb-3 block">{t({ ar: 'لون خلفية المربع', en: 'Box Background Color' })}</Label>
+                    <div className="flex gap-3 items-start">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            className="w-20 h-20 rounded-lg border-2 border-border shadow-sm hover:scale-105 transition-transform cursor-pointer"
+                            style={{ backgroundColor: mealDescriptionSettings.meal_description_bg_color }}
+                          />
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-3" align="start">
+                          <HexColorPicker
+                            color={mealDescriptionSettings.meal_description_bg_color}
+                            onChange={(color) => setMealDescriptionSettings({ ...mealDescriptionSettings, meal_description_bg_color: color })}
+                          />
+                          <div className="mt-3">
+                            <Input
+                              type="text"
+                              value={mealDescriptionSettings.meal_description_bg_color}
+                              onChange={(e) => setMealDescriptionSettings({ ...mealDescriptionSettings, meal_description_bg_color: e.target.value })}
+                              className="font-mono text-sm"
+                            />
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                      <Input
+                        type="text"
+                        value={mealDescriptionSettings.meal_description_bg_color}
+                        onChange={(e) => setMealDescriptionSettings({ ...mealDescriptionSettings, meal_description_bg_color: e.target.value })}
+                        className="font-mono flex-1"
+                        placeholder="#f0fdf4"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Text Color */}
+                  <div>
+                    <Label className="mb-3 block">{t({ ar: 'لون النص', en: 'Text Color' })}</Label>
+                    <div className="flex gap-3 items-start">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            className="w-20 h-20 rounded-lg border-2 border-border shadow-sm hover:scale-105 transition-transform cursor-pointer"
+                            style={{ backgroundColor: mealDescriptionSettings.meal_description_text_color }}
+                          />
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-3" align="start">
+                          <HexColorPicker
+                            color={mealDescriptionSettings.meal_description_text_color}
+                            onChange={(color) => setMealDescriptionSettings({ ...mealDescriptionSettings, meal_description_text_color: color })}
+                          />
+                          <div className="mt-3">
+                            <Input
+                              type="text"
+                              value={mealDescriptionSettings.meal_description_text_color}
+                              onChange={(e) => setMealDescriptionSettings({ ...mealDescriptionSettings, meal_description_text_color: e.target.value })}
+                              className="font-mono text-sm"
+                            />
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                      <Input
+                        type="text"
+                        value={mealDescriptionSettings.meal_description_text_color}
+                        onChange={(e) => setMealDescriptionSettings({ ...mealDescriptionSettings, meal_description_text_color: e.target.value })}
+                        className="font-mono flex-1"
+                        placeholder="#15803d"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Border Color */}
+                  <div>
+                    <Label className="mb-3 block">{t({ ar: 'لون الحدود', en: 'Border Color' })}</Label>
+                    <div className="flex gap-3 items-start">
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            className="w-20 h-20 rounded-lg border-2 border-border shadow-sm hover:scale-105 transition-transform cursor-pointer"
+                            style={{ backgroundColor: mealDescriptionSettings.meal_description_border_color }}
+                          />
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-3" align="start">
+                          <HexColorPicker
+                            color={mealDescriptionSettings.meal_description_border_color}
+                            onChange={(color) => setMealDescriptionSettings({ ...mealDescriptionSettings, meal_description_border_color: color })}
+                          />
+                          <div className="mt-3">
+                            <Input
+                              type="text"
+                              value={mealDescriptionSettings.meal_description_border_color}
+                              onChange={(e) => setMealDescriptionSettings({ ...mealDescriptionSettings, meal_description_border_color: e.target.value })}
+                              className="font-mono text-sm"
+                            />
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                      <Input
+                        type="text"
+                        value={mealDescriptionSettings.meal_description_border_color}
+                        onChange={(e) => setMealDescriptionSettings({ ...mealDescriptionSettings, meal_description_border_color: e.target.value })}
+                        className="font-mono flex-1"
+                        placeholder="#86efac"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Font Size */}
+                  <div>
+                    <Label>{t({ ar: 'حجم الخط (بكسل)', en: 'Font Size (px)' })}</Label>
+                    <Input
+                      type="number"
+                      value={mealDescriptionSettings.meal_description_font_size}
+                      onChange={(e) => setMealDescriptionSettings({ ...mealDescriptionSettings, meal_description_font_size: parseInt(e.target.value) || 12 })}
+                      min="8"
+                      max="24"
+                    />
+                  </div>
+
+                  {/* Border Radius */}
+                  <div>
+                    <Label>{t({ ar: 'انحناء الزوايا (بكسل)', en: 'Border Radius (px)' })}</Label>
+                    <Input
+                      type="number"
+                      value={mealDescriptionSettings.meal_description_border_radius}
+                      onChange={(e) => setMealDescriptionSettings({ ...mealDescriptionSettings, meal_description_border_radius: parseInt(e.target.value) || 8 })}
+                      min="0"
+                      max="50"
+                    />
+                  </div>
+                </div>
+              </div>
               
               <Button onClick={async () => {
                 try {
@@ -1022,7 +1220,10 @@ export default function SiteSettings() {
                   if (existingSettings) {
                     const { error } = await supabase
                       .from('site_settings')
-                      .update(mealBadgeSettings)
+                      .update({
+                        ...mealBadgeSettings,
+                        ...mealDescriptionSettings
+                      })
                       .eq('id', existingSettings.id);
                     if (error) throw error;
                   }
