@@ -1,15 +1,12 @@
 import jsPDF from 'jspdf';
 import { format } from 'date-fns';
-import { ar } from 'date-fns/locale';
 
 // Hijri date converter (basic implementation)
 function toHijri(gregorianDate: Date): string {
-  // This is a simplified conversion - in production, use a proper library like hijri-date
   const gYear = gregorianDate.getFullYear();
   const gMonth = gregorianDate.getMonth() + 1;
   const gDay = gregorianDate.getDate();
   
-  // Approximate conversion (622 lunar years = 604 solar years)
   const hYear = Math.floor((gYear - 622) * 1.030684);
   
   return `${gDay.toString().padStart(2, '0')}/${gMonth.toString().padStart(2, '0')}/${hYear}`;
@@ -49,7 +46,7 @@ interface PDFBookingData {
     phone: string;
   };
   customerPageUrl: string;
-  pdfSettings?: any; // إعدادات التصميم المخصصة
+  pdfSettings?: any;
 }
 
 export function generateBookingPDF(data: PDFBookingData): jsPDF {
@@ -92,8 +89,7 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
     doc.setFillColor(headerBgColor[0], headerBgColor[1], headerBgColor[2]);
     doc.rect(0, 0, pageWidth, headerHeight, 'F');
     
-    // Booking number in top right corner with white background
-    const bookingNumX = settings.booking_number_x || 160;
+    // Booking number in top right
     const bookingNumY = settings.booking_number_y || 15;
     doc.setFillColor(255, 255, 255);
     doc.roundedRect(pageWidth - 45, 8, 35, 10, 2, 2, 'F');
@@ -132,13 +128,7 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
     
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(fontSizeSmall + 1);
-    const companyDesc = settings.company_description_en || 'First of All, We would like to take this opportunity to welcome you at Ethraa Company for Tourist';
-    const descLines = doc.splitTextToSize(companyDesc, pageWidth - (marginLeft + marginRight));
-    descLines.forEach((line: string) => {
-      doc.text(line, marginLeft, yPos);
-      yPos += 4;
-    });
-    doc.text('Accommodation. We are pleased to confirm the following reservation on a definite basis.', marginLeft, yPos);
+    doc.text('We are pleased to confirm the following reservation.', marginLeft, yPos);
     yPos += sectionSpacing;
   }
   
@@ -152,61 +142,54 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
   // Draw horizontal lines
   const lineSpacing = infoTableHeight / 5;
   for (let i = 1; i < 5; i++) {
-    doc.line(15, yPos + (i * lineSpacing), pageWidth - 15, yPos + (i * lineSpacing));
+    doc.line(marginLeft, yPos + (i * lineSpacing), pageWidth - marginRight, yPos + (i * lineSpacing));
   }
   
   // Draw vertical line
   doc.line(pageWidth / 2, yPos, pageWidth / 2, yPos + infoTableHeight);
   
   doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-  doc.setFontSize(8);
+  doc.setFontSize(fontSizeSmall);
   
-  // Left column labels and values
+  // Left column
   doc.setFont('helvetica', 'bold');
-  doc.text('Hotel:', 18, yPos + 4);
+  doc.text('Hotel:', marginLeft + 3, yPos + 4);
   doc.setFont('helvetica', 'normal');
-  doc.text(data.hotelNameEn, 35, yPos + 4);
-  
-  doc.setFont('helvetica', 'bold');
-  doc.text('Client:', 18, yPos + 10);
-  doc.setFont('helvetica', 'normal');
-  doc.text(data.clientName, 35, yPos + 10);
+  doc.text(data.hotelNameEn, marginLeft + 20, yPos + 4);
   
   doc.setFont('helvetica', 'bold');
-  doc.text('Guest Name:', 18, yPos + 16);
+  doc.text('Client:', marginLeft + 3, yPos + 10);
   doc.setFont('helvetica', 'normal');
-  doc.text(data.guestName, 45, yPos + 16);
+  doc.text(data.clientName, marginLeft + 20, yPos + 10);
   
   doc.setFont('helvetica', 'bold');
-  doc.text('Nationality:', 18, yPos + 22);
+  doc.text('Guest Name:', marginLeft + 3, yPos + 16);
   doc.setFont('helvetica', 'normal');
-  doc.text('-', 45, yPos + 22);
+  doc.text(data.guestName, marginLeft + 30, yPos + 16);
   
   doc.setFont('helvetica', 'bold');
-  doc.text('Mail:', 18, yPos + 28);
+  doc.text('Mail:', marginLeft + 3, yPos + 22);
   doc.setFont('helvetica', 'normal');
-  doc.text(data.clientEmail, 35, yPos + 28);
+  doc.text(data.clientEmail, marginLeft + 20, yPos + 22);
   
-  // Right column
   doc.setFont('helvetica', 'bold');
-  doc.text('Mobile:', pageWidth / 2 + 3, yPos + 28);
+  doc.text('Mobile:', marginLeft + 3, yPos + 28);
   doc.setFont('helvetica', 'normal');
-  doc.text(data.clientPhone, pageWidth / 2 + 20, yPos + 28);
+  doc.text(data.clientPhone, marginLeft + 20, yPos + 28);
   
-  yPos += infoTableHeight + 8;
+  yPos += infoTableHeight + sectionSpacing;
   
   // Booking Details Table Header
   doc.setFillColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.rect(15, yPos, pageWidth - 30, 7, 'F');
+  doc.rect(marginLeft, yPos, pageWidth - (marginLeft + marginRight), 7, 'F');
   
   doc.setTextColor(255, 255, 255);
-  doc.setFontSize(7);
+  doc.setFontSize(fontSizeSmall - 1);
   doc.setFont('helvetica', 'bold');
   
-  // Adjusted column widths for better fit
-  const colWidths = [30, 18, 20, 22, 22, 12, 15, 18, 18];
-  let xPos = 17;
-  const headers = ['ROOM TYPE', 'VIEW', 'MEAL', 'CHECK IN', 'CHECK OUT', 'NIGHTS', 'GUESTS', 'RATE', 'TOTAL'];
+  const colWidths = [30, 18, 22, 22, 12, 15, 18];
+  let xPos = marginLeft + 2;
+  const headers = ['ROOM TYPE', 'MEAL', 'CHECK IN', 'CHECK OUT', 'NIGHTS', 'GUESTS', 'TOTAL'];
   
   headers.forEach((header, i) => {
     doc.text(header, xPos, yPos + 4.5);
@@ -215,25 +198,23 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
   
   yPos += 7;
   
-  // Table Row with border
+  // Table Row
   doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2]);
   doc.setLineWidth(0.5);
-  doc.rect(15, yPos, pageWidth - 30, 8, 'S');
+  doc.rect(marginLeft, yPos, pageWidth - (marginLeft + marginRight), 8, 'S');
   
   doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-  doc.setFontSize(7);
+  doc.setFontSize(fontSizeSmall - 1);
   doc.setFont('helvetica', 'normal');
   
-  xPos = 17;
+  xPos = marginLeft + 2;
   const values = [
     `${data.rooms} ${data.roomType}`,
-    'Non View',
     'Room only',
     format(data.checkIn, 'dd/MM/yyyy'),
     format(data.checkOut, 'dd/MM/yyyy'),
     data.nights.toString(),
     data.guests.toString(),
-    data.pricePerNight.toFixed(2),
     data.subtotal.toFixed(2)
   ];
   
@@ -246,122 +227,83 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
   
   // Price Breakdown
   doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-  doc.setFontSize(9);
+  doc.setFontSize(fontSizeBody - 1);
   doc.setFont('helvetica', 'bold');
-  doc.text('Net Accommodation Charge:', 15, yPos);
-  doc.text(data.netAmount.toFixed(2), pageWidth - 40, yPos);
-  yPos += 6;
+  doc.text('Net Accommodation:', marginLeft, yPos);
+  doc.text(data.netAmount.toFixed(2), pageWidth - marginRight - 30, yPos);
+  yPos += lineHeight;
   
-  doc.text('VAT Charge:', 15, yPos);
-  doc.text(data.vatAmount.toFixed(2), pageWidth - 40, yPos);
-  yPos += 8;
+  doc.text('VAT:', marginLeft, yPos);
+  doc.text(data.vatAmount.toFixed(2), pageWidth - marginRight - 30, yPos);
+  yPos += lineHeight + 2;
   
-  // Total with light yellow background
+  // Total with background
   doc.setFillColor(255, 251, 230);
-  doc.rect(15, yPos - 4, pageWidth - 30, 8, 'F');
+  doc.rect(marginLeft, yPos - 4, pageWidth - (marginLeft + marginRight), 8, 'F');
   doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2]);
-  doc.rect(15, yPos - 4, pageWidth - 30, 8, 'S');
+  doc.rect(marginLeft, yPos - 4, pageWidth - (marginLeft + marginRight), 8, 'S');
   
-  doc.setFontSize(10);
+  doc.setFontSize(fontSizeBody);
   doc.setFont('helvetica', 'bold');
-  doc.text('(SAR) Total:', 18, yPos + 1);
-  doc.text(`${data.totalAmount.toFixed(2)} including VAT`, pageWidth - 40, yPos + 1);
+  doc.text('Total (SAR):', marginLeft + 3, yPos + 1);
+  doc.text(`${data.totalAmount.toFixed(2)} including VAT`, pageWidth - marginRight - 50, yPos + 1);
   
-  yPos += 10;
+  yPos += sectionSpacing;
   
-  // Bank Details Section
-  const boxWidth = (pageWidth - 35) / 2;
-  doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2]);
-  doc.setLineWidth(0.5);
-  doc.rect(15, yPos, boxWidth, 32, 'S');
-  
-  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Bank Details', 18, yPos + 5);
-  
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'normal');
-  let bankY = yPos + 10;
-  doc.setFont('helvetica', 'bold');
-  doc.text('Bank name:', 18, bankY);
-  doc.setFont('helvetica', 'normal');
-  doc.text('ANB Bank', 45, bankY);
-  
-  bankY += 4;
-  doc.setFont('helvetica', 'bold');
-  doc.text('Account Name:', 18, bankY);
-  doc.setFont('helvetica', 'normal');
-  doc.text('Ithraa Tourist Accommodation Company', 45, bankY);
-  
-  bankY += 4;
-  doc.setFont('helvetica', 'bold');
-  doc.text('Account number:', 18, bankY);
-  doc.setFont('helvetica', 'normal');
-  doc.text('SA9630400108095640510010', 45, bankY);
-  
-  bankY += 4;
-  doc.setFont('helvetica', 'bold');
-  doc.text('IBAN:', 18, bankY);
-  doc.setFont('helvetica', 'normal');
-  doc.text('SA9630400108095640510010', 45, bankY);
-  
-  bankY += 4;
-  doc.setFont('helvetica', 'bold');
-  doc.text('Swift Code:', 18, bankY);
-  doc.setFont('helvetica', 'normal');
-  doc.text('ARNBSARI', 45, bankY);
-  
-  yPos += 38;
-  
-  // Terms & Conditions Section
-  doc.setFontSize(9);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Terms & Conditions', 15, yPos);
-  
-  yPos += 5;
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'normal');
-  
-  const terms = [
-    '1. Cancellation must be made 7 days before arrival, notice period 48 hours in advance.',
-    '2. No refund for no-shows or early departures.',
-    '3. Hotel reserves the right to cancel unconfirmed bookings.'
-  ];
-  
-  terms.forEach(term => {
-    const lines = doc.splitTextToSize(term, (pageWidth - 35));
-    lines.forEach((line: string) => {
-      doc.text(line, 15, yPos);
-      yPos += 4;
-    });
-  });
-  
-  yPos += 3;
-  
-  // Hotel Location
-  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-  doc.setFontSize(7);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Hotel Location:', 15, yPos);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(0, 0, 255);
-  const locationText = data.hotelLocation.length > 80 ? data.hotelLocation.substring(0, 80) + '...' : data.hotelLocation;
-  if (data.hotelLocationUrl) {
-    doc.textWithLink(locationText, 40, yPos, { url: data.hotelLocationUrl });
-  } else {
-    doc.text(locationText, 40, yPos);
+  // Bank Details
+  if (settings.show_bank_details !== false) {
+    doc.setDrawColor(borderGray[0], borderGray[1], borderGray[2]);
+    doc.setLineWidth(0.5);
+    doc.rect(marginLeft, yPos, pageWidth - (marginLeft + marginRight), 28, 'S');
+    
+    doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+    doc.setFontSize(fontSizeBody - 1);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Bank Details', marginLeft + 3, yPos + 5);
+    
+    doc.setFontSize(fontSizeSmall - 1);
+    doc.setFont('helvetica', 'normal');
+    let bankY = yPos + 10;
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text('Bank:', marginLeft + 3, bankY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(settings.bank_name || 'ANB Bank', marginLeft + 25, bankY);
+    
+    bankY += 4;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Account:', marginLeft + 3, bankY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(settings.bank_account_number || '108095640510010', marginLeft + 25, bankY);
+    
+    bankY += 4;
+    doc.setFont('helvetica', 'bold');
+    doc.text('IBAN:', marginLeft + 3, bankY);
+    doc.setFont('helvetica', 'normal');
+    doc.text(settings.iban || 'SA9630400108095640510010', marginLeft + 25, bankY);
+    
+    yPos += 32;
   }
   
-  yPos += 4;
-  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-  doc.setFont('helvetica', 'bold');
-  doc.text('My Bookings Page:', 15, yPos);
-  doc.setFont('helvetica', 'normal');
-  doc.setTextColor(0, 0, 255);
-  doc.textWithLink(data.customerPageUrl, 40, yPos, { url: data.customerPageUrl });
+  // Terms & Conditions
+  if (settings.show_terms !== false) {
+    doc.setFontSize(fontSizeBody - 1);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Terms & Conditions', marginLeft, yPos);
+    
+    yPos += 5;
+    doc.setFontSize(fontSizeSmall - 1);
+    doc.setFont('helvetica', 'normal');
+    
+    const terms = settings.terms_en || '1. Cancellation must be made 7 days before arrival.\n2. No refund for no-shows.';
+    const termLines = doc.splitTextToSize(terms, pageWidth - (marginLeft + marginRight));
+    termLines.forEach((line: string) => {
+      doc.text(line, marginLeft, yPos);
+      yPos += 4;
+    });
+  }
   
-  // Footer section
+  // Footer
   if (settings.show_footer_info !== false) {
     const footerY = pageHeight - footerHeight;
     doc.setFillColor(footerBgColor[0], footerBgColor[1], footerBgColor[2]);
@@ -370,27 +312,22 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(fontSizeSmall - 1);
     doc.setFont('helvetica', 'bold');
-    const footerCompanyName = settings.footer_company_name_en || 'Ethraa Company for Tourist Accommodation';
-    doc.text(`Official Business Name: ${footerCompanyName}`, pageWidth / 2, footerY + 4, { align: 'center' });
-  
+    const footerCompanyName = settings.footer_company_name_en || 'Ethraa Company';
+    doc.text(footerCompanyName, pageWidth / 2, footerY + 4, { align: 'center' });
+    
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(fontSizeSmall - 2);
     const today = new Date();
     
-    // Left column
     doc.text(`Date: ${format(today, 'dd/MM/yyyy')}`, marginLeft, footerY + 9);
-    doc.text(`Hijri Date: ${toHijri(today)}`, marginLeft, footerY + 13);
     
-    // Center column
     const crNumber = settings.company_cr || '4031285856';
     const vatNumber = settings.company_vat || '302006094600003';
-    doc.text(`CR N°: ${crNumber}`, pageWidth / 2 - 25, footerY + 9);
-    doc.text(`VAT N°: ${vatNumber}`, pageWidth / 2 - 25, footerY + 13);
+    doc.text(`CR: ${crNumber}`, pageWidth / 2 - 20, footerY + 9);
+    doc.text(`VAT: ${vatNumber}`, pageWidth / 2 - 20, footerY + 13);
     
-    // Right column
     const licNumber = settings.company_license || '73105372';
-    doc.text(`LIC N°: ${licNumber}`, pageWidth - 40, footerY + 9);
-    doc.text('Class: 5 Star', pageWidth - 40, footerY + 13);
+    doc.text(`LIC: ${licNumber}`, pageWidth - marginRight - 30, footerY + 9);
   }
   
   return doc;
@@ -404,12 +341,8 @@ export function downloadBookingPDF(data: PDFBookingData) {
 
 export function sharePDFViaEmail(data: PDFBookingData) {
   const doc = generateBookingPDF(data);
-  const pdfBlob = doc.output('blob');
-  
-  // Create email with PDF as attachment
-  // Note: Browser limitations prevent direct attachment, so we'll provide the download link
   const subject = `Booking Confirmation - ${data.guestName}`;
-  const body = `Dear ${data.clientName},\n\nYour booking has been confirmed.\nBooking Number: ${data.bookingNumber}\nGuest Name: ${data.guestName}\nHotel: ${data.hotelNameEn}\nCheck-in: ${format(data.checkIn, 'dd/MM/yyyy')}\nCheck-out: ${format(data.checkOut, 'dd/MM/yyyy')}\n\nPlease download the PDF confirmation for full details.\n\nThank you for choosing Ethraa Company.`;
+  const body = `Dear ${data.clientName},\n\nYour booking has been confirmed.\nBooking Number: ${data.bookingNumber}\n\nThank you!`;
   
   window.location.href = `mailto:${data.clientEmail}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
@@ -426,11 +359,9 @@ interface SharePDFWhatsAppOptions {
 }
 
 export async function sharePDFViaWhatsApp(data: PDFBookingData, options: SharePDFWhatsAppOptions) {
-  // Generate PDF
   const doc = generateBookingPDF(data);
   const pdfBlob = doc.output('blob');
   
-  // Create file from blob
   const fileName = `Confirmation_${data.bookingNumber}_${data.guestName.toUpperCase().replace(/\s+/g, '_')}.pdf`;
   const file = new File([pdfBlob], fileName, { type: 'application/pdf' });
 
@@ -439,7 +370,6 @@ export async function sharePDFViaWhatsApp(data: PDFBookingData, options: SharePD
   const includedPersons = (options.mealPlanMaxPersons || 0) * data.rooms;
   const extraMealsRequired = Math.max(0, data.guests - includedPersons);
   
-  // Build message based on language
   let message = '';
   
   if (options.language === 'ar') {
@@ -528,7 +458,6 @@ export async function sharePDFViaWhatsApp(data: PDFBookingData, options: SharePD
     message += `\nView your bookings: ${data.customerPageUrl}`;
   }
   
-  // Check if Web Share API is available and supports files
   if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
     try {
       await navigator.share({
@@ -538,11 +467,10 @@ export async function sharePDFViaWhatsApp(data: PDFBookingData, options: SharePD
       });
       return;
     } catch (error) {
-      console.log('Share failed or was cancelled, falling back to URL method');
+      console.log('Share failed, falling back to URL method');
     }
   }
   
-  // Fallback: Open WhatsApp with message only (file must be sent separately)
-  const whatsappUrl = `https://wa.me/${data.clientPhone.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(message)}`;
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
   window.open(whatsappUrl, '_blank');
 }

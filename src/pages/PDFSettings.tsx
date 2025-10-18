@@ -303,6 +303,8 @@ export default function PDFSettings() {
 
       await new Promise(resolve => setTimeout(resolve, 100));
 
+      console.log('PDF Settings:', settings); // للتحقق
+
       const sampleData = {
         bookingNumber: 12345,
         hotelConfirmationNumber: "HTL-2024-001",
@@ -341,9 +343,13 @@ export default function PDFSettings() {
         pdfSettings: settings
       };
 
+      console.log('Generating PDF with data:', sampleData); // للتحقق
+
       const pdf = generateBookingPDF(sampleData);
       const pdfBlob = pdf.output('blob');
       const url = URL.createObjectURL(pdfBlob);
+      
+      console.log('PDF generated successfully, blob URL:', url); // للتحقق
       
       if (previewUrl) {
         URL.revokeObjectURL(previewUrl);
@@ -360,7 +366,7 @@ export default function PDFSettings() {
       console.error('Error generating preview:', error);
       toast({
         title: t({ ar: "خطأ", en: "Error" }),
-        description: t({ ar: "حدث خطأ أثناء إنشاء المعاينة", en: "An error occurred while generating preview" }),
+        description: t({ ar: `حدث خطأ: ${error.message}`, en: `Error: ${error.message}` }),
         variant: "destructive",
       });
     }
