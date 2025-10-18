@@ -18,6 +18,8 @@ import { logAuditEvent } from "@/utils/auditLogger";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { generateBookingPDF } from "@/utils/pdfGenerator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { HexColorPicker } from "react-colorful";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface ResponsiblePerson {
   name: string;
@@ -386,29 +388,51 @@ export default function PDFSettings() {
 
   const ColorInput = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => {
     const [r, g, b] = (value || '0,0,0').split(',').map(v => parseInt(v.trim()));
+    const hexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    
+    const handleHexChange = (hex: string) => {
+      const cleanHex = hex.replace('#', '');
+      const r = parseInt(cleanHex.substr(0, 2), 16);
+      const g = parseInt(cleanHex.substr(2, 2), 16);
+      const b = parseInt(cleanHex.substr(4, 2), 16);
+      onChange(`${r},${g},${b}`);
+    };
     
     return (
       <div className="space-y-2">
-        <Label>{label}</Label>
-        <div className="flex gap-2 items-center">
-          <Input
-            type="color"
-            value={`#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`}
-            onChange={(e) => {
-              const hex = e.target.value.replace('#', '');
-              const r = parseInt(hex.substr(0, 2), 16);
-              const g = parseInt(hex.substr(2, 2), 16);
-              const b = parseInt(hex.substr(4, 2), 16);
-              onChange(`${r},${g},${b}`);
-            }}
-            className="w-20 h-10"
-          />
-          <Input
-            value={value}
-            onChange={(e) => onChange(e.target.value)}
-            placeholder="R,G,B"
-            className="flex-1"
-          />
+        <Label className="mb-3 block">{label}</Label>
+        <div className="flex gap-3 items-start">
+          <Popover>
+            <PopoverTrigger asChild>
+              <button
+                className="w-20 h-20 rounded-lg border-2 border-border shadow-sm hover:scale-105 transition-transform cursor-pointer flex-shrink-0"
+                style={{ backgroundColor: hexColor }}
+              />
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-3" align="start">
+              <HexColorPicker
+                color={hexColor}
+                onChange={handleHexChange}
+              />
+              <div className="mt-3">
+                <Input
+                  type="text"
+                  value={hexColor}
+                  onChange={(e) => handleHexChange(e.target.value)}
+                  className="font-mono text-sm text-black dark:text-white"
+                  placeholder="#000000"
+                />
+              </div>
+            </PopoverContent>
+          </Popover>
+          <div className="flex-1">
+            <Input
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="R,G,B"
+              className="font-mono"
+            />
+          </div>
         </div>
       </div>
     );
