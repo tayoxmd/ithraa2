@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import logo from "@/assets/logo.svg";
+import logo from "@/assets/logo.png";
 import vocoMakkah1 from "@/assets/slideshow/voco-makkah-1.webp";
 import vocoMakkah2 from "@/assets/slideshow/voco-makkah-2.webp";
 import rafflesMakkah from "@/assets/slideshow/raffles-makkah.jpg";

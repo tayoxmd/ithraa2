@@ -1,6 +1,6 @@
 import jsPDF from 'jspdf';
 import { format } from 'date-fns';
-import logo from '@/assets/logo.svg';
+import logo from '@/assets/logo.png';
 
 // Hijri date converter (basic implementation)
 function toHijri(gregorianDate: Date): string {
