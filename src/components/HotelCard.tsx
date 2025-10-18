@@ -329,16 +329,37 @@ export function HotelCard({
           <span className="text-sm font-bold">{rating}</span>
         </div>
         
-        {/* Next Image Button - Only if multiple images */}
+        {/* Navigation Buttons - Only if multiple images */}
         {hotelImages.length > 1 && (
-          <Button
-            size="icon"
-            variant="ghost"
-            className={`absolute ${language === 'ar' ? 'left-2' : 'right-2'} top-1/2 -translate-y-1/2 h-10 w-10 rounded-md bg-white/90 hover:bg-white backdrop-blur-sm shadow-lg transition-all`}
-            onClick={handleNextImage}
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
-          </Button>
+          <>
+            {/* Previous Image Button */}
+            <Button
+              size="icon"
+              variant="ghost"
+              className={`absolute ${language === 'ar' ? 'right-2' : 'left-2'} top-1/2 -translate-y-1/2 h-10 w-10 rounded-[3px] bg-white/90 hover:bg-white backdrop-blur-sm shadow-lg transition-all`}
+              onClick={handlePrevImage}
+            >
+              {language === 'ar' ? (
+                <ChevronRight className="w-5 h-5 text-foreground" />
+              ) : (
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              )}
+            </Button>
+            
+            {/* Next Image Button */}
+            <Button
+              size="icon"
+              variant="ghost"
+              className={`absolute ${language === 'ar' ? 'left-2' : 'right-2'} top-1/2 -translate-y-1/2 h-10 w-10 rounded-[3px] bg-white/90 hover:bg-white backdrop-blur-sm shadow-lg transition-all`}
+              onClick={handleNextImage}
+            >
+              {language === 'ar' ? (
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              ) : (
+                <ChevronRight className="w-5 h-5 text-foreground" />
+              )}
+            </Button>
+          </>
         )}
       </div>
 
