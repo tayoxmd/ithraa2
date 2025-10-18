@@ -530,10 +530,8 @@ export default function Booking() {
       
       // التوجيه بناءً على نوع المستخدم
       if (user) {
-        // للمستخدمين المسجلين - توجيه فوري
-        setTimeout(() => {
-          navigate('/customer-dashboard');
-        }, 1500);
+        // للمستخدمين المسجلين - توجيه فوري بدون تأخير
+        navigate('/customer-dashboard');
       } else {
         // للضيوف - عرض dialog لتشجيعهم على إنشاء حساب
         setTimeout(() => {
