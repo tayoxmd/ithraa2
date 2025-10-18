@@ -1057,36 +1057,6 @@ export default function Booking() {
                         </div>
                       )}
                       
-                      {/* Meals Details Section */}
-                      {hotel?.meal_plans && hotel.meal_plans.max_persons > 0 && (
-                        <div className="space-y-2 pt-2 border-t">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">
-                              {t({ ar: 'الوجبات المشمولة في السعر', en: 'Meals included in price' })}
-                            </span>
-                            <span className="font-medium text-green-600 dark:text-green-400">
-                              {hotel.meal_plans.max_persons * rooms * nights}{' '}
-                              {language === 'ar' 
-                                ? (hotel.meal_plans.max_persons * rooms * nights === 1 ? 'وجبة' : hotel.meal_plans.max_persons * rooms * nights === 2 ? 'وجبتين' : 'وجبات')
-                                : (hotel.meal_plans.max_persons * rooms * nights === 1 ? 'meal' : 'meals')
-                              }
-                            </span>
-                          </div>
-                          
-                          {(extraMeals > 0 || calculateTotal().extraMealsPerNight > 0) && (
-                            <div className="flex justify-between text-sm text-orange-600 dark:text-orange-400">
-                              <span className="font-medium">
-                                {t({ ar: 'وجبات إضافية مطلوبة', en: 'Extra meals required' })}: {(extraMeals > 0 ? extraMeals : calculateTotal().extraMealsPerNight) * nights}{' '}
-                                {language === 'ar' 
-                                  ? ((extraMeals > 0 ? extraMeals : calculateTotal().extraMealsPerNight) * nights === 1 ? 'وجبة' : (extraMeals > 0 ? extraMeals : calculateTotal().extraMealsPerNight) * nights === 2 ? 'وجبتين' : 'وجبات')
-                                  : ((extraMeals > 0 ? extraMeals : calculateTotal().extraMealsPerNight) * nights === 1 ? 'meal' : 'meals')
-                                }
-                              </span>
-                              <span className="font-semibold">+{Math.round(calculateTotal().extraMealCharge)} {t({ ar: 'ر.س', en: 'SAR' })}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
                      
                      <div className="flex justify-between text-sm pt-2 border-t">
                        <span className="text-muted-foreground">{t({ ar: 'المجموع قبل الضريبة', en: 'Subtotal' })}</span>
