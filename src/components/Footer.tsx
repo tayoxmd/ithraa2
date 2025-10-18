@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import logo from "@/assets/logo.svg";
+import logo from "@/assets/logo-3d.png";
 
 export function Footer() {
   const { t, language } = useLanguage();

@@ -16,6 +16,7 @@ import { Separator } from "@/components/ui/separator";
 import { countries } from "@/data/countries";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { WhatsAppAuth } from "@/components/WhatsAppAuth";
+import logo from "@/assets/logo-3d.png";
 
 export default function Auth() {
   const [searchParams] = useSearchParams();
@@ -194,8 +195,17 @@ export default function Auth() {
     <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-primary via-primary-glow to-primary">
       <Card className="w-full max-w-md bg-card shadow-luxury border-0 rounded-2xl">
         <CardHeader className="text-center">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-luxury flex items-center justify-center shadow-luxury mx-auto mb-4">
-            <span className="text-3xl font-bold text-white">إ</span>
+          <div className="relative w-24 h-24 mx-auto mb-4">
+            <div className="absolute inset-0 blur-xl bg-gradient-to-r from-yellow-400/30 via-yellow-500/40 to-yellow-600/30 animate-pulse" />
+            <img 
+              src={logo} 
+              alt="جوار الحرم" 
+              className="relative w-full h-full object-contain animate-[spin_20s_linear_infinite] drop-shadow-2xl"
+              style={{
+                filter: "drop-shadow(0 0 20px rgba(251, 191, 36, 0.6))",
+                animation: "logoFloat 6s ease-in-out infinite, logoRotate 20s linear infinite"
+              }}
+            />
           </div>
           <CardTitle className="text-2xl text-primary font-bold">
             {isLogin ? t({ ar: "تسجيل الدخول", en: "Sign In" }) : t({ ar: "إنشاء حساب جديد", en: "Create Account" })}
@@ -460,6 +470,26 @@ export default function Auth() {
         onOpenChange={setWhatsappAuthOpen}
         redirectUrl={redirectUrl || undefined}
       />
+      
+      <style>{`
+        @keyframes logoFloat {
+          0%, 100% {
+            transform: perspective(1000px) translateY(0) rotateX(0deg);
+          }
+          50% {
+            transform: perspective(1000px) translateY(-10px) rotateX(10deg);
+          }
+        }
+
+        @keyframes logoRotate {
+          0% {
+            transform: perspective(1000px) rotateY(0deg);
+          }
+          100% {
+            transform: perspective(1000px) rotateY(360deg);
+          }
+        }
+      `}</style>
     </div>
   );
 }

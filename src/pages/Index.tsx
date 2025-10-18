@@ -4,13 +4,12 @@ import { HotelCard } from "@/components/HotelCard";
 import { Footer } from "@/components/Footer";
 import { Badge } from "@/components/ui/badge";
 import { Sparkles } from "lucide-react";
-import heroImage1 from "@/assets/hero-background-1.jpg";
-import heroImage2 from "@/assets/hero-background-2.jpg";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { LiveChatButton } from "@/components/LiveChatButton";
+import { HeroSlideshow } from "@/components/HeroSlideshow";
 
 interface Hotel {
   id: string;
@@ -39,20 +38,10 @@ interface Hotel {
 const Index = () => {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const { language } = useLanguage();
-
-  const heroImages = [heroImage1, heroImage2];
 
   useEffect(() => {
     fetchFeaturedHotels();
-
-    // Auto-switch images every 7 seconds
-    const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % heroImages.length);
-    }, 7000);
-
-    return () => clearInterval(interval);
   }, []);
 
   const fetchFeaturedHotels = async () => {
@@ -88,33 +77,8 @@ const Index = () => {
 
       {/* Hero Section */}
       <section className="relative min-h-[500px] md:min-h-[650px] flex items-center justify-center pt-20 overflow-hidden">
-        {/* 3D Background Animation */}
-        <div className="absolute inset-0 z-0">
-          {/* Gradient Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/30 via-secondary/20 to-accent/30" />
-          
-          {/* Animated 3D Shapes */}
-          <div className="absolute inset-0">
-            {/* Floating Circles - Mecca Theme */}
-            <div className="absolute top-1/4 left-1/4 w-64 h-64 bg-primary/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '4s' }} />
-            <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-secondary/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '5s', animationDelay: '1s' }} />
-            <div className="absolute top-1/3 right-1/3 w-56 h-56 bg-accent/20 rounded-full blur-3xl animate-pulse" style={{ animationDuration: '6s', animationDelay: '2s' }} />
-            
-            {/* Geometric Patterns */}
-            <svg className="absolute inset-0 w-full h-full opacity-10" xmlns="http://www.w3.org/2000/svg">
-              <defs>
-                <pattern id="islamic-pattern" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
-                  <path d="M50 0 L100 50 L50 100 L0 50 Z" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-primary" />
-                  <circle cx="50" cy="50" r="20" fill="none" stroke="currentColor" strokeWidth="0.5" className="text-primary" />
-                </pattern>
-              </defs>
-              <rect width="100%" height="100%" fill="url(#islamic-pattern)" />
-            </svg>
-            
-            {/* Subtle moving gradient */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent animate-shimmer" style={{ backgroundSize: '200% 100%' }} />
-          </div>
-        </div>
+        {/* Hero Slideshow with 3D Logo */}
+        <HeroSlideshow />
 
         {/* Content */}
         <div className="relative z-10 container mx-auto px-4 py-20">
