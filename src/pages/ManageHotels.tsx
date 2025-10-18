@@ -392,10 +392,12 @@ export default function ManageHotels() {
         return;
       }
 
+      const { bed_type_single, ...formPayloadBase } = formData;
+
       const { data: hotelData, error } = await supabase
         .from('hotels')
-        .insert([{
-          ...formData,
+        .insert([{ 
+          ...formPayloadBase,
           price_per_night: parseFloat(formData.price_per_night),
           rating: parseFloat(formData.rating),
           city_id: formData.city_id,
@@ -453,10 +455,11 @@ export default function ManageHotels() {
     if (!editingHotel) return;
 
     try {
+      const { bed_type_single, ...formPayloadBase } = formData;
       const { error } = await supabase
         .from('hotels')
         .update({
-          ...formData,
+          ...formPayloadBase,
           price_per_night: parseFloat(formData.price_per_night),
           rating: parseFloat(formData.rating),
           max_guests_per_room: parseInt(formData.max_guests_per_room),
@@ -1013,7 +1016,7 @@ export default function ManageHotels() {
               
               {/* Bed Type Selection */}
               <div className="space-y-2">
-                <Label>{t({ ar: "نوع السرير", en: "Bed Type" })}</Label>
+                <Label>{t({ ar: "عدد الأشخاص الأساسيين", en: "Base Guests" })}</Label>
                 <div className="flex items-center gap-3">
                   <div className="flex-shrink-0">
                     <Select value={formData.max_guests_per_room} onValueChange={(value) => setFormData({...formData, max_guests_per_room: value})}>
@@ -1022,7 +1025,9 @@ export default function ManageHotels() {
                       </SelectTrigger>
                       <SelectContent>
                         {[1, 2, 3, 4, 5, 6].map(num => (
-                          <SelectItem key={num} value={num.toString()}>{num} {t({ ar: 'أشخاص', en: 'persons' })}</SelectItem>
+                          <SelectItem key={num} value={num.toString()}>
+                            {language === 'ar' ? (num === 1 ? '1 شخص واحد' : num === 2 ? 'شخصين' : `${num} شخص`) : `${num} ${t({ ar: 'أشخاص', en: 'persons' })}`}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -1394,7 +1399,7 @@ export default function ManageHotels() {
               
               {/* Bed Type Selection - Edit Dialog */}
               <div className="space-y-2">
-                <Label>{t({ ar: "نوع السرير", en: "Bed Type" })}</Label>
+                <Label>{t({ ar: "عدد الأشخاص الأساسيين", en: "Base Guests" })}</Label>
                 <div className="flex items-center gap-3">
                   <div className="flex-shrink-0">
                     <Select value={formData.max_guests_per_room} onValueChange={(value) => setFormData({...formData, max_guests_per_room: value})}>
@@ -1403,7 +1408,9 @@ export default function ManageHotels() {
                       </SelectTrigger>
                       <SelectContent>
                         {[1, 2, 3, 4, 5, 6].map(num => (
-                          <SelectItem key={num} value={num.toString()}>{num} {t({ ar: 'أشخاص', en: 'persons' })}</SelectItem>
+                          <SelectItem key={num} value={num.toString()}>
+                            {language === 'ar' ? (num === 1 ? '1 شخص واحد' : num === 2 ? 'شخصين' : `${num} شخص`) : `${num} ${t({ ar: 'أشخاص', en: 'persons' })}`}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
