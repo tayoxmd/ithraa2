@@ -259,7 +259,7 @@ export default function AdminDashboard() {
 
   // Admin Sidebar Component (Desktop only)
   const AdminSidebar = () => (
-    <Sidebar side="right" className="border-l">
+    <Sidebar side="right" collapsible="icon" className="border-l">
       <SidebarContent>
         <div className="p-6 border-b border-border">
           <div className="flex items-center gap-3">
@@ -423,9 +423,10 @@ export default function AdminDashboard() {
         // Desktop: Persistent Sidebar
         <SidebarProvider defaultOpen={true}>
           <div className="flex min-h-screen w-full">
-            <main className="flex-1 overflow-y-auto pr-sidebar">
+            <main className="flex-1 overflow-y-auto">
               <div className="p-8">
                 
+
                 {/* Header */}
                 <div className="mb-8">
                   <h1 className="text-3xl font-bold mb-2 text-gradient-luxury">
