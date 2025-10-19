@@ -205,7 +205,7 @@ export default function PDFSettings() {
 
   // Initialize PDF.js worker
   useEffect(() => {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
   }, []);
 
   // Initialize Fabric Canvas
@@ -223,7 +223,7 @@ export default function PDFSettings() {
     return () => {
       canvas.dispose();
     };
-  }, [canvasRef.current]);
+  }, []);
 
   // Auto-generate preview on mount and settings change
   useEffect(() => {
@@ -438,10 +438,9 @@ export default function PDFSettings() {
           
           // Convert to fabric image and set as background
           const imgData = tempCanvas.toDataURL();
-          FabricImage.fromURL(imgData).then((img) => {
-            fabricCanvas.backgroundImage = img;
-            fabricCanvas.renderAll();
-          });
+          const img = await FabricImage.fromURL(imgData);
+          fabricCanvas.backgroundImage = img;
+          fabricCanvas.renderAll();
         }
       }
       
