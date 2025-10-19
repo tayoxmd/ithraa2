@@ -13,13 +13,15 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { FileText, Plus, Trash2, Eye, RefreshCw, Save, Palette, Layout, Type, Settings } from "lucide-react";
+import { FileText, Plus, Trash2, Eye, RefreshCw, Save, Palette, Layout, Type, Settings, MousePointer, Square, Circle as CircleIcon, Image as ImageIcon, Trash } from "lucide-react";
 import { logAuditEvent } from "@/utils/auditLogger";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { generateBookingPDF } from "@/utils/pdfGenerator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { HexColorPicker } from "react-colorful";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Canvas as FabricCanvas, IText, Rect, Circle, FabricImage } from "fabric";
+import * as pdfjsLib from 'pdfjs-dist';
 
 interface ResponsiblePerson {
   name: string;
@@ -183,10 +185,13 @@ export default function PDFSettings() {
   });
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [showPreview, setShowPreview] = useState(false);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [showPreview, setShowPreview] = useState(true);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
   const [activeTab, setActiveTab] = useState("content");
+  const [editorTool, setEditorTool] = useState<"select" | "text" | "rect" | "circle" | "image">("select");
+  const [editorColor, setEditorColor] = useState("#000000");
+  const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
 
   useEffect(() => {
     if (!loading) {
@@ -197,6 +202,38 @@ export default function PDFSettings() {
       fetchSettings();
     }
   }, [userRole, loading, navigate]);
+
+  // Initialize PDF.js worker
+  useEffect(() => {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  }, []);
+
+  // Initialize Fabric Canvas
+  useEffect(() => {
+    if (!canvasRef.current || fabricCanvas) return;
+
+    const canvas = new FabricCanvas(canvasRef.current, {
+      width: 595, // A4 width in points
+      height: 842, // A4 height in points
+      backgroundColor: "#ffffff",
+    });
+
+    setFabricCanvas(canvas);
+
+    return () => {
+      canvas.dispose();
+    };
+  }, [canvasRef.current]);
+
+  // Auto-generate preview on mount and settings change
+  useEffect(() => {
+    if (settings.id && !loadingSettings) {
+      const timer = setTimeout(() => {
+        generatePreview();
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [settings, loadingSettings]);
 
   const fetchSettings = async () => {
     try {
@@ -327,15 +364,10 @@ export default function PDFSettings() {
   };
 
   const generatePreview = async () => {
+    if (isGeneratingPreview) return;
+    
     try {
-      toast({
-        title: t({ ar: "جاري الإنشاء...", en: "Generating..." }),
-        description: t({ ar: "يرجى الانتظار", en: "Please wait" }),
-      });
-
-      await new Promise(resolve => setTimeout(resolve, 100));
-
-      console.log('PDF Settings:', settings); // للتحقق
+      setIsGeneratingPreview(true);
 
       const sampleData = {
         bookingNumber: 12345,
@@ -375,25 +407,45 @@ export default function PDFSettings() {
         pdfSettings: settings
       };
 
-      console.log('Generating PDF with data:', sampleData); // للتحقق
-
       const pdf = await generateBookingPDF(sampleData);
-      const pdfBlob = pdf.output('blob');
-      const url = URL.createObjectURL(pdfBlob);
+      const pdfBlob = pdf.output('arraybuffer');
       
-      console.log('PDF generated successfully, blob URL:', url); // للتحقق
+      // Load PDF into canvas using PDF.js
+      const loadingTask = pdfjsLib.getDocument({ data: pdfBlob });
+      const pdfDoc = await loadingTask.promise;
+      const page = await pdfDoc.getPage(1);
       
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
+      const viewport = page.getViewport({ scale: 1.0 });
+      
+      if (fabricCanvas) {
+        fabricCanvas.setDimensions({
+          width: viewport.width,
+          height: viewport.height
+        });
+        
+        // Render PDF page to a temporary canvas
+        const tempCanvas = document.createElement('canvas');
+        const context = tempCanvas.getContext('2d');
+        tempCanvas.width = viewport.width;
+        tempCanvas.height = viewport.height;
+        
+        if (context) {
+          await page.render({
+            canvasContext: context,
+            viewport: viewport,
+            canvas: tempCanvas
+          }).promise;
+          
+          // Convert to fabric image and set as background
+          const imgData = tempCanvas.toDataURL();
+          FabricImage.fromURL(imgData).then((img) => {
+            fabricCanvas.backgroundImage = img;
+            fabricCanvas.renderAll();
+          });
+        }
       }
       
-      setPreviewUrl(url);
       setShowPreview(true);
-      
-      toast({
-        title: t({ ar: "تم إنشاء المعاينة", en: "Preview Generated" }),
-        description: t({ ar: "يمكنك الآن مشاهدة نموذج PDF", en: "You can now view the PDF preview" }),
-      });
     } catch (error) {
       console.error('Error generating preview:', error);
       toast({
@@ -401,16 +453,68 @@ export default function PDFSettings() {
         description: t({ ar: `حدث خطأ: ${error.message}`, en: `Error: ${error.message}` }),
         variant: "destructive",
       });
+    } finally {
+      setIsGeneratingPreview(false);
     }
   };
 
-  useEffect(() => {
-    return () => {
-      if (previewUrl) {
-        URL.revokeObjectURL(previewUrl);
+  const handleEditorToolClick = (tool: typeof editorTool) => {
+    setEditorTool(tool);
+
+    if (!fabricCanvas) return;
+
+    fabricCanvas.isDrawingMode = false;
+
+    if (tool === "text") {
+      const text = new IText(t({ ar: "انقر للتحرير", en: "Click to edit" }), {
+        left: 100,
+        top: 100,
+        fill: editorColor,
+        fontSize: 20,
+        fontFamily: 'Arial'
+      });
+      fabricCanvas.add(text);
+      fabricCanvas.setActiveObject(text);
+    } else if (tool === "rect") {
+      const rect = new Rect({
+        left: 100,
+        top: 100,
+        fill: editorColor,
+        width: 100,
+        height: 60,
+      });
+      fabricCanvas.add(rect);
+      fabricCanvas.setActiveObject(rect);
+    } else if (tool === "circle") {
+      const circle = new Circle({
+        left: 100,
+        top: 100,
+        fill: editorColor,
+        radius: 50,
+      });
+      fabricCanvas.add(circle);
+      fabricCanvas.setActiveObject(circle);
+    }
+    
+    fabricCanvas.renderAll();
+  };
+
+  const handleClearAnnotations = () => {
+    if (!fabricCanvas) return;
+    
+    const objects = fabricCanvas.getObjects();
+    objects.forEach(obj => {
+      if (!(obj === fabricCanvas.backgroundImage)) {
+        fabricCanvas.remove(obj);
       }
-    };
-  }, [previewUrl]);
+    });
+    fabricCanvas.renderAll();
+    
+    toast({
+      title: t({ ar: "تم المسح", en: "Cleared" }),
+      description: t({ ar: "تم مسح جميع التعديلات", en: "All annotations cleared" }),
+    });
+  };
 
   if (loading || loadingSettings) {
     return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
@@ -527,9 +631,9 @@ export default function PDFSettings() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Settings Tabs */}
-          <Card className="card-luxury">
+          <Card className="card-luxury lg:col-span-5">
             <CardHeader>
               <CardTitle className="text-xl">
                 {t({ ar: "إعدادات التصميم", en: "Design Settings" })}
@@ -1376,44 +1480,103 @@ export default function PDFSettings() {
             </CardContent>
           </Card>
 
-          {/* Preview Section */}
-          <Card className="card-luxury">
+          {/* Live Preview & Editor */}
+          <Card className="card-luxury lg:col-span-7">
             <CardHeader>
-              <CardTitle className="text-xl">
-                {t({ ar: "معاينة مباشرة", en: "Live Preview" })}
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl flex items-center gap-2">
+                  <Eye className="w-5 h-5" />
+                  {t({ ar: "المعاينة المباشرة والتحرير", en: "Live Preview & Editor" })}
+                </CardTitle>
+                <Button
+                  onClick={generatePreview}
+                  size="sm"
+                  variant="outline"
+                  disabled={isGeneratingPreview}
+                >
+                  <RefreshCw className={`w-4 h-4 mr-2 ${isGeneratingPreview ? 'animate-spin' : ''}`} />
+                  {t({ ar: "تحديث", en: "Refresh" })}
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="w-full h-[calc(100vh-280px)] bg-muted rounded-lg overflow-hidden">
-                {showPreview && previewUrl ? (
-                  <div className="w-full h-full relative">
-                    {/* Primary preview via <object> to avoid blob-in-iframe issues */}
-                    <object
-                      key={previewUrl}
-                      data={previewUrl}
-                      type="application/pdf"
-                      className="w-full h-full"
-                      aria-label="PDF Preview"
-                    >
-                      {/* Fallback to <embed> */}
-                      <embed src={previewUrl} type="application/pdf" className="w-full h-full" />
-                    </object>
-                    {/* Fallback action: open in new tab */}
-                    <div className="absolute inset-x-0 bottom-0 p-2 flex justify-center gap-2 bg-background/60 backdrop-blur-md">
-                      <Button size="sm" variant="outline" onClick={() => window.open(previewUrl, '_blank')}> 
-                        {t({ ar: "فتح في تبويب جديد", en: "Open in new tab" })}
-                      </Button>
-                    </div>
+              {/* Editor Toolbar */}
+              <div className="flex flex-wrap gap-2 mb-4 p-3 bg-muted rounded-lg">
+                <Button
+                  size="sm"
+                  variant={editorTool === "select" ? "default" : "outline"}
+                  onClick={() => handleEditorToolClick("select")}
+                >
+                  <MousePointer className="w-4 h-4 mr-2" />
+                  {t({ ar: "تحديد", en: "Select" })}
+                </Button>
+                <Button
+                  size="sm"
+                  variant={editorTool === "text" ? "default" : "outline"}
+                  onClick={() => handleEditorToolClick("text")}
+                >
+                  <Type className="w-4 h-4 mr-2" />
+                  {t({ ar: "نص", en: "Text" })}
+                </Button>
+                <Button
+                  size="sm"
+                  variant={editorTool === "rect" ? "default" : "outline"}
+                  onClick={() => handleEditorToolClick("rect")}
+                >
+                  <Square className="w-4 h-4 mr-2" />
+                  {t({ ar: "مربع", en: "Rectangle" })}
+                </Button>
+                <Button
+                  size="sm"
+                  variant={editorTool === "circle" ? "default" : "outline"}
+                  onClick={() => handleEditorToolClick("circle")}
+                >
+                  <CircleIcon className="w-4 h-4 mr-2" />
+                  {t({ ar: "دائرة", en: "Circle" })}
+                </Button>
+                
+                <div className="flex items-center gap-2 ml-auto">
+                  <Label className="text-sm">{t({ ar: "اللون:", en: "Color:" })}</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        className="w-10 h-10 rounded border-2 border-border"
+                        style={{ backgroundColor: editorColor }}
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-3">
+                      <HexColorPicker color={editorColor} onChange={setEditorColor} />
+                    </PopoverContent>
+                  </Popover>
+                  
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={handleClearAnnotations}
+                  >
+                    <Trash className="w-4 h-4 mr-2" />
+                    {t({ ar: "مسح التعديلات", en: "Clear" })}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Canvas */}
+              <div className="border rounded-lg overflow-auto bg-gray-50 p-4" style={{ maxHeight: 'calc(100vh - 400px)' }}>
+                {isGeneratingPreview ? (
+                  <div className="flex items-center justify-center" style={{ height: '842px' }}>
+                    <LoadingSpinner size="lg" />
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-                    <Eye className="w-16 h-16 mb-4 opacity-50" />
-                    <p className="text-lg">
-                      {t({ ar: "اضغط على زر المعاينة لعرض PDF", en: "Click Preview to view PDF" })}
-                    </p>
-                  </div>
+                  <canvas ref={canvasRef} className="shadow-lg mx-auto" />
                 )}
               </div>
+
+              <p className="text-sm text-muted-foreground mt-3 text-center">
+                {t({ 
+                  ar: "استخدم الأدوات أعلاه لإضافة نصوص وأشكال على PDF. يمكنك سحب وإفلات العناصر لتحريكها.", 
+                  en: "Use the tools above to add text and shapes to the PDF. Drag and drop elements to move them." 
+                })}
+              </p>
             </CardContent>
           </Card>
         </div>
