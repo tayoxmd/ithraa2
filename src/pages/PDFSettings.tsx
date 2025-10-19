@@ -22,6 +22,9 @@ import { HexColorPicker } from "react-colorful";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Canvas as FabricCanvas, IText, Rect, Circle, FabricImage } from "fabric";
 import * as pdfjsLib from 'pdfjs-dist';
+import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+// @ts-ignore - Vite worker import type
+import PdfJsWorker from 'pdfjs-dist/build/pdf.worker.min.mjs?worker';
 
 interface ResponsiblePerson {
   name: string;
@@ -203,9 +206,17 @@ export default function PDFSettings() {
     }
   }, [userRole, loading, navigate]);
 
-  // Initialize PDF.js worker
+  // Initialize PDF.js worker (prefer real worker; fallback to bundled URL)
   useEffect(() => {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+    try {
+      // Create a real Worker bundled by Vite
+      const worker: Worker = new (PdfJsWorker as unknown as { new (): Worker })();
+      (pdfjsLib as any).GlobalWorkerOptions.workerPort = worker;
+      return () => worker.terminate();
+    } catch {
+      // Fallback: use local URL for fake worker dynamic import
+      (pdfjsLib as any).GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl as unknown as string;
+    }
   }, []);
 
   // Initialize Fabric Canvas
