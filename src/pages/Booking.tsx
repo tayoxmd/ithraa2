@@ -617,7 +617,7 @@ export default function Booking() {
       
       <div className="container mx-auto px-4 py-8 pt-24">
         <h1 className="text-3xl font-bold mb-8">
-          {t({ ar: 'إكمال الحجز', en: 'Complete Booking', fr: 'Finaliser la réservation', es: 'Completar reserva', ru: 'Завершить бронирование', id: 'Selesaikan Pemesanan', ms: 'Lengkapkan Tempahan' })}
+          {t({ ar: 'إكمال الحجز', en: 'Complete Booking' })}
         </h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -626,7 +626,7 @@ export default function Booking() {
               {/* Booking Summary Card */}
               <Card className="card-luxury">
                 <CardHeader>
-                  <CardTitle>{t({ ar: 'ملخص الحجز', en: 'Booking Summary', fr: 'Résumé de la réservation', es: 'Resumen de reserva', ru: 'Резюме бронирования', id: 'Ringkasan Pemesanan', ms: 'Ringkasan Tempahan' })}</CardTitle>
+                  <CardTitle>{t({ ar: 'ملخص الحجز', en: 'Booking Summary' })}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   {/* Hotel Images Gallery */}
@@ -1230,13 +1230,13 @@ export default function Booking() {
               {/* Additional Notes */}
               <Card className="card-luxury">
                 <CardHeader>
-                  <CardTitle>{t({ ar: 'ملاحظات إضافية', en: 'Additional Notes', fr: 'Notes supplémentaires', es: 'Notas adicionales', ru: 'Дополнительные заметки', id: 'Catatan Tambahan', ms: 'Nota Tambahan' })}</CardTitle>
+                  <CardTitle>{t({ ar: 'ملاحظات إضافية', en: 'Additional Notes' })}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <Textarea
                     value={notes}
                     onChange={(e) => setNotes(e.target.value)}
-                    placeholder={t({ ar: 'أي ملاحظات خاصة...', en: 'Any special requests...', fr: 'Demandes spéciales...', es: 'Solicitudes especiales...', ru: 'Особые пожелания...', id: 'Permintaan khusus...', ms: 'Permintaan khas...' })}
+                    placeholder={t({ ar: 'أي ملاحظات خاصة...', en: 'Any special requests...' })}
                     rows={4}
                   />
                 </CardContent>
@@ -1247,7 +1247,7 @@ export default function Booking() {
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <CreditCard className="ml-2 w-5 h-5" />
-                    {t({ ar: 'طريقة الدفع', en: 'Payment Method', fr: 'Mode de paiement', es: 'Método de pago', ru: 'Способ оплаты', id: 'Metode Pembayaran', ms: 'Kaedah Pembayaran' })}
+                    {t({ ar: 'طريقة الدفع', en: 'Payment Method' })}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -1265,7 +1265,7 @@ export default function Booking() {
                       ref={paymentMethodRef}
                       className={fieldErrors.paymentMethod ? "border-2 border-destructive focus:ring-destructive" : ""}
                     >
-                      <SelectValue placeholder={t({ ar: 'اختر طريقة الدفع', en: 'Select payment method', fr: 'Sélectionner le mode de paiement', es: 'Seleccionar método de pago', ru: 'Выберите способ оплаты', id: 'Pilih metode pembayaran', ms: 'Pilih kaedah pembayaran' })} />
+                      <SelectValue placeholder={t({ ar: 'اختر طريقة الدفع', en: 'Select payment method' })} />
                     </SelectTrigger>
                     <SelectContent>
                       {paymentMethods.map(method => (

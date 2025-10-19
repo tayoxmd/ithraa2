@@ -158,9 +158,9 @@ export default function CustomerDashboard() {
         <div className="flex items-center gap-4 mb-8">
           <Button variant="outline" onClick={() => navigate('/')}>
             <Home className="w-4 h-4 mr-2" />
-            {t({ ar: "الرئيسية", en: "Home", fr: "Accueil", es: "Inicio", ru: "Главная", id: "Beranda", ms: "Laman Utama" })}
+            {t({ ar: "الرئيسية", en: "Home" })}
           </Button>
-          <h1 className="text-3xl font-bold text-gradient-luxury">{t({ ar: "لوحة التحكم", en: "Dashboard", fr: "Tableau de bord", es: "Panel", ru: "Панель", id: "Dasbor", ms: "Papan Pemuka" })}</h1>
+          <h1 className="text-3xl font-bold text-gradient-luxury">{t({ ar: "لوحة التحكم", en: "Dashboard" })}</h1>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -170,7 +170,7 @@ export default function CustomerDashboard() {
             className="gap-2"
           >
             <FileText className="w-4 h-4" />
-            {t({ ar: "حجوزاتي", en: "My Bookings", fr: "Mes réservations", es: "Mis reservas", ru: "Мои бронирования", id: "Pemesanan Saya", ms: "Tempahan Saya" })}
+            {t({ ar: "حجوزاتي", en: "My Bookings" })}
           </Button>
           <Button 
             variant="outline"
@@ -178,7 +178,7 @@ export default function CustomerDashboard() {
             className="gap-2"
           >
             <User className="w-4 h-4" />
-            {t({ ar: "الملف الشخصي", en: "Profile", fr: "Profil", es: "Perfil", ru: "Профиль", id: "Profil", ms: "Profil" })}
+            {t({ ar: "الملف الشخصي", en: "Profile" })}
           </Button>
         </div>
 
@@ -186,7 +186,7 @@ export default function CustomerDashboard() {
           bookings.length === 0 ? (
             <Card className="card-luxury">
               <CardContent className="py-8 text-center">
-                <p className="text-muted-foreground">{t({ ar: "لا توجد حجوزات حتى الآن", en: "No bookings yet", fr: "Aucune réservation pour le moment", es: "Aún no hay reservas", ru: "Пока нет бронирований", id: "Belum ada pemesanan", ms: "Tiada tempahan lagi" })}</p>
+                <p className="text-muted-foreground">{t({ ar: "لا توجد حجوزات حتى الآن", en: "No bookings yet" })}</p>
               </CardContent>
             </Card>
           ) : (
@@ -221,17 +221,17 @@ export default function CustomerDashboard() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-3">
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "تاريخ الوصول:", en: "Check-in:", fr: "Arrivée:", es: "Entrada:", ru: "Заезд:", id: "Check-in:", ms: "Daftar masuk:" })}</span>
+                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "تاريخ الوصول:", en: "Check-in:" })}</span>
                           <span className="font-semibold text-sm sm:text-base">{format(new Date(booking.check_in), 'yyyy-MM-dd')}</span>
                         </div>
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })}</span>
+                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "تاريخ المغادرة:", en: "Check-out:" })}</span>
                           <span className="font-semibold text-sm sm:text-base">{format(new Date(booking.check_out), 'yyyy-MM-dd')}</span>
                         </div>
                       </div>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })}</span>
+                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "عدد النزلاء:", en: "Guests:" })}</span>
                           <span className="font-semibold text-sm sm:text-base">{booking.guests}</span>
                         </div>
                         <div className="flex items-center justify-between gap-2">
@@ -356,7 +356,7 @@ export default function CustomerDashboard() {
                         }}
                       >
                         <Download className="w-4 h-4 mr-2" />
-                        {t({ ar: "تحميل PDF", en: "Download PDF", fr: "Télécharger PDF", es: "Descargar PDF", ru: "Скачать PDF", id: "Unduh PDF", ms: "Muat turun PDF" })}
+                        {t({ ar: "تحميل PDF", en: "Download PDF" })}
                       </Button>
                     </div>
                   </CardContent>
@@ -367,15 +367,15 @@ export default function CustomerDashboard() {
         ) : (
           <Card className="card-luxury">
             <CardHeader>
-              <CardTitle>{t({ ar: "معلوماتي الشخصية", en: "Personal Information", fr: "Informations personnelles", es: "Información personal", ru: "Личная информация", id: "Informasi Pribadi", ms: "Maklumat Peribadi" })}</CardTitle>
+              <CardTitle>{t({ ar: "معلوماتي الشخصية", en: "Personal Information" })}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">{t({ ar: "البريد الإلكتروني", en: "Email", fr: "E-mail", es: "Correo electrónico", ru: "Электронная почта", id: "Email", ms: "E-mel" })}</p>
+                <p className="text-sm text-muted-foreground">{t({ ar: "البريد الإلكتروني", en: "Email" })}</p>
                 <p className="font-medium">{user.email}</p>
               </div>
               <Button onClick={() => navigate('/reset-password')} className="w-full btn-luxury">
-                {t({ ar: "تغيير كلمة المرور", en: "Change Password", fr: "Changer le mot de passe", es: "Cambiar contraseña", ru: "Изменить пароль", id: "Ubah Kata Sandi", ms: "Tukar Kata Laluan" })}
+                {t({ ar: "تغيير كلمة المرور", en: "Change Password" })}
               </Button>
             </CardContent>
           </Card>
