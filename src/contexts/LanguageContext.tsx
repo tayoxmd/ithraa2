@@ -1,15 +1,15 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
-type Language = "ar" | "en" | "fr" | "es" | "ru" | "id" | "ms";
+type Language = "ar" | "en";
 
 type TranslationObject = {
   ar: string;
   en: string;
-  fr: string;
-  es: string;
-  ru: string;
-  id: string;
-  ms: string;
+  fr?: string;
+  es?: string;
+  ru?: string;
+  id?: string;
+  ms?: string;
 };
 
 interface LanguageContextType {
@@ -23,11 +23,6 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 const languageNames: Record<Language, string> = {
   ar: "العربية",
   en: "English",
-  fr: "Français",
-  es: "Español",
-  ru: "Русский",
-  id: "Bahasa Indonesia",
-  ms: "Bahasa Melayu",
 };
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
@@ -66,6 +61,6 @@ export function useLanguage() {
   return context;
 }
 
-export const languages: Language[] = ["ar", "en", "fr", "es", "ru", "id", "ms"];
+export const languages: Language[] = ["ar", "en"];
 export { languageNames };
 export type { Language };

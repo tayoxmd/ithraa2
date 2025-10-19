@@ -880,7 +880,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                       }}
                     >
                       <FileText className="w-4 h-4 ml-1" />
-                      {t({ ar: "PDF واتساب EN", en: "PDF WhatsApp EN" })}
+                      {t({ ar: "PDF واتساب", en: "PDF WhatsApp" })}
                     </Button>
                     <Button
                       variant="outline"
@@ -938,7 +938,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                       }}
                     >
                       <FileText className="w-4 h-4 ml-1" />
-                      {t({ ar: "PDF واتساب AR", en: "PDF WhatsApp AR" })}
+                      {t({ ar: "PDF واتساب", en: "PDF WhatsApp" })}
                     </Button>
                     <Button
                       variant="outline"
