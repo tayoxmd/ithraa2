@@ -1372,17 +1372,17 @@ export default function ManageHotels() {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t({ ar: "السعر لليلة", en: "Price per Night", fr: "Prix par nuit", es: "Precio por noche", ru: "Цена за ночь", id: "Harga per Malam", ms: "Harga setiap Malam" })}</Label>
+                  <Label>{t({ ar: "السعر لليلة", en: "Price per Night" })}</Label>
                   <Input type="number" value={formData.price_per_night} onChange={(e) => setFormData({...formData, price_per_night: e.target.value})} />
                 </div>
                 <div className="space-y-2">
-                  <Label>{t({ ar: "التقييم", en: "Rating", fr: "Évaluation", es: "Calificación", ru: "Рейтинг", id: "Penilaian", ms: "Penilaian" })}</Label>
+                  <Label>{t({ ar: "التقييم", en: "Rating" })}</Label>
                   <Input type="number" min="0" max="5" step="0.1" value={formData.rating} onChange={(e) => setFormData({...formData, rating: e.target.value})} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label>{t({ ar: "سعر الشخص الإضافي", en: "Extra Guest Price", fr: "Prix par invité supplémentaire", es: "Precio por huésped adicional", ru: "Цена за доп. гостя", id: "Harga Tamu Tambahan", ms: "Harga Tetamu Tambahan" })}</Label>
+                  <Label>{t({ ar: "سعر الشخص الإضافي", en: "Extra Guest Price" })}</Label>
                   <Input type="number" min="0" value={formData.extra_guest_price} onChange={(e) => setFormData({...formData, extra_guest_price: e.target.value})} />
                 </div>
               </div>
@@ -1681,10 +1681,10 @@ export default function ManageHotels() {
             </div>
             <DialogFooter>
               <Button variant="outline" onClick={() => { setIsEditDialogOpen(false); setEditingHotel(null); resetForm(); }}>
-                {t({ ar: "إلغاء", en: "Cancel", fr: "Annuler", es: "Cancelar", ru: "Отмена", id: "Batal", ms: "Batal" })}
+                {t({ ar: "إلغاء", en: "Cancel" })}
               </Button>
               <Button onClick={handleEditHotel}>
-                {t({ ar: "حفظ", en: "Save", fr: "Enregistrer", es: "Guardar", ru: "Сохранить", id: "Simpan", ms: "Simpan" })}
+                {t({ ar: "حفظ", en: "Save" })}
               </Button>
             </DialogFooter>
           </DialogContent>

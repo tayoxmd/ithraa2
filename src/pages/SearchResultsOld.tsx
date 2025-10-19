@@ -85,10 +85,10 @@ export default function SearchResults() {
             <div className="flex items-center justify-between mb-4">
               <div>
                 <h1 className="text-3xl font-bold mb-2">
-                  {t({ ar: 'نتائج البحث', en: 'Search Results', fr: 'Résultats de recherche', es: 'Resultados de búsqueda', ru: 'Результаты поиска', id: 'Hasil Pencarian', ms: 'Hasil Carian' })}
+                  {t({ ar: 'نتائج البحث', en: 'Search Results' })}
                 </h1>
                 <p className="text-muted-foreground">
-                  {t({ ar: `تم العثور على ${hotels.length} فندق`, en: `Found ${hotels.length} hotels`, fr: `${hotels.length} hôtels trouvés`, es: `Se encontraron ${hotels.length} hoteles`, ru: `Найдено отелей: ${hotels.length}`, id: `Ditemukan ${hotels.length} hotel`, ms: `Ditemui ${hotels.length} hotel` })}
+                  {t({ ar: `تم العثور على ${hotels.length} فندق`, en: `Found ${hotels.length} hotels` })}
                 </p>
               </div>
               <CollapsibleTrigger asChild>
@@ -139,7 +139,7 @@ export default function SearchResults() {
         {hotels.length === 0 && (
           <div className="text-center py-12">
             <p className="text-muted-foreground text-lg">
-              {t({ ar: 'لم يتم العثور على نتائج', en: 'No results found', fr: 'Aucun résultat trouvé', es: 'No se encontraron resultados', ru: 'Результаты не найдены', id: 'Tidak ada hasil ditemukan', ms: 'Tiada hasil ditemui' })}
+              {t({ ar: 'لم يتم العثور على نتائج', en: 'No results found' })}
             </p>
           </div>
         )}

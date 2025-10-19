@@ -19,12 +19,7 @@ const NotFound = () => {
         <p className="mb-8 text-2xl text-foreground">
           {t({
             ar: "عذراً! الصفحة غير موجودة",
-            en: "Oops! Page not found",
-            fr: "Oups! Page non trouvée",
-            es: "¡Ups! Página no encontrada",
-            ru: "Упс! Страница не найдена",
-            id: "Ups! Halaman tidak ditemukan",
-            ms: "Ops! Halaman tidak dijumpai"
+            en: "Oops! Page not found"
           })}
         </p>
         <Link to="/">
@@ -32,12 +27,7 @@ const NotFound = () => {
             <Home className="w-4 h-4" />
             {t({
               ar: "العودة للصفحة الرئيسية",
-              en: "Return to Home",
-              fr: "Retour à l'accueil",
-              es: "Volver al inicio",
-              ru: "Вернуться на главную",
-              id: "Kembali ke Beranda",
-              ms: "Kembali ke Laman Utama"
+              en: "Return to Home"
             })}
           </Button>
         </Link>
