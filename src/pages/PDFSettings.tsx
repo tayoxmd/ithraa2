@@ -22,7 +22,7 @@ import { HexColorPicker } from "react-colorful";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Canvas as FabricCanvas, IText, Rect, Circle, FabricImage } from "fabric";
 import * as pdfjsLib from 'pdfjs-dist';
-import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.js?url';
+import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 interface ResponsiblePerson {
   name: string;
@@ -204,19 +204,9 @@ export default function PDFSettings() {
     }
   }, [userRole, loading, navigate]);
 
-  // Initialize PDF.js worker (use real worker if possible)
+  // Initialize PDF.js worker
   useEffect(() => {
-    try {
-      const url = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url);
-      const worker = new Worker(url, { type: 'module' });
-      (pdfjsLib as any).GlobalWorkerOptions.workerPort = worker;
-      console.info('[PDF] workerPort configured:', url.toString());
-      return () => worker.terminate();
-    } catch (e) {
-      const fallbackUrl = (pdfjsWorkerUrl as unknown as string) || new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString();
-      (pdfjsLib as any).GlobalWorkerOptions.workerSrc = fallbackUrl;
-      console.info('[PDF] workerSrc fallback configured:', fallbackUrl, e);
-    }
+    (pdfjsLib as any).GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
   }, []);
 
   // Initialize Fabric Canvas
