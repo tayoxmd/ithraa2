@@ -194,11 +194,59 @@ export async function generateBookingPDF(data: PDFBookingData): Promise<jsPDF> {
   
   // Main title
   let yPos = settings.title_y || 38;
-  doc.setTextColor(darkText[0], darkText[1], darkText[2]);
-  doc.setFontSize(fontSizeTitle);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Hotel Booking Confirmation', marginLeft, yPos);
-  yPos += sectionSpacing;
+  
+  // Display hotel confirmation number with frame if available
+  if (data.hotelConfirmationNumber) {
+    const boxSettings = {
+      x: settings.hotel_confirmation_box_x || marginLeft,
+      y: settings.hotel_confirmation_box_y || yPos,
+      width: settings.hotel_confirmation_box_width || 180,
+      height: settings.hotel_confirmation_box_height || 12,
+      padding: settings.hotel_confirmation_box_padding || 3,
+      borderWidth: settings.hotel_confirmation_border_width || 1,
+      borderRadius: settings.hotel_confirmation_box_border_radius || 4
+    };
+    
+    const textColor = parseColor(settings.hotel_confirmation_text_color, [75, 0, 130]);
+    const borderColor = parseColor(settings.hotel_confirmation_border_color, [75, 0, 130]);
+    const fontSize = settings.hotel_confirmation_font_size || 12;
+    const fontFamily = settings.hotel_confirmation_font_family || 'helvetica';
+    
+    // Draw rounded rectangle border
+    doc.setDrawColor(borderColor[0], borderColor[1], borderColor[2]);
+    doc.setLineWidth(boxSettings.borderWidth);
+    doc.roundedRect(
+      boxSettings.x, 
+      boxSettings.y, 
+      boxSettings.width, 
+      boxSettings.height, 
+      boxSettings.borderRadius, 
+      boxSettings.borderRadius, 
+      'S'
+    );
+    
+    // Draw text inside the box
+    doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+    doc.setFontSize(fontSize);
+    doc.setFont(fontFamily, 'bold');
+    
+    const confirmationText = `Hotel Booking Confirmation: ${data.hotelConfirmationNumber}`;
+    const textY = boxSettings.y + (boxSettings.height / 2) + (fontSize * 0.3);
+    doc.text(
+      confirmationText, 
+      boxSettings.x + boxSettings.padding, 
+      textY
+    );
+    
+    yPos = boxSettings.y + boxSettings.height + sectionSpacing;
+  } else {
+    // Original title without confirmation number
+    doc.setTextColor(darkText[0], darkText[1], darkText[2]);
+    doc.setFontSize(fontSizeTitle);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Hotel Booking Confirmation', marginLeft, yPos);
+    yPos += sectionSpacing;
+  }
   
   // Greeting section
   if (settings.show_company_description !== false) {

@@ -1102,6 +1102,17 @@ export type Database = {
           header_logo_svg_en: string | null
           header_text_ar: string | null
           header_text_en: string | null
+          hotel_confirmation_border_color: string | null
+          hotel_confirmation_border_width: number | null
+          hotel_confirmation_box_border_radius: number | null
+          hotel_confirmation_box_height: number | null
+          hotel_confirmation_box_padding: number | null
+          hotel_confirmation_box_width: number | null
+          hotel_confirmation_box_x: number | null
+          hotel_confirmation_box_y: number | null
+          hotel_confirmation_font_family: string | null
+          hotel_confirmation_font_size: number | null
+          hotel_confirmation_text_color: string | null
           iban: string | null
           id: string
           line_height: number | null
@@ -1166,6 +1177,17 @@ export type Database = {
           header_logo_svg_en?: string | null
           header_text_ar?: string | null
           header_text_en?: string | null
+          hotel_confirmation_border_color?: string | null
+          hotel_confirmation_border_width?: number | null
+          hotel_confirmation_box_border_radius?: number | null
+          hotel_confirmation_box_height?: number | null
+          hotel_confirmation_box_padding?: number | null
+          hotel_confirmation_box_width?: number | null
+          hotel_confirmation_box_x?: number | null
+          hotel_confirmation_box_y?: number | null
+          hotel_confirmation_font_family?: string | null
+          hotel_confirmation_font_size?: number | null
+          hotel_confirmation_text_color?: string | null
           iban?: string | null
           id?: string
           line_height?: number | null
@@ -1230,6 +1252,17 @@ export type Database = {
           header_logo_svg_en?: string | null
           header_text_ar?: string | null
           header_text_en?: string | null
+          hotel_confirmation_border_color?: string | null
+          hotel_confirmation_border_width?: number | null
+          hotel_confirmation_box_border_radius?: number | null
+          hotel_confirmation_box_height?: number | null
+          hotel_confirmation_box_padding?: number | null
+          hotel_confirmation_box_width?: number | null
+          hotel_confirmation_box_x?: number | null
+          hotel_confirmation_box_y?: number | null
+          hotel_confirmation_font_family?: string | null
+          hotel_confirmation_font_size?: number | null
+          hotel_confirmation_text_color?: string | null
           iban?: string | null
           id?: string
           line_height?: number | null

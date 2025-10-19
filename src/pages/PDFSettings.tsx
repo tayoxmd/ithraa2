@@ -105,6 +105,19 @@ interface PDFSettings {
   header_logo_svg_ar?: string;
   footer_logo_svg_en?: string;
   footer_logo_svg_ar?: string;
+  
+  // Hotel Confirmation Number Display Settings
+  hotel_confirmation_font_size?: number;
+  hotel_confirmation_font_family?: string;
+  hotel_confirmation_text_color?: string;
+  hotel_confirmation_border_color?: string;
+  hotel_confirmation_border_width?: number;
+  hotel_confirmation_box_x?: number;
+  hotel_confirmation_box_y?: number;
+  hotel_confirmation_box_width?: number;
+  hotel_confirmation_box_height?: number;
+  hotel_confirmation_box_padding?: number;
+  hotel_confirmation_box_border_radius?: number;
 }
 
 export default function PDFSettings() {
@@ -155,7 +168,18 @@ export default function PDFSettings() {
     footer_company_name_ar: 'شركة إثراء للإيواء السياحي',
     company_license: '73105372',
     company_vat: '302006094600003',
-    company_cr: '4031285856'
+    company_cr: '4031285856',
+    hotel_confirmation_font_size: 12,
+    hotel_confirmation_font_family: 'helvetica',
+    hotel_confirmation_text_color: '75,0,130',
+    hotel_confirmation_border_color: '75,0,130',
+    hotel_confirmation_border_width: 1,
+    hotel_confirmation_box_x: 15,
+    hotel_confirmation_box_y: 38,
+    hotel_confirmation_box_width: 180,
+    hotel_confirmation_box_height: 12,
+    hotel_confirmation_box_padding: 3,
+    hotel_confirmation_box_border_radius: 4
   });
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -926,6 +950,28 @@ export default function PDFSettings() {
                         manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
                       />
                     </div>
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "ألوان رقم تأكيد الفندق", en: "Hotel Confirmation # Colors" })}
+                      </h3>
+                      
+                      <ColorInput
+                        label={t({ ar: "لون النص", en: "Text Color" })}
+                        value={settings.hotel_confirmation_text_color || '75,0,130'}
+                        onChange={(v) => setSettings({ ...settings, hotel_confirmation_text_color: v })}
+                        doneText={t({ ar: "تم", en: "Done" })}
+                        manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
+                      />
+
+                      <ColorInput
+                        label={t({ ar: "لون الإطار", en: "Border Color" })}
+                        value={settings.hotel_confirmation_border_color || '75,0,130'}
+                        onChange={(v) => setSettings({ ...settings, hotel_confirmation_border_color: v })}
+                        doneText={t({ ar: "تم", en: "Done" })}
+                        manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
+                      />
+                    </div>
                   </TabsContent>
 
                   {/* Fonts Tab */}
@@ -979,6 +1025,32 @@ export default function PDFSettings() {
                             max="12"
                           />
                         </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "خط رقم تأكيد الفندق", en: "Hotel Confirmation # Font" })}
+                      </h3>
+                      
+                      <div>
+                        <Label>{t({ ar: "حجم الخط", en: "Font Size" })}</Label>
+                        <Input
+                          type="number"
+                          value={settings.hotel_confirmation_font_size || 12}
+                          onChange={(e) => setSettings({ ...settings, hotel_confirmation_font_size: parseInt(e.target.value) })}
+                          min="8"
+                          max="24"
+                        />
+                      </div>
+
+                      <div>
+                        <Label>{t({ ar: "نوع الخط", en: "Font Family" })}</Label>
+                        <Input
+                          value={settings.hotel_confirmation_font_family || 'helvetica'}
+                          onChange={(e) => setSettings({ ...settings, hotel_confirmation_font_family: e.target.value })}
+                          placeholder="helvetica, courier, times"
+                        />
                       </div>
                     </div>
                   </TabsContent>
@@ -1165,6 +1237,78 @@ export default function PDFSettings() {
                             type="number"
                             value={settings.line_height || 6}
                             onChange={(e) => setSettings({ ...settings, line_height: parseInt(e.target.value) })}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold border-b pb-2">
+                        {t({ ar: "إطار رقم تأكيد الفندق", en: "Hotel Confirmation # Box" })}
+                      </h3>
+                      
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "الموضع X", en: "Position X" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.hotel_confirmation_box_x || 15}
+                            onChange={(e) => setSettings({ ...settings, hotel_confirmation_box_x: parseInt(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "الموضع Y", en: "Position Y" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.hotel_confirmation_box_y || 38}
+                            onChange={(e) => setSettings({ ...settings, hotel_confirmation_box_y: parseInt(e.target.value) })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label>{t({ ar: "العرض", en: "Width" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.hotel_confirmation_box_width || 180}
+                            onChange={(e) => setSettings({ ...settings, hotel_confirmation_box_width: parseInt(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "الارتفاع", en: "Height" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.hotel_confirmation_box_height || 12}
+                            onChange={(e) => setSettings({ ...settings, hotel_confirmation_box_height: parseInt(e.target.value) })}
+                          />
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-3">
+                        <div>
+                          <Label>{t({ ar: "سمك الإطار", en: "Border Width" })}</Label>
+                          <Input
+                            type="number"
+                            step="0.5"
+                            value={settings.hotel_confirmation_border_width || 1}
+                            onChange={(e) => setSettings({ ...settings, hotel_confirmation_border_width: parseFloat(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "المسافة الداخلية", en: "Padding" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.hotel_confirmation_box_padding || 3}
+                            onChange={(e) => setSettings({ ...settings, hotel_confirmation_box_padding: parseInt(e.target.value) })}
+                          />
+                        </div>
+                        <div>
+                          <Label>{t({ ar: "استدارة الزوايا", en: "Border Radius" })}</Label>
+                          <Input
+                            type="number"
+                            value={settings.hotel_confirmation_box_border_radius || 4}
+                            onChange={(e) => setSettings({ ...settings, hotel_confirmation_box_border_radius: parseInt(e.target.value) })}
                           />
                         </div>
                       </div>
