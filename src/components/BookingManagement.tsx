@@ -559,13 +559,13 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
                   </span>
                 </div>
-                <div className="flex flex-row flex-wrap items-center gap-2 w-full">
+                <div className="flex flex-row items-center gap-1.5 sm:gap-2">
                   <Select
                     value={booking.status}
                     onValueChange={(value) => handleStatusChange(booking.id, value as any)}
                   >
                     <SelectTrigger 
-                      className={`w-[132px] sm:w-[140px] md:w-[150px] h-8 sm:h-9 md:h-10 text-xs sm:text-sm md:text-base ${statusColors[booking.status]}`}
+                      className={`w-[115px] sm:w-[140px] md:w-[150px] h-8 sm:h-9 md:h-10 text-[10px] sm:text-sm md:text-base ${statusColors[booking.status]}`}
                       style={{ backgroundColor: getStatusColor(booking.status) }}
                     >
                       <SelectValue />
@@ -583,7 +583,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
                     onValueChange={(value) => handlePaymentStatusChange(booking.id, value as any)}
                   >
                     <SelectTrigger 
-                      className={`w-[132px] sm:w-[140px] md:w-[150px] h-8 sm:h-9 md:h-10 text-xs sm:text-sm md:text-base ${paymentStatusColors[booking.payment_status]}`}
+                      className={`w-[115px] sm:w-[140px] md:w-[150px] h-8 sm:h-9 md:h-10 text-[10px] sm:text-sm md:text-base ${paymentStatusColors[booking.payment_status]}`}
                       style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}
                     >
                       <SelectValue />
