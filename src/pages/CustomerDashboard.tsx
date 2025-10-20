@@ -193,16 +193,16 @@ export default function CustomerDashboard() {
             <div className="space-y-6">
               {bookings.map((booking) => (
                 <Card key={booking.id} className="card-luxury w-full max-w-full">
-                  <CardHeader className="pb-4">
+                  <CardHeader className="pb-4 relative">
                     <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
-                      <CardTitle className="text-lg sm:text-xl md:text-2xl w-full sm:flex-1">
+                      <CardTitle className="text-lg sm:text-xl md:text-2xl w-full sm:flex-1 md:pr-48">
                         {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
                       </CardTitle>
-                      <div className="flex gap-2 flex-wrap items-center w-full sm:w-auto">
-                        <Badge className="text-white px-4 py-2 min-w-[120px] justify-center text-sm rounded-sm flex-1 sm:flex-initial" style={{ backgroundColor: getStatusColor(booking.status) }}>
+                      <div className="flex gap-2 items-center w-full sm:w-auto sm:justify-end md:absolute md:top-4 md:left-4">
+                        <Badge className="text-white px-3 py-1.5 text-xs rounded-sm whitespace-nowrap" style={{ backgroundColor: getStatusColor(booking.status) }}>
                           {language === 'ar' ? getStatusText(booking.status).ar : getStatusText(booking.status).en}
                         </Badge>
-                        <Badge className="text-white px-4 py-2 min-w-[120px] justify-center text-sm rounded-sm flex-1 sm:flex-initial" style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}>
+                        <Badge className="text-white px-3 py-1.5 text-xs rounded-sm whitespace-nowrap" style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}>
                           {language === 'ar' ? getPaymentStatusText(booking.payment_status).ar : getPaymentStatusText(booking.payment_status).en}
                         </Badge>
                       </div>

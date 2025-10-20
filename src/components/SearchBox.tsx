@@ -224,20 +224,20 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8 rounded-full"
+                        className="h-8 w-8 rounded-full bg-white"
                         onClick={() => setRooms(Math.max(1, rooms - 1))}
                         disabled={rooms <= 1}
                       >
-                        <Minus className="h-4 w-4" />
+                        <Minus className="h-4 w-4" style={{ color: '#545454' }} />
                       </Button>
                       <span className="w-8 text-center font-medium">{rooms}</span>
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8 rounded-full"
+                        className="h-8 w-8 rounded-full bg-white"
                         onClick={() => setRooms(rooms + 1)}
                       >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="h-4 w-4" style={{ color: '#545454' }} />
                       </Button>
                     </div>
                   </div>
@@ -249,20 +249,20 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8 rounded-full"
+                        className="h-8 w-8 rounded-full bg-white"
                         onClick={() => setAdults(Math.max(1, adults - 1))}
                         disabled={adults <= 1}
                       >
-                        <Minus className="h-4 w-4" />
+                        <Minus className="h-4 w-4" style={{ color: '#545454' }} />
                       </Button>
                       <span className="w-8 text-center font-medium">{adults}</span>
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8 rounded-full"
+                        className="h-8 w-8 rounded-full bg-white"
                         onClick={() => setAdults(adults + 1)}
                       >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="h-4 w-4" style={{ color: '#545454' }} />
                       </Button>
                     </div>
                   </div>
@@ -274,20 +274,20 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8 rounded-full"
+                        className="h-8 w-8 rounded-full bg-white"
                         onClick={() => setChildren(Math.max(0, children - 1))}
                         disabled={children <= 0}
                       >
-                        <Minus className="h-4 w-4" />
+                        <Minus className="h-4 w-4" style={{ color: '#545454' }} />
                       </Button>
                       <span className="w-8 text-center font-medium">{children}</span>
                       <Button
                         variant="outline"
                         size="icon"
-                        className="h-8 w-8 rounded-full"
+                        className="h-8 w-8 rounded-full bg-white"
                         onClick={() => setChildren(children + 1)}
                       >
-                        <Plus className="h-4 w-4" />
+                        <Plus className="h-4 w-4" style={{ color: '#545454' }} />
                       </Button>
                     </div>
                   </div>

@@ -80,6 +80,7 @@ export default function ManageHotels() {
     description_en: "",
     city_id: "",
     location: "",
+    location_en: "",
     location_url: "",
     contact_phone: "",
     contact_person: "",
@@ -528,6 +529,7 @@ export default function ManageHotels() {
       description_en: hotel.description_en || "",
       city_id: hotel.city_id || "",
       location: hotel.location || "",
+      location_en: (hotel as any).location_en || "",
       location_url: hotel.location_url || "",
       contact_phone: hotel.contact_phone || "",
       contact_person: hotel.contact_person || "",
@@ -602,6 +604,7 @@ export default function ManageHotels() {
       description_en: "",
       city_id: "",
       location: "",
+      location_en: "",
       location_url: "",
       contact_phone: "",
       contact_person: "",
@@ -982,6 +985,10 @@ export default function ManageHotels() {
                   <Label>{t({ ar: "الموقع التفصيلي", en: "Detailed Location" })}</Label>
                   <Input value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} placeholder={t({ ar: "مثال: حي النسيم", en: "Example: Al Naseem District" })} />
                 </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "العنوان بالإنجليزية", en: "Location in English" })}</Label>
+                  <Input value={formData.location_en || ''} onChange={(e) => setFormData({...formData, location_en: e.target.value})} placeholder="e.g., Al Naseem District" />
+                </div>
               </div>
               <div className="space-y-2">
                 <Label>{t({ ar: "رابط الموقع", en: "Location URL" })}</Label>
@@ -1360,6 +1367,10 @@ export default function ManageHotels() {
                 <div className="space-y-2">
                   <Label>{t({ ar: "الموقع التفصيلي", en: "Detailed Location" })}</Label>
                   <Input value={formData.location} onChange={(e) => setFormData({...formData, location: e.target.value})} placeholder={t({ ar: "مثال: حي النسيم", en: "Example: Al Naseem District" })} />
+                </div>
+                <div className="space-y-2">
+                  <Label>{t({ ar: "العنوان بالإنجليزية", en: "Location in English" })}</Label>
+                  <Input value={formData.location_en || ''} onChange={(e) => setFormData({...formData, location_en: e.target.value})} placeholder="e.g., Al Naseem District" />
                 </div>
               </div>
               <div className="space-y-2">

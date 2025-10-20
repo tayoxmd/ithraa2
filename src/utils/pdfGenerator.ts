@@ -117,6 +117,10 @@ interface PDFBookingData {
   };
   customerPageUrl: string;
   pdfSettings?: any;
+  mealPlan?: {
+    name_ar: string;
+    name_en: string;
+  };
 }
 
 export async function generateBookingPDF(data: PDFBookingData): Promise<jsPDF> {
@@ -322,7 +326,11 @@ export async function generateBookingPDF(data: PDFBookingData): Promise<jsPDF> {
   doc.setFont('helvetica', 'bold');
   doc.text('Mail:', marginLeft + 3, yPos + 22);
   doc.setFont('helvetica', 'normal');
-  doc.text(data.clientEmail, marginLeft + 20, yPos + 22);
+  // Show client email if available, otherwise leave empty
+  const clientEmailDisplay = data.clientEmail && data.clientEmail.includes('@') ? data.clientEmail : '';
+  if (clientEmailDisplay) {
+    doc.text(clientEmailDisplay, marginLeft + 20, yPos + 22);
+  }
   
   doc.setFont('helvetica', 'bold');
   doc.text('Mobile:', marginLeft + 3, yPos + 28);
@@ -360,9 +368,12 @@ export async function generateBookingPDF(data: PDFBookingData): Promise<jsPDF> {
   doc.setFont('helvetica', 'normal');
   
   xPos = marginLeft + 2;
+  const mealPlanText = data.mealPlan 
+    ? (data.mealPlan.name_en || 'Room only')
+    : 'Room only';
   const values = [
     `${data.rooms} ${data.roomType}`,
-    'Room only',
+    mealPlanText,
     format(data.checkIn, 'dd/MM/yyyy'),
     format(data.checkOut, 'dd/MM/yyyy'),
     data.nights.toString(),

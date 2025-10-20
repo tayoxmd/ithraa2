@@ -167,7 +167,7 @@ export default function PDFSettings() {
     show_footer_info: true,
     header_text_en: 'CONFIRMATION',
     header_text_ar: 'تأكيد',
-    footer_company_name_en: 'Ethraa Company for Tourist Accommodation',
+    footer_company_name_en: 'ITHRAA Company for Tourist Accommodation',
     footer_company_name_ar: 'شركة إثراء للإيواء السياحي',
     company_license: '73105372',
     company_vat: '302006094600003',

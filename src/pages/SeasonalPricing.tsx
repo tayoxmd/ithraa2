@@ -32,6 +32,8 @@ interface SeasonalPrice {
   end_date: string;
   price_per_night: number;
   is_available: boolean;
+  specific_days?: number[];
+  use_specific_days?: boolean;
 }
 
 export default function SeasonalPricing() {
@@ -55,8 +57,11 @@ export default function SeasonalPricing() {
     end_date: "",
     price_per_night: "",
     is_available: true,
+    use_specific_days: false,
+    specific_days: [] as number[],
   });
-  const [weekendDays, setWeekendDays] = useState<number[]>([5, 6]); // Friday=5, Saturday=6
+  const [useWeekendDays, setUseWeekendDays] = useState(false);
+  const [selectedWeekDays, setSelectedWeekDays] = useState<number[]>([]);
 
   const handleDayClick = (day: Date) => {
     // 1st click: start, 2nd: end, 3rd: restart from clicked day
@@ -245,11 +250,15 @@ export default function SeasonalPricing() {
       end_date: price.end_date,
       price_per_night: price.price_per_night.toString(),
       is_available: price.is_available,
+      use_specific_days: price.use_specific_days || false,
+      specific_days: price.specific_days || [],
     });
     setDateRange({
       from: new Date(price.start_date),
       to: new Date(price.end_date)
     });
+    setUseWeekendDays(price.use_specific_days || false);
+    setSelectedWeekDays(price.specific_days || []);
     setIsDialogOpen(true);
   };
 
@@ -261,8 +270,12 @@ export default function SeasonalPricing() {
       end_date: "",
       price_per_night: "",
       is_available: true,
+      use_specific_days: false,
+      specific_days: [],
     });
     setDateRange(undefined);
+    setUseWeekendDays(false);
+    setSelectedWeekDays([]);
   };
 
   if (loading || loadingData) {
@@ -459,12 +472,12 @@ export default function SeasonalPricing() {
                     <div key={item.day} className="flex items-center gap-2">
                       <Checkbox
                         id={`weekend-${item.day}`}
-                        checked={weekendDays.includes(item.day)}
+                        checked={selectedWeekDays.includes(item.day)}
                         onCheckedChange={(checked) => {
                           if (checked) {
-                            setWeekendDays([...weekendDays, item.day]);
+                            setSelectedWeekDays([...selectedWeekDays, item.day]);
                           } else {
-                            setWeekendDays(weekendDays.filter(d => d !== item.day));
+                            setSelectedWeekDays(selectedWeekDays.filter(d => d !== item.day));
                           }
                         }}
                       />
@@ -504,7 +517,7 @@ export default function SeasonalPricing() {
                       className="pointer-events-auto"
                       numberOfMonths={1}
                       modifiers={{
-                        weekend: (date) => weekendDays.includes(date.getDay())
+                        weekend: (date) => selectedWeekDays.includes(date.getDay())
                       }}
                       modifiersClassNames={{
                         weekend: "bg-primary/10 font-bold text-primary"
