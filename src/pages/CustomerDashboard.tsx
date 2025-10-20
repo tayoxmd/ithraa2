@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { Home, FileText, User, Download } from "lucide-react";
 import { downloadBookingPDF } from "@/utils/pdfGenerator";
@@ -60,6 +61,7 @@ export default function CustomerDashboard() {
   const [searchParams] = useSearchParams();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [activeTab, setActiveTab] = useState<'bookings' | 'profile'>('bookings');
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -152,6 +154,32 @@ export default function CustomerDashboard() {
     return null;
   }
 
+  // Filter bookings
+  const filteredBookings = bookings.filter((booking) => {
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase();
+    const hotelName = (language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en)?.toLowerCase() || '';
+    const guestName = (booking.profiles?.full_name || booking.guest_name || '').toLowerCase();
+    const bookingNumber = (booking.booking_number || '').toString();
+    const hotelConfNumber = (booking.hotel_confirmation_number || '').toLowerCase();
+    const checkIn = booking.check_in || '';
+    const checkOut = booking.check_out || '';
+    const status = getStatusText(booking.status);
+    const statusText = (language === 'ar' ? status.ar : status.en).toLowerCase();
+    const paymentStatus = getPaymentStatusText(booking.payment_status);
+    const paymentStatusText = (language === 'ar' ? paymentStatus.ar : paymentStatus.en).toLowerCase();
+    
+    return hotelName.includes(query) ||
+           guestName.includes(query) ||
+           bookingNumber.includes(query) ||
+           hotelConfNumber.includes(query) ||
+           checkIn.includes(query) ||
+           checkOut.includes(query) ||
+           statusText.includes(query) ||
+           paymentStatusText.includes(query);
+  });
+
   return (
     <div className="min-h-screen bg-gradient-subtle p-4 pt-28">
       <div className="container mx-auto max-w-7xl">
@@ -183,40 +211,70 @@ export default function CustomerDashboard() {
         </div>
 
         {activeTab === 'bookings' ? (
-          bookings.length === 0 ? (
-            <Card className="card-luxury">
-              <CardContent className="py-8 text-center">
-                <p className="text-muted-foreground">{t({ ar: "لا توجد حجوزات حتى الآن", en: "No bookings yet" })}</p>
-              </CardContent>
-            </Card>
-          ) : (
-            <div className="space-y-6">
-              {bookings.map((booking) => (
-                <Card key={booking.id} className="card-luxury w-full max-w-full">
-                  <CardHeader className="pb-4 relative">
-                    <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
-                      <CardTitle className="text-lg sm:text-xl md:text-2xl w-full sm:flex-1 md:pr-48">
-                        {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
-                      </CardTitle>
-                      <div className="flex gap-2 items-center w-full sm:w-auto sm:justify-end md:absolute md:top-4 md:left-4">
-                        <Badge className="text-white px-3 py-1.5 text-xs rounded-sm whitespace-nowrap" style={{ backgroundColor: getStatusColor(booking.status) }}>
-                          {language === 'ar' ? getStatusText(booking.status).ar : getStatusText(booking.status).en}
-                        </Badge>
-                        <Badge className="text-white px-3 py-1.5 text-xs rounded-sm whitespace-nowrap" style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}>
-                          {language === 'ar' ? getPaymentStatusText(booking.payment_status).ar : getPaymentStatusText(booking.payment_status).en}
-                        </Badge>
-                      </div>
-                    </div>
-                    {booking.hotel_confirmation_number && (
-                      <div className="mt-3">
-                        <div className="inline-block w-full sm:w-auto px-4 py-2 bg-white border-2 border-purple-600 rounded-md">
-                          <span className="text-sm font-semibold text-black">
-                            {t({ ar: "رقم حجز الفندق:", en: "Hotel Booking#:" })} {booking.hotel_confirmation_number}
-                          </span>
+          <>
+            {/* Search Box */}
+            <div className="mb-6">
+              <Input
+                placeholder={t({ 
+                  ar: "ابحث عن طلب...", 
+                  en: "Search bookings..." 
+                })}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full"
+              />
+            </div>
+
+            {filteredBookings.length === 0 && searchQuery ? (
+              <Card className="card-luxury">
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground">{t({ ar: "لا توجد نتائج للبحث", en: "No results found" })}</p>
+                </CardContent>
+              </Card>
+            ) : filteredBookings.length === 0 ? (
+              <Card className="card-luxury">
+                <CardContent className="py-8 text-center">
+                  <p className="text-muted-foreground">{t({ ar: "لا توجد حجوزات حتى الآن", en: "No bookings yet" })}</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-6">
+                {filteredBookings.map((booking) => (
+                  <Card key={booking.id} className="card-luxury w-full max-w-full">
+                    <CardHeader className="pb-4">
+                      <div className="flex flex-col gap-3">
+                        {/* Booking Number - Mobile: Above, Tablet/Desktop: Same row */}
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4">
+                          <div className="flex items-center gap-2">
+                            <FileText className="w-5 h-5 text-primary flex-shrink-0" />
+                            <span className="text-base sm:text-lg font-bold">
+                              {t({ ar: "رقم الطلب:", en: "Booking #" })} {booking.booking_number || booking.id.slice(0, 8)}
+                            </span>
+                          </div>
+                          <div className="flex gap-2 items-center">
+                            <Badge className="text-white px-3 py-1.5 text-xs rounded-sm whitespace-nowrap" style={{ backgroundColor: getStatusColor(booking.status) }}>
+                              {language === 'ar' ? getStatusText(booking.status).ar : getStatusText(booking.status).en}
+                            </Badge>
+                            <Badge className="text-white px-3 py-1.5 text-xs rounded-sm whitespace-nowrap" style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}>
+                              {language === 'ar' ? getPaymentStatusText(booking.payment_status).ar : getPaymentStatusText(booking.payment_status).en}
+                            </Badge>
+                          </div>
                         </div>
+                        {/* Hotel Name */}
+                        <CardTitle className="text-lg sm:text-xl md:text-2xl pt-2 border-t">
+                          {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
+                        </CardTitle>
                       </div>
-                    )}
-                  </CardHeader>
+                      {booking.hotel_confirmation_number && (
+                        <div className="mt-3">
+                          <div className="inline-block w-full sm:w-auto px-4 py-2 bg-white border-2 border-purple-600 rounded-md">
+                            <span className="text-sm font-semibold text-black">
+                              {t({ ar: "رقم حجز الفندق:", en: "Hotel Booking#:" })} {booking.hotel_confirmation_number}
+                            </span>
+                          </div>
+                        </div>
+                      )}
+                    </CardHeader>
                     <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-3">
@@ -363,7 +421,8 @@ export default function CustomerDashboard() {
                 </Card>
               ))}
             </div>
-          )
+          )}
+          </>
         ) : (
           <Card className="card-luxury">
             <CardHeader>

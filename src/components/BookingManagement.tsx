@@ -38,6 +38,7 @@ interface Booking {
   payment_method: string;
   notes: string | null;
   guest_name?: string;
+  guest_phone?: string;
   hotel_confirmation_number?: string;
   booking_number?: number;
   created_at: string;
@@ -80,6 +81,7 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
   const [showConfNumberInput, setShowConfNumberInput] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [editFormData, setEditFormData] = useState({
     check_in: "",
     check_out: "",
@@ -542,58 +544,115 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
     );
   }
 
+  // Filter bookings based on search query
+  const filteredBookings = bookings.filter((booking) => {
+    if (!searchQuery.trim()) return true;
+    
+    const query = searchQuery.toLowerCase();
+    const hotelName = (language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en)?.toLowerCase() || '';
+    const guestName = (booking.profiles?.full_name || booking.guest_name || '').toLowerCase();
+    const guestPhone = (booking.profiles?.phone || booking.guest_phone || '').toLowerCase();
+    const bookingNumber = (booking.booking_number || '').toString();
+    const hotelConfNumber = (booking.hotel_confirmation_number || '').toLowerCase();
+    const checkIn = booking.check_in || '';
+    const checkOut = booking.check_out || '';
+    const status = t(statusLabels[booking.status]).toLowerCase();
+    const paymentStatus = t(paymentStatusLabels[booking.payment_status]).toLowerCase();
+    const paymentMethod = (booking.payment_method || '').toLowerCase();
+    
+    return hotelName.includes(query) ||
+           guestName.includes(query) ||
+           guestPhone.includes(query) ||
+           bookingNumber.includes(query) ||
+           hotelConfNumber.includes(query) ||
+           checkIn.includes(query) ||
+           checkOut.includes(query) ||
+           status.includes(query) ||
+           paymentStatus.includes(query) ||
+           paymentMethod.includes(query);
+  });
+
   return (
     <>
       <div className="space-y-6">
-        {bookings.map((booking) => (
+        {/* Search Box */}
+        <div className="flex items-center gap-2">
+          <Input
+            placeholder={t({ 
+              ar: "ابحث عن طلب... (الاسم، رقم الطلب، رقم الجوال، حالة الطلب، إلخ)", 
+              en: "Search bookings... (name, booking #, phone, status, etc.)" 
+            })}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1"
+          />
+        </div>
+
+        {filteredBookings.length === 0 && searchQuery && (
+          <Card className="p-6 text-center text-muted-foreground">
+            {t({ ar: "لا توجد نتائج للبحث", en: "No results found" })}
+          </Card>
+        )}
+
+        {filteredBookings.map((booking) => (
           <Card 
             key={booking.id}
             className="card-luxury w-full max-w-full"
             style={(booking.hotels?.room_type === 'owner_rooms' ? (highlightColors.owner ? { backgroundColor: highlightColors.owner } : undefined) : (highlightColors.hotel ? { backgroundColor: highlightColors.hotel } : undefined))}
           >
             <CardHeader className="pb-4">
-              <CardTitle className="flex flex-col gap-4">
-                <div className="flex items-center gap-3">
+              <CardTitle className="flex flex-col gap-3">
+                {/* Booking Number - Mobile: Above buttons, Tablet/Desktop: Same row */}
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4">
+                  <div className="flex items-center gap-2">
+                    <FileText className="w-5 h-5 text-primary flex-shrink-0" />
+                    <span className="text-base sm:text-lg font-bold">
+                      {t({ ar: "رقم الطلب:", en: "Booking #" })} {booking.booking_number || booking.id.slice(0, 8)}
+                    </span>
+                  </div>
+                  <div className="flex flex-row items-center gap-1.5 sm:gap-2">
+                    <Select
+                      value={booking.status}
+                      onValueChange={(value) => handleStatusChange(booking.id, value as any)}
+                    >
+                      <SelectTrigger 
+                        className={`w-[115px] sm:w-[140px] md:w-[150px] h-8 sm:h-9 md:h-10 text-[10px] sm:text-sm md:text-base ${statusColors[booking.status]}`}
+                        style={{ backgroundColor: getStatusColor(booking.status) }}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="new">{t(statusLabels.new)}</SelectItem>
+                        <SelectItem value="pending">{t(statusLabels.pending)}</SelectItem>
+                        <SelectItem value="confirmed">{t(statusLabels.confirmed)}</SelectItem>
+                        <SelectItem value="cancelled">{t(statusLabels.cancelled)}</SelectItem>
+                        <SelectItem value="rejected">{t(statusLabels.rejected)}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select
+                      value={booking.payment_status}
+                      onValueChange={(value) => handlePaymentStatusChange(booking.id, value as any)}
+                    >
+                      <SelectTrigger 
+                        className={`w-[115px] sm:w-[140px] md:w-[150px] h-8 sm:h-9 md:h-10 text-[10px] sm:text-sm md:text-base ${paymentStatusColors[booking.payment_status]}`}
+                        style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}
+                      >
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="paid">{t(paymentStatusLabels.paid)}</SelectItem>
+                        <SelectItem value="partially_paid">{t(paymentStatusLabels.partially_paid)}</SelectItem>
+                        <SelectItem value="unpaid">{t(paymentStatusLabels.unpaid)}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                {/* Hotel Name - Now below buttons */}
+                <div className="flex items-center gap-3 pt-2 border-t">
                   <Hotel className="w-6 h-6 text-primary flex-shrink-0" />
                   <span className="text-lg sm:text-xl md:text-2xl">
                     {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
                   </span>
-                </div>
-                <div className="flex flex-row items-center gap-1.5 sm:gap-2">
-                  <Select
-                    value={booking.status}
-                    onValueChange={(value) => handleStatusChange(booking.id, value as any)}
-                  >
-                    <SelectTrigger 
-                      className={`w-[115px] sm:w-[140px] md:w-[150px] h-8 sm:h-9 md:h-10 text-[10px] sm:text-sm md:text-base ${statusColors[booking.status]}`}
-                      style={{ backgroundColor: getStatusColor(booking.status) }}
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="new">{t(statusLabels.new)}</SelectItem>
-                      <SelectItem value="pending">{t(statusLabels.pending)}</SelectItem>
-                      <SelectItem value="confirmed">{t(statusLabels.confirmed)}</SelectItem>
-                      <SelectItem value="cancelled">{t(statusLabels.cancelled)}</SelectItem>
-                      <SelectItem value="rejected">{t(statusLabels.rejected)}</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <Select
-                    value={booking.payment_status}
-                    onValueChange={(value) => handlePaymentStatusChange(booking.id, value as any)}
-                  >
-                    <SelectTrigger 
-                      className={`w-[115px] sm:w-[140px] md:w-[150px] h-8 sm:h-9 md:h-10 text-[10px] sm:text-sm md:text-base ${paymentStatusColors[booking.payment_status]}`}
-                      style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}
-                    >
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="paid">{t(paymentStatusLabels.paid)}</SelectItem>
-                      <SelectItem value="partially_paid">{t(paymentStatusLabels.partially_paid)}</SelectItem>
-                      <SelectItem value="unpaid">{t(paymentStatusLabels.unpaid)}</SelectItem>
-                    </SelectContent>
-                  </Select>
                 </div>
               </CardTitle>
             </CardHeader>
