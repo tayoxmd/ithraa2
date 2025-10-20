@@ -166,9 +166,30 @@ export async function generateBookingPDF(data: PDFBookingData): Promise<jsPDF> {
     doc.setFillColor(headerBgColor[0], headerBgColor[1], headerBgColor[2]);
     doc.rect(0, 0, pageWidth, headerHeight, 'F');
     
-    // Add logo on the left side
+    // Add logo (from settings if provided)
     try {
-      doc.addImage(logo, 'PNG', marginLeft, 5, 20, 20);
+      let logoDataUrl: string | null = null;
+      if (settings.company_logo_url) {
+        try {
+          const res = await fetch(settings.company_logo_url);
+          if (res.ok) {
+            const blob = await res.blob();
+            const readerRes: string = await new Promise((resolve) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result as string);
+              reader.readAsDataURL(blob);
+            });
+            logoDataUrl = readerRes;
+          }
+        } catch (e) {
+          console.warn('Failed to load custom logo, falling back to default');
+        }
+      }
+      const logoX = settings.logo_position_x ?? marginLeft;
+      const logoY = settings.logo_position_y ?? 5;
+      const logoW = settings.logo_width ?? 20;
+      const logoH = settings.logo_height ?? 20;
+      doc.addImage(logoDataUrl || (logo as any), 'PNG', logoX, logoY, logoW, logoH);
     } catch (error) {
       console.error('Error adding logo to PDF:', error);
     }
@@ -187,7 +208,7 @@ export async function generateBookingPDF(data: PDFBookingData): Promise<jsPDF> {
     doc.setFontSize(fontSizeHeader);
     const headerText = settings.header_text_en || 'CONFIRMATION';
     setAppropriateFont(doc, headerText, 'bold', arabicAvailable);
-    doc.text(headerText, marginLeft + 25, 20);
+    doc.text(headerText, (settings.logo_position_x ?? marginLeft) + (settings.logo_width ?? 20) + 10, 20);
     
     // Add Arabic header if available
     if (settings.header_text_ar) {
@@ -259,7 +280,7 @@ export async function generateBookingPDF(data: PDFBookingData): Promise<jsPDF> {
     doc.text('Dear Sir:', marginLeft, yPos);
     yPos += lineHeight;
     
-    const companyName = settings.footer_company_name_en || 'Ethraa Company for Tourist Accommodation';
+    const companyName = settings.footer_company_name_en || 'ITHRAA Company for Tourist Accommodation';
     setAppropriateFont(doc, companyName, 'bold', arabicAvailable);
     doc.text(`Greeting From ${companyName}`, marginLeft, yPos);
     yPos += lineHeight + 1;

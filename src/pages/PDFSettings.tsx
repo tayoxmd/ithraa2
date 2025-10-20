@@ -272,56 +272,81 @@ export default function PDFSettings() {
     }
   };
 
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const { id, ...settingsData } = settings;
-      
-      const dataToSave = {
-        ...settingsData,
-        responsible_persons: JSON.stringify(settingsData.responsible_persons || []),
-        contact_numbers: JSON.stringify(settingsData.contact_numbers || [])
-      };
+   const handleSave = async () => {
+     setSaving(true);
+     try {
+       const { id, ...settingsData } = settings;
+       
+       const dataToSave = {
+         ...settingsData,
+         responsible_persons: JSON.stringify(settingsData.responsible_persons || []),
+         contact_numbers: JSON.stringify(settingsData.contact_numbers || [])
+       };
 
-      if (id) {
-        const { error } = await supabase
-          .from('pdf_settings')
-          .update(dataToSave as any)
-          .eq('id', id);
+       if (id) {
+         const { error } = await supabase
+           .from('pdf_settings')
+           .update(dataToSave as any)
+           .eq('id', id);
 
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('pdf_settings')
-          .insert([dataToSave as any]);
+         if (error) throw error;
+       } else {
+         const { error } = await supabase
+           .from('pdf_settings')
+           .insert([dataToSave as any]);
 
-        if (error) throw error;
-      }
+         if (error) throw error;
+       }
 
-      toast({
-        title: t({ ar: "تم الحفظ بنجاح", en: "Saved Successfully" }),
-        description: t({ ar: "تم حفظ إعدادات PDF بنجاح", en: "PDF settings saved successfully" }),
-      });
+       toast({
+         title: t({ ar: "تم الحفظ بنجاح", en: "Saved Successfully" }),
+         description: t({ ar: "تم حفظ إعدادات PDF بنجاح", en: "PDF settings saved successfully" }),
+       });
 
-      logAuditEvent('UPDATE', 'pdf_settings', id, { settings: settingsData }).catch(() => {});
+       logAuditEvent('UPDATE', 'pdf_settings', id, { settings: settingsData }).catch(() => {});
 
-      fetchSettings();
-      
-      // تحديث المعاينة تلقائياً
-      if (showPreview) {
-        generatePreview();
-      }
-    } catch (error) {
-      console.error('Error saving PDF settings:', error);
-      toast({
-        title: t({ ar: "خطأ", en: "Error" }),
-        description: t({ ar: "حدث خطأ أثناء الحفظ", en: "An error occurred while saving" }),
-        variant: "destructive",
-      });
-    } finally {
-      setSaving(false);
-    }
-  };
+       fetchSettings();
+       
+       // تحديث المعاينة تلقائياً
+       if (showPreview) {
+         generatePreview();
+       }
+     } catch (error) {
+       console.error('Error saving PDF settings:', error);
+       toast({
+         title: t({ ar: "خطأ", en: "Error" }),
+         description: t({ ar: "حدث خطأ أثناء الحفظ", en: "An error occurred while saving" }),
+         variant: "destructive",
+       });
+     } finally {
+       setSaving(false);
+     }
+   };
+
+   const handleLogoUpload = async (file: File) => {
+     try {
+       const ext = file.name.split('.').pop();
+       const path = `logos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+       const { error: uploadError } = await supabase.storage
+         .from('hotel-images') // public bucket
+         .upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
+       if (uploadError) throw uploadError;
+       const { data } = supabase.storage.from('hotel-images').getPublicUrl(path);
+       const publicUrl = data.publicUrl;
+       setSettings(prev => ({ ...prev, company_logo_url: publicUrl }));
+       toast({
+         title: t({ ar: "تم الرفع", en: "Uploaded" }),
+         description: t({ ar: "تم رفع الشعار وتحديث الرابط تلقائياً", en: "Logo uploaded and URL set" }),
+       });
+     } catch (e: any) {
+       console.error('Logo upload failed', e);
+       toast({
+         title: t({ ar: "فشل الرفع", en: "Upload Failed" }),
+         description: e.message || t({ ar: "تعذر رفع الشعار", en: "Could not upload logo" }),
+         variant: 'destructive'
+       });
+     }
+   };
 
   const addResponsiblePerson = () => {
     setSettings({
@@ -673,14 +698,29 @@ export default function PDFSettings() {
                         {t({ ar: "معلومات الشركة", en: "Company Information" })}
                       </h3>
                       
-                      <div>
-                        <Label>{t({ ar: "رابط الشعار", en: "Logo URL" })}</Label>
-                        <Input
-                          value={settings.company_logo_url || ''}
-                          onChange={(e) => setSettings({ ...settings, company_logo_url: e.target.value })}
-                          placeholder="https://..."
-                        />
-                      </div>
+                       <div className="space-y-2">
+                          <Label>{t({ ar: "الشعار", en: "Logo" })}</Label>
+                          <div className="flex items-center gap-3 flex-wrap">
+                            <Input
+                              value={settings.company_logo_url || ''}
+                              onChange={(e) => setSettings({ ...settings, company_logo_url: e.target.value })}
+                              placeholder="https://..."
+                              className="flex-1 min-w-[200px]"
+                            />
+                            <Input
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) handleLogoUpload(file);
+                              }}
+                              className="w-auto"
+                            />
+                          </div>
+                          {settings.company_logo_url && (
+                            <div className="text-xs text-muted-foreground" dir="ltr">{settings.company_logo_url}</div>
+                          )}
+                        </div>
 
                       <div>
                         <Label>{t({ ar: "وصف الشركة (عربي)", en: "Description (Arabic)" })}</Label>
