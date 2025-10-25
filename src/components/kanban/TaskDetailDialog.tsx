@@ -200,6 +200,42 @@ export function TaskDetailDialog({
                 </div>
               )}
 
+              {/* Financial Info */}
+              {task.is_financial && task.amount_total && (
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">
+                    {t({ ar: 'المعلومات المالية', en: 'Financial Information' })}
+                  </Label>
+                  <div className="p-3 md:p-4 bg-primary/5 rounded-lg space-y-2">
+                    {/* Total & Paid */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs md:text-sm text-muted-foreground">
+                        {t({ ar: 'المبلغ الإجمالي:', en: 'Total Amount:' })}
+                      </span>
+                      <span className="text-sm md:text-base font-medium">
+                        {task.amount_total.toFixed(2)} {language === 'ar' ? 'ر.س' : 'SAR'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs md:text-sm text-muted-foreground">
+                        {t({ ar: 'المبلغ المدفوع:', en: 'Paid Amount:' })}
+                      </span>
+                      <span className="text-sm md:text-base font-medium text-green-600">
+                        {(task.amount_paid || 0).toFixed(2)} {language === 'ar' ? 'ر.س' : 'SAR'}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between pt-2 border-t">
+                      <span className="text-xs md:text-sm font-medium">
+                        {t({ ar: 'المبلغ المتبقي:', en: 'Remaining Amount:' })}
+                      </span>
+                      <span className="text-base md:text-lg font-bold text-primary">
+                        {(task.amount_remaining || 0).toFixed(2)} {language === 'ar' ? 'ر.س' : 'SAR'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Meta Info */}
               <div className="grid grid-cols-2 gap-4">
                 {task.assignee_name && (

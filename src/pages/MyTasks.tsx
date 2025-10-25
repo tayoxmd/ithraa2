@@ -117,49 +117,48 @@ export default function MyTasks() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
-      <div className="container mx-auto p-4 pt-24">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate(-1)}
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold">
+    <div className="fixed inset-0 bg-gradient-to-br from-background via-muted/30 to-background overflow-hidden">
+      <div className="h-full flex flex-col">
+        {/* Compact Header */}
+        <div className="flex-shrink-0 px-3 md:px-6 py-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => navigate(-1)}
+                className="h-8 w-8"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </Button>
+              <h1 className="text-base md:text-lg font-semibold">
                 {t({ ar: 'مهامي', en: 'My Tasks' })}
               </h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {t({ ar: 'المهام المخصصة لك', en: 'Tasks assigned to you' })}
-              </p>
             </div>
+            <Badge variant="secondary" className="text-xs px-2 py-1">
+              {tasks.length} {t({ ar: 'مهمة', en: 'tasks' })}
+            </Badge>
           </div>
-          <Badge variant="secondary" className="text-lg px-4 py-2">
-            {tasks.length} {t({ ar: 'مهمة', en: 'tasks' })}
-          </Badge>
         </div>
 
-        {/* Tasks Grid */}
-        {tasks.length === 0 ? (
-          <Card>
-            <CardContent className="py-12 text-center">
-              <p className="text-muted-foreground">
-                {t({ ar: 'لا توجد مهام مخصصة لك حالياً', en: 'No tasks assigned to you yet' })}
-              </p>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {tasks.map((task) => (
-              <Card 
-                key={task.id}
-                className="hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => navigate('/task-manager')}
-              >
+        {/* Tasks Grid - Scrollable */}
+        <div className="flex-1 overflow-y-auto px-3 md:px-6 py-4">
+          {tasks.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground text-sm">
+                  {t({ ar: 'لا توجد مهام مخصصة لك حالياً', en: 'No tasks assigned to you yet' })}
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-3 md:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {tasks.map((task) => (
+                <Card 
+                  key={task.id}
+                  className="hover:shadow-[0_10px_40px_rgba(0,0,0,0.08)] transition-all cursor-pointer bg-card/80 backdrop-blur-sm"
+                  onClick={() => navigate('/task-manager')}
+                >
                 <CardHeader className="pb-3">
                   <div className="flex items-start justify-between gap-2">
                     <CardTitle className="text-lg line-clamp-2">
@@ -233,10 +232,11 @@ export default function MyTasks() {
                     </div>
                   )}
                 </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -27,7 +27,7 @@ export function KanbanColumn({
   const { setNodeRef } = useDroppable({ id });
 
   return (
-    <Card className="flex-1 min-w-[160px] md:min-w-[200px] lg:min-w-[240px] bg-muted/30">
+    <Card className="flex-1 min-w-[160px] md:min-w-[200px] lg:min-w-[240px] bg-muted/30 shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
       <CardHeader className="pb-2 md:pb-3 p-3 md:p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1 md:gap-2">
@@ -52,7 +52,7 @@ export function KanbanColumn({
       </CardHeader>
       <CardContent 
         ref={setNodeRef}
-        className="min-h-[200px] md:min-h-[400px] max-h-[calc(100vh-240px)] md:max-h-[calc(100vh-300px)] overflow-y-auto p-2 md:p-6"
+        className="min-h-[200px] md:min-h-[calc(100vh-180px)] max-h-[calc(100vh-180px)] overflow-y-auto p-2 md:p-4 space-y-2"
       >
         <SortableContext 
           items={tasks.map(t => t.id)} 

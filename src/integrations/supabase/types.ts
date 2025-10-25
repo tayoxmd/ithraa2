@@ -2568,7 +2568,12 @@ export type Database = {
         | "done"
         | "rejected"
         | "archived"
-      task_type: "financial" | "administrative" | "scheduling"
+      task_type:
+        | "financial"
+        | "administrative"
+        | "scheduling"
+        | "receipt_voucher"
+        | "payment_voucher"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2747,7 +2752,13 @@ export const Constants = {
         "rejected",
         "archived",
       ],
-      task_type: ["financial", "administrative", "scheduling"],
+      task_type: [
+        "financial",
+        "administrative",
+        "scheduling",
+        "receipt_voucher",
+        "payment_voucher",
+      ],
     },
   },
 } as const

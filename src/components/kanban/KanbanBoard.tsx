@@ -36,7 +36,9 @@ export function KanbanBoard() {
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
-        distance: 8,
+        distance: 3,
+        delay: 0,
+        tolerance: 5,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -261,24 +263,26 @@ export function KanbanBoard() {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        {/* Mobile: 2 per row, Tablet/Desktop: all 4 in one row */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 pb-4">
-          {columns.map((column) => (
-            <KanbanColumn
-              key={column.id}
-              id={column.id}
-              title={column.title}
-              tasks={column.tasks}
-              color={column.color}
-              onAddTask={() => handleAddTask(column.id as any)}
-              onTaskClick={handleTaskClick}
-            />
-          ))}
+        {/* Full height scrollable container */}
+        <div className="h-full overflow-x-auto overflow-y-hidden px-2 md:px-4 py-3">
+          <div className="h-full grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 min-w-[640px] lg:min-w-0">
+            {columns.map((column) => (
+              <KanbanColumn
+                key={column.id}
+                id={column.id}
+                title={column.title}
+                tasks={column.tasks}
+                color={column.color}
+                onAddTask={() => handleAddTask(column.id as any)}
+                onTaskClick={handleTaskClick}
+              />
+            ))}
+          </div>
         </div>
 
-        <DragOverlay>
+        <DragOverlay dropAnimation={null}>
           {activeTask && (
-            <div className="opacity-80">
+            <div className="opacity-90 rotate-3 scale-105">
               <KanbanTask task={activeTask} onClick={() => {}} />
             </div>
           )}

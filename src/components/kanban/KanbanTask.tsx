@@ -60,7 +60,7 @@ export function KanbanTask({ task, onClick }: KanbanTaskProps) {
       style={{ ...style, borderLeftColor: priorityColorMap[task.priority] }}
       {...attributes}
       {...listeners}
-      className="p-2 md:p-2.5 cursor-grab active:cursor-grabbing hover:shadow-lg transition-all mb-2 border-l-4"
+      className="p-2 md:p-3 cursor-grab active:cursor-grabbing hover:shadow-[0_10px_40px_rgba(0,0,0,0.08)] transition-all mb-2.5 border-l-4 bg-card/80 backdrop-blur-sm"
       onClick={() => onClick(task)}
     >
       <div className="space-y-1.5">

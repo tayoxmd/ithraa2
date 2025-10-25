@@ -62,6 +62,7 @@ export function CreateTaskDialog({
     tags: [] as string[],
     category: 'general',
     is_financial: false,
+    voucher_type: '' as 'receipt' | 'payment' | '',
     amount_total: '',
     amount_paid: '',
     payment_due_date: undefined as Date | undefined,
@@ -166,6 +167,7 @@ export function CreateTaskDialog({
         tags: [],
         category: 'general',
         is_financial: false,
+        voucher_type: '',
         amount_total: '',
         amount_paid: '',
         payment_due_date: undefined,
@@ -385,83 +387,113 @@ export function CreateTaskDialog({
               />
             </div>
 
-            {formData.is_financial && (
+          {formData.is_financial && (
               <div className="space-y-4 pt-2 border-t">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Total Amount */}
-                  <div className="space-y-2">
-                    <Label htmlFor="amount_total">
-                      {t({ ar: 'المبلغ الإجمالي', en: 'Total Amount' })}
-                    </Label>
-                    <Input
-                      id="amount_total"
-                      type="number"
-                      step="0.01"
-                      value={formData.amount_total}
-                      onChange={(e) => setFormData({ ...formData, amount_total: e.target.value })}
-                      placeholder="0.00"
-                    />
-                  </div>
-
-                  {/* Paid Amount */}
-                  <div className="space-y-2">
-                    <Label htmlFor="amount_paid">
-                      {t({ ar: 'المبلغ المدفوع', en: 'Paid Amount' })}
-                    </Label>
-                    <Input
-                      id="amount_paid"
-                      type="number"
-                      step="0.01"
-                      value={formData.amount_paid}
-                      onChange={(e) => setFormData({ ...formData, amount_paid: e.target.value })}
-                      placeholder="0.00"
-                    />
+                {/* Voucher Type Selection */}
+                <div className="space-y-2">
+                  <Label>{t({ ar: 'نوع السند', en: 'Voucher Type' })}</Label>
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button
+                      type="button"
+                      variant={formData.voucher_type === 'receipt' ? 'default' : 'outline'}
+                      className="h-20 flex flex-col gap-2"
+                      onClick={() => setFormData({ ...formData, voucher_type: 'receipt' })}
+                    >
+                      <DollarSign className="h-6 w-6" />
+                      <span>{t({ ar: 'سند قبض', en: 'Receipt Voucher' })}</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={formData.voucher_type === 'payment' ? 'default' : 'outline'}
+                      className="h-20 flex flex-col gap-2"
+                      onClick={() => setFormData({ ...formData, voucher_type: 'payment' })}
+                    >
+                      <DollarSign className="h-6 w-6" />
+                      <span>{t({ ar: 'سند صرف', en: 'Payment Voucher' })}</span>
+                    </Button>
                   </div>
                 </div>
 
-                {/* Remaining Amount Display */}
-                {formData.amount_total && (
-                  <div className="p-3 bg-muted rounded-lg">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm font-medium">
-                        {t({ ar: 'المبلغ المتبقي:', en: 'Remaining Amount:' })}
-                      </span>
-                      <span className="text-lg font-bold text-primary">
-                        {amountRemaining.toFixed(2)} {t({ ar: 'ر.س', en: 'SAR' })}
-                      </span>
+                {/* Show fields only after voucher type is selected */}
+                {formData.voucher_type && (
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Total Amount */}
+                      <div className="space-y-2">
+                        <Label htmlFor="amount_total">
+                          {t({ ar: 'المبلغ الإجمالي', en: 'Total Amount' })}
+                        </Label>
+                        <Input
+                          id="amount_total"
+                          type="number"
+                          step="0.01"
+                          value={formData.amount_total}
+                          onChange={(e) => setFormData({ ...formData, amount_total: e.target.value })}
+                          placeholder="0.00"
+                        />
+                      </div>
+
+                      {/* Paid Amount */}
+                      <div className="space-y-2">
+                        <Label htmlFor="amount_paid">
+                          {t({ ar: 'المبلغ المدفوع', en: 'Paid Amount' })}
+                        </Label>
+                        <Input
+                          id="amount_paid"
+                          type="number"
+                          step="0.01"
+                          value={formData.amount_paid}
+                          onChange={(e) => setFormData({ ...formData, amount_paid: e.target.value })}
+                          placeholder="0.00"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Remaining Amount Display */}
+                    {formData.amount_total && (
+                      <div className="p-3 bg-muted rounded-lg">
+                        <div className="flex justify-between items-center">
+                          <span className="text-sm font-medium">
+                            {t({ ar: 'المبلغ المتبقي:', en: 'Remaining Amount:' })}
+                          </span>
+                          <span className="text-lg font-bold text-primary">
+                            {amountRemaining.toFixed(2)} {t({ ar: 'ر.س', en: 'SAR' })}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Payment Due Date */}
+                    <div className="space-y-2">
+                      <Label>{t({ ar: 'تاريخ استحقاق الدفع', en: 'Payment Due Date' })}</Label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start text-left font-normal"
+                          >
+                            <CalendarIcon className="mr-2 h-4 w-4" />
+                            {formData.payment_due_date ? (
+                              format(formData.payment_due_date, 'PPP', {
+                                locale: language === 'ar' ? ar : undefined,
+                              })
+                            ) : (
+                              <span>{t({ ar: 'اختر التاريخ', en: 'Pick a date' })}</span>
+                            )}
+                          </Button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={formData.payment_due_date}
+                            onSelect={(date) => setFormData({ ...formData, payment_due_date: date })}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
                     </div>
                   </div>
                 )}
-
-                {/* Payment Due Date */}
-                <div className="space-y-2">
-                  <Label>{t({ ar: 'تاريخ استحقاق الدفع', en: 'Payment Due Date' })}</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start text-left font-normal"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData.payment_due_date ? (
-                          format(formData.payment_due_date, 'PPP', {
-                            locale: language === 'ar' ? ar : undefined,
-                          })
-                        ) : (
-                          <span>{t({ ar: 'اختر التاريخ', en: 'Pick a date' })}</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={formData.payment_due_date}
-                        onSelect={(date) => setFormData({ ...formData, payment_due_date: date })}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
               </div>
             )}
           </Card>

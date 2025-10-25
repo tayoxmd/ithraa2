@@ -1,79 +1,47 @@
-import { useState } from 'react';
 import { KanbanBoard } from '@/components/kanban/KanbanBoard';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, LayoutGrid, Settings, SlidersHorizontal } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { TaskVisibilitySettings } from '@/components/kanban/TaskVisibilitySettings';
 
 export default function TaskManager() {
   const { t } = useLanguage();
   const { userRole } = useAuth();
   const navigate = useNavigate();
-  const [visibilityDialogOpen, setVisibilityDialogOpen] = useState(false);
 
   const canManageSettings = userRole === 'admin' || userRole === 'manager' || userRole === 'assistant_manager';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
-      <div className="container mx-auto p-4 md:p-6 pt-10 md:pt-14">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4 md:mb-6">
-          <div className="flex items-center gap-2 md:gap-4">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/admin-dashboard')}
-              className="h-8 w-8 md:h-10 md:w-10"
-            >
-              <ArrowLeft className="w-4 h-4 md:w-5 md:h-5" />
-            </Button>
-            <div>
-              <h1 className="text-xl md:text-3xl font-bold flex items-center gap-2">
-                <LayoutGrid className="w-5 h-5 md:w-8 md:h-8" />
-                {t({ ar: 'إدارة المهام', en: 'Task Manager' })}
-              </h1>
-              <p className="text-xs md:text-sm text-muted-foreground mt-1">
-                {t({ 
-                  ar: 'نظام السحب والإفلات لإدارة المهام والطلبات', 
-                  en: 'Drag and drop task management system' 
-                })}
-              </p>
-            </div>
-          </div>
-          <div className="flex gap-2">
+    <div className="fixed inset-0 bg-gradient-to-br from-background via-muted/30 to-background overflow-hidden">
+      <div className="h-full flex flex-col">
+        {/* Compact Header */}
+        <div className="flex-shrink-0 px-3 md:px-6 py-2 md:py-3 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="flex items-center justify-between">
+            <h1 className="text-base md:text-lg font-semibold">
+              {t({ ar: 'المهام', en: 'Tasks' })}
+            </h1>
             {canManageSettings && (
-              <>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/task-categories')}
-                >
-                  <Settings className="w-4 h-4 mr-2" />
-                  {t({ ar: 'التصنيفات', en: 'Categories' })}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setVisibilityDialogOpen(true)}
-                >
-                  <SlidersHorizontal className="w-4 h-4 mr-2" />
-                  {t({ ar: 'خصائص', en: 'Settings' })}
-                </Button>
-              </>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate('/task-settings')}
+                className="h-8 gap-1.5"
+              >
+                <Settings className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline text-xs">
+                  {t({ ar: 'إعدادات المهام', en: 'Settings' })}
+                </span>
+              </Button>
             )}
           </div>
         </div>
 
-        {/* Kanban Board - Full width */}
-        <KanbanBoard />
+        {/* Kanban Board - Full remaining space */}
+        <div className="flex-1 overflow-hidden">
+          <KanbanBoard />
+        </div>
       </div>
-
-      <TaskVisibilitySettings
-        open={visibilityDialogOpen}
-        onOpenChange={setVisibilityDialogOpen}
-      />
     </div>
   );
 }
