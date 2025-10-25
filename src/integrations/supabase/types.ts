@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_actions: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          details: Json | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          new_value: Json | null
+          old_value: Json | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          details?: Json | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          new_value?: Json | null
+          old_value?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          new_value?: Json | null
+          old_value?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       api_requests: {
         Row: {
           api_key_id: string | null
@@ -290,6 +332,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      cache_audit: {
+        Row: {
+          action: string
+          cache_keys: string[] | null
+          created_at: string | null
+          details: Json | null
+          id: string
+          initiated_by: string | null
+          purge_status: string | null
+        }
+        Insert: {
+          action: string
+          cache_keys?: string[] | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          initiated_by?: string | null
+          purge_status?: string | null
+        }
+        Update: {
+          action?: string
+          cache_keys?: string[] | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          initiated_by?: string | null
+          purge_status?: string | null
+        }
+        Relationships: []
       }
       chat_messages: {
         Row: {
@@ -1003,6 +1075,51 @@ export type Database = {
           },
         ]
       }
+      indicator_assets: {
+        Row: {
+          asset_data: string
+          asset_type: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          name: string
+          thumbnail_url: string | null
+          updated_at: string | null
+          viewport_rules: Json | null
+        }
+        Insert: {
+          asset_data: string
+          asset_type: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name: string
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          viewport_rules?: Json | null
+        }
+        Update: {
+          asset_data?: string
+          asset_type?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name?: string
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          viewport_rules?: Json | null
+        }
+        Relationships: []
+      }
       loyalty_points: {
         Row: {
           created_at: string | null
@@ -1298,31 +1415,40 @@ export type Database = {
         Row: {
           commission_percentage: number | null
           created_at: string | null
+          force_theme: string | null
           full_name: string | null
           id: string
           phone: string | null
+          preferences: Json | null
           referral_code: string | null
           referred_by: string | null
+          theme: string | null
           updated_at: string | null
         }
         Insert: {
           commission_percentage?: number | null
           created_at?: string | null
+          force_theme?: string | null
           full_name?: string | null
           id: string
           phone?: string | null
+          preferences?: Json | null
           referral_code?: string | null
           referred_by?: string | null
+          theme?: string | null
           updated_at?: string | null
         }
         Update: {
           commission_percentage?: number | null
           created_at?: string | null
+          force_theme?: string | null
           full_name?: string | null
           id?: string
           phone?: string | null
+          preferences?: Json | null
           referral_code?: string | null
           referred_by?: string | null
+          theme?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1784,6 +1910,78 @@ export type Database = {
           title?: string
           updated_at?: string | null
           vault_id?: string | null
+        }
+        Relationships: []
+      }
+      theme_versions: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          name: string
+          theme_data: Json
+          updated_at: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name: string
+          theme_data: Json
+          updated_at?: string | null
+          version?: number
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name?: string
+          theme_data?: Json
+          updated_at?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
+      upload_audit: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          status: string
+          upload_target: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          status: string
+          upload_target: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          status?: string
+          upload_target?: string
+          user_id?: string | null
         }
         Relationships: []
       }
