@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useSettings } from "@/contexts/SettingsContext";
+import DOMPurify from 'dompurify';
 
 interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg";
@@ -22,10 +23,16 @@ export function LoadingSpinner({ size = "md", className }: LoadingSpinnerProps) 
 
   // If custom loader is enabled and HTML is provided
   if (settings.loaderType === 'custom' && settings.loaderCustomHTML) {
+    // Sanitize HTML to prevent XSS attacks
+    const cleanHTML = DOMPurify.sanitize(settings.loaderCustomHTML, {
+      ALLOWED_TAGS: ['div', 'span', 'svg', 'circle', 'path', 'rect', 'line', 'polyline', 'polygon', 'animate', 'animateTransform'],
+      ALLOWED_ATTR: ['class', 'style', 'viewBox', 'd', 'cx', 'cy', 'r', 'x', 'y', 'width', 'height', 'fill', 'stroke', 'stroke-width', 'transform', 'opacity']
+    });
+    
     return (
       <div 
         className={cn("relative inline-block", className)}
-        dangerouslySetInnerHTML={{ __html: settings.loaderCustomHTML }}
+        dangerouslySetInnerHTML={{ __html: cleanHTML }}
       />
     );
   }
