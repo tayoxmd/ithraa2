@@ -27,8 +27,8 @@ export function Header() {
   }, []);
 
   const getDashboardPath = () => {
-    if (userRole === 'admin') return '/admin';
-    if (userRole === 'employee') return '/employee';
+    if (userRole === 'manager') return '/admin';
+    if (userRole === 'staff' || userRole === 'assistantmanager') return '/employee';
     return '/dashboard';
   };
 
@@ -83,7 +83,7 @@ export function Header() {
               {user ? (
                 <>
                   <div className="hidden lg:flex items-center gap-2">
-                    {(userRole === 'admin' || userRole === 'employee') && (
+                    {(userRole === 'manager' || userRole === 'staff' || userRole === 'assistantmanager') && (
                       <>
                         <Button
                           variant="outline"
@@ -182,7 +182,7 @@ export function Header() {
                 </a>
                 {user ? (
                   <>
-                    {(userRole === 'admin' || userRole === 'employee') && (
+                    {(userRole === 'manager' || userRole === 'staff' || userRole === 'assistantmanager') && (
                       <Button 
                         variant="outline" 
                         size="sm" 

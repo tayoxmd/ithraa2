@@ -92,7 +92,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!loading) {
-      if (userRole !== 'admin') {
+      if (userRole !== 'manager') {
         navigate('/');
       } else {
         fetchBookings();
@@ -172,7 +172,7 @@ export default function AdminDashboard() {
       const { data: customerRoles } = await supabase
         .from('user_roles')
         .select('user_id')
-        .eq('role', 'customer');
+        .eq('role', 'client');
 
       // Financial stats
       const { data: allBookings } = await supabase

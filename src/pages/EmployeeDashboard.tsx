@@ -35,7 +35,7 @@ export default function EmployeeDashboard() {
 
   useEffect(() => {
     if (!loading) {
-      if (userRole !== 'employee') {
+      if (userRole !== 'staff') {
         navigate('/');
       } else {
         fetchBookings();

@@ -72,7 +72,7 @@ export default function EmployeeManagement() {
   });
 
   useEffect(() => {
-    if (!loading && userRole !== 'admin') {
+    if (!loading && userRole !== 'manager') {
       navigate('/');
     } else if (!loading) {
       fetchEmployees();
@@ -84,7 +84,7 @@ export default function EmployeeManagement() {
       const { data: employeeRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id')
-        .eq('role', 'employee');
+        .eq('role', 'staff');
 
       if (rolesError) throw rolesError;
 

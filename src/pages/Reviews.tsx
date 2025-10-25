@@ -41,7 +41,7 @@ export default function Reviews() {
   const [replyText, setReplyText] = useState("");
 
   useEffect(() => {
-    if (!loading && userRole !== 'admin') {
+    if (!loading && userRole !== 'manager') {
       navigate('/');
     } else if (!loading) {
       fetchReviews();

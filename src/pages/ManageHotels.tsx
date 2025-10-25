@@ -115,7 +115,7 @@ export default function ManageHotels() {
   } | null>(null);
 
   useEffect(() => {
-    if (!loading && userRole !== 'admin') {
+    if (!loading && userRole !== 'manager') {
       navigate('/');
     } else if (!loading) {
       fetchCities();
@@ -146,7 +146,7 @@ export default function ManageHotels() {
       const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role')
-        .neq('role', 'customer');
+        .neq('role', 'client');
 
       if (rolesError) throw rolesError;
 

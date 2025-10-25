@@ -1819,6 +1819,7 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          active: boolean
           created_at: string | null
           id: string
           permissions: Json | null
@@ -1826,6 +1827,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          active?: boolean
           created_at?: string | null
           id?: string
           permissions?: Json | null
@@ -1833,6 +1835,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          active?: boolean
           created_at?: string | null
           id?: string
           permissions?: Json | null
@@ -2053,6 +2056,13 @@ export type Database = {
           whatsapp_number: string
         }[]
       }
+      has_any_role: {
+        Args: {
+          _roles: Database["public"]["Enums"]["app_role"][]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2072,15 +2082,16 @@ export type Database = {
     }
     Enums: {
       app_role:
-        | "admin"
-        | "employee"
-        | "customer"
+        | "manager"
+        | "assistantmanager"
+        | "staff"
+        | "visamanager"
+        | "visaemployee"
+        | "accountsmanager"
+        | "accountsemployee"
+        | "marketingstaff"
+        | "client"
         | "company"
-        | "assistant_manager"
-        | "specific_financial_manager"
-        | "specific_financial_employee"
-        | "visa_department_manager"
-        | "visa_department_employee"
       booking_status: "new" | "pending" | "confirmed" | "cancelled" | "rejected"
       complaint_status: "new" | "pending" | "rejected" | "resolved"
       meal_plan_type:
@@ -2222,15 +2233,16 @@ export const Constants = {
   public: {
     Enums: {
       app_role: [
-        "admin",
-        "employee",
-        "customer",
+        "manager",
+        "assistantmanager",
+        "staff",
+        "visamanager",
+        "visaemployee",
+        "accountsmanager",
+        "accountsemployee",
+        "marketingstaff",
+        "client",
         "company",
-        "assistant_manager",
-        "specific_financial_manager",
-        "specific_financial_employee",
-        "visa_department_manager",
-        "visa_department_employee",
       ],
       booking_status: ["new", "pending", "confirmed", "cancelled", "rejected"],
       complaint_status: ["new", "pending", "rejected", "resolved"],

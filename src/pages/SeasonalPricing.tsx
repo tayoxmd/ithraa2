@@ -93,7 +93,7 @@ export default function SeasonalPricing() {
   };
 
   useEffect(() => {
-    if (!loading && userRole !== 'admin') {
+    if (!loading && userRole !== 'manager') {
       navigate('/');
     } else if (!loading && hotelId) {
       fetchHotel();

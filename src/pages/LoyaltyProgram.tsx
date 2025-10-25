@@ -46,7 +46,7 @@ export default function LoyaltyProgram() {
   const [sortBy, setSortBy] = useState<string>("bookings");
 
   useEffect(() => {
-    if (!loading && userRole !== 'admin') {
+    if (!loading && userRole !== 'manager') {
       navigate('/');
     } else if (!loading) {
       fetchCustomers();
@@ -63,7 +63,7 @@ export default function LoyaltyProgram() {
       const { data: customerRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id')
-        .eq('role', 'customer');
+        .eq('role', 'client');
 
       if (rolesError) throw rolesError;
 

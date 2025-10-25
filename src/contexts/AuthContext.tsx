@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
+import type { UserRole } from '@/config/permissions';
 
 interface AuthContextType {
   user: User | null;
@@ -10,7 +11,9 @@ interface AuthContextType {
   signUp: (email: string, password: string, fullName: string, phone: string, redirectUrl?: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string, redirectUrl?: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  userRole: string | null;
+  userRole: UserRole | null;
+  hasRole: (roles: UserRole[]) => boolean;
+  refreshRole: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -19,7 +22,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<UserRole | null>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -53,15 +56,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const fetchUserRole = async (userId: string) => {
-    const { data } = await supabase
-      .from('user_roles')
-      .select('role')
-      .eq('user_id', userId)
-      .single();
-    
-    if (data) {
-      setUserRole(data.role);
+    try {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role, active')
+        .eq('user_id', userId)
+        .eq('active', true)
+        .single();
+      
+      if (error) {
+        console.error('Error fetching user role:', error);
+        setUserRole(null);
+        return;
+      }
+      
+      if (data) {
+        setUserRole(data.role as UserRole);
+      } else {
+        setUserRole(null);
+      }
+    } catch (error) {
+      console.error('Unexpected error fetching user role:', error);
+      setUserRole(null);
     }
+  };
+
+  const refreshRole = async () => {
+    if (user?.id) {
+      await fetchUserRole(user.id);
+    }
+  };
+
+  const hasRole = (roles: UserRole[]): boolean => {
+    if (!userRole) return false;
+    return roles.includes(userRole);
   };
 
   const signUp = async (email: string, password: string, fullName: string, phone: string, redirectUrl?: string) => {
@@ -107,7 +135,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut, userRole }}>
+    <AuthContext.Provider value={{ user, session, loading, signUp, signIn, signOut, userRole, hasRole, refreshRole }}>
       {children}
     </AuthContext.Provider>
   );

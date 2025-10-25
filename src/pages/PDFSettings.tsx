@@ -196,7 +196,7 @@ export default function PDFSettings() {
 
   useEffect(() => {
     if (!loading) {
-      if (userRole !== 'admin') {
+      if (userRole !== 'manager') {
         navigate('/');
         return;
       }
