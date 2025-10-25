@@ -5,16 +5,3 @@ verify_jwt = false
 
 [functions.send-whatsapp-otp]
 verify_jwt = false
-
-[functions.maintenance-toggle]
-verify_jwt = true
-
-[functions.maintenance-sw-control]
-verify_jwt = true
-
-[functions.maintenance-history]
-verify_jwt = true
-
-[functions.purge-cache]
-verify_jwt = true
-

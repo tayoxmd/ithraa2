@@ -31,11 +31,6 @@ if ('serviceWorker' in navigator) {
       window.location.reload();
     }
   });
-  
-  // Handle skip waiting message
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    window.location.reload();
-  });
 }
 
 // بدء المزامنة عند فتح التطبيق
