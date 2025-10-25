@@ -1636,6 +1636,157 @@ export type Database = {
         }
         Relationships: []
       }
+      task_attachments: {
+        Row: {
+          created_at: string | null
+          file_name: string
+          file_size: number | null
+          file_url: string
+          id: string
+          task_id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_name: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          task_id: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          task_id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_attachments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_comments: {
+        Row: {
+          comment: string
+          created_at: string | null
+          id: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string | null
+          id?: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string | null
+          id?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_settings: {
+        Row: {
+          color_scheme: Json | null
+          created_at: string | null
+          drag_speed: number | null
+          id: string
+          show_animations: boolean | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          color_scheme?: Json | null
+          created_at?: string | null
+          drag_speed?: number | null
+          id?: string
+          show_animations?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          color_scheme?: Json | null
+          created_at?: string | null
+          drag_speed?: number | null
+          id?: string
+          show_animations?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          financial_amount: number | null
+          id: string
+          priority: Database["public"]["Enums"]["task_priority"]
+          status: Database["public"]["Enums"]["task_status"]
+          task_type: Database["public"]["Enums"]["task_type"]
+          title: string
+          updated_at: string | null
+          vault_id: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          financial_amount?: number | null
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          status?: Database["public"]["Enums"]["task_status"]
+          task_type?: Database["public"]["Enums"]["task_type"]
+          title: string
+          updated_at?: string | null
+          vault_id?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          financial_amount?: number | null
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          status?: Database["public"]["Enums"]["task_status"]
+          task_type?: Database["public"]["Enums"]["task_type"]
+          title?: string
+          updated_at?: string | null
+          vault_id?: string | null
+        }
+        Relationships: []
+      }
       user_guests: {
         Row: {
           created_at: string | null
@@ -1752,18 +1903,12 @@ export type Database = {
         }
         Returns: boolean
       }
-      create_system_backup: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      create_system_backup: { Args: never; Returns: undefined }
       employee_has_assigned_customer: {
         Args: { customer_id: string; employee_id: string }
         Returns: boolean
       }
-      generate_referral_code: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_referral_code: { Args: never; Returns: string }
       get_available_rooms_count: {
         Args: { p_check_in: string; p_check_out: string; p_hotel_id: string }
         Returns: number
@@ -1882,7 +2027,7 @@ export type Database = {
         }[]
       }
       get_public_site_settings: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           email: string
           facebook_url: string
@@ -1895,7 +2040,7 @@ export type Database = {
         }[]
       }
       get_site_settings: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           email: string
           facebook_url: string
@@ -1946,6 +2091,9 @@ export type Database = {
         | "no_meals"
       payment_status: "paid" | "partially_paid" | "unpaid"
       room_type: "hotel_rooms" | "owner_rooms"
+      task_priority: "low" | "medium" | "high" | "urgent"
+      task_status: "new" | "pending" | "delegated" | "confirmed" | "approved"
+      task_type: "financial" | "administrative" | "scheduling"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2095,6 +2243,9 @@ export const Constants = {
       ],
       payment_status: ["paid", "partially_paid", "unpaid"],
       room_type: ["hotel_rooms", "owner_rooms"],
+      task_priority: ["low", "medium", "high", "urgent"],
+      task_status: ["new", "pending", "delegated", "confirmed", "approved"],
+      task_type: ["financial", "administrative", "scheduling"],
     },
   },
 } as const

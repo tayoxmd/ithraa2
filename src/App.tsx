@@ -40,13 +40,15 @@ import SpecialOffers from "./pages/SpecialOffers";
 import LiveChatManagement from "./pages/LiveChatManagement";
 import Studio from "./pages/Studio";
 import Install from "./pages/Install";
+import TaskManager from "./pages/TaskManager";
+import TaskSettings from "./pages/TaskSettings";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
 const RouterWithTheme = () => {
   const location = useLocation();
-  const adminPaths = ['/admin', '/admin-dashboard', '/manage', '/employee', '/api-settings', '/site-settings', '/pdf-settings', '/audit-logs', '/studio'];
+  const adminPaths = ['/admin', '/admin-dashboard', '/manage', '/employee', '/api-settings', '/site-settings', '/pdf-settings', '/audit-logs', '/studio', '/task-manager', '/task-settings'];
   const isAdmin = adminPaths.some((p) => location.pathname.startsWith(p));
   return (
     <ThemeProvider isAdmin={isAdmin}>
@@ -78,6 +80,8 @@ const RouterWithTheme = () => {
               <Route path="/hotel-comparison" element={<HotelComparison />} />
               <Route path="/special-offers" element={<SpecialOffers />} />
               <Route path="/studio" element={<ProtectedRoute><Studio /></ProtectedRoute>} />
+              <Route path="/task-manager" element={<ProtectedRoute><TaskManager /></ProtectedRoute>} />
+              <Route path="/task-settings" element={<ProtectedRoute><TaskSettings /></ProtectedRoute>} />
               <Route path="/install" element={<Install />} />
               <Route path="/live-chat" element={<ProtectedRoute><LiveChatManagement /></ProtectedRoute>} />
               <Route path="/live-chat-management" element={<ProtectedRoute><LiveChatManagement /></ProtectedRoute>} />
