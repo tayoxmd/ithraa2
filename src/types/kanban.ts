@@ -25,6 +25,7 @@ export interface Task {
 export interface TaskInsert {
   title: string;
   description?: string;
+  task_type?: 'administrative' | 'financial' | 'scheduling';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   status: 'todo' | 'in_progress' | 'done' | 'rejected';
   assigned_to?: string | null;

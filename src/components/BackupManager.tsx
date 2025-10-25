@@ -44,9 +44,13 @@ export function BackupManager({ open, onOpenChange }: BackupManagerProps) {
         .not('backup_data', 'is', null)
         .order('backup_created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Fetch backups error:', error);
+      }
+      
       setBackups(data || []);
     } catch (error: any) {
+      console.error('Fetch backups exception:', error);
       toast({
         title: t({ ar: "خطأ", en: "Error" }),
         description: error.message,

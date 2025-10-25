@@ -135,6 +135,7 @@ export function CreateTaskDialog({
         const taskData: TaskInsert = {
           title: formData.title,
           description: formData.description,
+          task_type: 'administrative',
           priority: formData.priority,
           status: formData.status,
           assigned_to: assignedTo,

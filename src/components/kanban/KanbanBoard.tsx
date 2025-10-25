@@ -78,7 +78,6 @@ export function KanbanBoard() {
 
       if (error) throw error;
 
-      // Build assignee name map in one query
       const assigneeIds = Array.from(new Set((data || []).map((t: any) => t.assigned_to).filter(Boolean))) as string[];
       let assigneeMap: Record<string, string> = {};
       if (assigneeIds.length > 0) {
@@ -91,7 +90,6 @@ export function KanbanBoard() {
         });
       }
 
-      // Fetch counts per task
       const tasksWithCounts = await Promise.all(
         (data || []).map(async (task: any) => {
           const [commentsResult, attachmentsResult] = await Promise.all([
@@ -167,20 +165,30 @@ export function KanbanBoard() {
     }
 
     const activeTask = tasks.find((t) => t.id === active.id);
-    if (!activeTask) return;
+    if (!activeTask) {
+      setActiveTask(null);
+      return;
+    }
 
     // Check if dropped on a column
     const overColumn = columns.find((col) => col.id === over.id);
-    if (overColumn && activeTask.status !== overColumn.id) {
-      // Update task status
-      await updateTaskStatus(activeTask.id, overColumn.id as any);
+    if (overColumn) {
+      if (activeTask.status !== overColumn.id) {
+        // Update task status immediately
+        await updateTaskStatus(activeTask.id, overColumn.id as any);
+      }
+      setActiveTask(null);
+      return;
     }
 
     // Check if dropped on another task
     const overTask = tasks.find((t) => t.id === over.id);
     if (overTask && active.id !== over.id) {
-      // Reorder tasks within the same column
-      if (activeTask.status === overTask.status) {
+      // If task is moved to a different column
+      if (activeTask.status !== overTask.status) {
+        await updateTaskStatus(activeTask.id, overTask.status as any);
+      } else {
+        // Reorder tasks within the same column
         const oldIndex = tasks.findIndex((t) => t.id === active.id);
         const newIndex = tasks.findIndex((t) => t.id === over.id);
         const newTasks = arrayMove(tasks, oldIndex, newIndex);
