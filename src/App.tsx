@@ -54,15 +54,15 @@ const RouterWithTheme = () => {
   const adminPaths = ['/admin', '/admin-dashboard', '/manage', '/employee', '/api-settings', '/site-settings', '/pdf-settings', '/audit-logs', '/studio', '/task-manager', '/task-settings'];
   const isAdmin = adminPaths.some((p) => location.pathname.startsWith(p));
   return (
-    <ThemeProviderContext>
-      <ThemeProvider isAdmin={isAdmin}>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <ChatWidget />
-          {/* <OfflineIndicator /> */}
-          <LanguageProvider>
-            <AuthProvider>
+    <LanguageProvider>
+      <AuthProvider>
+        <ThemeProviderContext>
+          <ThemeProvider isAdmin={isAdmin}>
+            <TooltipProvider>
+              <Toaster />
+              <Sonner />
+              <ChatWidget />
+              {/* <OfflineIndicator /> */}
               <MaintenanceGuard>
                 <Routes>
               <Route path="/" element={<Index />} />
@@ -103,11 +103,11 @@ const RouterWithTheme = () => {
               <Route path="*" element={<NotFound />} />
             </Routes>
               </MaintenanceGuard>
-          </AuthProvider>
-        </LanguageProvider>
-      </TooltipProvider>
-    </ThemeProvider>
-    </ThemeProviderContext>
+            </TooltipProvider>
+          </ThemeProvider>
+        </ThemeProviderContext>
+      </AuthProvider>
+    </LanguageProvider>
   );
 };
 
