@@ -74,6 +74,7 @@ export default function AdminDashboard() {
     { icon: LayoutDashboard, label: t({ ar: 'إدارة المهام', en: 'Task Manager' }), path: '/task-manager' },
     { icon: Hotel, label: t({ ar: 'إدارة الفنادق', en: 'Manage Hotels' }), path: '/manage-hotels' },
     { icon: Users, label: t({ ar: 'إدارة المستخدمين', en: 'Manage Users' }), path: '/manage-employees' },
+    { icon: UserCog, label: t({ ar: 'إدارة الصلاحيات', en: 'Permissions Management' }), path: '/permissions' },
     { icon: Briefcase, label: t({ ar: 'شؤون الموظفين', en: 'Employee Management' }), path: '/employee-management' },
     { icon: FileText, label: t({ ar: 'التقييمات والمراجعات', en: 'Reviews & Ratings' }), path: '/reviews' },
     { icon: MessageSquare, label: t({ ar: 'الدردشة المباشرة', en: 'Live Chat' }), path: '/live-chat' },

@@ -10,6 +10,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { LiveChatButton } from "@/components/LiveChatButton";
 import { HeroSlideshow } from "@/components/HeroSlideshow";
+import { ServicesSection } from "@/components/ServicesSection";
 
 interface Hotel {
   id: string;
@@ -82,15 +83,18 @@ const Index = () => {
             </p>
           </div>
 
-          {/* Search Box */}
-          <div className="mt-32">
-            <SearchBox />
-          </div>
-        </div>
-      </section>
+      {/* Search Box */}
+      <div className="mt-32">
+        <SearchBox />
+      </div>
+    </div>
+  </section>
 
-      {/* Featured Hotels Section */}
-      <section className="container mx-auto px-4 py-16" id="hotels">
+  {/* Services Section */}
+  <ServicesSection />
+
+  {/* Featured Hotels Section */}
+  <section className="container mx-auto px-4 py-16" id="hotels">
         <div className="text-center mb-12 animate-fade-in-up">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
             <span className="text-gradient-luxury">الفنادق المميزة</span>

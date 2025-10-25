@@ -41,6 +41,7 @@ import LiveChatManagement from "./pages/LiveChatManagement";
 import Studio from "./pages/Studio";
 import Install from "./pages/Install";
 import TaskManager from "./pages/TaskManager";
+import PermissionsManagement from "./pages/PermissionsManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -87,6 +88,7 @@ const RouterWithTheme = () => {
               <Route path="/seasonal-pricing" element={<ProtectedRoute><SeasonalPricing /></ProtectedRoute>} />
               <Route path="/employee-management" element={<ProtectedRoute><EmployeeManagement /></ProtectedRoute>} />
               <Route path="/manage-employees" element={<ProtectedRoute><ManageEmployees /></ProtectedRoute>} />
+              <Route path="/permissions" element={<ProtectedRoute><PermissionsManagement /></ProtectedRoute>} />
               <Route path="/api-settings" element={<ProtectedRoute><APISettings /></ProtectedRoute>} />
               <Route path="/site-settings" element={<ProtectedRoute><SiteSettings /></ProtectedRoute>} />
               <Route path="/pdf-settings" element={<ProtectedRoute><PDFSettings /></ProtectedRoute>} />
