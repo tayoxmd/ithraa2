@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Switch } from '@/components/ui/switch';
 import {
   Select,
   SelectContent,
@@ -19,17 +20,18 @@ import {
 } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Calendar as CalendarIcon, Loader2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Loader2, DollarSign } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Card } from '@/components/ui/card';
 
 interface CreateTaskDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialStatus?: 'todo' | 'in_progress' | 'done';
+  initialStatus?: 'todo' | 'in_progress' | 'done' | 'rejected';
   onTaskCreated: () => void;
 }
 
@@ -50,6 +52,11 @@ export function CreateTaskDialog({
     assigned_to: '',
     due_date: undefined as Date | undefined,
     tags: [] as string[],
+    category: 'general',
+    is_financial: false,
+    amount_total: '',
+    amount_paid: '',
+    payment_due_date: undefined as Date | undefined,
   });
 
   useEffect(() => {
@@ -63,7 +70,7 @@ export function CreateTaskDialog({
       const { data, error } = await supabase
         .from('user_roles')
         .select('user_id, profiles(full_name)')
-        .in('role', ['employee', 'admin']);
+        .in('role', ['employee', 'admin', 'manager']);
 
       if (error) throw error;
       setEmployees(data || []);
@@ -93,9 +100,13 @@ export function CreateTaskDialog({
         due_date: formData.due_date ? formData.due_date.toISOString() : null,
         tags: formData.tags.length > 0 ? formData.tags : null,
         created_by: userData.user.id,
+        category: formData.category,
+        is_financial: formData.is_financial,
+        amount_total: formData.is_financial && formData.amount_total ? parseFloat(formData.amount_total) : null,
+        amount_paid: formData.is_financial && formData.amount_paid ? parseFloat(formData.amount_paid) : null,
+        payment_due_date: formData.is_financial && formData.payment_due_date ? formData.payment_due_date.toISOString().split('T')[0] : null,
       };
 
-      // @ts-ignore - Supabase types will update automatically
       const { error } = await supabase.from('tasks').insert([taskData]);
 
       if (error) throw error;
@@ -111,6 +122,11 @@ export function CreateTaskDialog({
         assigned_to: '',
         due_date: undefined,
         tags: [],
+        category: 'general',
+        is_financial: false,
+        amount_total: '',
+        amount_paid: '',
+        payment_due_date: undefined,
       });
     } catch (error: any) {
       console.error('Error creating task:', error);
@@ -119,6 +135,10 @@ export function CreateTaskDialog({
       setLoading(false);
     }
   };
+
+  const amountRemaining = formData.is_financial && formData.amount_total && formData.amount_paid
+    ? parseFloat(formData.amount_total) - parseFloat(formData.amount_paid)
+    : 0;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -154,11 +174,41 @@ export function CreateTaskDialog({
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder={t({ ar: 'أدخل وصف المهمة', en: 'Enter task description' })}
-              rows={4}
+              rows={3}
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Category */}
+            <div className="space-y-2">
+              <Label>{t({ ar: 'التصنيف', en: 'Category' })}</Label>
+              <Select
+                value={formData.category}
+                onValueChange={(value) => setFormData({ ...formData, category: value })}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="general">
+                    {t({ ar: 'عام', en: 'General' })}
+                  </SelectItem>
+                  <SelectItem value="financial">
+                    {t({ ar: 'مالي', en: 'Financial' })}
+                  </SelectItem>
+                  <SelectItem value="booking">
+                    {t({ ar: 'حجوزات', en: 'Booking' })}
+                  </SelectItem>
+                  <SelectItem value="support">
+                    {t({ ar: 'دعم فني', en: 'Support' })}
+                  </SelectItem>
+                  <SelectItem value="maintenance">
+                    {t({ ar: 'صيانة', en: 'Maintenance' })}
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Priority */}
             <div className="space-y-2">
               <Label>{t({ ar: 'الأولوية', en: 'Priority' })}</Label>
@@ -185,7 +235,9 @@ export function CreateTaskDialog({
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Status */}
             <div className="space-y-2">
               <Label>{t({ ar: 'الحالة', en: 'Status' })}</Label>
@@ -206,12 +258,13 @@ export function CreateTaskDialog({
                   <SelectItem value="done">
                     {t({ ar: 'مكتمل', en: 'Done' })}
                   </SelectItem>
+                  <SelectItem value="rejected">
+                    {t({ ar: 'مرفوض', en: 'Rejected' })}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Assign To */}
             <div className="space-y-2">
               <Label>{t({ ar: 'تعيين إلى', en: 'Assign To' })}</Label>
@@ -234,36 +287,36 @@ export function CreateTaskDialog({
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
-            {/* Due Date */}
-            <div className="space-y-2">
-              <Label>{t({ ar: 'تاريخ الاستحقاق', en: 'Due Date' })}</Label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-start text-left font-normal"
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {formData.due_date ? (
-                      format(formData.due_date, 'PPP', {
-                        locale: language === 'ar' ? ar : undefined,
-                      })
-                    ) : (
-                      <span>{t({ ar: 'اختر التاريخ', en: 'Pick a date' })}</span>
-                    )}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={formData.due_date}
-                    onSelect={(date) => setFormData({ ...formData, due_date: date })}
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-            </div>
+          {/* Due Date */}
+          <div className="space-y-2">
+            <Label>{t({ ar: 'تاريخ الاستحقاق', en: 'Due Date' })}</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {formData.due_date ? (
+                    format(formData.due_date, 'PPP', {
+                      locale: language === 'ar' ? ar : undefined,
+                    })
+                  ) : (
+                    <span>{t({ ar: 'اختر التاريخ', en: 'Pick a date' })}</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={formData.due_date}
+                  onSelect={(date) => setFormData({ ...formData, due_date: date })}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Tags */}
@@ -283,6 +336,103 @@ export function CreateTaskDialog({
               placeholder={t({ ar: 'حجوزات, عاجل, متابعة', en: 'bookings, urgent, follow-up' })}
             />
           </div>
+
+          {/* Financial Task Toggle */}
+          <Card className="p-4 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-primary" />
+                <Label htmlFor="is_financial" className="text-base font-semibold">
+                  {t({ ar: 'مهمة مالية', en: 'Financial Task' })}
+                </Label>
+              </div>
+              <Switch
+                id="is_financial"
+                checked={formData.is_financial}
+                onCheckedChange={(checked) => setFormData({ ...formData, is_financial: checked })}
+              />
+            </div>
+
+            {formData.is_financial && (
+              <div className="space-y-4 pt-2 border-t">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Total Amount */}
+                  <div className="space-y-2">
+                    <Label htmlFor="amount_total">
+                      {t({ ar: 'المبلغ الإجمالي', en: 'Total Amount' })}
+                    </Label>
+                    <Input
+                      id="amount_total"
+                      type="number"
+                      step="0.01"
+                      value={formData.amount_total}
+                      onChange={(e) => setFormData({ ...formData, amount_total: e.target.value })}
+                      placeholder="0.00"
+                    />
+                  </div>
+
+                  {/* Paid Amount */}
+                  <div className="space-y-2">
+                    <Label htmlFor="amount_paid">
+                      {t({ ar: 'المبلغ المدفوع', en: 'Paid Amount' })}
+                    </Label>
+                    <Input
+                      id="amount_paid"
+                      type="number"
+                      step="0.01"
+                      value={formData.amount_paid}
+                      onChange={(e) => setFormData({ ...formData, amount_paid: e.target.value })}
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+
+                {/* Remaining Amount Display */}
+                {formData.amount_total && (
+                  <div className="p-3 bg-muted rounded-lg">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm font-medium">
+                        {t({ ar: 'المبلغ المتبقي:', en: 'Remaining Amount:' })}
+                      </span>
+                      <span className="text-lg font-bold text-primary">
+                        {amountRemaining.toFixed(2)} {t({ ar: 'ر.س', en: 'SAR' })}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Payment Due Date */}
+                <div className="space-y-2">
+                  <Label>{t({ ar: 'تاريخ استحقاق الدفع', en: 'Payment Due Date' })}</Label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {formData.payment_due_date ? (
+                          format(formData.payment_due_date, 'PPP', {
+                            locale: language === 'ar' ? ar : undefined,
+                          })
+                        ) : (
+                          <span>{t({ ar: 'اختر التاريخ', en: 'Pick a date' })}</span>
+                        )}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={formData.payment_due_date}
+                        onSelect={(date) => setFormData({ ...formData, payment_due_date: date })}
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+              </div>
+            )}
+          </Card>
 
           {/* Buttons */}
           <div className="flex gap-2 justify-end pt-4">

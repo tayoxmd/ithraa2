@@ -2008,7 +2008,11 @@ export type Database = {
       }
       tasks: {
         Row: {
+          amount_paid: number | null
+          amount_remaining: number | null
+          amount_total: number | null
           assigned_to: string | null
+          category: string | null
           completed_at: string | null
           created_at: string | null
           created_by: string | null
@@ -2016,15 +2020,23 @@ export type Database = {
           due_date: string | null
           financial_amount: number | null
           id: string
+          is_financial: boolean | null
+          order_index: number | null
+          payment_due_date: string | null
           priority: Database["public"]["Enums"]["task_priority"]
           status: Database["public"]["Enums"]["task_status"]
+          tags: string[] | null
           task_type: Database["public"]["Enums"]["task_type"]
           title: string
           updated_at: string | null
           vault_id: string | null
         }
         Insert: {
+          amount_paid?: number | null
+          amount_remaining?: number | null
+          amount_total?: number | null
           assigned_to?: string | null
+          category?: string | null
           completed_at?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -2032,15 +2044,23 @@ export type Database = {
           due_date?: string | null
           financial_amount?: number | null
           id?: string
+          is_financial?: boolean | null
+          order_index?: number | null
+          payment_due_date?: string | null
           priority?: Database["public"]["Enums"]["task_priority"]
           status?: Database["public"]["Enums"]["task_status"]
+          tags?: string[] | null
           task_type?: Database["public"]["Enums"]["task_type"]
           title: string
           updated_at?: string | null
           vault_id?: string | null
         }
         Update: {
+          amount_paid?: number | null
+          amount_remaining?: number | null
+          amount_total?: number | null
           assigned_to?: string | null
+          category?: string | null
           completed_at?: string | null
           created_at?: string | null
           created_by?: string | null
@@ -2048,8 +2068,12 @@ export type Database = {
           due_date?: string | null
           financial_amount?: number | null
           id?: string
+          is_financial?: boolean | null
+          order_index?: number | null
+          payment_due_date?: string | null
           priority?: Database["public"]["Enums"]["task_priority"]
           status?: Database["public"]["Enums"]["task_status"]
+          tags?: string[] | null
           task_type?: Database["public"]["Enums"]["task_type"]
           title?: string
           updated_at?: string | null
@@ -2452,8 +2476,24 @@ export type Database = {
         | "no_meals"
       payment_status: "paid" | "partially_paid" | "unpaid"
       room_type: "hotel_rooms" | "owner_rooms"
+      task_category:
+        | "general"
+        | "financial"
+        | "booking"
+        | "support"
+        | "maintenance"
       task_priority: "low" | "medium" | "high" | "urgent"
-      task_status: "new" | "pending" | "delegated" | "confirmed" | "approved"
+      task_status:
+        | "new"
+        | "pending"
+        | "delegated"
+        | "confirmed"
+        | "approved"
+        | "todo"
+        | "in_progress"
+        | "done"
+        | "rejected"
+        | "archived"
       task_type: "financial" | "administrative" | "scheduling"
     }
     CompositeTypes: {
@@ -2613,8 +2653,26 @@ export const Constants = {
       ],
       payment_status: ["paid", "partially_paid", "unpaid"],
       room_type: ["hotel_rooms", "owner_rooms"],
+      task_category: [
+        "general",
+        "financial",
+        "booking",
+        "support",
+        "maintenance",
+      ],
       task_priority: ["low", "medium", "high", "urgent"],
-      task_status: ["new", "pending", "delegated", "confirmed", "approved"],
+      task_status: [
+        "new",
+        "pending",
+        "delegated",
+        "confirmed",
+        "approved",
+        "todo",
+        "in_progress",
+        "done",
+        "rejected",
+        "archived",
+      ],
       task_type: ["financial", "administrative", "scheduling"],
     },
   },

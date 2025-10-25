@@ -5,7 +5,7 @@ export interface Task {
   id: string;
   title: string;
   description?: string;
-  status: 'todo' | 'in_progress' | 'done' | 'archived';
+  status: 'todo' | 'in_progress' | 'done' | 'rejected' | 'archived';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   assigned_to?: string;
   created_by: string;
@@ -15,22 +15,33 @@ export interface Task {
   tags?: string[];
   created_at: string;
   updated_at: string;
+  is_financial?: boolean;
+  amount_total?: number;
+  amount_paid?: number;
+  amount_remaining?: number;
+  payment_due_date?: string;
 }
 
 export interface TaskInsert {
   title: string;
   description?: string;
   priority: 'low' | 'medium' | 'high' | 'urgent';
-  status: 'todo' | 'in_progress' | 'done';
+  status: 'todo' | 'in_progress' | 'done' | 'rejected';
   assigned_to?: string | null;
   due_date?: string | null;
   tags?: string[] | null;
   created_by: string;
+  category?: string | null;
+  is_financial?: boolean;
+  amount_total?: number | null;
+  amount_paid?: number | null;
+  payment_due_date?: string | null;
 }
 
 export interface TaskUpdate {
-  status?: 'todo' | 'in_progress' | 'done';
+  status?: 'todo' | 'in_progress' | 'done' | 'rejected';
   order_index?: number;
+  amount_paid?: number;
 }
 
 export interface TaskComment {

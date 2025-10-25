@@ -5,27 +5,15 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { KanbanTask } from './KanbanTask';
-
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  due_date?: string;
-  assigned_to?: string;
-  assignee_name?: string;
-  comments_count?: number;
-  attachments_count?: number;
-  tags?: string[];
-}
+import type { TaskWithDetails } from '@/types/kanban';
 
 interface KanbanColumnProps {
   id: string;
   title: string;
-  tasks: Task[];
+  tasks: TaskWithDetails[];
   color: string;
   onAddTask: () => void;
-  onTaskClick: (task: Task) => void;
+  onTaskClick: (task: TaskWithDetails) => void;
 }
 
 export function KanbanColumn({ 
@@ -39,39 +27,39 @@ export function KanbanColumn({
   const { setNodeRef } = useDroppable({ id });
 
   return (
-    <Card className="flex-1 min-w-[320px] bg-muted/30">
-      <CardHeader className="pb-3">
+    <Card className="flex-1 min-w-[140px] md:min-w-[280px] lg:min-w-[320px] bg-muted/30">
+      <CardHeader className="pb-2 md:pb-3 p-3 md:p-6">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1 md:gap-2">
             <div 
-              className="w-3 h-3 rounded-full" 
+              className="w-2 h-2 md:w-3 md:h-3 rounded-full" 
               style={{ backgroundColor: color }}
             />
-            <h3 className="font-semibold">{title}</h3>
-            <Badge variant="secondary" className="ml-1">
+            <h3 className="font-semibold text-xs md:text-base">{title}</h3>
+            <Badge variant="secondary" className="text-[10px] md:text-xs px-1 md:px-2 py-0">
               {tasks.length}
             </Badge>
           </div>
           <Button 
             size="sm" 
             variant="ghost" 
-            className="h-8 w-8 p-0"
+            className="h-6 w-6 md:h-8 md:w-8 p-0"
             onClick={onAddTask}
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-3 h-3 md:w-4 md:h-4" />
           </Button>
         </div>
       </CardHeader>
       <CardContent 
         ref={setNodeRef}
-        className="min-h-[400px] max-h-[calc(100vh-300px)] overflow-y-auto"
+        className="min-h-[200px] md:min-h-[400px] max-h-[calc(100vh-240px)] md:max-h-[calc(100vh-300px)] overflow-y-auto p-2 md:p-6"
       >
         <SortableContext 
           items={tasks.map(t => t.id)} 
           strategy={verticalListSortingStrategy}
         >
           {tasks.length === 0 ? (
-            <div className="text-center text-muted-foreground text-sm py-8">
+            <div className="text-center text-muted-foreground text-xs md:text-sm py-4 md:py-8">
               لا توجد مهام
             </div>
           ) : (

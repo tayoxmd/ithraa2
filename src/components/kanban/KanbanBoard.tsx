@@ -19,7 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
-import type { TaskWithDetails, TaskUpdate } from '@/types/kanban';
+import type { TaskWithDetails } from '@/types/kanban';
 
 type Task = TaskWithDetails;
 
@@ -31,7 +31,7 @@ export function KanbanBoard() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [selectedTask, setSelectedTask] = useState<Task | null>(null);
   const [detailDialogOpen, setDetailDialogOpen] = useState(false);
-  const [initialStatus, setInitialStatus] = useState<'todo' | 'in_progress' | 'done'>('todo');
+  const [initialStatus, setInitialStatus] = useState<'todo' | 'in_progress' | 'done' | 'rejected'>('todo');
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -70,7 +70,7 @@ export function KanbanBoard() {
 
   const fetchTasks = async () => {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('tasks')
         .select(`
           *,
@@ -81,33 +81,30 @@ export function KanbanBoard() {
 
       if (error) throw error;
 
-      if (error) throw error;
-
       // Fetch counts
       const tasksWithCounts = await Promise.all(
         (data || []).map(async (task: any) => {
-          const commentsResult = await (supabase as any)
-            .from('task_comments')
-            .select('id', { count: 'exact', head: true })
-            .eq('task_id', task.id);
-          
-          const attachmentsResult = await (supabase as any)
-            .from('task_attachments')
-            .select('id', { count: 'exact', head: true })
-            .eq('task_id', task.id);
-
-          const [commentsData, attachmentsData] = [commentsResult, attachmentsResult];
+          const [commentsResult, attachmentsResult] = await Promise.all([
+            supabase
+              .from('task_comments')
+              .select('id', { count: 'exact', head: true })
+              .eq('task_id', task.id),
+            supabase
+              .from('task_attachments')
+              .select('id', { count: 'exact', head: true })
+              .eq('task_id', task.id),
+          ]);
 
           return {
             ...task,
             assignee_name: task.profiles?.full_name,
-            comments_count: commentsData.count || 0,
-            attachments_count: attachmentsData.count || 0,
+            comments_count: commentsResult.count || 0,
+            attachments_count: attachmentsResult.count || 0,
           };
         })
       );
 
-      setTasks(tasksWithCounts as unknown as Task[]);
+      setTasks(tasksWithCounts as Task[]);
     } catch (error) {
       console.error('Error fetching tasks:', error);
       toast.error(t({ ar: 'حدث خطأ أثناء تحميل المهام', en: 'Error loading tasks' }));
@@ -135,6 +132,12 @@ export function KanbanBoard() {
         title: t({ ar: 'مكتمل', en: 'Done' }),
         color: '#22c55e',
         tasks: tasks.filter((t) => t.status === 'done'),
+      },
+      {
+        id: 'rejected',
+        title: t({ ar: 'مرفوض', en: 'Rejected' }),
+        color: '#ef4444',
+        tasks: tasks.filter((t) => t.status === 'rejected'),
       },
     ];
   }, [tasks, t]);
@@ -186,8 +189,8 @@ export function KanbanBoard() {
         await Promise.all(
           updates.map((update) =>
             supabase
-              .from('tasks' as any)
-              .update({ order_index: update.order_index } as any)
+              .from('tasks')
+              .update({ order_index: update.order_index })
               .eq('id', update.id)
           )
         );
@@ -197,11 +200,11 @@ export function KanbanBoard() {
     setActiveTask(null);
   };
 
-  const updateTaskStatus = async (taskId: string, newStatus: 'new' | 'pending' | 'approved' | 'confirmed' | 'delegated') => {
+  const updateTaskStatus = async (taskId: string, newStatus: 'todo' | 'in_progress' | 'done' | 'rejected') => {
     try {
       const { error } = await supabase
-        .from('tasks' as any)
-        .update({ status: newStatus } as any)
+        .from('tasks')
+        .update({ status: newStatus })
         .eq('id', taskId);
 
       if (error) throw error;
@@ -214,7 +217,7 @@ export function KanbanBoard() {
     }
   };
 
-  const handleAddTask = (columnId: 'todo' | 'in_progress' | 'done') => {
+  const handleAddTask = (columnId: 'todo' | 'in_progress' | 'done' | 'rejected') => {
     setInitialStatus(columnId);
     setCreateDialogOpen(true);
   };
@@ -240,7 +243,8 @@ export function KanbanBoard() {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex gap-4 overflow-x-auto pb-4">
+        {/* Mobile: 2 columns per row */}
+        <div className="grid grid-cols-2 md:grid-cols-1 lg:grid-cols-4 gap-4 pb-4">
           {columns.map((column) => (
             <KanbanColumn
               key={column.id}

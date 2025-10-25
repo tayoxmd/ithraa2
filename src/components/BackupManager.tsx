@@ -85,10 +85,16 @@ export function BackupManager({ open, onOpenChange }: BackupManagerProps) {
   };
 
   const callRestore = async (data: any) => {
-    const { error } = await supabase.functions.invoke('restore-backup', {
+    const { data: result, error } = await supabase.functions.invoke('restore-backup', {
       body: { backup: data }
     });
-    if (error) throw error;
+    
+    if (error) {
+      console.error('Restore error:', error);
+      throw new Error(error.message || 'Failed to restore backup');
+    }
+    
+    return result;
   };
 
   const handleRestore = async (backup: Backup) => {
