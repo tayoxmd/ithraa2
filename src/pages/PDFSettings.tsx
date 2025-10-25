@@ -386,9 +386,16 @@ export default function PDFSettings() {
     return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
   }
 
-  const ColorInput = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => {
+  const ColorInput = ({ label, value, onChange, doneText, manualText }: { 
+    label: string; 
+    value: string; 
+    onChange: (v: string) => void;
+    doneText: string;
+    manualText: string;
+  }) => {
     const [r, g, b] = (value || '0,0,0').split(',').map(v => parseInt(v.trim()));
     const hexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
+    const [open, setOpen] = useState(false);
     
     const handleHexChange = (hex: string) => {
       const cleanHex = hex.replace('#', '');
@@ -402,34 +409,57 @@ export default function PDFSettings() {
       <div className="space-y-2">
         <Label className="mb-3 block">{label}</Label>
         <div className="flex gap-3 items-start">
-          <Popover>
+          <Popover open={open} onOpenChange={setOpen} modal={true}>
             <PopoverTrigger asChild>
               <button
+                type="button"
                 className="w-20 h-20 rounded-lg border-2 border-border shadow-sm hover:scale-105 transition-transform cursor-pointer flex-shrink-0"
                 style={{ backgroundColor: hexColor }}
               />
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-3" align="start">
-              <HexColorPicker
-                color={hexColor}
-                onChange={handleHexChange}
-              />
-              <div className="mt-3">
-                <Input
-                  type="text"
-                  value={hexColor}
-                  onChange={(e) => handleHexChange(e.target.value)}
-                  className="font-mono text-sm text-black dark:text-white"
-                  placeholder="#000000"
+            <PopoverContent 
+              className="w-auto p-3 bg-background z-50 pointer-events-auto" 
+              align="start"
+              onInteractOutside={(e) => {
+                e.preventDefault();
+              }}
+              onPointerDownOutside={(e) => {
+                e.preventDefault();
+              }}
+              onOpenAutoFocus={(e) => e.preventDefault()}
+            >
+              <div onPointerDown={(e) => e.stopPropagation()}>
+                <HexColorPicker
+                  color={hexColor}
+                  onChange={handleHexChange}
                 />
+                <div className="mt-3 flex gap-2">
+                  <Input
+                    type="text"
+                    value={hexColor}
+                    onChange={(e) => handleHexChange(e.target.value)}
+                    className="font-mono text-sm"
+                    placeholder="#000000"
+                  />
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={() => setOpen(false)}
+                  >
+                    {doneText}
+                  </Button>
+                </div>
               </div>
             </PopoverContent>
           </Popover>
           <div className="flex-1">
+            <Label className="text-xs text-muted-foreground mb-1 block">
+              {manualText}
+            </Label>
             <Input
-              value={value}
-              onChange={(e) => onChange(e.target.value)}
-              placeholder="R,G,B"
+              value={hexColor}
+              onChange={(e) => handleHexChange(e.target.value)}
+              placeholder="#FFFFFF"
               className="font-mono"
             />
           </div>
@@ -797,18 +827,24 @@ export default function PDFSettings() {
                         label={t({ ar: "اللون الأساسي", en: "Primary Color" })}
                         value={settings.primary_color || '75,0,130'}
                         onChange={(v) => setSettings({ ...settings, primary_color: v })}
+                        doneText={t({ ar: "تم", en: "Done" })}
+                        manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
                       />
 
                       <ColorInput
                         label={t({ ar: "اللون الثانوي", en: "Secondary Color" })}
                         value={settings.secondary_color || '245,245,245'}
                         onChange={(v) => setSettings({ ...settings, secondary_color: v })}
+                        doneText={t({ ar: "تم", en: "Done" })}
+                        manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
                       />
 
                       <ColorInput
                         label={t({ ar: "لون النص", en: "Text Color" })}
                         value={settings.text_color || '0,0,0'}
                         onChange={(v) => setSettings({ ...settings, text_color: v })}
+                        doneText={t({ ar: "تم", en: "Done" })}
+                        manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
                       />
                     </div>
 
@@ -821,12 +857,16 @@ export default function PDFSettings() {
                         label={t({ ar: "خلفية الرأس", en: "Header Background" })}
                         value={settings.header_bg_color || '75,0,130'}
                         onChange={(v) => setSettings({ ...settings, header_bg_color: v })}
+                        doneText={t({ ar: "تم", en: "Done" })}
+                        manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
                       />
 
                       <ColorInput
                         label={t({ ar: "خلفية التذييل", en: "Footer Background" })}
                         value={settings.footer_bg_color || '75,0,130'}
                         onChange={(v) => setSettings({ ...settings, footer_bg_color: v })}
+                        doneText={t({ ar: "تم", en: "Done" })}
+                        manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
                       />
                     </div>
                   </TabsContent>
