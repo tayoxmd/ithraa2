@@ -15,6 +15,8 @@ import { Pencil, Plus, Trash2, ArrowLeft } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { logAuditEvent } from "@/utils/auditLogger";
+import type { UserRole } from "@/config/permissions";
+import { assignableRoles } from "@/config/roleMigration";
 
 interface UserProfile {
   id: string;
@@ -40,11 +42,11 @@ export default function ManageEmployees() {
     password: "",
     full_name: "",
     phone: "",
-    role: "customer" as "admin" | "assistant_manager" | "employee" | "company" | "customer" | "specific_financial_manager" | "specific_financial_employee" | "visa_department_manager" | "visa_department_employee"
+    role: "client" as UserRole
   });
 
   useEffect(() => {
-    if (userRole !== 'admin') {
+    if (userRole !== 'manager') {
       navigate('/');
       return;
     }
@@ -179,10 +181,10 @@ export default function ManageEmployees() {
 
       const { user: newUser } = await response.json();
 
-      if (formData.role !== 'customer' && newUser) {
+      if (formData.role !== 'client' && newUser) {
         await supabase
           .from('user_roles')
-          .update({ role: formData.role })
+          .update({ role: formData.role as UserRole })
           .eq('user_id', newUser.id);
         
         // Log audit event for role assignment (non-blocking)
@@ -231,7 +233,7 @@ export default function ManageEmployees() {
 
       const { error: roleError } = await supabase
         .from('user_roles')
-        .update({ role: formData.role })
+        .update({ role: formData.role as UserRole })
         .eq('user_id', selectedUser.id);
 
       if (roleError) throw roleError;
@@ -350,23 +352,16 @@ export default function ManageEmployees() {
       password: "",
       full_name: "",
       phone: "",
-      role: "customer"
+      role: "client" as UserRole
     });
   };
 
   const getRoleLabel = (role: string) => {
-    const labels: Record<string, { ar: string; en: string }> = {
-      admin: { ar: "مدير", en: "Admin" },
-      assistant_manager: { ar: "مساعد مدير", en: "Assistant Manager" },
-      employee: { ar: "موظف", en: "Employee" },
-      company: { ar: "شركات", en: "Company" },
-      customer: { ar: "عميل", en: "Customer" },
-      specific_financial_manager: { ar: "مدير فرع الحسابات الخاصة", en: "Specific Financial Manager" },
-      specific_financial_employee: { ar: "موظف فرع الحسابات الخاصة", en: "Specific Financial Employee" },
-      visa_department_manager: { ar: "مدير فرع التأشيرات", en: "Visa Department Manager" },
-      visa_department_employee: { ar: "موظف فرع التأشيرات", en: "Visa Department Employee" }
-    };
-    return language === 'ar' ? labels[role]?.ar || role : labels[role]?.en || role;
+    const roleData = assignableRoles.find(r => r.value === role);
+    if (roleData) {
+      return language === 'ar' ? roleData.labelAr : roleData.labelEn;
+    }
+    return role;
   };
 
   return (
@@ -431,15 +426,11 @@ export default function ManageEmployees() {
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="customer">{t({ ar: "عميل", en: "Customer" })}</SelectItem>
-                        <SelectItem value="employee">{t({ ar: "موظف", en: "Employee" })}</SelectItem>
-                        <SelectItem value="admin">{t({ ar: "مدير", en: "Admin" })}</SelectItem>
-                        <SelectItem value="assistant_manager">{t({ ar: "مساعد مدير", en: "Assistant Manager" })}</SelectItem>
-                        <SelectItem value="company">{t({ ar: "شركات", en: "Company" })}</SelectItem>
-                        <SelectItem value="specific_financial_manager">{t({ ar: "مدير فرع الحسابات الخاصة", en: "Specific Financial Manager" })}</SelectItem>
-                        <SelectItem value="specific_financial_employee">{t({ ar: "موظف فرع الحسابات الخاصة", en: "Specific Financial Employee" })}</SelectItem>
-                        <SelectItem value="visa_department_manager">{t({ ar: "مدير فرع التأشيرات", en: "Visa Department Manager" })}</SelectItem>
-                        <SelectItem value="visa_department_employee">{t({ ar: "موظف فرع التأشيرات", en: "Visa Department Employee" })}</SelectItem>
+                        {assignableRoles.map(role => (
+                          <SelectItem key={role.value} value={role.value}>
+                            {language === 'ar' ? role.labelAr : role.labelEn}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                   </div>
@@ -528,15 +519,11 @@ export default function ManageEmployees() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="customer">{t({ ar: "عميل", en: "Customer" })}</SelectItem>
-                    <SelectItem value="employee">{t({ ar: "موظف", en: "Employee" })}</SelectItem>
-                    <SelectItem value="admin">{t({ ar: "مدير", en: "Admin" })}</SelectItem>
-                    <SelectItem value="assistant_manager">{t({ ar: "مساعد مدير", en: "Assistant Manager" })}</SelectItem>
-                    <SelectItem value="company">{t({ ar: "شركات", en: "Company" })}</SelectItem>
-                    <SelectItem value="specific_financial_manager">{t({ ar: "مدير فرع الحسابات الخاصة", en: "Specific Financial Manager" })}</SelectItem>
-                    <SelectItem value="specific_financial_employee">{t({ ar: "موظف فرع الحسابات الخاصة", en: "Specific Financial Employee" })}</SelectItem>
-                    <SelectItem value="visa_department_manager">{t({ ar: "مدير فرع التأشيرات", en: "Visa Department Manager" })}</SelectItem>
-                    <SelectItem value="visa_department_employee">{t({ ar: "موظف فرع التأشيرات", en: "Visa Department Employee" })}</SelectItem>
+                    {assignableRoles.map(role => (
+                      <SelectItem key={role.value} value={role.value}>
+                        {language === 'ar' ? role.labelAr : role.labelEn}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
