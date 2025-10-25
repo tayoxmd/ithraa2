@@ -1,7 +1,7 @@
 import { KanbanBoard } from '@/components/kanban/KanbanBoard';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, LayoutGrid } from 'lucide-react';
+import { ArrowLeft, LayoutGrid, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 export default function TaskManager() {
@@ -10,9 +10,9 @@ export default function TaskManager() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
-      <div className="container mx-auto p-4 md:p-6 pt-20 md:pt-24">
+      <div className="container mx-auto p-4 md:p-6 pt-16 md:pt-20">
         {/* Header */}
-        <div className="flex items-center justify-between mb-6 md:mb-8">
+        <div className="flex items-center justify-between mb-4 md:mb-6">
           <div className="flex items-center gap-2 md:gap-4">
             <Button
               variant="ghost"
@@ -35,6 +35,13 @@ export default function TaskManager() {
               </p>
             </div>
           </div>
+          <Button
+            variant="outline"
+            onClick={() => navigate('/task-categories')}
+          >
+            <Settings className="w-4 h-4 mr-2" />
+            {t({ ar: 'إدارة التصنيفات', en: 'Manage Categories' })}
+          </Button>
         </div>
 
         {/* Kanban Board - Takes left quarter on desktop/tablet, full on mobile */}

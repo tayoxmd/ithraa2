@@ -11,6 +11,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+
+interface TaskCategory {
+  id: string;
+  name_ar: string;
+  name_en: string;
+  color: string;
+}
 import {
   Select,
   SelectContent,
@@ -44,6 +51,7 @@ export function CreateTaskDialog({
   const { language, t } = useLanguage();
   const [loading, setLoading] = useState(false);
   const [employees, setEmployees] = useState<any[]>([]);
+  const [categories, setCategories] = useState<TaskCategory[]>([]);
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -62,6 +70,7 @@ export function CreateTaskDialog({
   useEffect(() => {
     if (open) {
       fetchEmployees();
+      fetchCategories();
     }
   }, [open]);
 
@@ -76,6 +85,21 @@ export function CreateTaskDialog({
       setEmployees(data || []);
     } catch (error) {
       console.error('Error fetching employees:', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('task_categories')
+        .select('id, name_ar, name_en, color')
+        .eq('active', true)
+        .order('name_en', { ascending: true });
+
+      if (error) throw error;
+      setCategories((data || []) as TaskCategory[]);
+    } catch (error: any) {
+      console.error('Error fetching categories:', error);
     }
   };
 
@@ -190,21 +214,11 @@ export function CreateTaskDialog({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="general">
-                    {t({ ar: 'عام', en: 'General' })}
-                  </SelectItem>
-                  <SelectItem value="financial">
-                    {t({ ar: 'مالي', en: 'Financial' })}
-                  </SelectItem>
-                  <SelectItem value="booking">
-                    {t({ ar: 'حجوزات', en: 'Booking' })}
-                  </SelectItem>
-                  <SelectItem value="support">
-                    {t({ ar: 'دعم فني', en: 'Support' })}
-                  </SelectItem>
-                  <SelectItem value="maintenance">
-                    {t({ ar: 'صيانة', en: 'Maintenance' })}
-                  </SelectItem>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {language === 'ar' ? cat.name_ar : cat.name_en}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

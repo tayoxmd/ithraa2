@@ -27,7 +27,7 @@ export function KanbanColumn({
   const { setNodeRef } = useDroppable({ id });
 
   return (
-    <Card className="flex-1 min-w-[140px] md:min-w-[280px] lg:min-w-[320px] bg-muted/30">
+    <Card className="flex-1 min-w-[160px] md:min-w-[200px] lg:min-w-[240px] bg-muted/30">
       <CardHeader className="pb-2 md:pb-3 p-3 md:p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1 md:gap-2">

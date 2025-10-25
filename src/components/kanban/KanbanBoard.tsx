@@ -243,8 +243,8 @@ export function KanbanBoard() {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        {/* Mobile: 2 columns per row */}
-        <div className="grid grid-cols-2 md:grid-cols-1 lg:grid-cols-4 gap-4 pb-4">
+        {/* Mobile: 2 columns per row, Desktop: 4 columns in left quarter */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 pb-4">
           {columns.map((column) => (
             <KanbanColumn
               key={column.id}

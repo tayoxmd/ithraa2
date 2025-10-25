@@ -83,6 +83,17 @@ export function Header() {
               {user ? (
                 <>
                   <div className="hidden lg:flex items-center gap-2">
+                    {/* My Tasks Button - Green */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="gap-2 bg-green-500 hover:bg-green-600 text-white border-green-500"
+                      onClick={() => navigate('/my-tasks')}
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      {t({ ar: 'مهامي', en: 'My Tasks' })}
+                    </Button>
+
                     {(userRole === 'admin' || userRole === 'employee') && (
                       <>
                         <Button
@@ -121,6 +132,14 @@ export function Header() {
                   
                   {/* Mobile/Tablet Quick Actions - Outside Menu */}
                   <div className="lg:hidden flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 px-2 text-xs bg-green-500 hover:bg-green-600 text-white border-green-500"
+                      onClick={() => navigate('/my-tasks')}
+                    >
+                      {t({ ar: "مهامي", en: "Tasks" })}
+                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
@@ -182,6 +201,17 @@ export function Header() {
                 </a>
                 {user ? (
                   <>
+                    {/* My Tasks - Green Button */}
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="justify-start gap-2 bg-green-500 hover:bg-green-600 text-white border-green-500"
+                      onClick={() => navigate('/my-tasks')}
+                    >
+                      <LayoutDashboard className="w-4 h-4" />
+                      {t({ ar: 'مهامي', en: 'My Tasks' })}
+                    </Button>
+                    
                     {(userRole === 'admin' || userRole === 'employee') && (
                       <Button 
                         variant="outline" 

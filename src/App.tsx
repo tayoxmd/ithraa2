@@ -41,6 +41,8 @@ import LiveChatManagement from "./pages/LiveChatManagement";
 import Studio from "./pages/Studio";
 import Install from "./pages/Install";
 import TaskManager from "./pages/TaskManager";
+import MyTasks from "./pages/MyTasks";
+import TaskCategoriesSettings from "./pages/TaskCategoriesSettings";
 import PermissionsManagement from "./pages/PermissionsManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -69,6 +71,8 @@ const RouterWithTheme = () => {
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
               <Route path="/task-manager" element={<ProtectedRoute><TaskManager /></ProtectedRoute>} />
+              <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
+              <Route path="/task-categories" element={<ProtectedRoute><TaskCategoriesSettings /></ProtectedRoute>} />
               <Route path="/employee" element={<EmployeeDashboard />} />
               <Route path="/customer-dashboard" element={<CustomerDashboard />} />
               <Route path="/guest-dashboard" element={<GuestDashboard />} />

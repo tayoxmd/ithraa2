@@ -70,7 +70,7 @@ const Index = () => {
       <LiveChatButton />
 
       {/* Hero Section */}
-      <section className="relative min-h-[500px] md:min-h-[650px] flex items-center justify-center pt-20 overflow-hidden">
+      <section className="relative min-h-[500px] md:min-h-[650px] flex items-center justify-center pt-16 md:pt-20 overflow-hidden">
         {/* Hero Slideshow with 3D Logo */}
         <HeroSlideshow />
 
