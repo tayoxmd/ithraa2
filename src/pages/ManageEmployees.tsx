@@ -182,7 +182,7 @@ export default function ManageEmployees() {
       if (formData.role !== 'customer' && newUser) {
         await supabase
           .from('user_roles')
-          .update({ role: formData.role })
+          .update({ role: formData.role as any })
           .eq('user_id', newUser.id);
         
         // Log audit event for role assignment (non-blocking)
@@ -231,7 +231,7 @@ export default function ManageEmployees() {
 
       const { error: roleError } = await supabase
         .from('user_roles')
-        .update({ role: formData.role })
+        .update({ role: formData.role as any })
         .eq('user_id', selectedUser.id);
 
       if (roleError) throw roleError;

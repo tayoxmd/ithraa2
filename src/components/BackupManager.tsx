@@ -85,19 +85,10 @@ export function BackupManager({ open, onOpenChange }: BackupManagerProps) {
   };
 
   const callRestore = async (data: any) => {
-    const { data: sessionData } = await supabase.auth.getSession();
-    const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/restore-backup`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${sessionData.session?.access_token}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ backup: data })
+    const { error } = await supabase.functions.invoke('restore-backup', {
+      body: { backup: data }
     });
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(text);
-    }
+    if (error) throw error;
   };
 
   const handleRestore = async (backup: Backup) => {
