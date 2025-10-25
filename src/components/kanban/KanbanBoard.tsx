@@ -186,10 +186,8 @@ export function KanbanBoard() {
         await Promise.all(
           updates.map((update) =>
             supabase
-              // @ts-expect-error - Supabase types updating
-              .from('tasks')
-              // @ts-expect-error - order_index field exists
-              .update({ order_index: update.order_index })
+              .from('tasks' as any)
+              .update({ order_index: update.order_index } as any)
               .eq('id', update.id)
           )
         );
@@ -199,12 +197,11 @@ export function KanbanBoard() {
     setActiveTask(null);
   };
 
-  const updateTaskStatus = async (taskId: string, newStatus: 'todo' | 'in_progress' | 'done') => {
+  const updateTaskStatus = async (taskId: string, newStatus: 'new' | 'pending' | 'approved' | 'confirmed' | 'delegated') => {
     try {
       const { error } = await supabase
-        // @ts-expect-error - Supabase types updating
-        .from('tasks')
-        .update({ status: newStatus })
+        .from('tasks' as any)
+        .update({ status: newStatus } as any)
         .eq('id', taskId);
 
       if (error) throw error;

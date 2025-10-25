@@ -14,6 +14,48 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_actions: {
+        Row: {
+          action_type: string
+          created_at: string | null
+          details: Json | null
+          entity_id: string | null
+          entity_type: string
+          id: string
+          ip_address: string | null
+          new_value: Json | null
+          old_value: Json | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string | null
+          details?: Json | null
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: string | null
+          new_value?: Json | null
+          old_value?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string | null
+          details?: Json | null
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: string | null
+          new_value?: Json | null
+          old_value?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       api_requests: {
         Row: {
           api_key_id: string | null
@@ -97,6 +139,42 @@ export type Database = {
           is_active?: boolean | null
           rate_limit?: number | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      asset_hotfixes: {
+        Row: {
+          action: string
+          applied_by: string | null
+          asset_path: string
+          created_at: string
+          id: string
+          new_url: string | null
+          previous_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          action: string
+          applied_by?: string | null
+          asset_path: string
+          created_at?: string
+          id?: string
+          new_url?: string | null
+          previous_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          applied_by?: string | null
+          asset_path?: string
+          created_at?: string
+          id?: string
+          new_url?: string | null
+          previous_url?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -290,6 +368,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      cache_audit: {
+        Row: {
+          action: string
+          cache_keys: string[] | null
+          created_at: string | null
+          details: Json | null
+          id: string
+          initiated_by: string | null
+          purge_status: string | null
+        }
+        Insert: {
+          action: string
+          cache_keys?: string[] | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          initiated_by?: string | null
+          purge_status?: string | null
+        }
+        Update: {
+          action?: string
+          cache_keys?: string[] | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          initiated_by?: string | null
+          purge_status?: string | null
+        }
+        Relationships: []
       }
       chat_messages: {
         Row: {
@@ -625,6 +733,36 @@ export type Database = {
           id?: string
           ip_address?: string | null
           staff_user_id?: string | null
+        }
+        Relationships: []
+      }
+      deploy_snapshots: {
+        Row: {
+          commit_sha: string
+          created_by: string | null
+          deployed_at: string
+          id: string
+          notes: string | null
+          snapshot_data: Json
+          status: string
+        }
+        Insert: {
+          commit_sha: string
+          created_by?: string | null
+          deployed_at?: string
+          id?: string
+          notes?: string | null
+          snapshot_data: Json
+          status?: string
+        }
+        Update: {
+          commit_sha?: string
+          created_by?: string | null
+          deployed_at?: string
+          id?: string
+          notes?: string | null
+          snapshot_data?: Json
+          status?: string
         }
         Relationships: []
       }
@@ -1003,6 +1141,51 @@ export type Database = {
           },
         ]
       }
+      indicator_assets: {
+        Row: {
+          asset_data: string
+          asset_type: string
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          name: string
+          thumbnail_url: string | null
+          updated_at: string | null
+          viewport_rules: Json | null
+        }
+        Insert: {
+          asset_data: string
+          asset_type: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name: string
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          viewport_rules?: Json | null
+        }
+        Update: {
+          asset_data?: string
+          asset_type?: string
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          name?: string
+          thumbnail_url?: string | null
+          updated_at?: string | null
+          viewport_rules?: Json | null
+        }
+        Relationships: []
+      }
       loyalty_points: {
         Row: {
           created_at: string | null
@@ -1033,6 +1216,84 @@ export type Database = {
           total_spent?: number | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      maintenance_actions: {
+        Row: {
+          action_type: string
+          created_at: string
+          finished_at: string | null
+          id: string
+          ip_address: string | null
+          log: string | null
+          payload: Json | null
+          result: string
+          started_at: string
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          finished_at?: string | null
+          id?: string
+          ip_address?: string | null
+          log?: string | null
+          payload?: Json | null
+          result: string
+          started_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          finished_at?: string | null
+          id?: string
+          ip_address?: string | null
+          log?: string | null
+          payload?: Json | null
+          result?: string
+          started_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      maintenance_state: {
+        Row: {
+          activated_at: string | null
+          activated_by: string | null
+          allow_admin_access: boolean
+          created_at: string
+          deactivated_at: string | null
+          eta_minutes: number | null
+          id: string
+          is_active: boolean
+          message: string | null
+          updated_at: string
+        }
+        Insert: {
+          activated_at?: string | null
+          activated_by?: string | null
+          allow_admin_access?: boolean
+          created_at?: string
+          deactivated_at?: string | null
+          eta_minutes?: number | null
+          id?: string
+          is_active?: boolean
+          message?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activated_at?: string | null
+          activated_by?: string | null
+          allow_admin_access?: boolean
+          created_at?: string
+          deactivated_at?: string | null
+          eta_minutes?: number | null
+          id?: string
+          is_active?: boolean
+          message?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1094,10 +1355,25 @@ export type Database = {
           footer_company_name_ar: string | null
           footer_company_name_en: string | null
           footer_height: number | null
+          footer_logo_svg_ar: string | null
+          footer_logo_svg_en: string | null
           header_bg_color: string | null
           header_height: number | null
+          header_logo_svg_ar: string | null
+          header_logo_svg_en: string | null
           header_text_ar: string | null
           header_text_en: string | null
+          hotel_confirmation_border_color: string | null
+          hotel_confirmation_border_width: number | null
+          hotel_confirmation_box_border_radius: number | null
+          hotel_confirmation_box_height: number | null
+          hotel_confirmation_box_padding: number | null
+          hotel_confirmation_box_width: number | null
+          hotel_confirmation_box_x: number | null
+          hotel_confirmation_box_y: number | null
+          hotel_confirmation_font_family: string | null
+          hotel_confirmation_font_size: number | null
+          hotel_confirmation_text_color: string | null
           iban: string | null
           id: string
           line_height: number | null
@@ -1154,10 +1430,25 @@ export type Database = {
           footer_company_name_ar?: string | null
           footer_company_name_en?: string | null
           footer_height?: number | null
+          footer_logo_svg_ar?: string | null
+          footer_logo_svg_en?: string | null
           header_bg_color?: string | null
           header_height?: number | null
+          header_logo_svg_ar?: string | null
+          header_logo_svg_en?: string | null
           header_text_ar?: string | null
           header_text_en?: string | null
+          hotel_confirmation_border_color?: string | null
+          hotel_confirmation_border_width?: number | null
+          hotel_confirmation_box_border_radius?: number | null
+          hotel_confirmation_box_height?: number | null
+          hotel_confirmation_box_padding?: number | null
+          hotel_confirmation_box_width?: number | null
+          hotel_confirmation_box_x?: number | null
+          hotel_confirmation_box_y?: number | null
+          hotel_confirmation_font_family?: string | null
+          hotel_confirmation_font_size?: number | null
+          hotel_confirmation_text_color?: string | null
           iban?: string | null
           id?: string
           line_height?: number | null
@@ -1214,10 +1505,25 @@ export type Database = {
           footer_company_name_ar?: string | null
           footer_company_name_en?: string | null
           footer_height?: number | null
+          footer_logo_svg_ar?: string | null
+          footer_logo_svg_en?: string | null
           header_bg_color?: string | null
           header_height?: number | null
+          header_logo_svg_ar?: string | null
+          header_logo_svg_en?: string | null
           header_text_ar?: string | null
           header_text_en?: string | null
+          hotel_confirmation_border_color?: string | null
+          hotel_confirmation_border_width?: number | null
+          hotel_confirmation_box_border_radius?: number | null
+          hotel_confirmation_box_height?: number | null
+          hotel_confirmation_box_padding?: number | null
+          hotel_confirmation_box_width?: number | null
+          hotel_confirmation_box_x?: number | null
+          hotel_confirmation_box_y?: number | null
+          hotel_confirmation_font_family?: string | null
+          hotel_confirmation_font_size?: number | null
+          hotel_confirmation_text_color?: string | null
           iban?: string | null
           id?: string
           line_height?: number | null
@@ -1253,31 +1559,40 @@ export type Database = {
         Row: {
           commission_percentage: number | null
           created_at: string | null
+          force_theme: string | null
           full_name: string | null
           id: string
           phone: string | null
+          preferences: Json | null
           referral_code: string | null
           referred_by: string | null
+          theme: string | null
           updated_at: string | null
         }
         Insert: {
           commission_percentage?: number | null
           created_at?: string | null
+          force_theme?: string | null
           full_name?: string | null
           id: string
           phone?: string | null
+          preferences?: Json | null
           referral_code?: string | null
           referred_by?: string | null
+          theme?: string | null
           updated_at?: string | null
         }
         Update: {
           commission_percentage?: number | null
           created_at?: string | null
+          force_theme?: string | null
           full_name?: string | null
           id?: string
           phone?: string | null
+          preferences?: Json | null
           referral_code?: string | null
           referred_by?: string | null
+          theme?: string | null
           updated_at?: string | null
         }
         Relationships: []
@@ -1591,6 +1906,229 @@ export type Database = {
         }
         Relationships: []
       }
+      task_attachments: {
+        Row: {
+          created_at: string | null
+          file_name: string
+          file_size: number | null
+          file_url: string
+          id: string
+          task_id: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_name: string
+          file_size?: number | null
+          file_url: string
+          id?: string
+          task_id: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_url?: string
+          id?: string
+          task_id?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_attachments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_comments: {
+        Row: {
+          comment: string
+          created_at: string | null
+          id: string
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string | null
+          id?: string
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string | null
+          id?: string
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "task_comments_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      task_settings: {
+        Row: {
+          color_scheme: Json | null
+          created_at: string | null
+          drag_speed: number | null
+          id: string
+          show_animations: boolean | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          color_scheme?: Json | null
+          created_at?: string | null
+          drag_speed?: number | null
+          id?: string
+          show_animations?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          color_scheme?: Json | null
+          created_at?: string | null
+          drag_speed?: number | null
+          id?: string
+          show_animations?: boolean | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      tasks: {
+        Row: {
+          assigned_to: string | null
+          completed_at: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          due_date: string | null
+          financial_amount: number | null
+          id: string
+          priority: Database["public"]["Enums"]["task_priority"]
+          status: Database["public"]["Enums"]["task_status"]
+          task_type: Database["public"]["Enums"]["task_type"]
+          title: string
+          updated_at: string | null
+          vault_id: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          financial_amount?: number | null
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          status?: Database["public"]["Enums"]["task_status"]
+          task_type?: Database["public"]["Enums"]["task_type"]
+          title: string
+          updated_at?: string | null
+          vault_id?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          due_date?: string | null
+          financial_amount?: number | null
+          id?: string
+          priority?: Database["public"]["Enums"]["task_priority"]
+          status?: Database["public"]["Enums"]["task_status"]
+          task_type?: Database["public"]["Enums"]["task_type"]
+          title?: string
+          updated_at?: string | null
+          vault_id?: string | null
+        }
+        Relationships: []
+      }
+      theme_versions: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          id: string
+          is_active: boolean | null
+          is_default: boolean | null
+          name: string
+          theme_data: Json
+          updated_at: string | null
+          version: number
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name: string
+          theme_data: Json
+          updated_at?: string | null
+          version?: number
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_default?: boolean | null
+          name?: string
+          theme_data?: Json
+          updated_at?: string | null
+          version?: number
+        }
+        Relationships: []
+      }
+      upload_audit: {
+        Row: {
+          created_at: string | null
+          error_message: string | null
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          status: string
+          upload_target: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          error_message?: string | null
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          status: string
+          upload_target: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          error_message?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          status?: string
+          upload_target?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_guests: {
         Row: {
           created_at: string | null
@@ -1623,6 +2161,7 @@ export type Database = {
       }
       user_roles: {
         Row: {
+          active: boolean
           created_at: string | null
           id: string
           permissions: Json | null
@@ -1630,6 +2169,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          active?: boolean
           created_at?: string | null
           id?: string
           permissions?: Json | null
@@ -1637,6 +2177,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          active?: boolean
           created_at?: string | null
           id?: string
           permissions?: Json | null
@@ -1707,18 +2248,12 @@ export type Database = {
         }
         Returns: boolean
       }
-      create_system_backup: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      create_system_backup: { Args: never; Returns: undefined }
       employee_has_assigned_customer: {
         Args: { customer_id: string; employee_id: string }
         Returns: boolean
       }
-      generate_referral_code: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_referral_code: { Args: never; Returns: string }
       get_available_rooms_count: {
         Args: { p_check_in: string; p_check_out: string; p_hotel_id: string }
         Returns: number
@@ -1837,7 +2372,7 @@ export type Database = {
         }[]
       }
       get_public_site_settings: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           email: string
           facebook_url: string
@@ -1850,7 +2385,7 @@ export type Database = {
         }[]
       }
       get_site_settings: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           email: string
           facebook_url: string
@@ -1862,6 +2397,13 @@ export type Database = {
           twitter_url: string
           whatsapp_number: string
         }[]
+      }
+      has_any_role: {
+        Args: {
+          _roles: Database["public"]["Enums"]["app_role"][]
+          _user_id: string
+        }
+        Returns: boolean
       }
       has_role: {
         Args: {
@@ -1882,15 +2424,19 @@ export type Database = {
     }
     Enums: {
       app_role:
+        | "manager"
+        | "assistantmanager"
+        | "staff"
+        | "visamanager"
+        | "visaemployee"
+        | "accountsmanager"
+        | "accountsemployee"
+        | "marketingstaff"
+        | "client"
+        | "company"
         | "admin"
         | "employee"
         | "customer"
-        | "company"
-        | "assistant_manager"
-        | "specific_financial_manager"
-        | "specific_financial_employee"
-        | "visa_department_manager"
-        | "visa_department_employee"
       booking_status: "new" | "pending" | "confirmed" | "cancelled" | "rejected"
       complaint_status: "new" | "pending" | "rejected" | "resolved"
       meal_plan_type:
@@ -1901,6 +2447,9 @@ export type Database = {
         | "no_meals"
       payment_status: "paid" | "partially_paid" | "unpaid"
       room_type: "hotel_rooms" | "owner_rooms"
+      task_priority: "low" | "medium" | "high" | "urgent"
+      task_status: "new" | "pending" | "delegated" | "confirmed" | "approved"
+      task_type: "financial" | "administrative" | "scheduling"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2029,15 +2578,19 @@ export const Constants = {
   public: {
     Enums: {
       app_role: [
+        "manager",
+        "assistantmanager",
+        "staff",
+        "visamanager",
+        "visaemployee",
+        "accountsmanager",
+        "accountsemployee",
+        "marketingstaff",
+        "client",
+        "company",
         "admin",
         "employee",
         "customer",
-        "company",
-        "assistant_manager",
-        "specific_financial_manager",
-        "specific_financial_employee",
-        "visa_department_manager",
-        "visa_department_employee",
       ],
       booking_status: ["new", "pending", "confirmed", "cancelled", "rejected"],
       complaint_status: ["new", "pending", "rejected", "resolved"],
@@ -2050,6 +2603,9 @@ export const Constants = {
       ],
       payment_status: ["paid", "partially_paid", "unpaid"],
       room_type: ["hotel_rooms", "owner_rooms"],
+      task_priority: ["low", "medium", "high", "urgent"],
+      task_status: ["new", "pending", "delegated", "confirmed", "approved"],
+      task_type: ["financial", "administrative", "scheduling"],
     },
   },
 } as const

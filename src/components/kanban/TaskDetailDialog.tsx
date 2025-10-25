@@ -131,8 +131,7 @@ export function TaskDetailDialog({
 
     try {
       const { error } = await supabase
-        // @ts-expect-error - Supabase types updating
-        .from('tasks')
+        .from('tasks' as any)
         .delete()
         .eq('id', task.id);
 
