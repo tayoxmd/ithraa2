@@ -19,21 +19,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from 'sonner';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import type { TaskWithDetails, TaskUpdate } from '@/types/kanban';
 
-interface Task {
-  id: string;
-  title: string;
-  description?: string;
-  status: 'todo' | 'in_progress' | 'done';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
-  due_date?: string;
-  assigned_to?: string;
-  assignee_name?: string;
-  order_index: number;
-  comments_count?: number;
-  attachments_count?: number;
-  tags?: string[];
-}
+type Task = TaskWithDetails;
 
 export function KanbanBoard() {
   const { t } = useLanguage();
@@ -82,8 +70,7 @@ export function KanbanBoard() {
 
   const fetchTasks = async () => {
     try {
-      // @ts-ignore - types will update after migration
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('tasks')
         .select(`
           *,
@@ -94,21 +81,22 @@ export function KanbanBoard() {
 
       if (error) throw error;
 
+      if (error) throw error;
+
       // Fetch counts
       const tasksWithCounts = await Promise.all(
         (data || []).map(async (task: any) => {
-          const [commentsData, attachmentsData] = await Promise.all([
-            // @ts-ignore
-            supabase
-              .from('task_comments')
-              .select('id', { count: 'exact', head: true })
-              .eq('task_id', task.id),
-            // @ts-ignore
-            supabase
-              .from('task_attachments')
-              .select('id', { count: 'exact', head: true })
-              .eq('task_id', task.id),
-          ]);
+          const commentsResult = await (supabase as any)
+            .from('task_comments')
+            .select('id', { count: 'exact', head: true })
+            .eq('task_id', task.id);
+          
+          const attachmentsResult = await (supabase as any)
+            .from('task_attachments')
+            .select('id', { count: 'exact', head: true })
+            .eq('task_id', task.id);
+
+          const [commentsData, attachmentsData] = [commentsResult, attachmentsResult];
 
           return {
             ...task,
@@ -119,7 +107,7 @@ export function KanbanBoard() {
         })
       );
 
-      setTasks(tasksWithCounts);
+      setTasks(tasksWithCounts as unknown as Task[]);
     } catch (error) {
       console.error('Error fetching tasks:', error);
       toast.error(t({ ar: 'حدث خطأ أثناء تحميل المهام', en: 'Error loading tasks' }));
@@ -197,9 +185,10 @@ export function KanbanBoard() {
         // Update in database
         await Promise.all(
           updates.map((update) =>
-            // @ts-ignore
             supabase
+              // @ts-expect-error - Supabase types updating
               .from('tasks')
+              // @ts-expect-error - order_index field exists
               .update({ order_index: update.order_index })
               .eq('id', update.id)
           )
@@ -212,8 +201,8 @@ export function KanbanBoard() {
 
   const updateTaskStatus = async (taskId: string, newStatus: 'todo' | 'in_progress' | 'done') => {
     try {
-      // @ts-ignore
       const { error } = await supabase
+        // @ts-expect-error - Supabase types updating
         .from('tasks')
         .update({ status: newStatus })
         .eq('id', taskId);

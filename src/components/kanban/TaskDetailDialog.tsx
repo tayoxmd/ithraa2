@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import type { TaskComment, TaskActivityLog, TaskCommentInsert } from '@/types/kanban';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -42,10 +43,10 @@ export function TaskDetailDialog({
   onTaskUpdated,
 }: TaskDetailDialogProps) {
   const { language, t } = useLanguage();
-  const [comments, setComments] = useState<any[]>([]);
+  const [comments, setComments] = useState<TaskComment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [loading, setLoading] = useState(false);
-  const [activityLog, setActivityLog] = useState<any[]>([]);
+  const [activityLog, setActivityLog] = useState<TaskActivityLog[]>([]);
 
   useEffect(() => {
     if (open && task) {
@@ -56,8 +57,7 @@ export function TaskDetailDialog({
 
   const fetchComments = async () => {
     try {
-      // @ts-ignore
-      const { data, error } = await supabase
+      const { data, error} = await (supabase as any)
         .from('task_comments')
         .select(`
           *,
@@ -67,7 +67,9 @@ export function TaskDetailDialog({
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setComments(data || []);
+
+      if (error) throw error;
+      setComments((data || []) as unknown as TaskComment[]);
     } catch (error) {
       console.error('Error fetching comments:', error);
     }
@@ -75,8 +77,7 @@ export function TaskDetailDialog({
 
   const fetchActivityLog = async () => {
     try {
-      // @ts-ignore
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('task_activity_log')
         .select(`
           *,
@@ -87,7 +88,7 @@ export function TaskDetailDialog({
         .limit(10);
 
       if (error) throw error;
-      setActivityLog(data || []);
+      setActivityLog((data || []) as unknown as TaskActivityLog[]);
     } catch (error) {
       console.error('Error fetching activity log:', error);
     }
@@ -101,12 +102,14 @@ export function TaskDetailDialog({
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error('Not authenticated');
 
-      // @ts-ignore
-      const { error } = await supabase.from('task_comments').insert([{
+      const commentData: TaskCommentInsert = {
         task_id: task.id,
         user_id: userData.user.id,
         comment: newComment,
-      }]);
+      };
+
+      // @ts-ignore - Supabase types will update automatically
+      const { error } = await supabase.from('task_comments').insert([commentData]);
 
       if (error) throw error;
 
@@ -127,8 +130,8 @@ export function TaskDetailDialog({
     }
 
     try {
-      // @ts-ignore
       const { error } = await supabase
+        // @ts-expect-error - Supabase types updating
         .from('tasks')
         .delete()
         .eq('id', task.id);

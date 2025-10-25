@@ -5,6 +5,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import type { TaskInsert } from '@/types/kanban';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -83,8 +84,7 @@ export function CreateTaskDialog({
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error('Not authenticated');
 
-      // @ts-ignore - types will update after migration
-      const { error } = await supabase.from('tasks').insert([{
+      const taskData: TaskInsert = {
         title: formData.title,
         description: formData.description,
         priority: formData.priority,
@@ -93,7 +93,10 @@ export function CreateTaskDialog({
         due_date: formData.due_date ? formData.due_date.toISOString() : null,
         tags: formData.tags.length > 0 ? formData.tags : null,
         created_by: userData.user.id,
-      }]);
+      };
+
+      // @ts-ignore - Supabase types will update automatically
+      const { error } = await supabase.from('tasks').insert([taskData]);
 
       if (error) throw error;
 
