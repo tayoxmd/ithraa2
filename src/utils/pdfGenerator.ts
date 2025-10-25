@@ -2,6 +2,75 @@ import jsPDF from 'jspdf';
 import { format } from 'date-fns';
 import logo from '@/assets/logo.png';
 
+// Cache for loaded font
+let arabicFontLoaded = false;
+let arabicFontBase64 = '';
+
+// Function to load Arabic font
+async function ensureArabicFont(doc: jsPDF) {
+  if (arabicFontLoaded && arabicFontBase64) {
+    try {
+      doc.addFileToVFS('Amiri-Regular.ttf', arabicFontBase64);
+      doc.addFont('Amiri-Regular.ttf', 'Amiri', 'normal');
+      return true;
+    } catch (error) {
+      console.error('Error adding cached font:', error);
+      return false;
+    }
+  }
+
+  try {
+    // Fetch font from CDN
+    const fontUrl = 'https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHqUpvrIw74NL.ttf';
+    const response = await fetch(fontUrl);
+    
+    if (!response.ok) {
+      console.warn('Could not load Arabic font, falling back to default');
+      return false;
+    }
+    
+    const blob = await response.blob();
+    
+    // Convert to base64
+    const base64 = await new Promise<string>((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        resolve(result.split(',')[1]);
+      };
+      reader.readAsDataURL(blob);
+    });
+    
+    // Cache the font
+    arabicFontBase64 = base64;
+    arabicFontLoaded = true;
+    
+    // Add font to PDF
+    doc.addFileToVFS('Amiri-Regular.ttf', base64);
+    doc.addFont('Amiri-Regular.ttf', 'Amiri', 'normal');
+    
+    return true;
+  } catch (error) {
+    console.error('Error loading Arabic font:', error);
+    return false;
+  }
+}
+
+// Helper function to detect Arabic text
+function containsArabic(text: string): boolean {
+  const arabicRegex = /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
+  return arabicRegex.test(text);
+}
+
+// Helper function to set font based on text content
+function setAppropriateFont(doc: jsPDF, text: string, style: 'normal' | 'bold' = 'normal', arabicAvailable: boolean = false) {
+  if (containsArabic(text) && arabicAvailable) {
+    doc.setFont('Amiri', style);
+  } else {
+    doc.setFont('helvetica', style);
+  }
+}
+
 // Hijri date converter (basic implementation)
 function toHijri(gregorianDate: Date): string {
   const gYear = gregorianDate.getFullYear();
@@ -50,10 +119,13 @@ interface PDFBookingData {
   pdfSettings?: any;
 }
 
-export function generateBookingPDF(data: PDFBookingData): jsPDF {
+export async function generateBookingPDF(data: PDFBookingData): Promise<jsPDF> {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.getWidth();
   const pageHeight = doc.internal.pageSize.getHeight();
+  
+  // Load Arabic font
+  const arabicAvailable = await ensureArabicFont(doc);
   
   // استخدام الإعدادات المخصصة أو القيم الافتراضية
   const settings = data.pdfSettings || {};
@@ -109,9 +181,15 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
     // Title next to logo
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(fontSizeHeader);
-    doc.setFont('helvetica', 'bold');
     const headerText = settings.header_text_en || 'CONFIRMATION';
+    setAppropriateFont(doc, headerText, 'bold', arabicAvailable);
     doc.text(headerText, marginLeft + 25, 20);
+    
+    // Add Arabic header if available
+    if (settings.header_text_ar) {
+      setAppropriateFont(doc, settings.header_text_ar, 'bold', arabicAvailable);
+      doc.text(settings.header_text_ar, pageWidth - marginRight - 5, 20, { align: 'right' });
+    }
   }
   
   // Main title
@@ -129,14 +207,26 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
     doc.text('Dear Sir:', marginLeft, yPos);
     yPos += lineHeight;
     
-    doc.setFont('helvetica', 'bold');
     const companyName = settings.footer_company_name_en || 'Ethraa Company for Tourist Accommodation';
+    setAppropriateFont(doc, companyName, 'bold', arabicAvailable);
     doc.text(`Greeting From ${companyName}`, marginLeft, yPos);
     yPos += lineHeight + 1;
     
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(fontSizeSmall + 1);
     doc.text('We are pleased to confirm the following reservation.', marginLeft, yPos);
+    
+    // Add Arabic description if available
+    if (settings.company_description_ar) {
+      yPos += lineHeight;
+      setAppropriateFont(doc, settings.company_description_ar, 'normal', arabicAvailable);
+      const descArLines = doc.splitTextToSize(settings.company_description_ar, pageWidth - (marginLeft + marginRight));
+      descArLines.forEach((line: string) => {
+        doc.text(line, pageWidth - marginRight, yPos, { align: 'right' });
+        yPos += 4;
+      });
+    }
+    
     yPos += sectionSpacing;
   }
   
@@ -162,17 +252,23 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
   // Left column
   doc.setFont('helvetica', 'bold');
   doc.text('Hotel:', marginLeft + 3, yPos + 4);
-  doc.setFont('helvetica', 'normal');
+  setAppropriateFont(doc, data.hotelNameEn, 'normal', arabicAvailable);
   doc.text(data.hotelNameEn, marginLeft + 20, yPos + 4);
+  
+  // Add Arabic hotel name if available
+  if (data.hotelNameAr && data.hotelNameAr !== data.hotelNameEn) {
+    setAppropriateFont(doc, data.hotelNameAr, 'normal', arabicAvailable);
+    doc.text(data.hotelNameAr, pageWidth / 2 + 3, yPos + 4, { align: 'right', maxWidth: pageWidth / 2 - marginRight - 10 });
+  }
   
   doc.setFont('helvetica', 'bold');
   doc.text('Client:', marginLeft + 3, yPos + 10);
-  doc.setFont('helvetica', 'normal');
+  setAppropriateFont(doc, data.clientName, 'normal', arabicAvailable);
   doc.text(data.clientName, marginLeft + 20, yPos + 10);
   
   doc.setFont('helvetica', 'bold');
   doc.text('Guest Name:', marginLeft + 3, yPos + 16);
-  doc.setFont('helvetica', 'normal');
+  setAppropriateFont(doc, data.guestName, 'normal', arabicAvailable);
   doc.text(data.guestName, marginLeft + 30, yPos + 16);
   
   doc.setFont('helvetica', 'bold');
@@ -301,14 +397,25 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
     
     yPos += 5;
     doc.setFontSize(fontSizeSmall - 1);
-    doc.setFont('helvetica', 'normal');
     
     const terms = settings.terms_en || '1. Cancellation must be made 7 days before arrival.\n2. No refund for no-shows.';
+    setAppropriateFont(doc, terms, 'normal', arabicAvailable);
     const termLines = doc.splitTextToSize(terms, pageWidth - (marginLeft + marginRight));
     termLines.forEach((line: string) => {
       doc.text(line, marginLeft, yPos);
       yPos += 4;
     });
+    
+    // Add Arabic terms if available
+    if (settings.terms_ar) {
+      yPos += 3;
+      setAppropriateFont(doc, settings.terms_ar, 'normal', arabicAvailable);
+      const termsArLines = doc.splitTextToSize(settings.terms_ar, pageWidth - (marginLeft + marginRight));
+      termsArLines.forEach((line: string) => {
+        doc.text(line, pageWidth - marginRight, yPos, { align: 'right' });
+        yPos += 4;
+      });
+    }
   }
   
   // Footer
@@ -319,9 +426,16 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
     
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(fontSizeSmall - 1);
-    doc.setFont('helvetica', 'bold');
+    
     const footerCompanyName = settings.footer_company_name_en || 'Ethraa Company';
-    doc.text(footerCompanyName, pageWidth / 2, footerY + 4, { align: 'center' });
+    setAppropriateFont(doc, footerCompanyName, 'bold', arabicAvailable);
+    doc.text(footerCompanyName, marginLeft + 10, footerY + 4);
+    
+    // Add Arabic company name if available
+    if (settings.footer_company_name_ar) {
+      setAppropriateFont(doc, settings.footer_company_name_ar, 'bold', arabicAvailable);
+      doc.text(settings.footer_company_name_ar, pageWidth - marginRight - 10, footerY + 4, { align: 'right' });
+    }
     
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(fontSizeSmall - 2);
@@ -341,14 +455,14 @@ export function generateBookingPDF(data: PDFBookingData): jsPDF {
   return doc;
 }
 
-export function downloadBookingPDF(data: PDFBookingData) {
-  const doc = generateBookingPDF(data);
+export async function downloadBookingPDF(data: PDFBookingData) {
+  const doc = await generateBookingPDF(data);
   const fileName = `Confirmation_${data.bookingNumber}_${data.guestName.toUpperCase().replace(/\s+/g, '_')}.pdf`;
   doc.save(fileName);
 }
 
-export function sharePDFViaEmail(data: PDFBookingData) {
-  const doc = generateBookingPDF(data);
+export async function sharePDFViaEmail(data: PDFBookingData) {
+  const doc = await generateBookingPDF(data);
   const subject = `Booking Confirmation - ${data.guestName}`;
   const body = `Dear ${data.clientName},\n\nYour booking has been confirmed.\nBooking Number: ${data.bookingNumber}\n\nThank you!`;
   
@@ -367,7 +481,7 @@ interface SharePDFWhatsAppOptions {
 }
 
 export async function sharePDFViaWhatsApp(data: PDFBookingData, options: SharePDFWhatsAppOptions) {
-  const doc = generateBookingPDF(data);
+  const doc = await generateBookingPDF(data);
   const pdfBlob = doc.output('blob');
   
   const fileName = `Confirmation_${data.bookingNumber}_${data.guestName.toUpperCase().replace(/\s+/g, '_')}.pdf`;

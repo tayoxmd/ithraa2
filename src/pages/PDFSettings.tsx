@@ -347,7 +347,7 @@ export default function PDFSettings() {
 
       console.log('Generating PDF with data:', sampleData); // للتحقق
 
-      const pdf = generateBookingPDF(sampleData);
+      const pdf = await generateBookingPDF(sampleData);
       const pdfBlob = pdf.output('blob');
       const url = URL.createObjectURL(pdfBlob);
       
