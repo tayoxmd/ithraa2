@@ -4,7 +4,8 @@ import {
   DragEndEvent,
   DragOverlay,
   DragStartEvent,
-  PointerSensor,
+  MouseSensor,
+  TouchSensor,
   KeyboardSensor,
   useSensor,
   useSensors,
@@ -34,11 +35,11 @@ export function KanbanBoard() {
   const [initialStatus, setInitialStatus] = useState<'todo' | 'in_progress' | 'done' | 'rejected'>('todo');
 
   const sensors = useSensors(
-    useSensor(PointerSensor, {
+    useSensor(MouseSensor),
+    useSensor(TouchSensor, {
       activationConstraint: {
-        distance: 3,
-        delay: 0,
-        tolerance: 5,
+        delay: 120,
+        tolerance: 8,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -176,8 +177,8 @@ export function KanbanBoard() {
     const overColumn = columns.find((col) => col.id === over.id);
     if (overColumn) {
       if (activeTask.status !== overColumn.id) {
-        // Update task status immediately
-        await updateTaskStatus(activeTask.id, overColumn.id as any);
+        // Update task status immediately (optimistic)
+        await updateTaskStatus(activeTask.id, overColumn.id as any, activeTask.status as any);
       }
       setActiveTask(null);
       return;
@@ -185,12 +186,12 @@ export function KanbanBoard() {
 
     // Check if dropped on another task
     const overTask = tasks.find((t) => t.id === over.id);
-    if (overTask && active.id !== over.id) {
-      // If task is moved to a different column
-      if (activeTask.status !== overTask.status) {
-        await updateTaskStatus(activeTask.id, overTask.status as any);
-      } else {
-        // Reorder tasks within the same column
+  if (overTask && active.id !== over.id) {
+    // If task is moved to a different column
+    if (activeTask.status !== overTask.status) {
+      await updateTaskStatus(activeTask.id, overTask.status as any, activeTask.status as any);
+    } else {
+      // Reorder tasks within the same column
         const oldIndex = tasks.findIndex((t) => t.id === active.id);
         const newIndex = tasks.findIndex((t) => t.id === over.id);
         const newTasks = arrayMove(tasks, oldIndex, newIndex);
@@ -220,7 +221,14 @@ export function KanbanBoard() {
     setActiveTask(null);
   };
 
-  const updateTaskStatus = async (taskId: string, newStatus: 'todo' | 'in_progress' | 'done' | 'rejected') => {
+  const updateTaskStatus = async (
+    taskId: string,
+    newStatus: 'todo' | 'in_progress' | 'done' | 'rejected',
+    oldStatus?: 'todo' | 'in_progress' | 'done' | 'rejected'
+  ) => {
+    // Optimistic update first to avoid visual bounce
+    setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: newStatus } : t)));
+
     try {
       const { error } = await supabase
         .from('tasks')
@@ -230,10 +238,14 @@ export function KanbanBoard() {
       if (error) throw error;
 
       toast.success(t({ ar: 'تم تحديث حالة المهمة', en: 'Task status updated' }));
-      fetchTasks();
+      // Do not fetch immediately; realtime subscription will sync
     } catch (error) {
       console.error('Error updating task status:', error);
       toast.error(t({ ar: 'حدث خطأ', en: 'An error occurred' }));
+      // Revert on failure if we know previous
+      if (oldStatus) {
+        setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, status: oldStatus } : t)));
+      }
     }
   };
 
@@ -264,8 +276,8 @@ export function KanbanBoard() {
         onDragEnd={handleDragEnd}
       >
         {/* Full height scrollable container */}
-        <div className="h-full overflow-x-auto overflow-y-hidden px-2 md:px-4 py-3">
-          <div className="h-full grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 min-w-[640px] lg:min-w-0">
+        <div className="h-full overflow-x-hidden overflow-y-auto px-2 md:px-4 py-3">
+          <div className="h-full grid grid-cols-2 lg:grid-cols-4 grid-rows-2 lg:grid-rows-1 gap-3 md:gap-4 min-w-0">
             {columns.map((column) => (
               <KanbanColumn
                 key={column.id}

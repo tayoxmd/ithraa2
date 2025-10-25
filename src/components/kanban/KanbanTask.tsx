@@ -2,11 +2,13 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, MessageSquare, Paperclip, User, DollarSign, Tag } from 'lucide-react';
+import { Calendar, MessageSquare, Paperclip, User, DollarSign, Tag, Share2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useLanguage } from '@/contexts/LanguageContext';
 import type { TaskWithDetails } from '@/types/kanban';
+import html2canvas from 'html2canvas';
+import { useRef } from 'react';
 
 interface KanbanTaskProps {
   task: TaskWithDetails;
