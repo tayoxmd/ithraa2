@@ -2437,6 +2437,11 @@ export type Database = {
         | "admin"
         | "employee"
         | "customer"
+        | "assistant_manager"
+        | "specific_financial_manager"
+        | "specific_financial_employee"
+        | "visa_manager"
+        | "visa_employee"
       booking_status: "new" | "pending" | "confirmed" | "cancelled" | "rejected"
       complaint_status: "new" | "pending" | "rejected" | "resolved"
       meal_plan_type:
@@ -2591,6 +2596,11 @@ export const Constants = {
         "admin",
         "employee",
         "customer",
+        "assistant_manager",
+        "specific_financial_manager",
+        "specific_financial_employee",
+        "visa_manager",
+        "visa_employee",
       ],
       booking_status: ["new", "pending", "confirmed", "cancelled", "rejected"],
       complaint_status: ["new", "pending", "rejected", "resolved"],

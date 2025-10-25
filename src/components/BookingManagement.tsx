@@ -80,6 +80,8 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
   const [showConfNumberInput, setShowConfNumberInput] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>(undefined);
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
+  const [rows, setRows] = useState<Booking[]>([]);
+  useEffect(() => { setRows(bookings); }, [bookings]);
   const [editFormData, setEditFormData] = useState({
     check_in: "",
     check_out: "",
@@ -237,7 +239,9 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
         { new_status: newStatus }
       ).catch(() => {}); // Ignore audit logging errors
 
-      // Update immediately then refresh
+      // Optimistic update
+      setRows(prev => prev.map(b => b.id === bookingId ? { ...b, status: newStatus } as Booking : b));
+      // Then refresh from server
       await onUpdate();
 
       toast({
@@ -283,7 +287,9 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
         }
       ).catch(() => {}); // Ignore audit logging errors
 
-      // Update immediately then refresh
+      // Optimistic update
+      setRows(prev => prev.map(b => b.id === bookingId ? { ...b, payment_status: newPaymentStatus, amount_paid: updateData.amount_paid ?? b.amount_paid } as Booking : b));
+      // Then refresh from server
       await onUpdate();
 
       toast({
@@ -549,7 +555,7 @@ ${t({ ar: "رقم الهاتف:", en: "Phone Number:" })} ${booking.profiles?.ph
   return (
     <>
       <div className="space-y-6">
-        {bookings.map((booking) => (
+        {rows.map((booking) => (
           <Card 
             key={booking.id}
             className="card-luxury w-full max-w-full"

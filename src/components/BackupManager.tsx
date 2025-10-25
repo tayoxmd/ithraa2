@@ -84,6 +84,22 @@ export function BackupManager({ open, onOpenChange }: BackupManagerProps) {
     }
   };
 
+  const callRestore = async (data: any) => {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const res = await fetch(`${import.meta.env.VITE_SUPABASE_URL}/functions/v1/restore-backup`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${sessionData.session?.access_token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ backup: data })
+    });
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(text);
+    }
+  };
+
   const handleRestore = async (backup: Backup) => {
     if (!confirm(t({ 
       ar: "هل أنت متأكد من استعادة هذه النسخة؟ سيتم استبدال البيانات الحالية.", 
@@ -94,13 +110,6 @@ export function BackupManager({ open, onOpenChange }: BackupManagerProps) {
 
     setRestoring(true);
     try {
-      const backupData = backup.backup_data;
-      
-      // Note: This is a simplified restore. In production, you'd want to:
-      // 1. Create a database function that handles the restore properly
-      // 2. Handle foreign key constraints
-      // 3. Backup current data before restoring
-      
       toast({
         title: t({ ar: "جاري الاستعادة", en: "Restoring" }),
         description: t({ 
@@ -109,25 +118,40 @@ export function BackupManager({ open, onOpenChange }: BackupManagerProps) {
         }),
       });
 
-      // TODO: Implement proper restore logic via database function
-      // For now, just show a message
-      setTimeout(() => {
-        toast({
-          title: t({ ar: "تنبيه", en: "Notice" }),
-          description: t({ 
-            ar: "يرجى الاتصال بمسؤول النظام لاستعادة النسخة الاحتياطية", 
-            en: "Please contact system administrator to restore the backup" 
-          }),
-          variant: "destructive",
-        });
-        setRestoring(false);
-      }, 1000);
+      await callRestore(backup.backup_data);
+
+      toast({
+        title: t({ ar: "تمت الاستعادة", en: "Restored" }),
+        description: t({ ar: "تمت استعادة البيانات بنجاح", en: "Data restored successfully" }),
+      });
+      setRestoring(false);
     } catch (error: any) {
       toast({
         title: t({ ar: "خطأ", en: "Error" }),
         description: error.message,
         variant: "destructive",
       });
+      setRestoring(false);
+    }
+  };
+
+  const handleUploadRestore = async (file: File) => {
+    setRestoring(true);
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+      await callRestore(parsed);
+      toast({
+        title: t({ ar: "تمت الاستعادة", en: "Restored" }),
+        description: t({ ar: "تمت استعادة البيانات من الملف بنجاح", en: "Data restored from file successfully" }),
+      });
+    } catch (error: any) {
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
       setRestoring(false);
     }
   };
@@ -158,6 +182,19 @@ export function BackupManager({ open, onOpenChange }: BackupManagerProps) {
             })}
           </DialogDescription>
         </DialogHeader>
+
+        <div className="flex items-center justify-between mb-4">
+          <div className="text-sm text-muted-foreground">
+            {t({ ar: "يمكنك رفع ملف النسخة الاحتياطية لاستعادته", en: "You can upload a backup file to restore" })}
+          </div>
+          <label className="inline-flex items-center gap-2 cursor-pointer">
+            <input type="file" accept="application/json" className="hidden" onChange={(e) => e.target.files && handleUploadRestore(e.target.files[0])} />
+            <Button variant="outline" size="sm" className="gap-1" disabled={restoring}>
+              <Upload className="w-4 h-4" />
+              {t({ ar: "رفع واستعادة", en: "Upload & Restore" })}
+            </Button>
+          </label>
+        </div>
 
         {loading ? (
           <div className="flex justify-center py-8">

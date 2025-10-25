@@ -12,6 +12,7 @@ import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { toast } from "sonner";
 import { Shield, User, AlertCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useSearchParams } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -39,6 +40,7 @@ interface UserProfile {
 const PermissionsManagement = () => {
   const { user, userRole } = useAuth();
   const { language, t } = useLanguage();
+  const [searchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [permissions, setPermissions] = useState<Permission[]>([]);
@@ -46,11 +48,19 @@ const PermissionsManagement = () => {
   const [selectedUser, setSelectedUser] = useState<string>("");
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
 
-  useEffect(() => {
+useEffect(() => {
     if (userRole === 'admin') {
       fetchData();
     }
   }, [userRole]);
+
+  useEffect(() => {
+    const userId = searchParams.get('userId');
+    if (userId) {
+      setSelectedUser(userId);
+      fetchUserPermissions(userId);
+    }
+  }, [searchParams]);
 
   const fetchData = async () => {
     try {

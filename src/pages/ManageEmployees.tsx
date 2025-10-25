@@ -11,7 +11,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Pencil, Plus, Trash2, ArrowLeft } from "lucide-react";
+import { Pencil, Plus, Trash2, ArrowLeft, UserCog } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { logAuditEvent } from "@/utils/auditLogger";
@@ -40,7 +40,7 @@ export default function ManageEmployees() {
     password: "",
     full_name: "",
     phone: "",
-    role: "customer" as "admin" | "employee" | "customer"
+    role: "customer" as string
   });
 
   useEffect(() => {
@@ -357,8 +357,15 @@ export default function ManageEmployees() {
   const getRoleLabel = (role: string) => {
     const labels: Record<string, { ar: string; en: string }> = {
       admin: { ar: "مدير", en: "Admin" },
+      manager: { ar: "مدير", en: "Manager" },
+      assistant_manager: { ar: "مساعد مدير", en: "Assistant Manager" },
       employee: { ar: "موظف", en: "Employee" },
-      customer: { ar: "عميل", en: "Customer" }
+      company: { ar: "شركات", en: "Company" },
+      customer: { ar: "عميل", en: "Customer" },
+      specific_financial_manager: { ar: "مدير فرع الحسابات الخاصة", en: "Specific Financial Manager" },
+      specific_financial_employee: { ar: "موظف فرع الحسابات الخاصة", en: "Specific Financial Employee" },
+      visa_manager: { ar: "مدير التأشيرات", en: "Visa Department Manager" },
+      visa_employee: { ar: "موظف فرع التأشيرات", en: "Visa Department Employee" },
     };
     return language === 'ar' ? labels[role]?.ar || role : labels[role]?.en || role;
   };
@@ -426,8 +433,14 @@ export default function ManageEmployees() {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="customer">{t({ ar: "عميل", en: "Customer" })}</SelectItem>
+                        <SelectItem value="company">{t({ ar: "شركات", en: "Company" })}</SelectItem>
                         <SelectItem value="employee">{t({ ar: "موظف", en: "Employee" })}</SelectItem>
-                        <SelectItem value="admin">{t({ ar: "مدير", en: "Admin" })}</SelectItem>
+                        <SelectItem value="assistant_manager">{t({ ar: "مساعد مدير", en: "Assistant Manager" })}</SelectItem>
+                        <SelectItem value="manager">{t({ ar: "مدير", en: "Manager" })}</SelectItem>
+                        <SelectItem value="specific_financial_employee">{t({ ar: "موظف فرع الحسابات الخاصة", en: "Specific Financial Employee" })}</SelectItem>
+                        <SelectItem value="specific_financial_manager">{t({ ar: "مدير فرع الحسابات الخاصة", en: "Specific Financial Manager" })}</SelectItem>
+                        <SelectItem value="visa_employee">{t({ ar: "موظف فرع التأشيرات", en: "Visa Department Employee" })}</SelectItem>
+                        <SelectItem value="visa_manager">{t({ ar: "مدير التأشيرات", en: "Visa Department Manager" })}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -460,6 +473,9 @@ export default function ManageEmployees() {
                       <div className="flex gap-2">
                         <Button variant="outline" size="sm" onClick={() => openEditDialog(user)}>
                           <Pencil className="w-4 h-4" />
+                        </Button>
+                        <Button variant="secondary" size="sm" onClick={() => navigate(`/permissions?userId=${user.id}`)}>
+                          <UserCog className="w-4 h-4" />
                         </Button>
                         <Button variant="destructive" size="sm" onClick={() => handleDeleteUser(user.id)}>
                           <Trash2 className="w-4 h-4" />

@@ -53,14 +53,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const fetchUserRole = async (userId: string) => {
-    const { data } = await supabase
+    const { data: rolesData } = await supabase
       .from('user_roles')
       .select('role')
-      .eq('user_id', userId)
-      .single();
-    
-    if (data) {
-      setUserRole(data.role);
+      .eq('user_id', userId);
+
+    const roles = (rolesData || []).map((r: any) => r.role);
+    const adminLike = [
+      'admin',
+      'manager',
+      'assistant_manager',
+      'specific_financial_manager',
+      'visa_manager'
+    ];
+
+    if (roles.some((r: string) => adminLike.includes(r))) {
+      setUserRole('admin');
+    } else {
+      setUserRole('customer');
     }
   };
 
