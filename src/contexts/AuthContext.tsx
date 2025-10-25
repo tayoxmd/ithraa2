@@ -1,8 +1,9 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, ReactNode, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import type { UserRole } from '@/config/permissions';
+import { saveRouteState, restoreRouteState, shouldRestoreRoute } from '@/utils/routePersistence';
 
 interface AuthContextType {
   user: User | null;
@@ -24,18 +25,36 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
   const [userRole, setUserRole] = useState<UserRole | null>(null);
   const navigate = useNavigate();
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const hasRestoredRoute = useRef(false);
+
+  useEffect(() => {
+    // Cancel any pending fetch on unmount
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
+  }, []);
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
+      async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
         
         if (session?.user) {
-          setTimeout(() => {
-            fetchUserRole(session.user.id);
-          }, 0);
+          await fetchUserRole(session.user.id);
+          
+          // Restore route on sign in if not already restored
+          if (event === 'SIGNED_IN' && !hasRestoredRoute.current) {
+            hasRestoredRoute.current = true;
+            const savedRoute = restoreRouteState();
+            if (savedRoute && shouldRestoreRoute(window.location.pathname)) {
+              navigate(savedRoute.path + savedRoute.search, { replace: true });
+            }
+          }
         } else {
           setUserRole(null);
         }
@@ -43,26 +62,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     );
 
     // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession().then(async ({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchUserRole(session.user.id);
+        await fetchUserRole(session.user.id);
       }
       setLoading(false);
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    };
   }, []);
 
   const fetchUserRole = async (userId: string) => {
+    // Cancel previous fetch if still pending
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    abortControllerRef.current = new AbortController();
+
     try {
       const { data, error } = await supabase
         .from('user_roles')
         .select('role, active')
         .eq('user_id', userId)
         .eq('active', true)
-        .single();
+        .maybeSingle();
       
       if (error) {
         console.error('Error fetching user role:', error);
@@ -73,11 +104,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (data) {
         setUserRole(data.role as UserRole);
       } else {
+        // Fallback to 'client' if no role found
+        setUserRole('client');
+      }
+    } catch (error: any) {
+      if (error.name !== 'AbortError') {
+        console.error('Unexpected error fetching user role:', error);
         setUserRole(null);
       }
-    } catch (error) {
-      console.error('Unexpected error fetching user role:', error);
-      setUserRole(null);
+    } finally {
+      abortControllerRef.current = null;
     }
   };
 

@@ -7,9 +7,11 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
 import { ThemeProvider } from "@/contexts/ThemeContext";
+import { ThemeProviderContext } from "@/contexts/ThemeProviderContext";
 import { MealSettingsProvider } from "@/contexts/MealSettingsContext";
 import { ChatWidget } from "@/components/ChatWidget";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
+import AdminSettings from "./pages/AdminSettings";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
@@ -51,15 +53,16 @@ const RouterWithTheme = () => {
   const adminPaths = ['/admin', '/admin-dashboard', '/manage', '/employee', '/api-settings', '/site-settings', '/pdf-settings', '/audit-logs', '/studio', '/task-manager', '/task-settings'];
   const isAdmin = adminPaths.some((p) => location.pathname.startsWith(p));
   return (
-    <ThemeProvider isAdmin={isAdmin}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <ChatWidget />
-        {/* <OfflineIndicator /> */}
-        <LanguageProvider>
-          <AuthProvider>
-            <Routes>
+    <ThemeProviderContext>
+      <ThemeProvider isAdmin={isAdmin}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <ChatWidget />
+          {/* <OfflineIndicator /> */}
+          <LanguageProvider>
+            <AuthProvider>
+              <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/search" element={<SearchResults />} />
@@ -93,6 +96,7 @@ const RouterWithTheme = () => {
               <Route path="/site-settings" element={<ProtectedRoute><SiteSettings /></ProtectedRoute>} />
               <Route path="/pdf-settings" element={<ProtectedRoute><PDFSettings /></ProtectedRoute>} />
               <Route path="/audit-logs" element={<ProtectedRoute><AuditLogs /></ProtectedRoute>} />
+              <Route path="/admin/settings" element={<ProtectedRoute requiredPermission="manage_settings"><AdminSettings /></ProtectedRoute>} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
@@ -100,6 +104,7 @@ const RouterWithTheme = () => {
         </LanguageProvider>
       </TooltipProvider>
     </ThemeProvider>
+    </ThemeProviderContext>
   );
 };
 

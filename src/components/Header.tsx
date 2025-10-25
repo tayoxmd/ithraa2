@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Menu, X, LogOut, LayoutDashboard } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, Home, ArrowLeft, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,6 +7,7 @@ import { useLanguage } from "@/contexts/LanguageContext";
 import { NotificationBell } from "./NotificationBell";
 import { LanguageSelector } from "@/components/LanguageSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { saveRouteState } from "@/utils/routePersistence";
 import logo from "@/assets/logo.png";
 
 export function Header() {
@@ -25,6 +26,13 @@ export function Header() {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Save route on location change
+  useEffect(() => {
+    if (user) {
+      saveRouteState(location.pathname, location.search);
+    }
+  }, [location, user]);
 
   const getDashboardPath = () => {
     if (userRole === 'manager') return '/admin';
@@ -72,6 +80,29 @@ export function Header() {
 
             {/* Actions */}
             <div className="flex items-center gap-2">
+              {/* Global Navigation Buttons */}
+              {location.pathname !== '/' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate('/')}
+                  className="hidden sm:inline-flex"
+                >
+                  <Home className="w-4 h-4" />
+                </Button>
+              )}
+              
+              {location.pathname !== '/' && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => navigate(-1)}
+                  className="hidden sm:inline-flex"
+                >
+                  <ArrowLeft className="w-4 h-4" />
+                </Button>
+              )}
+
               {/* Language Selector - Always visible, scaled down on mobile */}
               <div className="scale-75 sm:scale-90 md:scale-100">
                 <LanguageSelector />
@@ -95,6 +126,18 @@ export function Header() {
                           <LayoutDashboard className="w-4 h-4" />
                           {t('الإدارة', 'Management')}
                         </Button>
+                        
+                        {userRole === 'manager' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="gap-2"
+                            onClick={() => navigate('/admin/settings')}
+                          >
+                            <Settings className="w-4 h-4" />
+                            {t({ ar: 'الإعدادات', en: 'Settings' })}
+                          </Button>
+                        )}
                       </>
                     )}
                     
@@ -183,16 +226,30 @@ export function Header() {
                 {user ? (
                   <>
                     {(userRole === 'manager' || userRole === 'staff' || userRole === 'assistantmanager') && (
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="justify-start gap-2"
-                        style={{ backgroundColor: '#237bff', color: 'white', borderColor: '#237bff' }}
-                        onClick={() => navigate(getDashboardPath())}
-                      >
-                        <LayoutDashboard className="w-4 h-4" />
-                        {t('الإدارة', 'Management')}
-                      </Button>
+                      <>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="justify-start gap-2"
+                          style={{ backgroundColor: '#237bff', color: 'white', borderColor: '#237bff' }}
+                          onClick={() => navigate(getDashboardPath())}
+                        >
+                          <LayoutDashboard className="w-4 h-4" />
+                          {t('الإدارة', 'Management')}
+                        </Button>
+                        
+                        {userRole === 'manager' && (
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="justify-start gap-2"
+                            onClick={() => navigate('/admin/settings')}
+                          >
+                            <Settings className="w-4 h-4" />
+                            {t({ ar: 'الإعدادات', en: 'Settings' })}
+                          </Button>
+                        )}
+                      </>
                     )}
                     <Button 
                       variant="outline" 
