@@ -84,6 +84,7 @@ export default function AdminDashboard() {
     { icon: Briefcase, label: t({ ar: 'برنامج الولاء', en: 'Loyalty Program' }), path: '/loyalty-program' },
     { icon: Clapperboard, label: t({ ar: 'الاستديو', en: 'Studio' }), path: '/studio' },
     { icon: Settings, label: t({ ar: 'إعدادات الموقع', en: 'Site Settings' }), path: '/site-settings' },
+    { icon: Settings, label: t({ ar: 'إعدادات الصيانة', en: 'Maintenance Settings' }), path: '/admin-settings' },
     { icon: DollarSign, label: t({ ar: 'إعدادات API', en: 'API Settings' }), path: '/api-settings' },
     { icon: FileText, label: t({ ar: 'إعدادات PDF', en: 'PDF Settings' }), path: '/pdf-settings' },
     { icon: FileText, label: t({ ar: 'سجل التدقيق', en: 'Audit Logs' }), path: '/audit-logs' },

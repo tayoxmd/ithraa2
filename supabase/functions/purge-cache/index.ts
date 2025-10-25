@@ -38,14 +38,14 @@ serve(async (req) => {
     }
 
     // Check if user has manager role
-    const { data: roleData, error: roleError } = await supabase
+    const { data: roleData } = await supabase
       .from('user_roles')
       .select('role')
       .eq('user_id', user.id)
       .eq('active', true)
-      .single();
+      .maybeSingle();
 
-    if (roleError || roleData?.role !== 'manager') {
+    if (!roleData || roleData.role !== 'manager') {
       throw new Error('Unauthorized: Admin access required');
     }
 
