@@ -74,6 +74,13 @@ export function KanbanTask({ task, onClick }: KanbanTaskProps) {
           )}
         </div>
 
+        {/* Description - Added */}
+        {task.description && (
+          <p className="text-[10px] md:text-xs text-muted-foreground line-clamp-2 leading-snug">
+            {task.description}
+          </p>
+        )}
+
         {/* Assignee name directly under title */}
         {task.assignee_name && (
           <div className="flex items-center gap-1 text-[10px] md:text-xs text-muted-foreground">

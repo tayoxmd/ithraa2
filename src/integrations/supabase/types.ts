@@ -2050,6 +2050,27 @@ export type Database = {
           },
         ]
       }
+      task_full_access_users: {
+        Row: {
+          created_at: string
+          granted_by: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted_by?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       task_settings: {
         Row: {
           color_scheme: Json | null
@@ -2077,6 +2098,45 @@ export type Database = {
           show_animations?: boolean | null
           updated_at?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      task_sharing_settings: {
+        Row: {
+          created_at: string
+          id: string
+          notify_on_create: boolean | null
+          notify_on_status_change: boolean | null
+          notify_on_update: boolean | null
+          share_via_email: boolean | null
+          share_via_whatsapp: boolean | null
+          share_via_whatsapp_group: boolean | null
+          updated_at: string
+          whatsapp_group_link: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notify_on_create?: boolean | null
+          notify_on_status_change?: boolean | null
+          notify_on_update?: boolean | null
+          share_via_email?: boolean | null
+          share_via_whatsapp?: boolean | null
+          share_via_whatsapp_group?: boolean | null
+          updated_at?: string
+          whatsapp_group_link?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notify_on_create?: boolean | null
+          notify_on_status_change?: boolean | null
+          notify_on_update?: boolean | null
+          share_via_email?: boolean | null
+          share_via_whatsapp?: boolean | null
+          share_via_whatsapp_group?: boolean | null
+          updated_at?: string
+          whatsapp_group_link?: string | null
         }
         Relationships: []
       }

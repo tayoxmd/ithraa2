@@ -4,7 +4,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Settings, Tag, Eye, Palette } from 'lucide-react';
+import { ArrowLeft, Settings, Tag, Eye, Shield, Share2 } from 'lucide-react';
 import { TaskVisibilitySettings } from '@/components/kanban/TaskVisibilitySettings';
 
 export default function TaskSettings() {
@@ -36,11 +36,18 @@ export default function TaskSettings() {
       color: 'text-purple-500'
     },
     {
-      title: t({ ar: 'المظهر', en: 'Appearance' }),
-      description: t({ ar: 'تخصيص ألوان وأنماط المهام', en: 'Customize colors and styles' }),
-      icon: Palette,
-      onClick: () => setVisibilityDialogOpen(true),
-      color: 'text-pink-500'
+      title: t({ ar: 'التحكم بالوصول', en: 'Access Control' }),
+      description: t({ ar: 'إدارة صلاحيات الموظفين', en: 'Manage staff permissions' }),
+      icon: Shield,
+      onClick: () => navigate('/task-access-control'),
+      color: 'text-green-500'
+    },
+    {
+      title: t({ ar: 'المشاركة والنشر', en: 'Sharing & Notifications' }),
+      description: t({ ar: 'إعدادات الإشعارات عبر البريد وواتساب', en: 'Email and WhatsApp notifications' }),
+      icon: Share2,
+      onClick: () => navigate('/task-sharing-settings'),
+      color: 'text-orange-500'
     },
   ];
 

@@ -13,7 +13,8 @@ import {
   DollarSign,
   CheckCircle,
   Clock,
-  AlertCircle
+  AlertCircle,
+  LayoutDashboard
 } from 'lucide-react';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { format } from 'date-fns';
@@ -21,11 +22,12 @@ import { ar } from 'date-fns/locale';
 import type { TaskWithDetails } from '@/types/kanban';
 
 export default function MyTasks() {
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const { t, language } = useLanguage();
   const navigate = useNavigate();
   const [tasks, setTasks] = useState<TaskWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hasFullAccess, setHasFullAccess] = useState(false);
 
   useEffect(() => {
     if (!user) {
@@ -33,6 +35,7 @@ export default function MyTasks() {
       return;
     }
     fetchMyTasks();
+    checkFullAccess();
     
     // Subscribe to realtime updates
     const channel = supabase
@@ -73,6 +76,32 @@ export default function MyTasks() {
       console.error('Error fetching my tasks:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const checkFullAccess = async () => {
+    if (!user) return;
+    
+    // Managers and assistant managers have full access by default
+    if (userRole === 'admin' || userRole === 'manager' || userRole === 'assistant_manager') {
+      setHasFullAccess(true);
+      return;
+    }
+
+    // Check if user is in the full access list
+    try {
+      const { data, error } = await supabase
+        .from('task_full_access_users')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (!error && data) {
+        setHasFullAccess(true);
+      }
+    } catch (error) {
+      // User doesn't have full access
+      setHasFullAccess(false);
     }
   };
 
@@ -132,12 +161,27 @@ export default function MyTasks() {
                 <ArrowLeft className="w-4 h-4" />
               </Button>
               <h1 className="text-base md:text-lg font-semibold">
-                {t({ ar: 'مهامي', en: 'My Tasks' })}
+                {t({ ar: 'المهام', en: 'Tasks' })}
               </h1>
             </div>
-            <Badge variant="secondary" className="text-xs px-2 py-1">
-              {tasks.length} {t({ ar: 'مهمة', en: 'tasks' })}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge className="text-xs px-2 py-1 bg-blue-500/90 hover:bg-blue-500 text-white">
+                {tasks.length} {t({ ar: 'مهمة', en: 'tasks' })}
+              </Badge>
+              {hasFullAccess && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="gap-2 h-8"
+                  onClick={() => navigate('/task-manager')}
+                >
+                  <LayoutDashboard className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline text-xs">
+                    {t({ ar: 'جميع المهام', en: 'All Tasks' })}
+                  </span>
+                </Button>
+              )}
+            </div>
           </div>
         </div>
 

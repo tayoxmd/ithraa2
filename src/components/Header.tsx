@@ -72,19 +72,22 @@ export function Header() {
               {/* Notification Bell */}
               <NotificationBell />
 
-              {user ? (
+                {user ? (
                 <>
                   <div className="hidden lg:flex items-center gap-2">
-                    {/* My Tasks Button - Green */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="gap-2 bg-green-500 hover:bg-green-600 text-white border-green-500"
-                      onClick={() => navigate('/my-tasks')}
-                    >
-                      <LayoutDashboard className="w-4 h-4" />
-                      {t({ ar: 'مهامي', en: 'My Tasks' })}
-                    </Button>
+                    {/* Tasks Button - Green - Only for staff */}
+                    {(userRole === 'admin' || userRole === 'manager' || userRole === 'assistant_manager' || 
+                      userRole === 'employee' || userRole === 'specific_financial_manager' || userRole === 'visa_manager') && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="gap-2 bg-green-500 hover:bg-green-600 text-white border-green-500"
+                        onClick={() => navigate('/my-tasks')}
+                      >
+                        <LayoutDashboard className="w-4 h-4" />
+                        {t({ ar: 'المهام', en: 'Tasks' })}
+                      </Button>
+                    )}
 
                     {(userRole === 'admin' || userRole === 'employee') && (
                       <>
@@ -185,16 +188,19 @@ export function Header() {
                 </a>
                 {user ? (
                   <>
-                    {/* My Tasks - Green Button */}
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      className="justify-start gap-2 bg-green-500 hover:bg-green-600 text-white border-green-500"
-                      onClick={() => navigate('/my-tasks')}
-                    >
-                      <LayoutDashboard className="w-4 h-4" />
-                      {t({ ar: 'مهامي', en: 'My Tasks' })}
-                    </Button>
+                    {/* Tasks Button - Green - Only for staff */}
+                    {(userRole === 'admin' || userRole === 'manager' || userRole === 'assistant_manager' || 
+                      userRole === 'employee' || userRole === 'specific_financial_manager' || userRole === 'visa_manager') && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="justify-start gap-2 bg-green-500 hover:bg-green-600 text-white border-green-500"
+                        onClick={() => navigate('/my-tasks')}
+                      >
+                        <LayoutDashboard className="w-4 h-4" />
+                        {t({ ar: 'المهام', en: 'Tasks' })}
+                      </Button>
+                    )}
                     
                     {(userRole === 'admin' || userRole === 'employee') && (
                       <Button 

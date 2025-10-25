@@ -36,7 +36,7 @@ export function KanbanColumn({
               style={{ backgroundColor: color }}
             />
             <h3 className="font-semibold text-xs md:text-base">{title}</h3>
-            <Badge variant="secondary" className="text-[10px] md:text-xs px-1 md:px-2 py-0">
+            <Badge variant="secondary" className="text-[10px] md:text-xs px-1 md:px-2 py-0 bg-blue-500/90 text-white">
               {tasks.length}
             </Badge>
           </div>
