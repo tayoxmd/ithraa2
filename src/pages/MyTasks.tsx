@@ -62,10 +62,7 @@ export default function MyTasks() {
     try {
       const { data, error } = await supabase
         .from('tasks')
-        .select(`
-          *,
-          profiles:created_by(full_name)
-        `)
+        .select('*')
         .eq('assigned_to', user.id)
         .neq('status', 'archived')
         .order('created_at', { ascending: false });

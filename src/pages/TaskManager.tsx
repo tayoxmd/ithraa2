@@ -10,7 +10,7 @@ export default function TaskManager() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
-      <div className="container mx-auto p-4 md:p-6 pt-16 md:pt-20">
+      <div className="container mx-auto p-4 md:p-6 pt-10 md:pt-14">
         {/* Header */}
         <div className="flex items-center justify-between mb-4 md:mb-6">
           <div className="flex items-center gap-2 md:gap-4">

@@ -319,13 +319,19 @@ export default function AdminDashboard() {
                 
                 <Sheet open={adminMenuOpen} onOpenChange={setAdminMenuOpen}>
                   <SheetTrigger asChild>
-                    <Button
-                      className="gap-2 shadow-lg"
-                      style={{ backgroundColor: '#237bff', color: 'white', borderColor: '#237bff' }}
-                    >
-                      <Settings className="w-4 h-4" />
-                      {t({ ar: "إدارة الموقع", en: "Site Management" })}
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        className="gap-2 shadow-lg"
+                        style={{ backgroundColor: '#237bff', color: 'white', borderColor: '#237bff' }}
+                      >
+                        <Settings className="w-4 h-4" />
+                        {t({ ar: "إدارة الموقع", en: "Site Management" })}
+                      </Button>
+                      <Button variant="outline" className="gap-2" onClick={() => navigate('/')}> 
+                        <Home className="w-4 h-4" />
+                        {t({ ar: "الرئيسية", en: "Home" })}
+                      </Button>
+                    </div>
                   </SheetTrigger>
                   <SheetContent side={language === 'ar' ? 'right' : 'left'} className="w-[280px] sm:w-[350px] overflow-y-auto">
                     <SheetHeader>

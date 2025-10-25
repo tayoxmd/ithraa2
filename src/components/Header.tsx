@@ -44,14 +44,6 @@ export function Header() {
                 alt="ITHRAA Logo" 
                 className="w-10 h-10 sm:w-12 sm:h-12 object-contain logo-3d-rotate"
               />
-              <div className="flex flex-col">
-                <span className="text-sm sm:text-lg md:text-xl font-bold text-gradient-luxury">
-                  {t('إثراء', 'ITHRAA')}
-                </span>
-                <span className="text-[10px] sm:text-xs text-muted-foreground tracking-wider">
-                  {language === 'ar' ? 'ITHRAA' : 'إثراء'}
-                </span>
-              </div>
             </Link>
 
             {/* Desktop Navigation */}
@@ -132,14 +124,6 @@ export function Header() {
                   
                   {/* Mobile/Tablet Quick Actions - Outside Menu */}
                   <div className="lg:hidden flex items-center gap-1">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 px-2 text-xs bg-green-500 hover:bg-green-600 text-white border-green-500"
-                      onClick={() => navigate('/my-tasks')}
-                    >
-                      {t({ ar: "مهامي", en: "Tasks" })}
-                    </Button>
                     <Button
                       variant="outline"
                       size="sm"
