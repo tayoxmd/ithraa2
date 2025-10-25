@@ -76,18 +76,34 @@ export function CreateTaskDialog({
 
   const fetchEmployees = async () => {
     try {
-      const { data, error } = await supabase
+      // Step 1: get staff user ids from roles
+      const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
-        .select('user_id, profiles(full_name)')
-        .in('role', ['employee', 'admin', 'manager']);
+        .select('user_id, role, active')
+        .in('role', ['employee', 'admin', 'manager', 'assistant_manager'])
+        .eq('active', true);
+      if (rolesError) throw rolesError;
 
-      if (error) throw error;
-      setEmployees(data || []);
+      const ids = (rolesData || []).map(r => r.user_id).filter(Boolean);
+      if (ids.length === 0) {
+        setEmployees([]);
+        return;
+      }
+
+      // Step 2: fetch profiles for those ids
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', ids);
+      if (profilesError) throw profilesError;
+
+      const list = (profilesData || []).map((p: any) => ({ user_id: p.id, full_name: p.full_name }));
+      setEmployees(list);
     } catch (error) {
       console.error('Error fetching employees:', error);
+      setEmployees([]);
     }
   };
-
   const fetchCategories = async () => {
     try {
       const { data, error } = await supabase
@@ -115,21 +131,22 @@ export function CreateTaskDialog({
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error('Not authenticated');
 
-      const taskData: TaskInsert = {
-        title: formData.title,
-        description: formData.description,
-        priority: formData.priority,
-        status: formData.status,
-        assigned_to: formData.assigned_to || null,
-        due_date: formData.due_date ? formData.due_date.toISOString() : null,
-        tags: formData.tags.length > 0 ? formData.tags : null,
-        created_by: userData.user.id,
-        category: formData.category,
-        is_financial: formData.is_financial,
-        amount_total: formData.is_financial && formData.amount_total ? parseFloat(formData.amount_total) : null,
-        amount_paid: formData.is_financial && formData.amount_paid ? parseFloat(formData.amount_paid) : null,
-        payment_due_date: formData.is_financial && formData.payment_due_date ? formData.payment_due_date.toISOString().split('T')[0] : null,
-      };
+        const assignedTo = !formData.assigned_to || formData.assigned_to === '' ? null : formData.assigned_to;
+        const taskData: TaskInsert = {
+          title: formData.title,
+          description: formData.description,
+          priority: formData.priority,
+          status: formData.status,
+          assigned_to: assignedTo,
+          due_date: formData.due_date ? formData.due_date.toISOString() : null,
+          tags: formData.tags.length > 0 ? formData.tags : null,
+          created_by: userData.user.id,
+          category: formData.category,
+          is_financial: formData.is_financial,
+          amount_total: formData.is_financial && formData.amount_total ? parseFloat(formData.amount_total) : null,
+          amount_paid: formData.is_financial && formData.amount_paid ? parseFloat(formData.amount_paid) : null,
+          payment_due_date: formData.is_financial && formData.payment_due_date ? formData.payment_due_date.toISOString().split('T')[0] : null,
+        };
 
       const { error } = await supabase.from('tasks').insert([taskData]);
 
@@ -290,12 +307,12 @@ export function CreateTaskDialog({
                   <SelectValue placeholder={t({ ar: 'اختر موظف', en: 'Select employee' })} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="unassigned">
+                  <SelectItem value="">
                     {t({ ar: 'غير معين', en: 'Unassigned' })}
                   </SelectItem>
                   {employees.map((emp: any) => (
                     <SelectItem key={emp.user_id} value={emp.user_id}>
-                      {emp.profiles?.full_name || t({ ar: 'غير معروف', en: 'Unknown' })}
+                      {emp.full_name || t({ ar: 'غير معروف', en: 'Unknown' })}
                     </SelectItem>
                   ))}
                 </SelectContent>

@@ -72,16 +72,26 @@ export function KanbanBoard() {
     try {
       const { data, error } = await supabase
         .from('tasks')
-        .select(`
-          *,
-          profiles:assigned_to(full_name)
-        `)
+        .select('*')
         .neq('status', 'archived')
         .order('order_index', { ascending: true });
 
       if (error) throw error;
 
-      // Fetch counts
+      // Build assignee name map in one query
+      const assigneeIds = Array.from(new Set((data || []).map((t: any) => t.assigned_to).filter(Boolean))) as string[];
+      let assigneeMap: Record<string, string> = {};
+      if (assigneeIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, full_name')
+          .in('id', assigneeIds);
+        profilesData?.forEach((p: any) => {
+          assigneeMap[p.id] = p.full_name;
+        });
+      }
+
+      // Fetch counts per task
       const tasksWithCounts = await Promise.all(
         (data || []).map(async (task: any) => {
           const [commentsResult, attachmentsResult] = await Promise.all([
@@ -97,7 +107,7 @@ export function KanbanBoard() {
 
           return {
             ...task,
-            assignee_name: task.profiles?.full_name,
+            assignee_name: task.assigned_to ? assigneeMap[task.assigned_to] : undefined,
             comments_count: commentsResult.count || 0,
             attachments_count: attachmentsResult.count || 0,
           };
