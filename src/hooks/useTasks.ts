@@ -195,5 +195,6 @@ export function useTasks() {
     deleteTask,
     updateTaskStatus,
     assignTask,
+    refetch: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
   };
 }
