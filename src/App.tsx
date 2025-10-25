@@ -40,6 +40,7 @@ import SpecialOffers from "./pages/SpecialOffers";
 import LiveChatManagement from "./pages/LiveChatManagement";
 import Studio from "./pages/Studio";
 import Install from "./pages/Install";
+import TaskManager from "./pages/TaskManager";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -66,6 +67,7 @@ const RouterWithTheme = () => {
               <Route path="/booking/:id" element={<Booking />} />
               <Route path="/admin" element={<AdminDashboard />} />
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
+              <Route path="/task-manager" element={<ProtectedRoute><TaskManager /></ProtectedRoute>} />
               <Route path="/employee" element={<EmployeeDashboard />} />
               <Route path="/customer-dashboard" element={<CustomerDashboard />} />
               <Route path="/guest-dashboard" element={<GuestDashboard />} />
