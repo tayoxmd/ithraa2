@@ -1,12 +1,19 @@
+import { useState } from 'react';
 import { KanbanBoard } from '@/components/kanban/KanbanBoard';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, LayoutGrid, Settings } from 'lucide-react';
+import { ArrowLeft, LayoutGrid, Settings, SlidersHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { TaskVisibilitySettings } from '@/components/kanban/TaskVisibilitySettings';
 
 export default function TaskManager() {
   const { t } = useLanguage();
+  const { userRole } = useAuth();
   const navigate = useNavigate();
+  const [visibilityDialogOpen, setVisibilityDialogOpen] = useState(false);
+
+  const canManageSettings = userRole === 'admin' || userRole === 'manager' || userRole === 'assistant_manager';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
@@ -35,20 +42,38 @@ export default function TaskManager() {
               </p>
             </div>
           </div>
-          <Button
-            variant="outline"
-            onClick={() => navigate('/task-categories')}
-          >
-            <Settings className="w-4 h-4 mr-2" />
-            {t({ ar: 'إدارة التصنيفات', en: 'Manage Categories' })}
-          </Button>
+          <div className="flex gap-2">
+            {canManageSettings && (
+              <>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/task-categories')}
+                >
+                  <Settings className="w-4 h-4 mr-2" />
+                  {t({ ar: 'التصنيفات', en: 'Categories' })}
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setVisibilityDialogOpen(true)}
+                >
+                  <SlidersHorizontal className="w-4 h-4 mr-2" />
+                  {t({ ar: 'خصائص', en: 'Settings' })}
+                </Button>
+              </>
+            )}
+          </div>
         </div>
 
-        {/* Kanban Board - Takes left quarter on desktop/tablet, full on mobile */}
-        <div className="w-full lg:w-1/4 lg:float-left">
-          <KanbanBoard />
-        </div>
+        {/* Kanban Board - Full width */}
+        <KanbanBoard />
       </div>
+
+      <TaskVisibilitySettings
+        open={visibilityDialogOpen}
+        onOpenChange={setVisibilityDialogOpen}
+      />
     </div>
   );
 }

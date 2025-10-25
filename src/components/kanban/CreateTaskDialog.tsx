@@ -281,16 +281,16 @@ export function CreateTaskDialog({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="todo">
-                    {t({ ar: 'قيد الانتظار', en: 'To Do' })}
+                    {t({ ar: 'جديدة', en: 'New' })}
                   </SelectItem>
                   <SelectItem value="in_progress">
                     {t({ ar: 'قيد التنفيذ', en: 'In Progress' })}
                   </SelectItem>
                   <SelectItem value="done">
-                    {t({ ar: 'مكتمل', en: 'Done' })}
+                    {t({ ar: 'مكتملة', en: 'Done' })}
                   </SelectItem>
                   <SelectItem value="rejected">
-                    {t({ ar: 'مرفوض', en: 'Rejected' })}
+                    {t({ ar: 'ملغية', en: 'Cancelled' })}
                   </SelectItem>
                 </SelectContent>
               </Select>

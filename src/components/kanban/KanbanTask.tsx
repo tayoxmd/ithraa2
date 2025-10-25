@@ -31,10 +31,10 @@ export function KanbanTask({ task, onClick }: KanbanTaskProps) {
   };
 
   const priorityColors = {
-    low: 'bg-gray-500',
+    low: 'bg-slate-400',
     medium: 'bg-blue-500',
     high: 'bg-orange-500',
-    urgent: 'bg-red-500',
+    urgent: 'bg-red-600',
   };
 
   const categoryIcons = {
@@ -47,32 +47,39 @@ export function KanbanTask({ task, onClick }: KanbanTaskProps) {
 
   const CategoryIcon = task.category ? categoryIcons[task.category as keyof typeof categoryIcons] || Tag : Tag;
 
+  const priorityColorMap: Record<string, string> = {
+    low: '#94a3b8',
+    medium: '#3b82f6',
+    high: '#fb923c',
+    urgent: '#dc2626',
+  };
+
   return (
     <Card
       ref={setNodeRef}
-      style={style}
+      style={{ ...style, borderLeftColor: priorityColorMap[task.priority] }}
       {...attributes}
       {...listeners}
-      className="p-2 md:p-3 cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow mb-2"
+      className="p-2 md:p-2.5 cursor-grab active:cursor-grabbing hover:shadow-lg transition-all mb-2 border-l-4"
       onClick={() => onClick(task)}
     >
-      <div className="space-y-2">
-        {/* Header with priority and category */}
-        <div className="flex items-start justify-between gap-2">
-          <div className={`w-1 h-6 rounded-full ${priorityColors[task.priority]}`} />
+      <div className="space-y-1.5">
+        {/* Header: title only */}
+        <div className="flex items-start gap-2">
           <div className="flex-1 min-w-0">
-            <h4 className="font-medium text-xs md:text-sm line-clamp-2">{task.title}</h4>
+            <h4 className="font-semibold text-xs md:text-sm line-clamp-2 leading-tight">{task.title}</h4>
           </div>
           {task.category && (
-            <CategoryIcon className="h-3 w-3 md:h-4 md:w-4 text-muted-foreground flex-shrink-0" />
+            <CategoryIcon className="h-3 w-3 text-muted-foreground flex-shrink-0 mt-0.5" />
           )}
         </div>
 
-        {/* Description */}
-        {task.description && (
-          <p className="text-[10px] md:text-xs text-muted-foreground line-clamp-2">
-            {task.description}
-          </p>
+        {/* Assignee name directly under title */}
+        {task.assignee_name && (
+          <div className="flex items-center gap-1 text-[10px] md:text-xs text-muted-foreground">
+            <User className="h-2.5 w-2.5 md:h-3 md:w-3" />
+            <span className="truncate">{task.assignee_name}</span>
+          </div>
         )}
 
         {/* Financial Info */}
@@ -106,11 +113,11 @@ export function KanbanTask({ task, onClick }: KanbanTaskProps) {
           </div>
         )}
 
-        {/* Footer */}
-        <div className="flex items-center justify-between text-[10px] md:text-xs text-muted-foreground pt-1 md:pt-2 border-t">
-          <div className="flex items-center gap-1 md:gap-2">
+        {/* Footer: icons only */}
+        <div className="flex items-center justify-between text-[10px] text-muted-foreground pt-1.5 border-t">
+          <div className="flex items-center gap-1.5">
             {task.due_date && (
-              <div className="flex items-center gap-0.5 md:gap-1">
+              <div className="flex items-center gap-0.5">
                 <Calendar className="h-2.5 w-2.5 md:h-3 md:w-3" />
                 <span className="text-[9px] md:text-[10px]">
                   {format(new Date(task.due_date), 'd MMM', {
@@ -119,16 +126,8 @@ export function KanbanTask({ task, onClick }: KanbanTaskProps) {
                 </span>
               </div>
             )}
-            {task.assignee_name && (
-              <div className="flex items-center gap-0.5 md:gap-1">
-                <User className="h-2.5 w-2.5 md:h-3 md:w-3" />
-                <span className="text-[9px] md:text-[10px] truncate max-w-[40px] md:max-w-[60px]">
-                  {task.assignee_name}
-                </span>
-              </div>
-            )}
           </div>
-          <div className="flex items-center gap-1 md:gap-2">
+          <div className="flex items-center gap-1.5">
             {(task.comments_count || 0) > 0 && (
               <div className="flex items-center gap-0.5">
                 <MessageSquare className="h-2.5 w-2.5 md:h-3 md:w-3" />

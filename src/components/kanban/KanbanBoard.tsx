@@ -127,25 +127,25 @@ export function KanbanBoard() {
     return [
       {
         id: 'todo',
-        title: t({ ar: 'قيد الانتظار', en: 'To Do' }),
-        color: '#94a3b8',
+        title: t({ ar: 'جديدة', en: 'New' }),
+        color: '#3b82f6',
         tasks: tasks.filter((t) => t.status === 'todo'),
       },
       {
         id: 'in_progress',
         title: t({ ar: 'قيد التنفيذ', en: 'In Progress' }),
-        color: '#3b82f6',
+        color: '#f59e0b',
         tasks: tasks.filter((t) => t.status === 'in_progress'),
       },
       {
         id: 'done',
-        title: t({ ar: 'مكتمل', en: 'Done' }),
-        color: '#22c55e',
+        title: t({ ar: 'مكتملة', en: 'Done' }),
+        color: '#10b981',
         tasks: tasks.filter((t) => t.status === 'done'),
       },
       {
         id: 'rejected',
-        title: t({ ar: 'مرفوض', en: 'Rejected' }),
+        title: t({ ar: 'ملغية', en: 'Cancelled' }),
         color: '#ef4444',
         tasks: tasks.filter((t) => t.status === 'rejected'),
       },
@@ -253,8 +253,8 @@ export function KanbanBoard() {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        {/* Mobile: 2 columns per row, Desktop: 4 columns in left quarter */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 pb-4">
+        {/* Mobile: 2 per row, Tablet/Desktop: all 4 in one row */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 pb-4">
           {columns.map((column) => (
             <KanbanColumn
               key={column.id}

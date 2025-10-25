@@ -1783,6 +1783,7 @@ export type Database = {
           meal_description_text_color: string | null
           owner_room_color: string | null
           phone: string | null
+          task_visible_roles: Json | null
           tax_percentage: number
           tidio_client_id: string | null
           tidio_client_secret: string | null
@@ -1838,6 +1839,7 @@ export type Database = {
           meal_description_text_color?: string | null
           owner_room_color?: string | null
           phone?: string | null
+          task_visible_roles?: Json | null
           tax_percentage?: number
           tidio_client_id?: string | null
           tidio_client_secret?: string | null
@@ -1893,6 +1895,7 @@ export type Database = {
           meal_description_text_color?: string | null
           owner_room_color?: string | null
           phone?: string | null
+          task_visible_roles?: Json | null
           tax_percentage?: number
           tidio_client_id?: string | null
           tidio_client_secret?: string | null
