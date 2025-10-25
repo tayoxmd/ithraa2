@@ -50,7 +50,7 @@ export default function Coupons() {
   });
 
   useEffect(() => {
-    if (!loading && userRole !== 'manager') {
+    if (!loading && userRole !== 'admin') {
       navigate('/');
     } else if (!loading) {
       fetchCoupons();

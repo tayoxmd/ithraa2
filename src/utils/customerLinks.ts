@@ -30,7 +30,7 @@ export async function validateCustomerAccess(requestedUserId: string): Promise<b
   
   if (roles && roles.length > 0) {
     const userRole = roles[0].role;
-    const isStaff = userRole === 'manager' || userRole === 'staff' || userRole === 'assistantmanager';
+    const isStaff = userRole === 'admin' || userRole === 'employee';
     
     if (isStaff) {
       // Log staff access to customer dashboard

@@ -50,7 +50,7 @@ export default function Studio() {
 
   useEffect(() => {
     if (!loading) {
-      if (userRole !== 'manager') {
+      if (userRole !== 'admin') {
         navigate('/');
       } else {
         fetchFiles();

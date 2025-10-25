@@ -1,28 +1,35 @@
-import { useAuth } from "@/contexts/AuthContext";
+import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import { LoadingSpinner } from "./LoadingSpinner";
-import { useHasPermission } from "@/hooks/usePermission";
-import type { PermissionKey, UserRole } from "@/config/permissions";
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-  requiredPermission?: PermissionKey;
-  requiredRoles?: UserRole[];
-  fallbackPath?: string;
-}
+export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { user } = useAuth();
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [loading, setLoading] = useState(true);
 
-/**
- * مسار محمي بناءً على الصلاحيات أو الأدوار
- * Protected route based on permissions or roles
- */
-export default function ProtectedRoute({ 
-  children, 
-  requiredPermission,
-  requiredRoles,
-  fallbackPath = "/auth"
-}: ProtectedRouteProps) {
-  const { user, loading } = useAuth();
-  const { hasPermission, hasAnyRole } = useHasPermission();
+  useEffect(() => {
+    const checkRole = async () => {
+      if (!user) {
+        setIsAuthorized(false);
+        setLoading(false);
+        return;
+      }
+
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .in('role', ['admin', 'employee'])
+        .single();
+
+      setIsAuthorized(!!data);
+      setLoading(false);
+    };
+
+    checkRole();
+  }, [user]);
 
   if (loading) {
     return (
@@ -32,18 +39,8 @@ export default function ProtectedRoute({
     );
   }
 
-  if (!user) {
-    return <Navigate to={fallbackPath} replace />;
-  }
-
-  // التحقق من الصلاحية المطلوبة
-  if (requiredPermission && !hasPermission(requiredPermission)) {
-    return <Navigate to="/" replace />;
-  }
-
-  // التحقق من الأدوار المطلوبة
-  if (requiredRoles && !hasAnyRole(requiredRoles)) {
-    return <Navigate to="/" replace />;
+  if (!user || !isAuthorized) {
+    return <Navigate to="/auth" replace />;
   }
 
   return <>{children}</>;

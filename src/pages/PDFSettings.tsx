@@ -13,16 +13,13 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/hooks/use-toast";
-import { FileText, Plus, Trash2, Eye, RefreshCw, Save, Palette, Layout, Type, Settings, MousePointer, Square, Circle as CircleIcon, Image as ImageIcon, Trash } from "lucide-react";
+import { FileText, Plus, Trash2, Eye, RefreshCw, Save, Palette, Layout, Type, Settings } from "lucide-react";
 import { logAuditEvent } from "@/utils/auditLogger";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { generateBookingPDF } from "@/utils/pdfGenerator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { HexColorPicker } from "react-colorful";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Canvas as FabricCanvas, IText, Rect, Circle, FabricImage } from "fabric";
-import * as pdfjsLib from 'pdfjs-dist';
-import pdfjsWorkerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 interface ResponsiblePerson {
   name: string;
@@ -102,25 +99,6 @@ interface PDFSettings {
   company_license?: string;
   company_vat?: string;
   company_cr?: string;
-  
-  // SVG Logos
-  header_logo_svg_en?: string;
-  header_logo_svg_ar?: string;
-  footer_logo_svg_en?: string;
-  footer_logo_svg_ar?: string;
-  
-  // Hotel Confirmation Number Display Settings
-  hotel_confirmation_font_size?: number;
-  hotel_confirmation_font_family?: string;
-  hotel_confirmation_text_color?: string;
-  hotel_confirmation_border_color?: string;
-  hotel_confirmation_border_width?: number;
-  hotel_confirmation_box_x?: number;
-  hotel_confirmation_box_y?: number;
-  hotel_confirmation_box_width?: number;
-  hotel_confirmation_box_height?: number;
-  hotel_confirmation_box_padding?: number;
-  hotel_confirmation_box_border_radius?: number;
 }
 
 export default function PDFSettings() {
@@ -167,74 +145,28 @@ export default function PDFSettings() {
     show_footer_info: true,
     header_text_en: 'CONFIRMATION',
     header_text_ar: 'تأكيد',
-    footer_company_name_en: 'ITHRAA Company for Tourist Accommodation',
+    footer_company_name_en: 'Ethraa Company for Tourist Accommodation',
     footer_company_name_ar: 'شركة إثراء للإيواء السياحي',
     company_license: '73105372',
     company_vat: '302006094600003',
-    company_cr: '4031285856',
-    hotel_confirmation_font_size: 12,
-    hotel_confirmation_font_family: 'helvetica',
-    hotel_confirmation_text_color: '75,0,130',
-    hotel_confirmation_border_color: '75,0,130',
-    hotel_confirmation_border_width: 1,
-    hotel_confirmation_box_x: 15,
-    hotel_confirmation_box_y: 38,
-    hotel_confirmation_box_width: 180,
-    hotel_confirmation_box_height: 12,
-    hotel_confirmation_box_padding: 3,
-    hotel_confirmation_box_border_radius: 4
+    company_cr: '4031285856'
   });
   const [loadingSettings, setLoadingSettings] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [showPreview, setShowPreview] = useState(true);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [fabricCanvas, setFabricCanvas] = useState<FabricCanvas | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [showPreview, setShowPreview] = useState(false);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const [activeTab, setActiveTab] = useState("content");
-  const [editorTool, setEditorTool] = useState<"select" | "text" | "rect" | "circle" | "image">("select");
-  const [editorColor, setEditorColor] = useState("#000000");
-  const [isGeneratingPreview, setIsGeneratingPreview] = useState(false);
 
   useEffect(() => {
     if (!loading) {
-      if (userRole !== 'manager') {
+      if (userRole !== 'admin') {
         navigate('/');
         return;
       }
       fetchSettings();
     }
   }, [userRole, loading, navigate]);
-
-  // Initialize PDF.js worker
-  useEffect(() => {
-    (pdfjsLib as any).GlobalWorkerOptions.workerSrc = pdfjsWorkerUrl;
-  }, []);
-
-  // Initialize Fabric Canvas
-  useEffect(() => {
-    if (!canvasRef.current || fabricCanvas) return;
-
-    const canvas = new FabricCanvas(canvasRef.current, {
-      width: 595, // A4 width in points
-      height: 842, // A4 height in points
-      backgroundColor: "#ffffff",
-    });
-
-    setFabricCanvas(canvas);
-
-    return () => {
-      canvas.dispose();
-    };
-  }, []);
-
-  // Auto-generate preview on mount and settings change
-  useEffect(() => {
-    if (settings.id && !loadingSettings) {
-      const timer = setTimeout(() => {
-        generatePreview();
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [settings, loadingSettings]);
 
   const fetchSettings = async () => {
     try {
@@ -272,81 +204,56 @@ export default function PDFSettings() {
     }
   };
 
-   const handleSave = async () => {
-     setSaving(true);
-     try {
-       const { id, ...settingsData } = settings;
-       
-       const dataToSave = {
-         ...settingsData,
-         responsible_persons: JSON.stringify(settingsData.responsible_persons || []),
-         contact_numbers: JSON.stringify(settingsData.contact_numbers || [])
-       };
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const { id, ...settingsData } = settings;
+      
+      const dataToSave = {
+        ...settingsData,
+        responsible_persons: JSON.stringify(settingsData.responsible_persons || []),
+        contact_numbers: JSON.stringify(settingsData.contact_numbers || [])
+      };
 
-       if (id) {
-         const { error } = await supabase
-           .from('pdf_settings')
-           .update(dataToSave as any)
-           .eq('id', id);
+      if (id) {
+        const { error } = await supabase
+          .from('pdf_settings')
+          .update(dataToSave as any)
+          .eq('id', id);
 
-         if (error) throw error;
-       } else {
-         const { error } = await supabase
-           .from('pdf_settings')
-           .insert([dataToSave as any]);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('pdf_settings')
+          .insert([dataToSave as any]);
 
-         if (error) throw error;
-       }
+        if (error) throw error;
+      }
 
-       toast({
-         title: t({ ar: "تم الحفظ بنجاح", en: "Saved Successfully" }),
-         description: t({ ar: "تم حفظ إعدادات PDF بنجاح", en: "PDF settings saved successfully" }),
-       });
+      toast({
+        title: t({ ar: "تم الحفظ بنجاح", en: "Saved Successfully" }),
+        description: t({ ar: "تم حفظ إعدادات PDF بنجاح", en: "PDF settings saved successfully" }),
+      });
 
-       logAuditEvent('UPDATE', 'pdf_settings', id, { settings: settingsData }).catch(() => {});
+      logAuditEvent('UPDATE', 'pdf_settings', id, { settings: settingsData }).catch(() => {});
 
-       fetchSettings();
-       
-       // تحديث المعاينة تلقائياً
-       if (showPreview) {
-         generatePreview();
-       }
-     } catch (error) {
-       console.error('Error saving PDF settings:', error);
-       toast({
-         title: t({ ar: "خطأ", en: "Error" }),
-         description: t({ ar: "حدث خطأ أثناء الحفظ", en: "An error occurred while saving" }),
-         variant: "destructive",
-       });
-     } finally {
-       setSaving(false);
-     }
-   };
-
-   const handleLogoUpload = async (file: File) => {
-     try {
-       const ext = file.name.split('.').pop();
-       const path = `logos/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-       const { error: uploadError } = await supabase.storage
-         .from('hotel-images') // public bucket
-         .upload(path, file, { cacheControl: '3600', upsert: false, contentType: file.type });
-       if (uploadError) throw uploadError;
-       const { data } = supabase.storage.from('hotel-images').getPublicUrl(path);
-       const publicUrl = data.publicUrl;
-       setSettings(prev => ({ ...prev, company_logo_url: publicUrl }));
-       toast({
-         title: t({ ar: "تم الرفع", en: "Uploaded" }),
-         description: t({ ar: "تم رفع الشعار وتحديث الرابط تلقائياً", en: "Logo uploaded and URL set" }),
-       });
-     } catch (e: any) {
-       console.error('Logo upload failed', e);
-       toast({
-         title: t({ ar: "فشل الرفع", en: "Upload Failed" }),
-         description: e.message || t({ ar: "تعذر رفع الشعار", en: "Could not upload logo" }),
-         variant: 'destructive'
-       });
-     }
-   };
+      fetchSettings();
+      
+      // تحديث المعاينة تلقائياً
+      if (showPreview) {
+        generatePreview();
+      }
+    } catch (error) {
+      console.error('Error saving PDF settings:', error);
+      toast({
+        title: t({ ar: "خطأ", en: "Error" }),
+        description: t({ ar: "حدث خطأ أثناء الحفظ", en: "An error occurred while saving" }),
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const addResponsiblePerson = () => {
     setSettings({
@@ -390,10 +297,15 @@ export default function PDFSettings() {
   };
 
   const generatePreview = async () => {
-    if (isGeneratingPreview) return;
-    
     try {
-      setIsGeneratingPreview(true);
+      toast({
+        title: t({ ar: "جاري الإنشاء...", en: "Generating..." }),
+        description: t({ ar: "يرجى الانتظار", en: "Please wait" }),
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      console.log('PDF Settings:', settings); // للتحقق
 
       const sampleData = {
         bookingNumber: 12345,
@@ -433,44 +345,25 @@ export default function PDFSettings() {
         pdfSettings: settings
       };
 
-      const pdf = await generateBookingPDF(sampleData);
-      const pdfBlob = pdf.output('arraybuffer');
+      console.log('Generating PDF with data:', sampleData); // للتحقق
+
+      const pdf = generateBookingPDF(sampleData);
+      const pdfBlob = pdf.output('blob');
+      const url = URL.createObjectURL(pdfBlob);
       
-      // Load PDF into canvas using PDF.js
-      const loadingTask = pdfjsLib.getDocument({ data: pdfBlob });
-      const pdfDoc = await loadingTask.promise;
-      const page = await pdfDoc.getPage(1);
+      console.log('PDF generated successfully, blob URL:', url); // للتحقق
       
-      const viewport = page.getViewport({ scale: 1.0 });
-      
-      if (fabricCanvas) {
-        fabricCanvas.setDimensions({
-          width: viewport.width,
-          height: viewport.height
-        });
-        
-        // Render PDF page to a temporary canvas
-        const tempCanvas = document.createElement('canvas');
-        const context = tempCanvas.getContext('2d');
-        tempCanvas.width = viewport.width;
-        tempCanvas.height = viewport.height;
-        
-        if (context) {
-          await page.render({
-            canvasContext: context,
-            viewport: viewport,
-            canvas: tempCanvas
-          }).promise;
-          
-          // Convert to fabric image and set as background
-          const imgData = tempCanvas.toDataURL();
-          const img = await FabricImage.fromURL(imgData);
-          fabricCanvas.backgroundImage = img;
-          fabricCanvas.renderAll();
-        }
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
       }
       
+      setPreviewUrl(url);
       setShowPreview(true);
+      
+      toast({
+        title: t({ ar: "تم إنشاء المعاينة", en: "Preview Generated" }),
+        description: t({ ar: "يمكنك الآن مشاهدة نموذج PDF", en: "You can now view the PDF preview" }),
+      });
     } catch (error) {
       console.error('Error generating preview:', error);
       toast({
@@ -478,83 +371,24 @@ export default function PDFSettings() {
         description: t({ ar: `حدث خطأ: ${error.message}`, en: `Error: ${error.message}` }),
         variant: "destructive",
       });
-    } finally {
-      setIsGeneratingPreview(false);
     }
   };
 
-  const handleEditorToolClick = (tool: typeof editorTool) => {
-    setEditorTool(tool);
-
-    if (!fabricCanvas) return;
-
-    fabricCanvas.isDrawingMode = false;
-
-    if (tool === "text") {
-      const text = new IText(t({ ar: "انقر للتحرير", en: "Click to edit" }), {
-        left: 100,
-        top: 100,
-        fill: editorColor,
-        fontSize: 20,
-        fontFamily: 'Arial'
-      });
-      fabricCanvas.add(text);
-      fabricCanvas.setActiveObject(text);
-    } else if (tool === "rect") {
-      const rect = new Rect({
-        left: 100,
-        top: 100,
-        fill: editorColor,
-        width: 100,
-        height: 60,
-      });
-      fabricCanvas.add(rect);
-      fabricCanvas.setActiveObject(rect);
-    } else if (tool === "circle") {
-      const circle = new Circle({
-        left: 100,
-        top: 100,
-        fill: editorColor,
-        radius: 50,
-      });
-      fabricCanvas.add(circle);
-      fabricCanvas.setActiveObject(circle);
-    }
-    
-    fabricCanvas.renderAll();
-  };
-
-  const handleClearAnnotations = () => {
-    if (!fabricCanvas) return;
-    
-    const objects = fabricCanvas.getObjects();
-    objects.forEach(obj => {
-      if (!(obj === fabricCanvas.backgroundImage)) {
-        fabricCanvas.remove(obj);
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
       }
-    });
-    fabricCanvas.renderAll();
-    
-    toast({
-      title: t({ ar: "تم المسح", en: "Cleared" }),
-      description: t({ ar: "تم مسح جميع التعديلات", en: "All annotations cleared" }),
-    });
-  };
+    };
+  }, [previewUrl]);
 
   if (loading || loadingSettings) {
     return <div className="min-h-screen flex items-center justify-center"><LoadingSpinner size="lg" /></div>;
   }
 
-  const ColorInput = ({ label, value, onChange, doneText, manualText }: { 
-    label: string; 
-    value: string; 
-    onChange: (v: string) => void;
-    doneText: string;
-    manualText: string;
-  }) => {
+  const ColorInput = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => {
     const [r, g, b] = (value || '0,0,0').split(',').map(v => parseInt(v.trim()));
     const hexColor = `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`;
-    const [open, setOpen] = useState(false);
     
     const handleHexChange = (hex: string) => {
       const cleanHex = hex.replace('#', '');
@@ -568,57 +402,34 @@ export default function PDFSettings() {
       <div className="space-y-2">
         <Label className="mb-3 block">{label}</Label>
         <div className="flex gap-3 items-start">
-          <Popover open={open} onOpenChange={setOpen} modal={true}>
+          <Popover>
             <PopoverTrigger asChild>
               <button
-                type="button"
                 className="w-20 h-20 rounded-lg border-2 border-border shadow-sm hover:scale-105 transition-transform cursor-pointer flex-shrink-0"
                 style={{ backgroundColor: hexColor }}
               />
             </PopoverTrigger>
-            <PopoverContent 
-              className="w-auto p-3 bg-background z-50 pointer-events-auto" 
-              align="start"
-              onInteractOutside={(e) => {
-                e.preventDefault();
-              }}
-              onPointerDownOutside={(e) => {
-                e.preventDefault();
-              }}
-              onOpenAutoFocus={(e) => e.preventDefault()}
-            >
-              <div onPointerDown={(e) => e.stopPropagation()}>
-                <HexColorPicker
-                  color={hexColor}
-                  onChange={handleHexChange}
+            <PopoverContent className="w-auto p-3" align="start">
+              <HexColorPicker
+                color={hexColor}
+                onChange={handleHexChange}
+              />
+              <div className="mt-3">
+                <Input
+                  type="text"
+                  value={hexColor}
+                  onChange={(e) => handleHexChange(e.target.value)}
+                  className="font-mono text-sm text-black dark:text-white"
+                  placeholder="#000000"
                 />
-                <div className="mt-3 flex gap-2">
-                  <Input
-                    type="text"
-                    value={hexColor}
-                    onChange={(e) => handleHexChange(e.target.value)}
-                    className="font-mono text-sm"
-                    placeholder="#000000"
-                  />
-                  <Button
-                    type="button"
-                    size="sm"
-                    onClick={() => setOpen(false)}
-                  >
-                    {doneText}
-                  </Button>
-                </div>
               </div>
             </PopoverContent>
           </Popover>
           <div className="flex-1">
-            <Label className="text-xs text-muted-foreground mb-1 block">
-              {manualText}
-            </Label>
             <Input
-              value={hexColor}
-              onChange={(e) => handleHexChange(e.target.value)}
-              placeholder="#FFFFFF"
+              value={value}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder="R,G,B"
               className="font-mono"
             />
           </div>
@@ -656,9 +467,9 @@ export default function PDFSettings() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Settings Tabs */}
-          <Card className="card-luxury lg:col-span-5">
+          <Card className="card-luxury">
             <CardHeader>
               <CardTitle className="text-xl">
                 {t({ ar: "إعدادات التصميم", en: "Design Settings" })}
@@ -698,29 +509,14 @@ export default function PDFSettings() {
                         {t({ ar: "معلومات الشركة", en: "Company Information" })}
                       </h3>
                       
-                       <div className="space-y-2">
-                          <Label>{t({ ar: "الشعار", en: "Logo" })}</Label>
-                          <div className="flex items-center gap-3 flex-wrap">
-                            <Input
-                              value={settings.company_logo_url || ''}
-                              onChange={(e) => setSettings({ ...settings, company_logo_url: e.target.value })}
-                              placeholder="https://..."
-                              className="flex-1 min-w-[200px]"
-                            />
-                            <Input
-                              type="file"
-                              accept="image/*"
-                              onChange={(e) => {
-                                const file = e.target.files?.[0];
-                                if (file) handleLogoUpload(file);
-                              }}
-                              className="w-auto"
-                            />
-                          </div>
-                          {settings.company_logo_url && (
-                            <div className="text-xs text-muted-foreground" dir="ltr">{settings.company_logo_url}</div>
-                          )}
-                        </div>
+                      <div>
+                        <Label>{t({ ar: "رابط الشعار", en: "Logo URL" })}</Label>
+                        <Input
+                          value={settings.company_logo_url || ''}
+                          onChange={(e) => setSettings({ ...settings, company_logo_url: e.target.value })}
+                          placeholder="https://..."
+                        />
+                      </div>
 
                       <div>
                         <Label>{t({ ar: "وصف الشركة (عربي)", en: "Description (Arabic)" })}</Label>
@@ -804,57 +600,6 @@ export default function PDFSettings() {
                             onChange={(e) => setSettings({ ...settings, footer_company_name_en: e.target.value })}
                           />
                         </div>
-                      </div>
-                    </div>
-
-                    {/* SVG Logos */}
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold border-b pb-2">
-                        {t({ ar: "شعارات SVG", en: "SVG Logos" })}
-                      </h3>
-                      
-                      <div>
-                        <Label>{t({ ar: "شعار الهيدر (عربي) - كود SVG", en: "Header Logo (Arabic) - SVG Code" })}</Label>
-                        <Textarea
-                          value={settings.header_logo_svg_ar || ''}
-                          onChange={(e) => setSettings({ ...settings, header_logo_svg_ar: e.target.value })}
-                          rows={3}
-                          placeholder="<svg>...</svg>"
-                          className="font-mono text-xs"
-                        />
-                      </div>
-
-                      <div>
-                        <Label>{t({ ar: "شعار الهيدر (إنجليزي) - كود SVG", en: "Header Logo (English) - SVG Code" })}</Label>
-                        <Textarea
-                          value={settings.header_logo_svg_en || ''}
-                          onChange={(e) => setSettings({ ...settings, header_logo_svg_en: e.target.value })}
-                          rows={3}
-                          placeholder="<svg>...</svg>"
-                          className="font-mono text-xs"
-                        />
-                      </div>
-
-                      <div>
-                        <Label>{t({ ar: "شعار الفوتر (عربي) - كود SVG", en: "Footer Logo (Arabic) - SVG Code" })}</Label>
-                        <Textarea
-                          value={settings.footer_logo_svg_ar || ''}
-                          onChange={(e) => setSettings({ ...settings, footer_logo_svg_ar: e.target.value })}
-                          rows={3}
-                          placeholder="<svg>...</svg>"
-                          className="font-mono text-xs"
-                        />
-                      </div>
-
-                      <div>
-                        <Label>{t({ ar: "شعار الفوتر (إنجليزي) - كود SVG", en: "Footer Logo (English) - SVG Code" })}</Label>
-                        <Textarea
-                          value={settings.footer_logo_svg_en || ''}
-                          onChange={(e) => setSettings({ ...settings, footer_logo_svg_en: e.target.value })}
-                          rows={3}
-                          placeholder="<svg>...</svg>"
-                          className="font-mono text-xs"
-                        />
                       </div>
                     </div>
 
@@ -1052,24 +797,18 @@ export default function PDFSettings() {
                         label={t({ ar: "اللون الأساسي", en: "Primary Color" })}
                         value={settings.primary_color || '75,0,130'}
                         onChange={(v) => setSettings({ ...settings, primary_color: v })}
-                        doneText={t({ ar: "تم", en: "Done" })}
-                        manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
                       />
 
                       <ColorInput
                         label={t({ ar: "اللون الثانوي", en: "Secondary Color" })}
                         value={settings.secondary_color || '245,245,245'}
                         onChange={(v) => setSettings({ ...settings, secondary_color: v })}
-                        doneText={t({ ar: "تم", en: "Done" })}
-                        manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
                       />
 
                       <ColorInput
                         label={t({ ar: "لون النص", en: "Text Color" })}
                         value={settings.text_color || '0,0,0'}
                         onChange={(v) => setSettings({ ...settings, text_color: v })}
-                        doneText={t({ ar: "تم", en: "Done" })}
-                        manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
                       />
                     </div>
 
@@ -1082,38 +821,12 @@ export default function PDFSettings() {
                         label={t({ ar: "خلفية الرأس", en: "Header Background" })}
                         value={settings.header_bg_color || '75,0,130'}
                         onChange={(v) => setSettings({ ...settings, header_bg_color: v })}
-                        doneText={t({ ar: "تم", en: "Done" })}
-                        manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
                       />
 
                       <ColorInput
                         label={t({ ar: "خلفية التذييل", en: "Footer Background" })}
                         value={settings.footer_bg_color || '75,0,130'}
                         onChange={(v) => setSettings({ ...settings, footer_bg_color: v })}
-                        doneText={t({ ar: "تم", en: "Done" })}
-                        manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
-                      />
-                    </div>
-
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold border-b pb-2">
-                        {t({ ar: "ألوان رقم تأكيد الفندق", en: "Hotel Confirmation # Colors" })}
-                      </h3>
-                      
-                      <ColorInput
-                        label={t({ ar: "لون النص", en: "Text Color" })}
-                        value={settings.hotel_confirmation_text_color || '75,0,130'}
-                        onChange={(v) => setSettings({ ...settings, hotel_confirmation_text_color: v })}
-                        doneText={t({ ar: "تم", en: "Done" })}
-                        manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
-                      />
-
-                      <ColorInput
-                        label={t({ ar: "لون الإطار", en: "Border Color" })}
-                        value={settings.hotel_confirmation_border_color || '75,0,130'}
-                        onChange={(v) => setSettings({ ...settings, hotel_confirmation_border_color: v })}
-                        doneText={t({ ar: "تم", en: "Done" })}
-                        manualText={t({ ar: "أو أدخل يدوياً", en: "Or enter manually" })}
                       />
                     </div>
                   </TabsContent>
@@ -1169,32 +882,6 @@ export default function PDFSettings() {
                             max="12"
                           />
                         </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold border-b pb-2">
-                        {t({ ar: "خط رقم تأكيد الفندق", en: "Hotel Confirmation # Font" })}
-                      </h3>
-                      
-                      <div>
-                        <Label>{t({ ar: "حجم الخط", en: "Font Size" })}</Label>
-                        <Input
-                          type="number"
-                          value={settings.hotel_confirmation_font_size || 12}
-                          onChange={(e) => setSettings({ ...settings, hotel_confirmation_font_size: parseInt(e.target.value) })}
-                          min="8"
-                          max="24"
-                        />
-                      </div>
-
-                      <div>
-                        <Label>{t({ ar: "نوع الخط", en: "Font Family" })}</Label>
-                        <Input
-                          value={settings.hotel_confirmation_font_family || 'helvetica'}
-                          onChange={(e) => setSettings({ ...settings, hotel_confirmation_font_family: e.target.value })}
-                          placeholder="helvetica, courier, times"
-                        />
                       </div>
                     </div>
                   </TabsContent>
@@ -1385,78 +1072,6 @@ export default function PDFSettings() {
                         </div>
                       </div>
                     </div>
-
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold border-b pb-2">
-                        {t({ ar: "إطار رقم تأكيد الفندق", en: "Hotel Confirmation # Box" })}
-                      </h3>
-                      
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <Label>{t({ ar: "الموضع X", en: "Position X" })}</Label>
-                          <Input
-                            type="number"
-                            value={settings.hotel_confirmation_box_x || 15}
-                            onChange={(e) => setSettings({ ...settings, hotel_confirmation_box_x: parseInt(e.target.value) })}
-                          />
-                        </div>
-                        <div>
-                          <Label>{t({ ar: "الموضع Y", en: "Position Y" })}</Label>
-                          <Input
-                            type="number"
-                            value={settings.hotel_confirmation_box_y || 38}
-                            onChange={(e) => setSettings({ ...settings, hotel_confirmation_box_y: parseInt(e.target.value) })}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3">
-                        <div>
-                          <Label>{t({ ar: "العرض", en: "Width" })}</Label>
-                          <Input
-                            type="number"
-                            value={settings.hotel_confirmation_box_width || 180}
-                            onChange={(e) => setSettings({ ...settings, hotel_confirmation_box_width: parseInt(e.target.value) })}
-                          />
-                        </div>
-                        <div>
-                          <Label>{t({ ar: "الارتفاع", en: "Height" })}</Label>
-                          <Input
-                            type="number"
-                            value={settings.hotel_confirmation_box_height || 12}
-                            onChange={(e) => setSettings({ ...settings, hotel_confirmation_box_height: parseInt(e.target.value) })}
-                          />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-3 gap-3">
-                        <div>
-                          <Label>{t({ ar: "سمك الإطار", en: "Border Width" })}</Label>
-                          <Input
-                            type="number"
-                            step="0.5"
-                            value={settings.hotel_confirmation_border_width || 1}
-                            onChange={(e) => setSettings({ ...settings, hotel_confirmation_border_width: parseFloat(e.target.value) })}
-                          />
-                        </div>
-                        <div>
-                          <Label>{t({ ar: "المسافة الداخلية", en: "Padding" })}</Label>
-                          <Input
-                            type="number"
-                            value={settings.hotel_confirmation_box_padding || 3}
-                            onChange={(e) => setSettings({ ...settings, hotel_confirmation_box_padding: parseInt(e.target.value) })}
-                          />
-                        </div>
-                        <div>
-                          <Label>{t({ ar: "استدارة الزوايا", en: "Border Radius" })}</Label>
-                          <Input
-                            type="number"
-                            value={settings.hotel_confirmation_box_border_radius || 4}
-                            onChange={(e) => setSettings({ ...settings, hotel_confirmation_box_border_radius: parseInt(e.target.value) })}
-                          />
-                        </div>
-                      </div>
-                    </div>
                   </TabsContent>
 
                   {/* Visibility Tab */}
@@ -1520,103 +1135,44 @@ export default function PDFSettings() {
             </CardContent>
           </Card>
 
-          {/* Live Preview & Editor */}
-          <Card className="card-luxury lg:col-span-7">
+          {/* Preview Section */}
+          <Card className="card-luxury">
             <CardHeader>
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-xl flex items-center gap-2">
-                  <Eye className="w-5 h-5" />
-                  {t({ ar: "المعاينة المباشرة والتحرير", en: "Live Preview & Editor" })}
-                </CardTitle>
-                <Button
-                  onClick={generatePreview}
-                  size="sm"
-                  variant="outline"
-                  disabled={isGeneratingPreview}
-                >
-                  <RefreshCw className={`w-4 h-4 mr-2 ${isGeneratingPreview ? 'animate-spin' : ''}`} />
-                  {t({ ar: "تحديث", en: "Refresh" })}
-                </Button>
-              </div>
+              <CardTitle className="text-xl">
+                {t({ ar: "معاينة مباشرة", en: "Live Preview" })}
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              {/* Editor Toolbar */}
-              <div className="flex flex-wrap gap-2 mb-4 p-3 bg-muted rounded-lg">
-                <Button
-                  size="sm"
-                  variant={editorTool === "select" ? "default" : "outline"}
-                  onClick={() => handleEditorToolClick("select")}
-                >
-                  <MousePointer className="w-4 h-4 mr-2" />
-                  {t({ ar: "تحديد", en: "Select" })}
-                </Button>
-                <Button
-                  size="sm"
-                  variant={editorTool === "text" ? "default" : "outline"}
-                  onClick={() => handleEditorToolClick("text")}
-                >
-                  <Type className="w-4 h-4 mr-2" />
-                  {t({ ar: "نص", en: "Text" })}
-                </Button>
-                <Button
-                  size="sm"
-                  variant={editorTool === "rect" ? "default" : "outline"}
-                  onClick={() => handleEditorToolClick("rect")}
-                >
-                  <Square className="w-4 h-4 mr-2" />
-                  {t({ ar: "مربع", en: "Rectangle" })}
-                </Button>
-                <Button
-                  size="sm"
-                  variant={editorTool === "circle" ? "default" : "outline"}
-                  onClick={() => handleEditorToolClick("circle")}
-                >
-                  <CircleIcon className="w-4 h-4 mr-2" />
-                  {t({ ar: "دائرة", en: "Circle" })}
-                </Button>
-                
-                <div className="flex items-center gap-2 ml-auto">
-                  <Label className="text-sm">{t({ ar: "اللون:", en: "Color:" })}</Label>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button
-                        className="w-10 h-10 rounded border-2 border-border"
-                        style={{ backgroundColor: editorColor }}
-                      />
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-3">
-                      <HexColorPicker color={editorColor} onChange={setEditorColor} />
-                    </PopoverContent>
-                  </Popover>
-                  
-                  <Button
-                    size="sm"
-                    variant="destructive"
-                    onClick={handleClearAnnotations}
-                  >
-                    <Trash className="w-4 h-4 mr-2" />
-                    {t({ ar: "مسح التعديلات", en: "Clear" })}
-                  </Button>
-                </div>
-              </div>
-
-              {/* Canvas */}
-              <div className="border rounded-lg overflow-auto bg-gray-50 p-4" style={{ maxHeight: 'calc(100vh - 400px)' }}>
-                {isGeneratingPreview ? (
-                  <div className="flex items-center justify-center" style={{ height: '842px' }}>
-                    <LoadingSpinner size="lg" />
+              <div className="w-full h-[calc(100vh-280px)] bg-muted rounded-lg overflow-hidden">
+                {showPreview && previewUrl ? (
+                  <div className="w-full h-full relative">
+                    {/* Primary preview via <object> to avoid blob-in-iframe issues */}
+                    <object
+                      key={previewUrl}
+                      data={previewUrl}
+                      type="application/pdf"
+                      className="w-full h-full"
+                      aria-label="PDF Preview"
+                    >
+                      {/* Fallback to <embed> */}
+                      <embed src={previewUrl} type="application/pdf" className="w-full h-full" />
+                    </object>
+                    {/* Fallback action: open in new tab */}
+                    <div className="absolute inset-x-0 bottom-0 p-2 flex justify-center gap-2 bg-background/60 backdrop-blur-md">
+                      <Button size="sm" variant="outline" onClick={() => window.open(previewUrl, '_blank')}> 
+                        {t({ ar: "فتح في تبويب جديد", en: "Open in new tab" })}
+                      </Button>
+                    </div>
                   </div>
                 ) : (
-                  <canvas ref={canvasRef} className="shadow-lg mx-auto" />
+                  <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+                    <Eye className="w-16 h-16 mb-4 opacity-50" />
+                    <p className="text-lg">
+                      {t({ ar: "اضغط على زر المعاينة لعرض PDF", en: "Click Preview to view PDF" })}
+                    </p>
+                  </div>
                 )}
               </div>
-
-              <p className="text-sm text-muted-foreground mt-3 text-center">
-                {t({ 
-                  ar: "استخدم الأدوات أعلاه لإضافة نصوص وأشكال على PDF. يمكنك سحب وإفلات العناصر لتحريكها.", 
-                  en: "Use the tools above to add text and shapes to the PDF. Drag and drop elements to move them." 
-                })}
-              </p>
             </CardContent>
           </Card>
         </div>

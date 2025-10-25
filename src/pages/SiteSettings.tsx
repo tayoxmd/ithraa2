@@ -101,7 +101,7 @@ export default function SiteSettings() {
   const [showBackupManager, setShowBackupManager] = useState(false);
 
   useEffect(() => {
-    if (!loading && userRole !== 'manager') {
+    if (!loading && userRole !== 'admin') {
       navigate('/');
     } else if (!loading) {
       fetchSettings();

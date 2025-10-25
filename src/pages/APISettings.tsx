@@ -38,7 +38,7 @@ export default function APISettings() {
 
   useEffect(() => {
     if (!loading) {
-      if (userRole !== 'manager') {
+      if (userRole !== 'admin') {
         navigate('/');
         return;
       }

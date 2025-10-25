@@ -25,8 +25,7 @@ import {
   Gift,
   Calendar,
   MessageSquare,
-  Clapperboard,
-  ListTodo
+  Clapperboard
 } from "lucide-react";
 import { playNotificationSound } from "@/utils/notificationSound";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -72,7 +71,6 @@ export default function AdminDashboard() {
 
   const adminMenuItems = [
     { icon: Home, label: t({ ar: 'الصفحة الرئيسية', en: 'Home' }), path: '/' },
-    { icon: ListTodo, label: t({ ar: 'إدارة المهام', en: 'Task Manager' }), path: '/task-manager' },
     { icon: Hotel, label: t({ ar: 'إدارة الفنادق', en: 'Manage Hotels' }), path: '/manage-hotels' },
     { icon: Users, label: t({ ar: 'إدارة المستخدمين', en: 'Manage Users' }), path: '/manage-employees' },
     { icon: Briefcase, label: t({ ar: 'شؤون الموظفين', en: 'Employee Management' }), path: '/employee-management' },
@@ -92,7 +90,7 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (!loading) {
-      if (userRole !== 'manager') {
+      if (userRole !== 'admin') {
         navigate('/');
       } else {
         fetchBookings();
@@ -172,7 +170,7 @@ export default function AdminDashboard() {
       const { data: customerRoles } = await supabase
         .from('user_roles')
         .select('user_id')
-        .eq('role', 'client');
+        .eq('role', 'customer');
 
       // Financial stats
       const { data: allBookings } = await supabase

@@ -16,8 +16,7 @@ import {
   TrendingDown,
   User,
   Home,
-  LayoutDashboard,
-  ListTodo
+  LayoutDashboard
 } from "lucide-react";
 
 export default function EmployeeDashboard() {
@@ -35,7 +34,7 @@ export default function EmployeeDashboard() {
 
   useEffect(() => {
     if (!loading) {
-      if (userRole !== 'staff') {
+      if (userRole !== 'employee') {
         navigate('/');
       } else {
         fetchBookings();
@@ -158,11 +157,6 @@ export default function EmployeeDashboard() {
               onClick={() => navigate('/')}
             />
             <NavItem 
-              icon={ListTodo} 
-              label={t({ ar: "إدارة المهام", en: "Task Manager" })}
-              onClick={() => navigate('/task-manager')}
-            />
-            <NavItem 
               icon={User} 
               label={t({ ar: "الملف الشخصي", en: "Profile" })}
               onClick={() => navigate('/profile')}
@@ -184,14 +178,10 @@ export default function EmployeeDashboard() {
             </div>
 
             {/* Quick Actions - Mobile Only */}
-            <div className="lg:hidden grid grid-cols-3 gap-3 mb-6">
+            <div className="lg:hidden grid grid-cols-2 gap-3 mb-6">
               <Button onClick={() => navigate('/')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
                 <Home className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "الرئيسية", en: "Home" })}</span>
-              </Button>
-              <Button onClick={() => navigate('/task-manager')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
-                <ListTodo className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "المهام", en: "Tasks" })}</span>
               </Button>
               <Button onClick={() => navigate('/profile')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
                 <User className="w-5 h-5" />

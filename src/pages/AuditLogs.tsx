@@ -41,7 +41,7 @@ export default function AuditLogs() {
 
   useEffect(() => {
     if (!loading) {
-      if (userRole !== 'manager') {
+      if (userRole !== 'admin') {
         navigate('/');
         return;
       }

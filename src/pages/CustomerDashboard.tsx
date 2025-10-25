@@ -6,7 +6,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { Home, FileText, User, Download } from "lucide-react";
 import { downloadBookingPDF } from "@/utils/pdfGenerator";
@@ -61,7 +60,6 @@ export default function CustomerDashboard() {
   const [searchParams] = useSearchParams();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [activeTab, setActiveTab] = useState<'bookings' | 'profile'>('bookings');
-  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const checkAccess = async () => {
@@ -154,41 +152,15 @@ export default function CustomerDashboard() {
     return null;
   }
 
-  // Filter bookings
-  const filteredBookings = bookings.filter((booking) => {
-    if (!searchQuery.trim()) return true;
-    
-    const query = searchQuery.toLowerCase();
-    const hotelName = (language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en)?.toLowerCase() || '';
-    const guestName = (booking.profiles?.full_name || booking.guest_name || '').toLowerCase();
-    const bookingNumber = (booking.booking_number || '').toString();
-    const hotelConfNumber = (booking.hotel_confirmation_number || '').toLowerCase();
-    const checkIn = booking.check_in || '';
-    const checkOut = booking.check_out || '';
-    const status = getStatusText(booking.status);
-    const statusText = (language === 'ar' ? status.ar : status.en).toLowerCase();
-    const paymentStatus = getPaymentStatusText(booking.payment_status);
-    const paymentStatusText = (language === 'ar' ? paymentStatus.ar : paymentStatus.en).toLowerCase();
-    
-    return hotelName.includes(query) ||
-           guestName.includes(query) ||
-           bookingNumber.includes(query) ||
-           hotelConfNumber.includes(query) ||
-           checkIn.includes(query) ||
-           checkOut.includes(query) ||
-           statusText.includes(query) ||
-           paymentStatusText.includes(query);
-  });
-
   return (
     <div className="min-h-screen bg-gradient-subtle p-4 pt-28">
       <div className="container mx-auto max-w-7xl">
         <div className="flex items-center gap-4 mb-8">
           <Button variant="outline" onClick={() => navigate('/')}>
             <Home className="w-4 h-4 mr-2" />
-            {t({ ar: "الرئيسية", en: "Home" })}
+            {t({ ar: "الرئيسية", en: "Home", fr: "Accueil", es: "Inicio", ru: "Главная", id: "Beranda", ms: "Laman Utama" })}
           </Button>
-          <h1 className="text-3xl font-bold text-gradient-luxury">{t({ ar: "لوحة التحكم", en: "Dashboard" })}</h1>
+          <h1 className="text-3xl font-bold text-gradient-luxury">{t({ ar: "لوحة التحكم", en: "Dashboard", fr: "Tableau de bord", es: "Panel", ru: "Панель", id: "Dasbor", ms: "Papan Pemuka" })}</h1>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -198,7 +170,7 @@ export default function CustomerDashboard() {
             className="gap-2"
           >
             <FileText className="w-4 h-4" />
-            {t({ ar: "حجوزاتي", en: "My Bookings" })}
+            {t({ ar: "حجوزاتي", en: "My Bookings", fr: "Mes réservations", es: "Mis reservas", ru: "Мои бронирования", id: "Pemesanan Saya", ms: "Tempahan Saya" })}
           </Button>
           <Button 
             variant="outline"
@@ -206,90 +178,60 @@ export default function CustomerDashboard() {
             className="gap-2"
           >
             <User className="w-4 h-4" />
-            {t({ ar: "الملف الشخصي", en: "Profile" })}
+            {t({ ar: "الملف الشخصي", en: "Profile", fr: "Profil", es: "Perfil", ru: "Профиль", id: "Profil", ms: "Profil" })}
           </Button>
         </div>
 
         {activeTab === 'bookings' ? (
-          <>
-            {/* Search Box */}
-            <div className="mb-6">
-              <Input
-                placeholder={t({ 
-                  ar: "ابحث عن طلب...", 
-                  en: "Search bookings..." 
-                })}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full"
-              />
-            </div>
-
-            {filteredBookings.length === 0 && searchQuery ? (
-              <Card className="card-luxury">
-                <CardContent className="py-8 text-center">
-                  <p className="text-muted-foreground">{t({ ar: "لا توجد نتائج للبحث", en: "No results found" })}</p>
-                </CardContent>
-              </Card>
-            ) : filteredBookings.length === 0 ? (
-              <Card className="card-luxury">
-                <CardContent className="py-8 text-center">
-                  <p className="text-muted-foreground">{t({ ar: "لا توجد حجوزات حتى الآن", en: "No bookings yet" })}</p>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="space-y-6">
-                {filteredBookings.map((booking) => (
-                  <Card key={booking.id} className="card-luxury w-full max-w-full">
-                    <CardHeader className="pb-4">
-                      <div className="flex flex-col gap-3">
-                        {/* Booking Number - Mobile: Above, Tablet/Desktop: Same row */}
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 md:gap-4">
-                          <div className="flex items-center gap-2">
-                            <FileText className="w-5 h-5 text-primary flex-shrink-0" />
-                            <span className="text-base sm:text-lg font-bold">
-                              {t({ ar: "رقم الطلب:", en: "Booking #" })} {booking.booking_number || booking.id.slice(0, 8)}
-                            </span>
-                          </div>
-                          <div className="flex gap-2 items-center">
-                            <Badge className="text-white px-3 py-1.5 text-xs rounded-sm whitespace-nowrap" style={{ backgroundColor: getStatusColor(booking.status) }}>
-                              {language === 'ar' ? getStatusText(booking.status).ar : getStatusText(booking.status).en}
-                            </Badge>
-                            <Badge className="text-white px-3 py-1.5 text-xs rounded-sm whitespace-nowrap" style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}>
-                              {language === 'ar' ? getPaymentStatusText(booking.payment_status).ar : getPaymentStatusText(booking.payment_status).en}
-                            </Badge>
-                          </div>
-                        </div>
-                        {/* Hotel Name */}
-                        <CardTitle className="text-lg sm:text-xl md:text-2xl pt-2 border-t">
-                          {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
-                        </CardTitle>
+          bookings.length === 0 ? (
+            <Card className="card-luxury">
+              <CardContent className="py-8 text-center">
+                <p className="text-muted-foreground">{t({ ar: "لا توجد حجوزات حتى الآن", en: "No bookings yet", fr: "Aucune réservation pour le moment", es: "Aún no hay reservas", ru: "Пока нет бронирований", id: "Belum ada pemesanan", ms: "Tiada tempahan lagi" })}</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-6">
+              {bookings.map((booking) => (
+                <Card key={booking.id} className="card-luxury w-full max-w-full">
+                  <CardHeader className="pb-4">
+                    <div className="flex flex-col sm:flex-row justify-between items-start gap-3">
+                      <CardTitle className="text-lg sm:text-xl md:text-2xl w-full sm:flex-1">
+                        {language === 'ar' ? booking.hotels?.name_ar : booking.hotels?.name_en}
+                      </CardTitle>
+                      <div className="flex gap-2 flex-wrap items-center w-full sm:w-auto">
+                        <Badge className="text-white px-4 py-2 min-w-[120px] justify-center text-sm rounded-sm flex-1 sm:flex-initial" style={{ backgroundColor: getStatusColor(booking.status) }}>
+                          {language === 'ar' ? getStatusText(booking.status).ar : getStatusText(booking.status).en}
+                        </Badge>
+                        <Badge className="text-white px-4 py-2 min-w-[120px] justify-center text-sm rounded-sm flex-1 sm:flex-initial" style={{ backgroundColor: getPaymentStatusColor(booking.payment_status) }}>
+                          {language === 'ar' ? getPaymentStatusText(booking.payment_status).ar : getPaymentStatusText(booking.payment_status).en}
+                        </Badge>
                       </div>
-                      {booking.hotel_confirmation_number && (
-                        <div className="mt-3">
-                          <div className="inline-block w-full sm:w-auto px-4 py-2 bg-white border-2 border-purple-600 rounded-md">
-                            <span className="text-sm font-semibold text-black">
-                              {t({ ar: "رقم حجز الفندق:", en: "Hotel Booking#:" })} {booking.hotel_confirmation_number}
-                            </span>
-                          </div>
+                    </div>
+                    {booking.hotel_confirmation_number && (
+                      <div className="mt-3">
+                        <div className="inline-block w-full sm:w-auto px-4 py-2 bg-white border-2 border-purple-600 rounded-md">
+                          <span className="text-sm font-semibold text-black">
+                            {t({ ar: "رقم حجز الفندق:", en: "Hotel Booking#:" })} {booking.hotel_confirmation_number}
+                          </span>
                         </div>
-                      )}
-                    </CardHeader>
+                      </div>
+                    )}
+                  </CardHeader>
                     <CardContent className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div className="space-y-3">
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "تاريخ الوصول:", en: "Check-in:" })}</span>
+                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "تاريخ الوصول:", en: "Check-in:", fr: "Arrivée:", es: "Entrada:", ru: "Заезд:", id: "Check-in:", ms: "Daftar masuk:" })}</span>
                           <span className="font-semibold text-sm sm:text-base">{format(new Date(booking.check_in), 'yyyy-MM-dd')}</span>
                         </div>
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "تاريخ المغادرة:", en: "Check-out:" })}</span>
+                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "تاريخ المغادرة:", en: "Check-out:", fr: "Départ:", es: "Salida:", ru: "Выезд:", id: "Check-out:", ms: "Daftar keluar:" })}</span>
                           <span className="font-semibold text-sm sm:text-base">{format(new Date(booking.check_out), 'yyyy-MM-dd')}</span>
                         </div>
                       </div>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "عدد النزلاء:", en: "Guests:" })}</span>
+                          <span className="text-muted-foreground text-sm sm:text-base whitespace-nowrap">{t({ ar: "عدد النزلاء:", en: "Guests:", fr: "Invités:", es: "Huéspedes:", ru: "Гости:", id: "Tamu:", ms: "Tetamu:" })}</span>
                           <span className="font-semibold text-sm sm:text-base">{booking.guests}</span>
                         </div>
                         <div className="flex items-center justify-between gap-2">
@@ -414,27 +356,26 @@ export default function CustomerDashboard() {
                         }}
                       >
                         <Download className="w-4 h-4 mr-2" />
-                        {t({ ar: "تحميل PDF", en: "Download PDF" })}
+                        {t({ ar: "تحميل PDF", en: "Download PDF", fr: "Télécharger PDF", es: "Descargar PDF", ru: "Скачать PDF", id: "Unduh PDF", ms: "Muat turun PDF" })}
                       </Button>
                     </div>
                   </CardContent>
                 </Card>
               ))}
             </div>
-          )}
-          </>
+          )
         ) : (
           <Card className="card-luxury">
             <CardHeader>
-              <CardTitle>{t({ ar: "معلوماتي الشخصية", en: "Personal Information" })}</CardTitle>
+              <CardTitle>{t({ ar: "معلوماتي الشخصية", en: "Personal Information", fr: "Informations personnelles", es: "Información personal", ru: "Личная информация", id: "Informasi Pribadi", ms: "Maklumat Peribadi" })}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">{t({ ar: "البريد الإلكتروني", en: "Email" })}</p>
+                <p className="text-sm text-muted-foreground">{t({ ar: "البريد الإلكتروني", en: "Email", fr: "E-mail", es: "Correo electrónico", ru: "Электронная почта", id: "Email", ms: "E-mel" })}</p>
                 <p className="font-medium">{user.email}</p>
               </div>
               <Button onClick={() => navigate('/reset-password')} className="w-full btn-luxury">
-                {t({ ar: "تغيير كلمة المرور", en: "Change Password" })}
+                {t({ ar: "تغيير كلمة المرور", en: "Change Password", fr: "Changer le mot de passe", es: "Cambiar contraseña", ru: "Изменить пароль", id: "Ubah Kata Sandi", ms: "Tukar Kata Laluan" })}
               </Button>
             </CardContent>
           </Card>
