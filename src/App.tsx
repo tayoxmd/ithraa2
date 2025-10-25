@@ -11,6 +11,7 @@ import { ThemeProviderContext } from "@/contexts/ThemeProviderContext";
 import { MealSettingsProvider } from "@/contexts/MealSettingsContext";
 import { ChatWidget } from "@/components/ChatWidget";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
+import MaintenanceGuard from "@/components/MaintenanceGuard";
 import AdminSettings from "./pages/AdminSettings";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -62,7 +63,8 @@ const RouterWithTheme = () => {
           {/* <OfflineIndicator /> */}
           <LanguageProvider>
             <AuthProvider>
-              <Routes>
+              <MaintenanceGuard>
+                <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
               <Route path="/search" element={<SearchResults />} />
@@ -100,6 +102,7 @@ const RouterWithTheme = () => {
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
+              </MaintenanceGuard>
           </AuthProvider>
         </LanguageProvider>
       </TooltipProvider>

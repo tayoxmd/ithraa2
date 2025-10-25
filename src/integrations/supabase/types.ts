@@ -142,6 +142,42 @@ export type Database = {
         }
         Relationships: []
       }
+      asset_hotfixes: {
+        Row: {
+          action: string
+          applied_by: string | null
+          asset_path: string
+          created_at: string
+          id: string
+          new_url: string | null
+          previous_url: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          action: string
+          applied_by?: string | null
+          asset_path: string
+          created_at?: string
+          id?: string
+          new_url?: string | null
+          previous_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          action?: string
+          applied_by?: string | null
+          asset_path?: string
+          created_at?: string
+          id?: string
+          new_url?: string | null
+          previous_url?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       audit_logs: {
         Row: {
           action: string
@@ -700,6 +736,36 @@ export type Database = {
         }
         Relationships: []
       }
+      deploy_snapshots: {
+        Row: {
+          commit_sha: string
+          created_by: string | null
+          deployed_at: string
+          id: string
+          notes: string | null
+          snapshot_data: Json
+          status: string
+        }
+        Insert: {
+          commit_sha: string
+          created_by?: string | null
+          deployed_at?: string
+          id?: string
+          notes?: string | null
+          snapshot_data: Json
+          status?: string
+        }
+        Update: {
+          commit_sha?: string
+          created_by?: string | null
+          deployed_at?: string
+          id?: string
+          notes?: string | null
+          snapshot_data?: Json
+          status?: string
+        }
+        Relationships: []
+      }
       employee_attendance: {
         Row: {
           attendance_date: string
@@ -1150,6 +1216,84 @@ export type Database = {
           total_spent?: number | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      maintenance_actions: {
+        Row: {
+          action_type: string
+          created_at: string
+          finished_at: string | null
+          id: string
+          ip_address: string | null
+          log: string | null
+          payload: Json | null
+          result: string
+          started_at: string
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          finished_at?: string | null
+          id?: string
+          ip_address?: string | null
+          log?: string | null
+          payload?: Json | null
+          result: string
+          started_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          finished_at?: string | null
+          id?: string
+          ip_address?: string | null
+          log?: string | null
+          payload?: Json | null
+          result?: string
+          started_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      maintenance_state: {
+        Row: {
+          activated_at: string | null
+          activated_by: string | null
+          allow_admin_access: boolean
+          created_at: string
+          deactivated_at: string | null
+          eta_minutes: number | null
+          id: string
+          is_active: boolean
+          message: string | null
+          updated_at: string
+        }
+        Insert: {
+          activated_at?: string | null
+          activated_by?: string | null
+          allow_admin_access?: boolean
+          created_at?: string
+          deactivated_at?: string | null
+          eta_minutes?: number | null
+          id?: string
+          is_active?: boolean
+          message?: string | null
+          updated_at?: string
+        }
+        Update: {
+          activated_at?: string | null
+          activated_by?: string | null
+          allow_admin_access?: boolean
+          created_at?: string
+          deactivated_at?: string | null
+          eta_minutes?: number | null
+          id?: string
+          is_active?: boolean
+          message?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
