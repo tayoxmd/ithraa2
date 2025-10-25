@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Plus } from 'lucide-react';
 import { KanbanTask } from './KanbanTask';
 import type { TaskWithDetails } from '@/types/kanban';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 interface KanbanColumnProps {
   id: string;

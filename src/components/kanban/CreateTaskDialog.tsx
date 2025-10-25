@@ -303,16 +303,13 @@ export function CreateTaskDialog({
             <div className="space-y-2">
               <Label>{t({ ar: 'تعيين إلى', en: 'Assign To' })}</Label>
               <Select
-                value={formData.assigned_to}
-                onValueChange={(value) => setFormData({ ...formData, assigned_to: value })}
+                value={formData.assigned_to || undefined}
+                onValueChange={(value) => setFormData({ ...formData, assigned_to: value || '' })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder={t({ ar: 'اختر موظف', en: 'Select employee' })} />
+                  <SelectValue placeholder={t({ ar: 'غير معين - اختر موظف', en: 'Unassigned - Select employee' })} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">
-                    {t({ ar: 'غير معين', en: 'Unassigned' })}
-                  </SelectItem>
                   {employees.map((emp: any) => (
                     <SelectItem key={emp.user_id} value={emp.user_id}>
                       {emp.full_name || t({ ar: 'غير معروف', en: 'Unknown' })}
