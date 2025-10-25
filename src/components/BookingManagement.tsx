@@ -229,11 +229,6 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
 
       if (error) throw error;
 
-      toast({
-        title: t({ ar: "تم التحديث", en: "Updated" }),
-        description: t({ ar: "تم تحديث حالة الطلب", en: "Booking status updated" }),
-      });
-
       // Log audit event (non-blocking)
       logAuditEvent(
         'update_booking_status',
@@ -242,7 +237,13 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
         { new_status: newStatus }
       ).catch(() => {}); // Ignore audit logging errors
 
-      onUpdate();
+      // Update immediately then refresh
+      await onUpdate();
+
+      toast({
+        title: t({ ar: "تم التحديث", en: "Updated" }),
+        description: t({ ar: "تم تحديث حالة الطلب", en: "Booking status updated" }),
+      });
     } catch (error: any) {
       console.error('Error updating booking status:', error);
       toast({
@@ -271,11 +272,6 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
 
       if (error) throw error;
 
-      toast({
-        title: t({ ar: "تم التحديث", en: "Updated" }),
-        description: t({ ar: "تم تحديث حالة الدفع", en: "Payment status updated" }),
-      });
-
       // Log audit event (non-blocking)
       logAuditEvent(
         'update_payment_status',
@@ -287,7 +283,13 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
         }
       ).catch(() => {}); // Ignore audit logging errors
 
-      onUpdate();
+      // Update immediately then refresh
+      await onUpdate();
+
+      toast({
+        title: t({ ar: "تم التحديث", en: "Updated" }),
+        description: t({ ar: "تم تحديث حالة الدفع", en: "Payment status updated" }),
+      });
     } catch (error: any) {
       console.error('Error updating payment status:', error);
       toast({
@@ -379,11 +381,6 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
 
       if (error) throw error;
 
-      toast({
-        title: t({ ar: "تم التحديث", en: "Updated" }),
-        description: t({ ar: "تم تحديث معلومات الحجز", en: "Booking information updated" }),
-      });
-
       // Log audit event (non-blocking)
       logAuditEvent(
         'update_booking',
@@ -403,7 +400,14 @@ export function BookingManagement({ bookings, onUpdate }: BookingManagementProps
 
       setIsEditDialogOpen(false);
       setSelectedBooking(null);
-      onUpdate();
+      
+      // Update immediately then show toast
+      await onUpdate();
+
+      toast({
+        title: t({ ar: "تم التحديث", en: "Updated" }),
+        description: t({ ar: "تم تحديث معلومات الحجز", en: "Booking information updated" }),
+      });
     } catch (error: any) {
       console.error('Error updating booking:', error);
       toast({
