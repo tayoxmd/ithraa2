@@ -4,13 +4,77 @@ import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Settings, ArrowLeft, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useEffect, useState } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { LoadingSpinner } from '@/components/LoadingSpinner';
 
 export default function TaskManager() {
   const { t } = useLanguage();
-  const { userRole } = useAuth();
+  const { user, userRole } = useAuth();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(true);
+  const [hasAccess, setHasAccess] = useState(false);
 
   const canManageSettings = userRole === 'admin';
+
+  useEffect(() => {
+    checkAccess();
+  }, [user, userRole]);
+
+  const checkAccess = async () => {
+    if (!user) {
+      navigate('/auth');
+      return;
+    }
+
+    try {
+      // Admin, manager, and assistant_manager always have access
+      const hasAdminAccess = ['admin', 'manager', 'assistant_manager'].includes(userRole || '');
+      
+      if (hasAdminAccess) {
+        setHasAccess(true);
+        setLoading(false);
+        return;
+      }
+
+      // Check if user has full task manager access
+      const { data, error } = await supabase
+        .from('task_full_access_users')
+        .select('user_id')
+        .eq('user_id', user.id)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        throw error;
+      }
+
+      if (data) {
+        setHasAccess(true);
+      } else {
+        toast.error(t({ ar: 'ليس لديك صلاحية الوصول لهذه الصفحة', en: 'You do not have access to this page' }));
+        navigate('/my-tasks');
+      }
+    } catch (error) {
+      console.error('Error checking access:', error);
+      toast.error(t({ ar: 'حدث خطأ', en: 'An error occurred' }));
+      navigate('/');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 flex items-center justify-center">
+        <LoadingSpinner size="lg" />
+      </div>
+    );
+  }
+
+  if (!hasAccess) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 bg-gradient-to-br from-background via-muted/30 to-background overflow-hidden">

@@ -149,24 +149,20 @@ export default function TaskAccessControl() {
         </div>
 
         {/* Info Card */}
-        <Card className="mb-6 border-blue-500/20 bg-blue-500/5">
+        <Card className="mb-6 border-green-500/20 bg-green-500/5">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
-              <Users className="w-5 h-5 text-blue-500 mt-0.5" />
+              <Users className="w-5 h-5 text-green-500 mt-0.5" />
               <div className="space-y-2">
                 <p className="text-sm font-medium">
-                  {t({ ar: 'أنواع الصلاحيات:', en: 'Permission Types:' })}
+                  {t({ ar: 'ملاحظة:', en: 'Note:' })}
                 </p>
-                <div className="space-y-1 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                    <span>{t({ ar: 'عرض المهام: يمكن للموظفين رؤية المهام المخصصة لهم فقط', en: 'View Tasks: Staff can see their assigned tasks only' })}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                    <span>{t({ ar: 'الوصول الكامل: يمكن الوصول لصفحة المهام الرئيسية وعرض جميع المهام', en: 'Full Access: Can access main task manager and view all tasks' })}</span>
-                  </div>
-                </div>
+                <p className="text-sm text-muted-foreground">
+                  {t({ 
+                    ar: 'المدير ومدراء الفروع ومساعدو المدراء لديهم صلاحية الوصول الكامل افتراضياً. هذه الصفحة للتحكم بصلاحيات الموظفين الآخرين.',
+                    en: 'Admin, managers, and assistant managers have full access by default. This page controls access for other staff members.'
+                  })}
+                </p>
               </div>
             </div>
           </CardContent>
@@ -211,19 +207,20 @@ export default function TaskAccessControl() {
                         {roleData.canAccessTaskManager && <Shield className="w-4 h-4 text-white" />}
                       </button>
 
-                      <div>
-                        <p className="font-medium">
-                          {language === 'ar' ? roleData.role_name_ar : roleData.role_name_en}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {roleData.canAccessTaskManager 
-                            ? t({ ar: 'وصول كامل', en: 'Full access' })
-                            : roleData.canViewTasks
-                            ? t({ ar: 'عرض المهام فقط', en: 'View tasks only' })
-                            : t({ ar: 'بدون صلاحيات', en: 'No permissions' })
-                          }
-                        </p>
-                      </div>
+                  <div className="flex-1">
+                    <p className="font-medium">
+                      {language === 'ar' ? roleData.role_name_ar : roleData.role_name_en}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {roleData.canAccessTaskManager 
+                        ? t({ ar: 'لديه صلاحية الوصول للمهام', en: 'Has task access' })
+                        : t({ ar: 'ليس لديه صلاحية', en: 'No access' })
+                      }
+                    </p>
+                  </div>
+                  {roleData.canAccessTaskManager && (
+                    <Shield className="w-5 h-5 text-green-500" />
+                  )}
                     </div>
                   </div>
                 ))}

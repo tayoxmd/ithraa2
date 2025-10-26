@@ -75,20 +75,22 @@ export function Header() {
                 {user ? (
                 <>
                   <div className="hidden lg:flex items-center gap-2">
-                    {/* Tasks Button - Green - Only for staff */}
-                    {(userRole === 'admin' || userRole === 'manager' || userRole === 'assistant_manager' || 
-                      userRole === 'employee' || userRole === 'specific_financial_manager' || userRole === 'visa_manager') && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="gap-2 bg-green-500 hover:bg-green-600 text-white border-green-500 relative"
-                        onClick={() => navigate('/my-tasks')}
-                      >
-                        <LayoutDashboard className="w-4 h-4" />
-                        {t({ ar: 'المهام', en: 'Tasks' })}
-                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-                      </Button>
-                    )}
+              {(userRole === 'admin' || userRole === 'manager' || userRole === 'assistant_manager' || 
+                userRole === 'employee' || userRole === 'specific_financial_manager' || userRole === 'visa_manager') && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 bg-green-500 hover:bg-green-600 text-white border-green-500 relative"
+                  onClick={() => navigate('/my-tasks')}
+                >
+                  <LayoutDashboard className="w-4 h-4" />
+                  {t({ ar: 'المهام', en: 'Tasks' })}
+                  <span className="absolute -top-1 -right-1 flex h-3 w-3">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
+                  </span>
+                </Button>
+              )}
 
                     {(userRole === 'admin' || userRole === 'employee') && (
                       <>
@@ -189,7 +191,6 @@ export function Header() {
                 </a>
                 {user ? (
                   <>
-                    {/* Tasks Button - Green - Only for staff */}
                     {(userRole === 'admin' || userRole === 'manager' || userRole === 'assistant_manager' || 
                       userRole === 'employee' || userRole === 'specific_financial_manager' || userRole === 'visa_manager') && (
                       <Button 
@@ -200,7 +201,10 @@ export function Header() {
                       >
                         <LayoutDashboard className="w-4 h-4" />
                         {t({ ar: 'المهام', en: 'Tasks' })}
-                        <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
+                        <span className="absolute top-1 right-1 flex h-2 w-2">
+                          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                          <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                        </span>
                       </Button>
                     )}
                     

@@ -29,7 +29,7 @@ type Task = TaskWithDetails;
 
 export default function MyTasks() {
   const { t } = useLanguage();
-  const { user } = useAuth();
+  const { user, userRole } = useAuth();
   const navigate = useNavigate();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
@@ -55,7 +55,8 @@ export default function MyTasks() {
       navigate('/auth');
       return;
     }
-    fetchTasks();
+    
+    checkAccess();
 
     // Subscribe to realtime updates
     const channel = supabase
@@ -78,6 +79,40 @@ export default function MyTasks() {
       supabase.removeChannel(channel);
     };
   }, [user, navigate]);
+
+  const checkAccess = async () => {
+    if (!user) return;
+    
+    try {
+      // Check if user has task access through full_access_users table or by role
+      const hasAdminAccess = ['admin', 'manager', 'assistant_manager'].includes(userRole || '');
+      
+      if (!hasAdminAccess) {
+        const { data, error } = await supabase
+          .from('task_full_access_users')
+          .select('user_id')
+          .eq('user_id', user.id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error checking access:', error);
+        }
+
+        if (!data && !hasAdminAccess) {
+          // User doesn't have access, redirect to home
+          toast.error(t({ ar: 'ليس لديك صلاحية الوصول للمهام', en: 'You do not have access to tasks' }));
+          navigate('/');
+          return;
+        }
+      }
+
+      // User has access, fetch tasks
+      fetchTasks();
+    } catch (error) {
+      console.error('Error checking access:', error);
+      navigate('/');
+    }
+  };
 
   const fetchTasks = async () => {
     if (!user) return;
