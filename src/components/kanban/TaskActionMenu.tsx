@@ -34,60 +34,45 @@ export function TaskActionMenu({ task, onTaskDeleted, taskRef }: TaskActionMenuP
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
 
-  const shareToWhatsApp = async () => {
+  const shareToWhatsApp = async (e: Event) => {
+    e.stopPropagation();
     try {
-      if (!taskRef?.current) {
-        toast.error(t({ ar: 'خطأ في التقاط الصورة', en: 'Error capturing image' }));
+      // Get assignee phone number
+      const { data: profileData } = await supabase
+        .from('profiles')
+        .select('phone')
+        .eq('id', task.assigned_to)
+        .single();
+
+      if (!profileData?.phone) {
+        toast.error(t({ ar: 'رقم هاتف المسؤول غير متوفر', en: 'Assignee phone number not available' }));
         return;
       }
 
-      const canvas = await html2canvas(taskRef.current, {
-        backgroundColor: '#ffffff',
-        scale: 2,
-      });
-
-      canvas.toBlob(async (blob) => {
-        if (!blob) {
-          toast.error(t({ ar: 'خطأ في إنشاء الصورة', en: 'Error creating image' }));
-          return;
-        }
-
-        // Get assignee phone number
-        const { data: profileData } = await supabase
-          .from('profiles')
-          .select('phone')
-          .eq('id', task.assigned_to)
-          .single();
-
-        if (!profileData?.phone) {
-          toast.error(t({ ar: 'رقم هاتف المسؤول غير متوفر', en: 'Assignee phone number not available' }));
-          return;
-        }
-
-        const file = new File([blob], 'task.png', { type: 'image/png' });
-        const formData = new FormData();
-        formData.append('file', file);
-
-        const taskDetails = `
+      const taskDetails = `
 ${t({ ar: 'مهمة جديدة', en: 'New Task' })}
 ${t({ ar: 'العنوان', en: 'Title' })}: ${task.title}
 ${t({ ar: 'الوصف', en: 'Description' })}: ${task.description || '-'}
 ${t({ ar: 'الحالة', en: 'Status' })}: ${task.status}
 ${t({ ar: 'الأولوية', en: 'Priority' })}: ${task.priority}
-        `.trim();
+      `.trim();
 
-        const whatsappUrl = `https://wa.me/${profileData.phone}?text=${encodeURIComponent(taskDetails)}`;
-        window.open(whatsappUrl, '_blank');
-        
-        toast.success(t({ ar: 'تم فتح واتساب', en: 'WhatsApp opened' }));
-      });
+      const whatsappUrl = `https://wa.me/${profileData.phone}?text=${encodeURIComponent(taskDetails)}`;
+      window.open(whatsappUrl, '_blank');
+      
+      toast.success(t({ ar: 'تم فتح واتساب', en: 'WhatsApp opened' }));
     } catch (error) {
       console.error('Error sharing to WhatsApp:', error);
       toast.error(t({ ar: 'خطأ في المشاركة', en: 'Error sharing task' }));
     }
   };
 
-  const handleArchive = async () => {
+  const handleArchive = async (e: Event) => {
+    e.stopPropagation();
+    setArchiveDialogOpen(true);
+  };
+
+  const confirmArchive = async () => {
     setIsArchiving(true);
     try {
       const { error } = await supabase
@@ -120,14 +105,14 @@ ${t({ ar: 'الأولوية', en: 'Priority' })}: ${task.priority}
             <MoreVertical className="h-3 w-3" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" onClick={(e) => e.stopPropagation()}>
-          <DropdownMenuItem onClick={shareToWhatsApp} className="gap-2">
+        <DropdownMenuContent align="start">
+          <DropdownMenuItem onSelect={shareToWhatsApp} className="gap-2 cursor-pointer">
             <MessageCircle className="h-4 w-4 text-green-500" />
             {t({ ar: 'مشاركة عبر واتساب', en: 'Share via WhatsApp' })}
           </DropdownMenuItem>
           <DropdownMenuItem 
-            onClick={() => setArchiveDialogOpen(true)}
-            className="gap-2 text-orange-600"
+            onSelect={handleArchive}
+            className="gap-2 text-orange-600 cursor-pointer"
           >
             <Archive className="h-4 w-4" />
             {t({ ar: 'أرشفة المهمة', en: 'Archive Task' })}
@@ -153,7 +138,7 @@ ${t({ ar: 'الأولوية', en: 'Priority' })}: ${task.priority}
               {t({ ar: 'إلغاء', en: 'Cancel' })}
             </AlertDialogCancel>
             <AlertDialogAction 
-              onClick={handleArchive}
+              onClick={confirmArchive}
               disabled={isArchiving}
               className="bg-orange-600 hover:bg-orange-700"
             >
