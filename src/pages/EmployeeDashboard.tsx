@@ -32,13 +32,18 @@ export default function EmployeeDashboard() {
     pendingChange: 0
   });
 
+  const [hasPrivateAccountingAccess, setHasPrivateAccountingAccess] = useState(false);
+  const [hasTaskAccess, setHasTaskAccess] = useState(false);
+
   useEffect(() => {
     if (!loading) {
-      const allowedRoles = ['employee', 'assistant_manager', 'company', 'specific_financial_employee', 'visa_employee'];
+      const allowedRoles = ['employee', 'company'];
       if (!allowedRoles.includes(userRole || '')) {
         navigate('/');
       } else {
         fetchBookings();
+        checkPrivateAccountingAccess();
+        checkTaskAccess();
         
         const channel = supabase
           .channel('employee-bookings')
@@ -63,6 +68,44 @@ export default function EmployeeDashboard() {
       }
     }
   }, [userRole, loading, navigate]);
+
+  const checkPrivateAccountingAccess = async () => {
+    if (!user) return;
+    
+    // Check if user is manager/admin
+    if (userRole === 'manager' || userRole === 'admin') {
+      setHasPrivateAccountingAccess(true);
+      return;
+    }
+
+    // Check if user has explicit access
+    const { data } = await supabase
+      .from('private_account_access')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .single();
+
+    setHasPrivateAccountingAccess(!!data);
+  };
+
+  const checkTaskAccess = async () => {
+    if (!user) return;
+    
+    // Check if user is manager/admin
+    if (userRole === 'manager' || userRole === 'admin') {
+      setHasTaskAccess(true);
+      return;
+    }
+
+    // Check if user has explicit access
+    const { data } = await supabase
+      .from('task_full_access_users')
+      .select('user_id')
+      .eq('user_id', user.id)
+      .single();
+
+    setHasTaskAccess(!!data);
+  };
 
   const fetchBookings = async () => {
     try {
@@ -157,17 +200,19 @@ export default function EmployeeDashboard() {
               label={t({ ar: "الرئيسية", en: "Home" })}
               onClick={() => navigate('/')}
             />
-            <NavItem 
-              icon={LayoutDashboard} 
-              label={t({ ar: "المهام", en: "Tasks" })}
-              onClick={() => navigate('/my-tasks')}
-            />
+            {hasTaskAccess && (
+              <NavItem 
+                icon={LayoutDashboard} 
+                label={t({ ar: "المهام", en: "Tasks" })}
+                onClick={() => navigate('/my-tasks')}
+              />
+            )}
             <NavItem 
               icon={LayoutDashboard} 
               label={t({ ar: "الإدارة", en: "Management" })}
               onClick={() => navigate('/employee')}
             />
-            {userRole === 'specific_financial_employee' && (
+            {hasPrivateAccountingAccess && (
               <NavItem 
                 icon={FileText} 
                 label={t({ ar: "الحسابات الخاصة", en: "Private Accounting" })}
@@ -201,15 +246,17 @@ export default function EmployeeDashboard() {
                 <Home className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "الرئيسية", en: "Home" })}</span>
               </Button>
-              <Button onClick={() => navigate('/my-tasks')} variant="outline" className="h-20 flex-col gap-2 rounded-md bg-green-500 hover:bg-green-600 text-white border-green-500">
-                <LayoutDashboard className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "المهام", en: "Tasks" })}</span>
-              </Button>
+              {hasTaskAccess && (
+                <Button onClick={() => navigate('/my-tasks')} variant="outline" className="h-20 flex-col gap-2 rounded-md bg-green-500 hover:bg-green-600 text-white border-green-500">
+                  <LayoutDashboard className="w-5 h-5" />
+                  <span className="text-xs">{t({ ar: "المهام", en: "Tasks" })}</span>
+                </Button>
+              )}
               <Button onClick={() => navigate('/employee')} variant="outline" className="h-20 flex-col gap-2 rounded-md" style={{ backgroundColor: '#237bff', color: 'white', borderColor: '#237bff' }}>
                 <LayoutDashboard className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "الإدارة", en: "Management" })}</span>
               </Button>
-              {userRole === 'specific_financial_employee' ? (
+              {hasPrivateAccountingAccess ? (
                 <Button onClick={() => navigate('/private-accounting')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
                   <FileText className="w-5 h-5" />
                   <span className="text-xs">{t({ ar: "الحسابات الخاصة", en: "Private Accounting" })}</span>

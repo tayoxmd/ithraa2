@@ -56,7 +56,7 @@ export default function PrivateAccountingSettings() {
             roles: userRoles.map(r => r.role)
           };
         }).filter(user => user.roles.length > 0 && user.roles.some(role => 
-          ['manager', 'assistant_manager', 'employee', 'company', 'specific_financial_employee', 'visa_employee'].includes(role)
+          ['manager', 'employee', 'company'].includes(role)
         ));
 
         setUsers(usersWithRoles);
@@ -121,10 +121,8 @@ export default function PrivateAccountingSettings() {
   const getRoleLabel = (role: string) => {
     const roleLabels: Record<string, { ar: string; en: string }> = {
       manager: { ar: 'مدير', en: 'Manager' },
-      assistant_manager: { ar: 'مساعد مدير', en: 'Assistant Manager' },
       employee: { ar: 'موظف', en: 'Employee' },
-      specific_financial_employee: { ar: 'موظف فرع الحسابات الخاصة', en: 'Private Accounts Employee' },
-      visa_employee: { ar: 'موظف فرع التأشيرات', en: 'Visa Employee' }
+      company: { ar: 'شركة', en: 'Company' }
     };
     return t(roleLabels[role] || { ar: role, en: role });
   };
@@ -209,12 +207,12 @@ export default function PrivateAccountingSettings() {
                 <div className="flex items-center gap-2">
                   <Checkbox
                     id={`access-${user.id}`}
-                    checked={accessList.has(user.id) || user.roles.includes('manager') || user.roles.includes('specific_financial_employee')}
-                    disabled={user.roles.includes('manager') || user.roles.includes('specific_financial_employee')}
+                    checked={accessList.has(user.id) || user.roles.includes('manager')}
+                    disabled={user.roles.includes('manager')}
                     onCheckedChange={(checked) => toggleAccess(user.id, checked as boolean)}
                   />
                   <Label htmlFor={`access-${user.id}`} className="cursor-pointer">
-                    {accessList.has(user.id) || user.roles.includes('manager') || user.roles.includes('specific_financial_employee')
+                    {accessList.has(user.id) || user.roles.includes('manager')
                       ? t({ ar: 'لديه صلاحية', en: 'Has Access' })
                       : t({ ar: 'بدون صلاحية', en: 'No Access' })}
                   </Label>

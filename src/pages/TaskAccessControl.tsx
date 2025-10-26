@@ -38,14 +38,11 @@ export default function TaskAccessControl() {
   const fetchUserAccess = async () => {
     try {
       const roleMap = {
-        assistant_manager: { name_ar: 'مساعد مدير', name_en: 'Assistant Manager' },
         employee: { name_ar: 'موظف', name_en: 'Employee' },
-        company: { name_ar: 'شركة', name_en: 'Company' },
-        specific_financial_employee: { name_ar: 'موظف حسابات خاصة', name_en: 'Private Accounting Employee' },
-        visa_employee: { name_ar: 'موظف تأشيرات', name_en: 'Visa Employee' }
+        company: { name_ar: 'شركة', name_en: 'Company' }
       };
 
-      const allowedRoles = ['assistant_manager', 'employee', 'company', 'specific_financial_employee', 'visa_employee'] as const;
+      const allowedRoles = ['employee', 'company'] as const;
 
       // Get all users with allowed roles
       const { data: roleUsers, error: roleError } = await supabase

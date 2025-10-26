@@ -65,14 +65,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUserRole('admin');
     } else if (roles.includes('manager')) {
       setUserRole('manager');
-    } else if (roles.includes('assistant_manager')) {
-      setUserRole('assistant_manager');
     } else if (roles.includes('employee')) {
       setUserRole('employee');
-    } else if (roles.includes('specific_financial_employee')) {
-      setUserRole('specific_financial_employee');
-    } else if (roles.includes('visa_employee')) {
-      setUserRole('visa_employee');
+    } else if (roles.includes('company')) {
+      setUserRole('company');
     } else {
       setUserRole('customer');
     }

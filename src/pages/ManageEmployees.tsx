@@ -358,12 +358,9 @@ export default function ManageEmployees() {
     const labels: Record<string, { ar: string; en: string }> = {
       admin: { ar: "مدير", en: "Admin" },
       manager: { ar: "مدير", en: "Manager" },
-      assistant_manager: { ar: "مساعد مدير", en: "Assistant Manager" },
       employee: { ar: "موظف", en: "Employee" },
       company: { ar: "شركات", en: "Company" },
       customer: { ar: "عميل", en: "Customer" },
-      specific_financial_employee: { ar: "موظف فرع الحسابات الخاصة", en: "Specific Financial Employee" },
-      visa_employee: { ar: "موظف فرع التأشيرات", en: "Visa Department Employee" },
     };
     return language === 'ar' ? labels[role]?.ar || role : labels[role]?.en || role;
   };
@@ -433,10 +430,7 @@ export default function ManageEmployees() {
                         <SelectItem value="customer">{t({ ar: "عميل", en: "Customer" })}</SelectItem>
                         <SelectItem value="company">{t({ ar: "شركات", en: "Company" })}</SelectItem>
                         <SelectItem value="employee">{t({ ar: "موظف", en: "Employee" })}</SelectItem>
-                        <SelectItem value="assistant_manager">{t({ ar: "مساعد مدير", en: "Assistant Manager" })}</SelectItem>
                         <SelectItem value="manager">{t({ ar: "مدير", en: "Manager" })}</SelectItem>
-                        <SelectItem value="specific_financial_employee">{t({ ar: "موظف فرع الحسابات الخاصة", en: "Specific Financial Employee" })}</SelectItem>
-                        <SelectItem value="visa_employee">{t({ ar: "موظف فرع التأشيرات", en: "Visa Department Employee" })}</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -531,11 +525,7 @@ export default function ManageEmployees() {
                     <SelectItem value="customer">{t({ ar: "عميل", en: "Customer" })}</SelectItem>
                     <SelectItem value="employee">{t({ ar: "موظف", en: "Employee" })}</SelectItem>
                     <SelectItem value="admin">{t({ ar: "مدير", en: "Admin" })}</SelectItem>
-                    <SelectItem value="assistant_manager">{t({ ar: "مساعد مدير", en: "Assistant Manager" })}</SelectItem>
                     <SelectItem value="company">{t({ ar: "شركات", en: "Company" })}</SelectItem>
-                    <SelectItem value="specific_financial_employee">{t({ ar: "موظف فرع الحسابات الخاصة", en: "Specific Financial Employee" })}</SelectItem>
-                    <SelectItem value="visa_department_manager">{t({ ar: "مدير فرع التأشيرات", en: "Visa Department Manager" })}</SelectItem>
-                    <SelectItem value="visa_department_employee">{t({ ar: "موظف فرع التأشيرات", en: "Visa Department Employee" })}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

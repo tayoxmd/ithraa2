@@ -30,10 +30,7 @@ export function Header() {
     if (userRole === 'admin') return '/admin';
     if (userRole === 'manager') return '/admin';
     if (userRole === 'employee') return '/employee';
-    if (userRole === 'assistant_manager') return '/employee';
     if (userRole === 'company') return '/employee';
-    if (userRole === 'specific_financial_employee') return '/employee';
-    if (userRole === 'visa_employee') return '/employee';
     return '/dashboard';
   };
 
@@ -80,8 +77,7 @@ export function Header() {
                 {user ? (
                 <>
                   <div className="hidden lg:flex items-center gap-2">
-              {(userRole === 'admin' || userRole === 'manager' || userRole === 'assistant_manager' || 
-                userRole === 'employee') && (
+              {(userRole === 'admin' || userRole === 'manager' || userRole === 'employee' || userRole === 'company') && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -196,8 +192,7 @@ export function Header() {
                 </a>
                 {user ? (
                   <>
-                    {(userRole === 'admin' || userRole === 'manager' || userRole === 'assistant_manager' || 
-                      userRole === 'employee') && (
+                    {(userRole === 'admin' || userRole === 'manager' || userRole === 'employee' || userRole === 'company') && (
                       <Button 
                         variant="outline" 
                         size="sm" 

@@ -84,7 +84,7 @@ export default function EmployeeManagement() {
       const { data: employeeRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id')
-        .in('role', ['employee', 'company', 'assistant_manager', 'specific_financial_employee', 'visa_employee']);
+        .in('role', ['employee', 'company']);
 
       if (rolesError) throw rolesError;
 

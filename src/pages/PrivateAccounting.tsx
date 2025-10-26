@@ -36,7 +36,7 @@ export default function PrivateAccounting() {
     }
 
     // Check if user has access
-    const hasManagerRole = userRole === 'manager' || userRole === 'admin' || userRole === 'specific_financial_employee';
+    const hasManagerRole = userRole === 'manager' || userRole === 'admin';
     
     if (hasManagerRole) {
       setHasAccess(true);

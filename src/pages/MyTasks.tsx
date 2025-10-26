@@ -85,7 +85,7 @@ export default function MyTasks() {
     
     try {
       // Check if user has task access through full_access_users table or by role
-      const hasAdminAccess = ['admin', 'manager', 'assistant_manager'].includes(userRole || '');
+      const hasAdminAccess = ['admin', 'manager'].includes(userRole || '');
       
       if (!hasAdminAccess) {
         const { data, error } = await supabase

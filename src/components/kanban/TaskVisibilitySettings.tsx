@@ -22,8 +22,8 @@ interface TaskVisibilitySettingsProps {
 const AVAILABLE_ROLES = [
   { value: 'admin', label_ar: 'مدير', label_en: 'Admin' },
   { value: 'manager', label_ar: 'مدير عام', label_en: 'Manager' },
-  { value: 'assistant_manager', label_ar: 'مساعد مدير', label_en: 'Assistant Manager' },
   { value: 'employee', label_ar: 'موظف', label_en: 'Employee' },
+  { value: 'company', label_ar: 'شركة', label_en: 'Company' },
 ];
 
 export function TaskVisibilitySettings({ open, onOpenChange }: TaskVisibilitySettingsProps) {
@@ -49,12 +49,12 @@ export function TaskVisibilitySettings({ open, onOpenChange }: TaskVisibilitySet
 
       if (error && error.code !== 'PGRST116') throw error;
 
-      const roles = (data?.task_visible_roles as string[]) || ['admin', 'manager', 'assistant_manager', 'employee'];
+      const roles = (data?.task_visible_roles as string[]) || ['admin', 'manager', 'employee'];
       setSelectedRoles(roles);
     } catch (error: any) {
       console.error('Error loading visibility settings:', error);
       // Default to all roles
-      setSelectedRoles(['admin', 'manager', 'assistant_manager', 'employee']);
+      setSelectedRoles(['admin', 'manager', 'employee']);
     } finally {
       setLoading(false);
     }
