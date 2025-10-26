@@ -56,7 +56,7 @@ export default function PrivateAccountingSettings() {
             roles: userRoles.map(r => r.role)
           };
         }).filter(user => user.roles.length > 0 && user.roles.some(role => 
-          ['manager', 'assistant_manager', 'employee', 'specific_financial_employee', 'visa_employee'].includes(role)
+          ['manager', 'assistant_manager', 'employee', 'company', 'specific_financial_employee', 'visa_employee'].includes(role)
         ));
 
         setUsers(usersWithRoles);

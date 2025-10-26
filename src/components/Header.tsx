@@ -28,7 +28,12 @@ export function Header() {
 
   const getDashboardPath = () => {
     if (userRole === 'admin') return '/admin';
+    if (userRole === 'manager') return '/admin';
     if (userRole === 'employee') return '/employee';
+    if (userRole === 'assistant_manager') return '/employee';
+    if (userRole === 'company') return '/employee';
+    if (userRole === 'specific_financial_employee') return '/employee';
+    if (userRole === 'visa_employee') return '/employee';
     return '/dashboard';
   };
 

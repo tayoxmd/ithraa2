@@ -21,7 +21,7 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .in('role', ['admin','employee','manager','assistant_manager'])
+        .in('role', ['admin','employee','manager','assistant_manager','company','specific_financial_employee','visa_employee'])
         .single();
 
       setIsAuthorized(!!data);
