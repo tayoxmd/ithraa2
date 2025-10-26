@@ -72,6 +72,7 @@ export default function AdminDashboard() {
   const adminMenuItems = [
     { icon: Home, label: t({ ar: 'الصفحة الرئيسية', en: 'Home' }), path: '/' },
     { icon: LayoutDashboard, label: t({ ar: 'إدارة المهام', en: 'Task Manager' }), path: '/task-manager' },
+    { icon: DollarSign, label: t({ ar: 'الحسابات الخاصة', en: 'Private Accounting' }), path: '/private-accounting' },
     { icon: Hotel, label: t({ ar: 'إدارة الفنادق', en: 'Manage Hotels' }), path: '/manage-hotels' },
     { icon: Users, label: t({ ar: 'إدارة المستخدمين', en: 'Manage Users' }), path: '/manage-employees' },
     

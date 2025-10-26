@@ -1555,6 +1555,231 @@ export type Database = {
         }
         Relationships: []
       }
+      private_account_access: {
+        Row: {
+          created_at: string | null
+          granted_by: string | null
+          id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          granted_by?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          granted_by?: string | null
+          id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      private_hotels: {
+        Row: {
+          active: boolean | null
+          city: string | null
+          created_at: string | null
+          id: string
+          location: string | null
+          name_ar: string
+          name_en: string
+          notes: string | null
+          owner_id: string | null
+          total_rooms: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          city?: string | null
+          created_at?: string | null
+          id?: string
+          location?: string | null
+          name_ar: string
+          name_en: string
+          notes?: string | null
+          owner_id?: string | null
+          total_rooms?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          city?: string | null
+          created_at?: string | null
+          id?: string
+          location?: string | null
+          name_ar?: string
+          name_en?: string
+          notes?: string | null
+          owner_id?: string | null
+          total_rooms?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "private_hotels_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "private_owners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      private_owners: {
+        Row: {
+          active: boolean | null
+          address: string | null
+          created_at: string | null
+          email: string | null
+          id: string
+          name_ar: string
+          name_en: string
+          national_id: string | null
+          notes: string | null
+          phone: string
+          updated_at: string | null
+        }
+        Insert: {
+          active?: boolean | null
+          address?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name_ar: string
+          name_en: string
+          national_id?: string | null
+          notes?: string | null
+          phone: string
+          updated_at?: string | null
+        }
+        Update: {
+          active?: boolean | null
+          address?: string | null
+          created_at?: string | null
+          email?: string | null
+          id?: string
+          name_ar?: string
+          name_en?: string
+          national_id?: string | null
+          notes?: string | null
+          phone?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      private_rooms: {
+        Row: {
+          created_at: string | null
+          hotel_id: string
+          id: string
+          notes: string | null
+          price_per_night: number | null
+          room_number: string
+          room_type: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          hotel_id: string
+          id?: string
+          notes?: string | null
+          price_per_night?: number | null
+          room_number: string
+          room_type?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          hotel_id?: string
+          id?: string
+          notes?: string | null
+          price_per_night?: number | null
+          room_number?: string
+          room_type?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "private_rooms_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "private_hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      private_transactions: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          hotel_id: string | null
+          id: string
+          transaction_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          hotel_id?: string | null
+          id?: string
+          transaction_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          hotel_id?: string | null
+          id?: string
+          transaction_type?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "private_transactions_hotel_id_fkey"
+            columns: ["hotel_id"]
+            isOneToOne: false
+            referencedRelation: "private_hotels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      private_vault: {
+        Row: {
+          amount: number | null
+          id: string
+          last_updated: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          amount?: number | null
+          id?: string
+          last_updated?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          amount?: number | null
+          id?: string
+          last_updated?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           commission_percentage: number | null

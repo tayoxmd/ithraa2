@@ -45,7 +45,9 @@ import MyTasks from "./pages/MyTasks";
 import TaskCategoriesSettings from "./pages/TaskCategoriesSettings";
 import TaskSettings from "./pages/TaskSettings";
 import TaskAccessControl from './pages/TaskAccessControl';
-import TaskArchive from './pages/TaskArchive';
+import TaskArchive from "./pages/TaskArchive";
+import PrivateAccounting from "./pages/PrivateAccounting";
+import PrivateAccountingSettings from "./pages/PrivateAccountingSettings";
 import TaskSharingSettings from "./pages/TaskSharingSettings";
 import PermissionsManagement from "./pages/PermissionsManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -79,7 +81,9 @@ const RouterWithTheme = () => {
               <Route path="/task-categories" element={<ProtectedRoute><TaskCategoriesSettings /></ProtectedRoute>} />
               <Route path="/task-settings" element={<ProtectedRoute><TaskSettings /></ProtectedRoute>} />
               <Route path="/task-access-control" element={<ProtectedRoute><TaskAccessControl /></ProtectedRoute>} />
-              <Route path="/task-archive" element={<ProtectedRoute><TaskArchive /></ProtectedRoute>} />
+          <Route path="/task-archive" element={<ProtectedRoute><TaskArchive /></ProtectedRoute>} />
+          <Route path="/private-accounting" element={<ProtectedRoute><PrivateAccounting /></ProtectedRoute>} />
+          <Route path="/private-accounting/settings" element={<ProtectedRoute><PrivateAccountingSettings /></ProtectedRoute>} />
               <Route path="/task-sharing-settings" element={<ProtectedRoute><TaskSharingSettings /></ProtectedRoute>} />
               <Route path="/employee" element={<EmployeeDashboard />} />
               <Route path="/customer-dashboard" element={<CustomerDashboard />} />
