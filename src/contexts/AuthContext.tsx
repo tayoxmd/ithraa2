@@ -59,16 +59,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       .eq('user_id', userId);
 
     const roles = (rolesData || []).map((r: any) => r.role);
-    const adminLike = [
-      'admin',
-      'manager',
-      'assistant_manager',
-      'specific_financial_manager',
-      'visa_manager'
-    ];
-
-    if (roles.some((r: string) => adminLike.includes(r))) {
+    
+    // Set the most privileged role
+    if (roles.includes('admin')) {
       setUserRole('admin');
+    } else if (roles.includes('manager')) {
+      setUserRole('manager');
+    } else if (roles.includes('assistant_manager')) {
+      setUserRole('assistant_manager');
+    } else if (roles.includes('employee')) {
+      setUserRole('employee');
+    } else if (roles.includes('specific_financial_employee')) {
+      setUserRole('specific_financial_employee');
+    } else if (roles.includes('visa_employee')) {
+      setUserRole('visa_employee');
     } else {
       setUserRole('customer');
     }

@@ -157,6 +157,16 @@ export default function EmployeeDashboard() {
               onClick={() => navigate('/')}
             />
             <NavItem 
+              icon={LayoutDashboard} 
+              label={t({ ar: "المهام", en: "Tasks" })}
+              onClick={() => navigate('/my-tasks')}
+            />
+            <NavItem 
+              icon={LayoutDashboard} 
+              label={t({ ar: "الإدارة", en: "Management" })}
+              onClick={() => navigate('/employee')}
+            />
+            <NavItem 
               icon={User} 
               label={t({ ar: "الملف الشخصي", en: "Profile" })}
               onClick={() => navigate('/profile')}
@@ -182,6 +192,14 @@ export default function EmployeeDashboard() {
               <Button onClick={() => navigate('/')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
                 <Home className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "الرئيسية", en: "Home" })}</span>
+              </Button>
+              <Button onClick={() => navigate('/my-tasks')} variant="outline" className="h-20 flex-col gap-2 rounded-md bg-green-500 hover:bg-green-600 text-white border-green-500">
+                <LayoutDashboard className="w-5 h-5" />
+                <span className="text-xs">{t({ ar: "المهام", en: "Tasks" })}</span>
+              </Button>
+              <Button onClick={() => navigate('/employee')} variant="outline" className="h-20 flex-col gap-2 rounded-md" style={{ backgroundColor: '#237bff', color: 'white', borderColor: '#237bff' }}>
+                <LayoutDashboard className="w-5 h-5" />
+                <span className="text-xs">{t({ ar: "الإدارة", en: "Management" })}</span>
               </Button>
               <Button onClick={() => navigate('/profile')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
                 <User className="w-5 h-5" />

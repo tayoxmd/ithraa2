@@ -81,7 +81,7 @@ export function CreateTaskDialog({
       const { data: rolesData, error: rolesError } = await supabase
         .from('user_roles')
         .select('user_id, role, active')
-        .in('role', ['employee', 'admin', 'manager', 'assistant_manager', 'specific_financial_manager', 'visa_manager'])
+        .in('role', ['employee', 'admin', 'manager', 'assistant_manager'])
         .eq('active', true);
       if (rolesError) throw rolesError;
 

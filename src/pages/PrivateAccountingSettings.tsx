@@ -56,7 +56,7 @@ export default function PrivateAccountingSettings() {
             roles: userRoles.map(r => r.role)
           };
         }).filter(user => user.roles.length > 0 && user.roles.some(role => 
-          ['manager', 'assistant_manager', 'employee', 'specific_financial_employee', 'visa_manager', 'visa_employee'].includes(role)
+          ['manager', 'assistant_manager', 'employee', 'specific_financial_employee', 'visa_employee'].includes(role)
         ));
 
         setUsers(usersWithRoles);
@@ -124,7 +124,6 @@ export default function PrivateAccountingSettings() {
       assistant_manager: { ar: 'مساعد مدير', en: 'Assistant Manager' },
       employee: { ar: 'موظف', en: 'Employee' },
       specific_financial_employee: { ar: 'موظف فرع الحسابات الخاصة', en: 'Private Accounts Employee' },
-      visa_manager: { ar: 'مدير فرع التأشيرات', en: 'Visa Manager' },
       visa_employee: { ar: 'موظف فرع التأشيرات', en: 'Visa Employee' }
     };
     return t(roleLabels[role] || { ar: role, en: role });

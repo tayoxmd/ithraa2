@@ -76,7 +76,7 @@ export function Header() {
                 <>
                   <div className="hidden lg:flex items-center gap-2">
               {(userRole === 'admin' || userRole === 'manager' || userRole === 'assistant_manager' || 
-                userRole === 'employee' || userRole === 'specific_financial_manager' || userRole === 'visa_manager') && (
+                userRole === 'employee') && (
                 <Button
                   variant="outline"
                   size="sm"
@@ -192,7 +192,7 @@ export function Header() {
                 {user ? (
                   <>
                     {(userRole === 'admin' || userRole === 'manager' || userRole === 'assistant_manager' || 
-                      userRole === 'employee' || userRole === 'specific_financial_manager' || userRole === 'visa_manager') && (
+                      userRole === 'employee') && (
                       <Button 
                         variant="outline" 
                         size="sm" 
