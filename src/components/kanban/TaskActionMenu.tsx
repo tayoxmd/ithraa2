@@ -20,7 +20,7 @@ import {
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import html2canvas from 'html2canvas';
+
 import type { TaskWithDetails } from '@/types/kanban';
 
 interface TaskActionMenuProps {
@@ -34,8 +34,7 @@ export function TaskActionMenu({ task, onTaskDeleted, taskRef }: TaskActionMenuP
   const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
 
-  const shareToWhatsApp = async (e: Event) => {
-    e.stopPropagation();
+  const shareToWhatsApp = async () => {
     try {
       // Get assignee phone number
       const { data: profileData } = await supabase
@@ -67,8 +66,7 @@ ${t({ ar: 'الأولوية', en: 'Priority' })}: ${task.priority}
     }
   };
 
-  const handleArchive = async (e: Event) => {
-    e.stopPropagation();
+  const handleArchive = async () => {
     setArchiveDialogOpen(true);
   };
 
