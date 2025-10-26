@@ -1,17 +1,14 @@
-import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { ArrowLeft, Settings, Tag, Eye, Shield, Share2 } from 'lucide-react';
-import { TaskVisibilitySettings } from '@/components/kanban/TaskVisibilitySettings';
+import { ArrowLeft, Settings, Users, Shield, Archive } from 'lucide-react';
 
 export default function TaskSettings() {
   const { t } = useLanguage();
   const { userRole } = useAuth();
   const navigate = useNavigate();
-  const [visibilityDialogOpen, setVisibilityDialogOpen] = useState(false);
 
   const canManageSettings = userRole === 'admin';
 
@@ -19,37 +16,6 @@ export default function TaskSettings() {
     navigate('/task-manager');
     return null;
   }
-
-  const settingsCards = [
-    {
-      title: t({ ar: 'التصنيفات', en: 'Categories' }),
-      description: t({ ar: 'إدارة تصنيفات المهام', en: 'Manage task categories' }),
-      icon: Tag,
-      onClick: () => navigate('/task-categories'),
-      color: 'text-blue-500'
-    },
-    {
-      title: t({ ar: 'إعدادات العرض', en: 'Display Settings' }),
-      description: t({ ar: 'تخصيص خيارات العرض والألوان', en: 'Customize display and colors' }),
-      icon: Eye,
-      onClick: () => setVisibilityDialogOpen(true),
-      color: 'text-purple-500'
-    },
-    {
-      title: t({ ar: 'التحكم بالوصول', en: 'Access Control' }),
-      description: t({ ar: 'إدارة صلاحيات الموظفين', en: 'Manage staff permissions' }),
-      icon: Shield,
-      onClick: () => navigate('/task-access-control'),
-      color: 'text-green-500'
-    },
-    {
-      title: t({ ar: 'المشاركة والنشر', en: 'Sharing & Notifications' }),
-      description: t({ ar: 'إعدادات الإشعارات عبر البريد وواتساب', en: 'Email and WhatsApp notifications' }),
-      icon: Share2,
-      onClick: () => navigate('/task-sharing-settings'),
-      color: 'text-orange-500'
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
@@ -79,26 +45,58 @@ export default function TaskSettings() {
         </div>
 
         {/* Settings Cards */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {settingsCards.map((setting, index) => (
-            <Card 
-              key={index}
-              className="hover:shadow-lg transition-all cursor-pointer group"
-              onClick={setting.onClick}
-            >
-              <CardHeader>
-                <div className="flex items-center gap-3">
-                  <div className={`p-3 rounded-lg bg-muted group-hover:scale-110 transition-transform ${setting.color}`}>
-                    <setting.icon className="w-6 h-6" />
-                  </div>
-                  <CardTitle className="text-lg">{setting.title}</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>{setting.description}</CardDescription>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Categories */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/task-categories-settings')}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="w-5 h-5 text-blue-500" />
+                {t({ ar: 'إعدادات الفئات', en: 'Categories Settings' })}
+              </CardTitle>
+              <CardDescription>
+                {t({ ar: 'إدارة فئات المهام', en: 'Manage task categories' })}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          {/* Sharing Settings */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/task-sharing-settings')}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="w-5 h-5 text-green-500" />
+                {t({ ar: 'إعدادات المشاركة', en: 'Sharing Settings' })}
+              </CardTitle>
+              <CardDescription>
+                {t({ ar: 'إعدادات المشاركة التلقائية', en: 'Auto-sharing settings' })}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          {/* Access Control */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/task-access-control')}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Shield className="w-5 h-5 text-purple-500" />
+                {t({ ar: 'التحكم بالوصول', en: 'Access Control' })}
+              </CardTitle>
+              <CardDescription>
+                {t({ ar: 'إدارة صلاحيات الوصول', en: 'Manage access permissions' })}
+              </CardDescription>
+            </CardHeader>
+          </Card>
+
+          {/* Archive */}
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate('/task-archive')}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Archive className="w-5 h-5 text-orange-500" />
+                {t({ ar: 'الأرشيف', en: 'Archive' })}
+              </CardTitle>
+              <CardDescription>
+                {t({ ar: 'المهام المؤرشفة', en: 'Archived tasks' })}
+              </CardDescription>
+            </CardHeader>
+          </Card>
         </div>
 
         {/* Back Button */}
@@ -113,11 +111,6 @@ export default function TaskSettings() {
           </Button>
         </div>
       </div>
-
-      <TaskVisibilitySettings
-        open={visibilityDialogOpen}
-        onOpenChange={setVisibilityDialogOpen}
-      />
     </div>
   );
 }

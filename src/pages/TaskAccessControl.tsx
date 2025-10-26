@@ -9,12 +9,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
 
-interface RoleAccess {
+interface UserAccess {
+  user_id: string;
+  full_name: string;
   role: string;
   role_name_ar: string;
   role_name_en: string;
-  canViewTasks: boolean;
-  canAccessTaskManager: boolean;
+  hasAccess: boolean;
 }
 
 export default function TaskAccessControl() {
@@ -22,85 +23,77 @@ export default function TaskAccessControl() {
   const { userRole } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [roleAccess, setRoleAccess] = useState<RoleAccess[]>([]);
+  const [userAccess, setUserAccess] = useState<UserAccess[]>([]);
 
   const canManage = userRole === 'admin';
 
   useEffect(() => {
     if (!canManage) {
-      navigate('/task-manager');
+      navigate('/task-settings');
       return;
     }
-    fetchRoleAccess();
+    fetchUserAccess();
   }, [canManage, navigate]);
 
-  const fetchRoleAccess = async () => {
+  const fetchUserAccess = async () => {
     try {
-      const roles = [
-        { role: 'employee', name_ar: 'موظف', name_en: 'Employee' },
-        { role: 'specific_financial_manager', name_ar: 'مدير حسابات', name_en: 'Financial Manager' },
-        { role: 'visa_manager', name_ar: 'مدير تأشيرات', name_en: 'Visa Manager' },
-      ];
+      const roleMap = {
+        assistant_manager: { name_ar: 'مساعد مدير', name_en: 'Assistant Manager' },
+        employee: { name_ar: 'موظف', name_en: 'Employee' },
+        company: { name_ar: 'شركة', name_en: 'Company' },
+        specific_financial_employee: { name_ar: 'موظف حسابات خاصة', name_en: 'Financial Employee' },
+        visa_employee: { name_ar: 'موظف تأشيرات', name_en: 'Visa Employee' },
+      };
 
+      const allowedRoles = ['assistant_manager', 'employee', 'company', 'specific_financial_employee', 'visa_employee'] as const;
+
+      // Get all users with allowed roles
+      const { data: roleUsers, error: roleError } = await supabase
+        .from('user_roles')
+        .select('user_id, role, profiles(full_name)')
+        .in('role', allowedRoles)
+        .eq('active', true);
+
+      if (roleError) throw roleError;
+
+      // Get users with full access
       const { data: fullAccessData } = await supabase
         .from('task_full_access_users')
         .select('user_id');
 
       const fullAccessUserIds = new Set(fullAccessData?.map(a => a.user_id) || []);
 
-      const rolesWithAccess: RoleAccess[] = [];
-      for (const role of roles) {
-        const { data: roleUsers } = await supabase
-          .from('user_roles')
-          .select('user_id')
-          .eq('role', role.role as any)
-          .eq('active', true);
+      // Format users with access status
+      const users: UserAccess[] = roleUsers?.map(ru => ({
+        user_id: ru.user_id,
+        full_name: (ru.profiles as any)?.full_name || t({ ar: 'غير معروف', en: 'Unknown' }),
+        role: ru.role,
+        role_name_ar: roleMap[ru.role as keyof typeof roleMap]?.name_ar || ru.role,
+        role_name_en: roleMap[ru.role as keyof typeof roleMap]?.name_en || ru.role,
+        hasAccess: fullAccessUserIds.has(ru.user_id),
+      })) || [];
 
-        const hasAccess = roleUsers?.some(r => fullAccessUserIds.has(r.user_id)) || false;
-        
-        rolesWithAccess.push({
-          role: role.role,
-          role_name_ar: role.name_ar,
-          role_name_en: role.name_en,
-          canViewTasks: hasAccess,
-          canAccessTaskManager: hasAccess,
-        });
-      }
-
-      setRoleAccess(rolesWithAccess);
+      setUserAccess(users);
     } catch (error) {
-      console.error('Error fetching role access:', error);
+      console.error('Error fetching user access:', error);
       toast.error(t({ ar: 'خطأ في جلب البيانات', en: 'Error fetching data' }));
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleRoleAccess = async (role: string) => {
+  const toggleUserAccess = async (userId: string) => {
     try {
-      const { data: roleUsers } = await supabase
-        .from('user_roles')
-        .select('user_id')
-        .eq('role', role as any)
-        .eq('active', true);
-
-      if (!roleUsers || roleUsers.length === 0) {
-        toast.info(t({ ar: 'لا يوجد مستخدمون بهذه الرتبة', en: 'No users with this role' }));
-        return;
-      }
-
-      const userIds = roleUsers.map(r => r.user_id);
-      const currentAccess = roleAccess.find(r => r.role === role)?.canAccessTaskManager;
+      const currentAccess = userAccess.find(u => u.user_id === userId)?.hasAccess;
 
       if (currentAccess) {
-        await supabase.from('task_full_access_users').delete().in('user_id', userIds);
+        await supabase.from('task_full_access_users').delete().eq('user_id', userId);
       } else {
-        const inserts = userIds.map(userId => ({ user_id: userId }));
-        await supabase.from('task_full_access_users').upsert(inserts, { onConflict: 'user_id' });
+        await supabase.from('task_full_access_users').insert({ user_id: userId });
       }
 
-      setRoleAccess(prev => prev.map(r => 
-        r.role === role ? { ...r, canViewTasks: !currentAccess, canAccessTaskManager: !currentAccess } : r
+      setUserAccess(prev => prev.map(u => 
+        u.user_id === userId ? { ...u, hasAccess: !currentAccess } : u
       ));
 
       toast.success(t({ 
@@ -149,18 +142,18 @@ export default function TaskAccessControl() {
         </div>
 
         {/* Info Card */}
-        <Card className="mb-6 border-green-500/20 bg-green-500/5">
+        <Card className="mb-6 border-blue-500/20 bg-blue-500/5">
           <CardContent className="pt-6">
             <div className="flex items-start gap-3">
-              <Users className="w-5 h-5 text-green-500 mt-0.5" />
+              <Users className="w-5 h-5 text-blue-500 mt-0.5" />
               <div className="space-y-2">
                 <p className="text-sm font-medium">
                   {t({ ar: 'ملاحظة:', en: 'Note:' })}
                 </p>
                 <p className="text-sm text-muted-foreground">
                   {t({ 
-                    ar: 'المدير ومدراء الفروع ومساعدو المدراء لديهم صلاحية الوصول الكامل افتراضياً. هذه الصفحة للتحكم بصلاحيات الموظفين الآخرين.',
-                    en: 'Admin, managers, and assistant managers have full access by default. This page controls access for other staff members.'
+                    ar: 'المدير ومدير الفرع لديهم صلاحية الوصول الكامل افتراضياً. هذه الصفحة للتحكم بصلاحيات الموظفين الآخرين.',
+                    en: 'Admin and manager have full access by default. This page controls access for other staff members.'
                   })}
                 </p>
               </div>
@@ -168,11 +161,11 @@ export default function TaskAccessControl() {
           </CardContent>
         </Card>
 
-        {/* Roles List */}
+        {/* Users List */}
         <Card>
           <CardHeader>
             <CardTitle>
-              {t({ ar: 'صلاحيات الرتب الوظيفية', en: 'Role Permissions' })}
+              {t({ ar: 'صلاحيات المستخدمين', en: 'User Permissions' })}
             </CardTitle>
             <CardDescription>
               {t({ 
@@ -182,45 +175,44 @@ export default function TaskAccessControl() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {roleAccess.length === 0 ? (
+            {userAccess.length === 0 ? (
               <p className="text-center text-muted-foreground py-8">
-                {t({ ar: 'لا توجد رتب وظيفية', en: 'No roles found' })}
+                {t({ ar: 'لا يوجد مستخدمون', en: 'No users found' })}
               </p>
             ) : (
               <div className="space-y-3">
-                {roleAccess.map((roleData) => (
+                {userAccess.map((user) => (
                   <div
-                    key={roleData.role}
+                    key={user.user_id}
                     className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
                   >
                     <div className="flex items-center gap-3">
-                      {/* View Tasks Access Circle */}
                       <button
-                        onClick={() => toggleRoleAccess(roleData.role)}
+                        onClick={() => toggleUserAccess(user.user_id)}
                         className={`w-8 h-8 rounded-full border-2 transition-all flex items-center justify-center ${
-                          roleData.canAccessTaskManager 
+                          user.hasAccess 
                             ? 'bg-green-500 border-green-500' 
                             : 'border-muted hover:border-green-500'
                         }`}
                         title={t({ ar: 'الوصول للمهام', en: 'Task Access' })}
                       >
-                        {roleData.canAccessTaskManager && <Shield className="w-4 h-4 text-white" />}
+                        {user.hasAccess && <Eye className="w-4 h-4 text-white" />}
                       </button>
 
-                  <div className="flex-1">
-                    <p className="font-medium">
-                      {language === 'ar' ? roleData.role_name_ar : roleData.role_name_en}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {roleData.canAccessTaskManager 
-                        ? t({ ar: 'لديه صلاحية الوصول للمهام', en: 'Has task access' })
-                        : t({ ar: 'ليس لديه صلاحية', en: 'No access' })
-                      }
-                    </p>
-                  </div>
-                  {roleData.canAccessTaskManager && (
-                    <Shield className="w-5 h-5 text-green-500" />
-                  )}
+                      <div className="flex-1">
+                        <p className="font-medium">{user.full_name}</p>
+                        <p className="text-xs text-muted-foreground">
+                          {language === 'ar' ? user.role_name_ar : user.role_name_en}
+                          {' • '}
+                          {user.hasAccess 
+                            ? t({ ar: 'لديه صلاحية', en: 'Has access' })
+                            : t({ ar: 'ليس لديه صلاحية', en: 'No access' })
+                          }
+                        </p>
+                      </div>
+                      {user.hasAccess && (
+                        <Shield className="w-5 h-5 text-green-500" />
+                      )}
                     </div>
                   </div>
                 ))}

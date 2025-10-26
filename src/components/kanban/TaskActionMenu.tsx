@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MoreVertical, MessageCircle, Trash2 } from 'lucide-react';
+import { MoreVertical, MessageCircle, Archive } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,60 +30,65 @@ interface TaskActionMenuProps {
 }
 
 export function TaskActionMenu({ task, onTaskDeleted, taskRef }: TaskActionMenuProps) {
-  const { t, language } = useLanguage();
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const { t } = useLanguage();
+  const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
 
   const shareToWhatsApp = async () => {
     try {
       if (!taskRef?.current) {
-        toast.error(t({ ar: 'حدث خطأ في تحميل المهمة', en: 'Error loading task' }));
+        toast.error(t({ ar: 'خطأ في التقاط الصورة', en: 'Error capturing image' }));
         return;
       }
 
-      // Capture task card as image
       const canvas = await html2canvas(taskRef.current, {
-        scale: 2,
         backgroundColor: '#ffffff',
-        logging: false,
+        scale: 2,
       });
 
       canvas.toBlob(async (blob) => {
-        if (!blob) return;
-
-        const file = new File([blob], `task-${task.id}.png`, { type: 'image/png' });
-
-        // Get assignee phone
-        let phone = '';
-        if (task.assigned_to) {
-          const { data } = await supabase
-            .from('profiles')
-            .select('phone')
-            .eq('id', task.assigned_to)
-            .single();
-          phone = data?.phone || '';
-        }
-
-        if (!phone) {
-          toast.error(t({ ar: 'رقم الهاتف غير موجود', en: 'Phone number not found' }));
+        if (!blob) {
+          toast.error(t({ ar: 'خطأ في إنشاء الصورة', en: 'Error creating image' }));
           return;
         }
 
-        // Open WhatsApp
-        const text = `${t({ ar: 'مهمة جديدة:', en: 'New Task:' })} ${task.title}`;
-        const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
-        window.open(whatsappUrl, '_blank');
+        // Get assignee phone number
+        const { data: profileData } = await supabase
+          .from('profiles')
+          .select('phone')
+          .eq('id', task.assigned_to)
+          .single();
 
+        if (!profileData?.phone) {
+          toast.error(t({ ar: 'رقم هاتف المسؤول غير متوفر', en: 'Assignee phone number not available' }));
+          return;
+        }
+
+        const file = new File([blob], 'task.png', { type: 'image/png' });
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const taskDetails = `
+${t({ ar: 'مهمة جديدة', en: 'New Task' })}
+${t({ ar: 'العنوان', en: 'Title' })}: ${task.title}
+${t({ ar: 'الوصف', en: 'Description' })}: ${task.description || '-'}
+${t({ ar: 'الحالة', en: 'Status' })}: ${task.status}
+${t({ ar: 'الأولوية', en: 'Priority' })}: ${task.priority}
+        `.trim();
+
+        const whatsappUrl = `https://wa.me/${profileData.phone}?text=${encodeURIComponent(taskDetails)}`;
+        window.open(whatsappUrl, '_blank');
+        
         toast.success(t({ ar: 'تم فتح واتساب', en: 'WhatsApp opened' }));
       });
     } catch (error) {
       console.error('Error sharing to WhatsApp:', error);
-      toast.error(t({ ar: 'حدث خطأ', en: 'An error occurred' }));
+      toast.error(t({ ar: 'خطأ في المشاركة', en: 'Error sharing task' }));
     }
   };
 
-  const handleDelete = async () => {
-    setIsDeleting(true);
+  const handleArchive = async () => {
+    setIsArchiving(true);
     try {
       const { error } = await supabase
         .from('tasks')
@@ -92,14 +97,14 @@ export function TaskActionMenu({ task, onTaskDeleted, taskRef }: TaskActionMenuP
 
       if (error) throw error;
 
-      toast.success(t({ ar: 'تم حذف المهمة', en: 'Task deleted' }));
+      toast.success(t({ ar: 'تمت أرشفة المهمة', en: 'Task archived successfully' }));
+      setArchiveDialogOpen(false);
       onTaskDeleted();
     } catch (error) {
-      console.error('Error deleting task:', error);
-      toast.error(t({ ar: 'حدث خطأ', en: 'An error occurred' }));
+      console.error('Error archiving task:', error);
+      toast.error(t({ ar: 'خطأ في أرشفة المهمة', en: 'Error archiving task' }));
     } finally {
-      setIsDeleting(false);
-      setDeleteDialogOpen(false);
+      setIsArchiving(false);
     }
   };
 
@@ -121,38 +126,38 @@ export function TaskActionMenu({ task, onTaskDeleted, taskRef }: TaskActionMenuP
             {t({ ar: 'مشاركة عبر واتساب', en: 'Share via WhatsApp' })}
           </DropdownMenuItem>
           <DropdownMenuItem 
-            onClick={() => setDeleteDialogOpen(true)}
-            className="gap-2 text-red-500 focus:text-red-500"
+            onClick={() => setArchiveDialogOpen(true)}
+            className="gap-2 text-orange-600"
           >
-            <Trash2 className="h-4 w-4" />
-            {t({ ar: 'حذف المهمة', en: 'Delete Task' })}
+            <Archive className="h-4 w-4" />
+            {t({ ar: 'أرشفة المهمة', en: 'Archive Task' })}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
 
-      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>
         <AlertDialogContent onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>
-              {t({ ar: 'تأكيد الحذف', en: 'Confirm Deletion' })}
+              {t({ ar: 'أرشفة المهمة', en: 'Archive Task' })}
             </AlertDialogTitle>
             <AlertDialogDescription>
               {t({ 
-                ar: 'هل أنت متأكد من حذف هذه المهمة؟ لن تتمكن من التراجع عن هذا الإجراء.',
-                en: 'Are you sure you want to delete this task? This action cannot be undone.'
+                ar: 'هل أنت متأكد من أرشفة هذه المهمة؟ يمكنك الوصول إليها لاحقاً من الأرشيف.',
+                en: 'Are you sure you want to archive this task? You can access it later from the archive.'
               })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>
+            <AlertDialogCancel disabled={isArchiving}>
               {t({ ar: 'إلغاء', en: 'Cancel' })}
             </AlertDialogCancel>
             <AlertDialogAction 
-              onClick={handleDelete}
-              disabled={isDeleting}
-              className="bg-red-500 hover:bg-red-600"
+              onClick={handleArchive}
+              disabled={isArchiving}
+              className="bg-orange-600 hover:bg-orange-700"
             >
-              {isDeleting ? t({ ar: 'جاري الحذف...', en: 'Deleting...' }) : t({ ar: 'حذف', en: 'Delete' })}
+              {isArchiving ? t({ ar: 'جاري الأرشفة...', en: 'Archiving...' }) : t({ ar: 'أرشفة', en: 'Archive' })}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
