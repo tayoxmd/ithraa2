@@ -7,16 +7,6 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -31,7 +21,6 @@ interface TaskActionMenuProps {
 
 export function TaskActionMenu({ task, onTaskDeleted, taskRef }: TaskActionMenuProps) {
   const { t } = useLanguage();
-  const [archiveDialogOpen, setArchiveDialogOpen] = useState(false);
   const [isArchiving, setIsArchiving] = useState(false);
 
   const shareToWhatsApp = async () => {
@@ -66,11 +55,8 @@ ${t({ ar: 'الأولوية', en: 'Priority' })}: ${task.priority}
     }
   };
 
-  const handleArchive = async () => {
-    setArchiveDialogOpen(true);
-  };
-
-  const confirmArchive = async () => {
+  const archiveTask = async () => {
+    if (isArchiving) return;
     setIsArchiving(true);
     try {
       const { error } = await supabase
@@ -81,7 +67,6 @@ ${t({ ar: 'الأولوية', en: 'Priority' })}: ${task.priority}
       if (error) throw error;
 
       toast.success(t({ ar: 'تمت أرشفة المهمة', en: 'Task archived successfully' }));
-      setArchiveDialogOpen(false);
       onTaskDeleted();
     } catch (error) {
       console.error('Error archiving task:', error);
@@ -103,13 +88,18 @@ ${t({ ar: 'الأولوية', en: 'Priority' })}: ${task.priority}
             <MoreVertical className="h-3 w-3" />
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start">
-          <DropdownMenuItem onSelect={shareToWhatsApp} className="gap-2 cursor-pointer">
+        <DropdownMenuContent align="start" className="z-[1000]">
+          <DropdownMenuItem 
+            onSelect={(e) => { e.preventDefault(); shareToWhatsApp(); }}
+            onClick={(e) => { e.preventDefault(); shareToWhatsApp(); }}
+            className="gap-2 cursor-pointer"
+          >
             <MessageCircle className="h-4 w-4 text-green-500" />
             {t({ ar: 'مشاركة عبر واتساب', en: 'Share via WhatsApp' })}
           </DropdownMenuItem>
           <DropdownMenuItem 
-            onSelect={handleArchive}
+            onSelect={(e) => { e.preventDefault(); archiveTask(); }}
+            onClick={(e) => { e.preventDefault(); archiveTask(); }}
             className="gap-2 text-orange-600 cursor-pointer"
           >
             <Archive className="h-4 w-4" />
@@ -117,34 +107,6 @@ ${t({ ar: 'الأولوية', en: 'Priority' })}: ${task.priority}
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
-
-      <AlertDialog open={archiveDialogOpen} onOpenChange={setArchiveDialogOpen}>
-        <AlertDialogContent onClick={(e) => e.stopPropagation()}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>
-              {t({ ar: 'أرشفة المهمة', en: 'Archive Task' })}
-            </AlertDialogTitle>
-            <AlertDialogDescription>
-              {t({ 
-                ar: 'هل أنت متأكد من أرشفة هذه المهمة؟ يمكنك الوصول إليها لاحقاً من الأرشيف.',
-                en: 'Are you sure you want to archive this task? You can access it later from the archive.'
-              })}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={isArchiving}>
-              {t({ ar: 'إلغاء', en: 'Cancel' })}
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmArchive}
-              disabled={isArchiving}
-              className="bg-orange-600 hover:bg-orange-700"
-            >
-              {isArchiving ? t({ ar: 'جاري الأرشفة...', en: 'Archiving...' }) : t({ ar: 'أرشفة', en: 'Archive' })}
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </>
   );
 }
