@@ -34,7 +34,8 @@ export default function EmployeeDashboard() {
 
   useEffect(() => {
     if (!loading) {
-      if (userRole !== 'employee') {
+      const allowedRoles = ['employee', 'assistant_manager', 'company', 'specific_financial_employee', 'visa_employee'];
+      if (!allowedRoles.includes(userRole || '')) {
         navigate('/');
       } else {
         fetchBookings();
@@ -166,6 +167,13 @@ export default function EmployeeDashboard() {
               label={t({ ar: "الإدارة", en: "Management" })}
               onClick={() => navigate('/employee')}
             />
+            {userRole === 'specific_financial_employee' && (
+              <NavItem 
+                icon={FileText} 
+                label={t({ ar: "الحسابات الخاصة", en: "Private Accounting" })}
+                onClick={() => navigate('/private-accounting')}
+              />
+            )}
             <NavItem 
               icon={User} 
               label={t({ ar: "الملف الشخصي", en: "Profile" })}
@@ -201,10 +209,17 @@ export default function EmployeeDashboard() {
                 <LayoutDashboard className="w-5 h-5" />
                 <span className="text-xs">{t({ ar: "الإدارة", en: "Management" })}</span>
               </Button>
-              <Button onClick={() => navigate('/profile')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
-                <User className="w-5 h-5" />
-                <span className="text-xs">{t({ ar: "الملف", en: "Profile" })}</span>
-              </Button>
+              {userRole === 'specific_financial_employee' ? (
+                <Button onClick={() => navigate('/private-accounting')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
+                  <FileText className="w-5 h-5" />
+                  <span className="text-xs">{t({ ar: "الحسابات الخاصة", en: "Private Accounting" })}</span>
+                </Button>
+              ) : (
+                <Button onClick={() => navigate('/profile')} variant="outline" className="h-20 flex-col gap-2 rounded-md">
+                  <User className="w-5 h-5" />
+                  <span className="text-xs">{t({ ar: "الملف", en: "Profile" })}</span>
+                </Button>
+              )}
             </div>
 
             {/* Interactive Stats Dashboard - Mobile */}
