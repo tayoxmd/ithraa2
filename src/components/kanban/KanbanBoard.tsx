@@ -287,6 +287,7 @@ export function KanbanBoard() {
                 color={column.color}
                 onAddTask={() => handleAddTask(column.id as any)}
                 onTaskClick={handleTaskClick}
+                onTaskDeleted={fetchTasks}
               />
             ))}
           </div>

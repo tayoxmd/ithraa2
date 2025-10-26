@@ -13,7 +13,7 @@ export default function TaskSettings() {
   const navigate = useNavigate();
   const [visibilityDialogOpen, setVisibilityDialogOpen] = useState(false);
 
-  const canManageSettings = userRole === 'admin' || userRole === 'manager' || userRole === 'assistant_manager';
+  const canManageSettings = userRole === 'admin';
 
   if (!canManageSettings) {
     navigate('/task-manager');

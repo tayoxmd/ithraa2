@@ -12,8 +12,10 @@ interface KanbanColumnProps {
   title: string;
   tasks: TaskWithDetails[];
   color: string;
-  onAddTask: () => void;
+  onAddTask?: () => void;
   onTaskClick: (task: TaskWithDetails) => void;
+  showAddButton?: boolean;
+  onTaskDeleted?: () => void;
 }
 
 export function KanbanColumn({ 
@@ -22,7 +24,9 @@ export function KanbanColumn({
   tasks, 
   color, 
   onAddTask, 
-  onTaskClick 
+  onTaskClick,
+  showAddButton = true,
+  onTaskDeleted
 }: KanbanColumnProps) {
   const { setNodeRef } = useDroppable({ id });
 
@@ -40,19 +44,21 @@ export function KanbanColumn({
               {tasks.length}
             </Badge>
           </div>
-          <Button 
-            size="sm" 
-            variant="ghost" 
-            className="h-6 w-6 md:h-8 md:w-8 p-0"
-            onClick={onAddTask}
-          >
-            <Plus className="w-3 h-3 md:w-4 md:h-4" />
-          </Button>
+          {showAddButton && onAddTask && (
+            <Button 
+              size="sm" 
+              variant="ghost" 
+              className="h-6 w-6 md:h-8 md:w-8 p-0"
+              onClick={onAddTask}
+            >
+              <Plus className="w-3 h-3 md:w-4 md:h-4" />
+            </Button>
+          )}
         </div>
       </CardHeader>
       <CardContent 
         ref={setNodeRef}
-        className="min-h-[200px] md:min-h-[calc(100vh-180px)] max-h-[calc(100vh-180px)] overflow-y-auto p-2 md:p-4 space-y-2"
+        className="min-h-[200px] md:min-h-[calc(100vh-180px)] max-h-[50vh] md:max-h-[calc(100vh-180px)] overflow-y-auto p-2 md:p-4 space-y-2"
       >
         <SortableContext 
           items={tasks.map(t => t.id)} 
@@ -68,6 +74,7 @@ export function KanbanColumn({
                 key={task.id} 
                 task={task} 
                 onClick={() => onTaskClick(task)}
+                onTaskDeleted={onTaskDeleted}
               />
             ))
           )}

@@ -81,11 +81,12 @@ export function Header() {
                       <Button
                         variant="outline"
                         size="sm"
-                        className="gap-2 bg-green-500 hover:bg-green-600 text-white border-green-500"
+                        className="gap-2 bg-green-500 hover:bg-green-600 text-white border-green-500 relative"
                         onClick={() => navigate('/my-tasks')}
                       >
                         <LayoutDashboard className="w-4 h-4" />
                         {t({ ar: 'المهام', en: 'Tasks' })}
+                        <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full"></span>
                       </Button>
                     )}
 
@@ -194,11 +195,12 @@ export function Header() {
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        className="justify-start gap-2 bg-green-500 hover:bg-green-600 text-white border-green-500"
+                        className="justify-start gap-2 bg-green-500 hover:bg-green-600 text-white border-green-500 relative"
                         onClick={() => navigate('/my-tasks')}
                       >
                         <LayoutDashboard className="w-4 h-4" />
                         {t({ ar: 'المهام', en: 'Tasks' })}
+                        <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full"></span>
                       </Button>
                     )}
                     

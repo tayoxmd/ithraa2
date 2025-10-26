@@ -6,15 +6,19 @@ import { Calendar, MessageSquare, Paperclip, User, DollarSign, Tag } from 'lucid
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useRef } from 'react';
+import { TaskActionMenu } from './TaskActionMenu';
 import type { TaskWithDetails } from '@/types/kanban';
 
 interface KanbanTaskProps {
   task: TaskWithDetails;
   onClick: (task: TaskWithDetails) => void;
+  onTaskDeleted?: () => void;
 }
 
-export function KanbanTask({ task, onClick }: KanbanTaskProps) {
+export function KanbanTask({ task, onClick, onTaskDeleted }: KanbanTaskProps) {
   const { language } = useLanguage();
+  const taskRef = useRef<HTMLDivElement>(null);
   const {
     attributes,
     listeners,
@@ -56,13 +60,25 @@ export function KanbanTask({ task, onClick }: KanbanTaskProps) {
 
   return (
     <Card
-      ref={setNodeRef}
+      ref={(node) => {
+        setNodeRef(node);
+        if (taskRef.current === null && node) {
+          taskRef.current = node;
+        }
+      }}
       style={{ ...style, borderLeftColor: priorityColorMap[task.priority] }}
       {...attributes}
       {...listeners}
-      className="p-2 md:p-3 cursor-grab active:cursor-grabbing hover:shadow-[0_10px_40px_rgba(0,0,0,0.08)] transition-all mb-2.5 border-l-4 bg-card/80 backdrop-blur-sm"
+      className="relative p-2 md:p-3 cursor-grab active:cursor-grabbing hover:shadow-[0_10px_40px_rgba(0,0,0,0.08)] transition-all mb-2.5 border-l-4 bg-card/80 backdrop-blur-sm"
       onClick={() => onClick(task)}
     >
+      {onTaskDeleted && (
+        <TaskActionMenu 
+          task={task} 
+          onTaskDeleted={onTaskDeleted}
+          taskRef={taskRef}
+        />
+      )}
       <div className="space-y-1.5">
         {/* Header: title only */}
         <div className="flex items-start gap-2">
