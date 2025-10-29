@@ -273,95 +273,90 @@ export default function PrivateAccounting() {
               </div>
             </TabsContent>
 
-            <TabsContent value="customers" className="mt-6">
-              <div className="text-center py-12">
-                <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">
-                  {t({ ar: 'إدارة العملاء', en: 'Manage Customers' })}
-                </h3>
-                <p className="text-muted-foreground">
-                  {t({ ar: 'عرض وإدارة جميع عملاء الحسابات الخاصة', en: 'View and manage all private customers' })}
-                </p>
-                <Button 
-                  onClick={() => navigate('/private-accounting/customers')} 
-                  className="mt-4"
-                >
-                  {t({ ar: 'إدارة العملاء', en: 'Manage Customers' })}
-                </Button>
-              </div>
-            </TabsContent>
+<TabsContent value="customers" className="mt-6">
+  <div className="flex items-center justify-end mb-4">
+    <Button onClick={() => navigate('/private-accounting/customers')} className="gap-2">
+      {t({ ar: 'إدارة العملاء', en: 'Manage Customers' })}
+    </Button>
+  </div>
+  <div className="text-center py-12">
+    <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+    <h3 className="text-lg font-semibold mb-2">
+      {t({ ar: 'إدارة العملاء', en: 'Manage Customers' })}
+    </h3>
+    <p className="text-muted-foreground">
+      {t({ ar: 'عرض وإدارة جميع عملاء الحسابات الخاصة', en: 'View and manage all private customers' })}
+    </p>
+  </div>
+</TabsContent>
 
-            <TabsContent value="bookings" className="mt-6">
-              <div className="text-center py-12">
-                <Receipt className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">
-                  {t({ ar: 'إدارة الطلبات', en: 'Manage Bookings' })}
-                </h3>
-                <p className="text-muted-foreground">
-                  {t({ ar: 'عرض وإدارة جميع طلبات الحسابات الخاصة', en: 'View and manage all private bookings' })}
-                </p>
-                <Button 
-                  onClick={() => navigate('/private-accounting/bookings')} 
-                  className="mt-4"
-                >
-                  {t({ ar: 'إدارة الطلبات', en: 'Manage Bookings' })}
-                </Button>
-              </div>
-            </TabsContent>
+<TabsContent value="bookings" className="mt-6">
+  <div className="flex items-center justify-end mb-4">
+    <Button onClick={() => navigate('/private-accounting/bookings')} className="gap-2">
+      {t({ ar: 'إدارة الطلبات', en: 'Manage Bookings' })}
+    </Button>
+  </div>
+  <div className="text-center py-12">
+    <Receipt className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+    <h3 className="text-lg font-semibold mb-2">
+      {t({ ar: 'إدارة الطلبات', en: 'Manage Bookings' })}
+    </h3>
+    <p className="text-muted-foreground">
+      {t({ ar: 'عرض وإدارة جميع طلبات الحسابات الخاصة', en: 'View and manage all private bookings' })}
+    </p>
+  </div>
+</TabsContent>
 
-            <TabsContent value="owners" className="mt-6">
-              <div className="text-center py-12">
-                <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">
-                  {t({ ar: 'إدارة المُلاّك', en: 'Manage Owners' })}
-                </h3>
-                <p className="text-muted-foreground">
-                  {t({ ar: 'عرض وإدارة جميع مُلاّك الفنادق', en: 'View and manage all hotel owners' })}
-                </p>
-                <Button 
-                  onClick={() => navigate('/private-accounting/owners')} 
-                  className="mt-4"
-                >
-                  {t({ ar: 'إدارة المُلاّك', en: 'Manage Owners' })}
-                </Button>
-              </div>
-            </TabsContent>
+<TabsContent value="owners" className="mt-6">
+  <div className="flex items-center justify-end mb-4">
+    <Button onClick={() => navigate('/private-accounting/owners')} className="gap-2">
+      {t({ ar: 'إدارة المُلاّك', en: 'Manage Owners' })}
+    </Button>
+  </div>
+  <div className="text-center py-12">
+    <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+    <h3 className="text-lg font-semibold mb-2">
+      {t({ ar: 'إدارة المُلاّك', en: 'Manage Owners' })}
+    </h3>
+    <p className="text-muted-foreground">
+      {t({ ar: 'عرض وإدارة جميع مُلاّك الفنادق', en: 'View and manage all hotel owners' })}
+    </p>
+  </div>
+</TabsContent>
 
-            <TabsContent value="hotels" className="mt-6">
-              <div className="text-center py-12">
-                <Hotel className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">
-                  {t({ ar: 'إدارة الفنادق', en: 'Manage Hotels' })}
-                </h3>
-                <p className="text-muted-foreground">
-                  {t({ ar: 'عرض وإدارة جميع الفنادق الخاصة', en: 'View and manage all private hotels' })}
-                </p>
-                <Button 
-                  onClick={() => navigate('/private-accounting/hotels')} 
-                  className="mt-4"
-                >
-                  {t({ ar: 'إدارة الفنادق', en: 'Manage Hotels' })}
-                </Button>
-              </div>
-            </TabsContent>
+<TabsContent value="hotels" className="mt-6">
+  <div className="flex items-center justify-end mb-4">
+    <Button onClick={() => navigate('/private-accounting/hotels')} className="gap-2">
+      {t({ ar: 'إدارة الفنادق', en: 'Manage Hotels' })}
+    </Button>
+  </div>
+  <div className="text-center py-12">
+    <Hotel className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+    <h3 className="text-lg font-semibold mb-2">
+      {t({ ar: 'إدارة الفنادق', en: 'Manage Hotels' })}
+    </h3>
+    <p className="text-muted-foreground">
+      {t({ ar: 'عرض وإدارة جميع الفنادق الخاصة', en: 'View and manage all private hotels' })}
+    </p>
+  </div>
+</TabsContent>
 
-            <TabsContent value="rooms" className="mt-6">
-              <div className="text-center py-12">
-                <BedDouble className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">
-                  {t({ ar: 'إدارة الغرف', en: 'Manage Rooms' })}
-                </h3>
-                <p className="text-muted-foreground">
-                  {t({ ar: 'عرض وإدارة جميع الغرف في الفنادق', en: 'View and manage all hotel rooms' })}
-                </p>
-                <Button 
-                  onClick={() => navigate('/private-accounting/rooms')} 
-                  className="mt-4"
-                >
-                  {t({ ar: 'إدارة الغرف', en: 'Manage Rooms' })}
-                </Button>
-              </div>
-            </TabsContent>
+<TabsContent value="rooms" className="mt-6">
+  <div className="flex items-center justify-end mb-4">
+    <Button onClick={() => navigate('/private-accounting/rooms')} className="gap-2">
+      {t({ ar: 'إدارة الغرف', en: 'Manage Rooms' })}
+    </Button>
+  </div>
+  <div className="text-center py-12">
+    <BedDouble className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+    <h3 className="text-lg font-semibold mb-2">
+      {t({ ar: 'إدارة الغرف', en: 'Manage Rooms' })}
+    </h3>
+    <p className="text-muted-foreground">
+      {t({ ar: 'عرض وإدارة جميع الغرف في الفنادق', en: 'View and manage all hotel rooms' })}
+    </p>
+  </div>
+</TabsContent>
 
             <TabsContent value="vault" className="mt-6">
               <div className="text-center py-12">

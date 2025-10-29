@@ -1585,11 +1585,14 @@ export type Database = {
           city: string | null
           created_at: string | null
           id: string
+          is_contract: boolean | null
+          is_temporary: boolean | null
           location: string | null
           name_ar: string
           name_en: string
           notes: string | null
           owner_id: string | null
+          price_per_night: number | null
           total_rooms: number | null
           updated_at: string | null
         }
@@ -1598,11 +1601,14 @@ export type Database = {
           city?: string | null
           created_at?: string | null
           id?: string
+          is_contract?: boolean | null
+          is_temporary?: boolean | null
           location?: string | null
           name_ar: string
           name_en: string
           notes?: string | null
           owner_id?: string | null
+          price_per_night?: number | null
           total_rooms?: number | null
           updated_at?: string | null
         }
@@ -1611,11 +1617,14 @@ export type Database = {
           city?: string | null
           created_at?: string | null
           id?: string
+          is_contract?: boolean | null
+          is_temporary?: boolean | null
           location?: string | null
           name_ar?: string
           name_en?: string
           notes?: string | null
           owner_id?: string | null
+          price_per_night?: number | null
           total_rooms?: number | null
           updated_at?: string | null
         }
@@ -1636,6 +1645,8 @@ export type Database = {
           created_at: string | null
           email: string | null
           id: string
+          is_contract: boolean | null
+          is_temporary: boolean | null
           name_ar: string
           name_en: string
           national_id: string | null
@@ -1649,6 +1660,8 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           id?: string
+          is_contract?: boolean | null
+          is_temporary?: boolean | null
           name_ar: string
           name_en: string
           national_id?: string | null
@@ -1662,6 +1675,8 @@ export type Database = {
           created_at?: string | null
           email?: string | null
           id?: string
+          is_contract?: boolean | null
+          is_temporary?: boolean | null
           name_ar?: string
           name_en?: string
           national_id?: string | null

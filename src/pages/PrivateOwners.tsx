@@ -11,6 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Plus, Edit, Trash2, Users, Search, FileDown } from 'lucide-react';
 import { toast } from 'sonner';
+import { Checkbox } from '@/components/ui/checkbox';
 
 interface Owner {
   id: string;
@@ -22,6 +23,8 @@ interface Owner {
   address?: string;
   notes?: string;
   active: boolean;
+  is_contract?: boolean;
+  is_temporary?: boolean;
   created_at: string;
 }
 
@@ -35,16 +38,18 @@ export default function PrivateOwners() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingOwner, setEditingOwner] = useState<Owner | null>(null);
-  const [formData, setFormData] = useState({
-    name_ar: '',
-    name_en: '',
-    phone: '',
-    email: '',
-    national_id: '',
-    address: '',
-    notes: '',
-    active: true
-  });
+const [formData, setFormData] = useState({
+  name_ar: '',
+  name_en: '',
+  phone: '',
+  email: '',
+  national_id: '',
+  address: '',
+  notes: '',
+  active: true,
+  is_contract: false,
+  is_temporary: false
+});
 
   useEffect(() => {
     if (!user) {
@@ -122,18 +127,20 @@ export default function PrivateOwners() {
   };
 
   const handleEdit = (owner: Owner) => {
-    setEditingOwner(owner);
-    setFormData({
-      name_ar: owner.name_ar,
-      name_en: owner.name_en,
-      phone: owner.phone,
-      email: owner.email || '',
-      national_id: owner.national_id || '',
-      address: owner.address || '',
-      notes: owner.notes || '',
-      active: owner.active
-    });
-    setIsDialogOpen(true);
+setEditingOwner(owner);
+setFormData({
+  name_ar: owner.name_ar,
+  name_en: owner.name_en,
+  phone: owner.phone,
+  email: owner.email || '',
+  national_id: owner.national_id || '',
+  address: owner.address || '',
+  notes: owner.notes || '',
+  active: owner.active,
+  is_contract: !!owner.is_contract,
+  is_temporary: !!owner.is_temporary
+});
+setIsDialogOpen(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -157,26 +164,28 @@ export default function PrivateOwners() {
   };
 
   const resetForm = () => {
-    setFormData({
-      name_ar: '',
-      name_en: '',
-      phone: '',
-      email: '',
-      national_id: '',
-      address: '',
-      notes: '',
-      active: true
-    });
+setFormData({
+  name_ar: '',
+  name_en: '',
+  phone: '',
+  email: '',
+  national_id: '',
+  address: '',
+  notes: '',
+  active: true,
+  is_contract: false,
+  is_temporary: false
+});
   };
 
   const exportToCSV = () => {
-    const headers = ['الاسم عربي', 'الاسم انجليزي', 'الهاتف', 'البريد', 'رقم الهوية', 'العنوان'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredOwners.map(o => 
-        [o.name_ar, o.name_en, o.phone, o.email || '', o.national_id || '', o.address || ''].join(',')
-      )
-    ].join('\n');
+const headers = ['الاسم عربي', 'الاسم انجليزي', 'الهاتف', 'البريد', 'رقم الهوية', 'العنوان', 'بعقد', 'مؤقت'];
+const csvContent = [
+  headers.join(','),
+  ...filteredOwners.map(o => 
+    [o.name_ar, o.name_en, o.phone, o.email || '', o.national_id || '', o.address || '', o.is_contract ? 'نعم' : 'لا', o.is_temporary ? 'نعم' : 'لا'].join(',')
+  )
+].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -250,9 +259,15 @@ export default function PrivateOwners() {
             <Card key={owner.id} className="p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <h3 className="text-lg font-bold mb-2">
-                    {language === 'ar' ? owner.name_ar : owner.name_en}
-                  </h3>
+<h3 className="text-lg font-bold mb-2 flex items-center gap-2">
+  {language === 'ar' ? owner.name_ar : owner.name_en}
+  {owner.is_contract && (
+    <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">{t({ ar: 'بعقد', en: 'Contract' })}</span>
+  )}
+  {owner.is_temporary && (
+    <span className="text-xs px-2 py-1 rounded bg-orange-100 text-orange-700">{t({ ar: 'مؤقت', en: 'Temporary' })}</span>
+  )}
+</h3>
                   <div className="space-y-1 text-sm text-muted-foreground">
                     <p><span className="font-medium">{t({ ar: 'الهاتف:', en: 'Phone:' })}</span> {owner.phone}</p>
                     {owner.email && (
@@ -337,13 +352,31 @@ export default function PrivateOwners() {
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 />
               </div>
-              <div>
-                <Label>{t({ ar: 'رقم الهوية', en: 'National ID' })}</Label>
-                <Input
-                  value={formData.national_id}
-                  onChange={(e) => setFormData({ ...formData, national_id: e.target.value })}
-                />
-              </div>
+<div>
+  <Label>{t({ ar: 'رقم الهوية', en: 'National ID' })}</Label>
+  <Input
+    value={formData.national_id}
+    onChange={(e) => setFormData({ ...formData, national_id: e.target.value })}
+  />
+</div>
+<div className="flex items-center gap-6">
+  <label className="flex items-center gap-2 text-sm">
+    <input
+      type="checkbox"
+      checked={formData.is_contract}
+      onChange={(e) => setFormData({ ...formData, is_contract: e.target.checked })}
+    />
+    {t({ ar: 'مالك بعقد', en: 'Contract Owner' })}
+  </label>
+  <label className="flex items-center gap-2 text-sm">
+    <input
+      type="checkbox"
+      checked={formData.is_temporary}
+      onChange={(e) => setFormData({ ...formData, is_temporary: e.target.checked })}
+    />
+    {t({ ar: 'مالك مؤقت', en: 'Temporary Owner' })}
+  </label>
+</div>
               <div>
                 <Label>{t({ ar: 'العنوان', en: 'Address' })}</Label>
                 <Textarea

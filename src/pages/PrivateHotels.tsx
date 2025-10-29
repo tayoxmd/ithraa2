@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Plus, Edit, Trash2, Hotel, Search, FileDown } from 'lucide-react';
 import { toast } from 'sonner';
@@ -19,12 +20,13 @@ interface PrivateHotel {
   name_en: string;
   location: string;
   city: string;
-  contract_type: 'contract' | 'temporary';
   price_per_night: number;
   owner_id?: string;
   owner_name?: string;
   total_rooms: number;
   active: boolean;
+  is_contract: boolean;
+  is_temporary: boolean;
   created_at: string;
 }
 
@@ -39,17 +41,18 @@ export default function PrivateHotels() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingHotel, setEditingHotel] = useState<PrivateHotel | null>(null);
   const [owners, setOwners] = useState<any[]>([]);
-  const [formData, setFormData] = useState({
-    name_ar: '',
-    name_en: '',
-    location: '',
-    city: '',
-    contract_type: 'contract' as 'contract' | 'temporary',
-    price_per_night: '',
-    owner_id: '',
-    total_rooms: '10',
-    active: true
-  });
+const [formData, setFormData] = useState({
+  name_ar: '',
+  name_en: '',
+  location: '',
+  city: '',
+  price_per_night: '',
+  owner_id: '',
+  total_rooms: '10',
+  active: true,
+  is_contract: false,
+  is_temporary: false
+});
 
   useEffect(() => {
     if (!user) {
@@ -121,11 +124,18 @@ export default function PrivateHotels() {
         return;
       }
 
-      const hotelData = {
-        ...formData,
-        price_per_night: parseFloat(formData.price_per_night) || 0,
-        total_rooms: parseInt(formData.total_rooms) || 10
-      };
+const hotelData = {
+  name_ar: formData.name_ar,
+  name_en: formData.name_en,
+  location: formData.location,
+  city: formData.city,
+  price_per_night: parseFloat(formData.price_per_night) || 0,
+  owner_id: formData.owner_id || null,
+  total_rooms: parseInt(formData.total_rooms) || 10,
+  active: formData.active,
+  is_contract: formData.is_contract,
+  is_temporary: formData.is_temporary
+};
 
       if (editingHotel) {
         const { error } = await supabase
@@ -155,19 +165,20 @@ export default function PrivateHotels() {
   };
 
   const handleEdit = (hotel: PrivateHotel) => {
-    setEditingHotel(hotel);
-    setFormData({
-      name_ar: hotel.name_ar,
-      name_en: hotel.name_en,
-      location: hotel.location,
-      city: hotel.city,
-      contract_type: hotel.contract_type,
-      price_per_night: hotel.price_per_night.toString(),
-      owner_id: hotel.owner_id || '',
-      total_rooms: hotel.total_rooms.toString(),
-      active: hotel.active
-    });
-    setIsDialogOpen(true);
+setEditingHotel(hotel);
+setFormData({
+  name_ar: hotel.name_ar,
+  name_en: hotel.name_en,
+  location: hotel.location,
+  city: hotel.city,
+  price_per_night: hotel.price_per_night?.toString() || '',
+  owner_id: hotel.owner_id || '',
+  total_rooms: hotel.total_rooms?.toString() || '10',
+  active: hotel.active,
+  is_contract: !!hotel.is_contract,
+  is_temporary: !!hotel.is_temporary
+});
+setIsDialogOpen(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -191,27 +202,28 @@ export default function PrivateHotels() {
   };
 
   const resetForm = () => {
-    setFormData({
-      name_ar: '',
-      name_en: '',
-      location: '',
-      city: '',
-      contract_type: 'contract',
-      price_per_night: '',
-      owner_id: '',
-      total_rooms: '10',
-      active: true
-    });
+setFormData({
+  name_ar: '',
+  name_en: '',
+  location: '',
+  city: '',
+  price_per_night: '',
+  owner_id: '',
+  total_rooms: '10',
+  active: true,
+  is_contract: false,
+  is_temporary: false
+});
   };
 
   const exportToCSV = () => {
-    const headers = ['الاسم عربي', 'الاسم انجليزي', 'الموقع', 'المدينة', 'نوع العقد', 'السعر', 'المالك'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredHotels.map(h => 
-        [h.name_ar, h.name_en, h.location, h.city, h.contract_type, h.price_per_night, h.owner_name || ''].join(',')
-      )
-    ].join('\n');
+const headers = ['الاسم عربي', 'الاسم انجليزي', 'الموقع', 'المدينة', 'بعقد', 'مؤقت', 'السعر', 'المالك'];
+const csvContent = [
+  headers.join(','),
+  ...filteredHotels.map(h => 
+    [h.name_ar, h.name_en, h.location, h.city, h.is_contract ? 'نعم' : 'لا', h.is_temporary ? 'نعم' : 'لا', h.price_per_night, h.owner_name || ''].join(',')
+  )
+].join('\n');
 
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -285,20 +297,21 @@ export default function PrivateHotels() {
             <Card key={hotel.id} className="p-6 hover:shadow-lg transition-shadow">
               <div className="flex items-start justify-between">
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h3 className="text-lg font-bold">
-                      {language === 'ar' ? hotel.name_ar : hotel.name_en}
-                    </h3>
-                    <span className={`text-xs px-2 py-1 rounded ${
-                      hotel.contract_type === 'contract' 
-                        ? 'bg-blue-100 text-blue-700' 
-                        : 'bg-orange-100 text-orange-700'
-                    }`}>
-                      {hotel.contract_type === 'contract' 
-                        ? t({ ar: 'بعقد', en: 'Contract' })
-                        : t({ ar: 'مؤقت', en: 'Temporary' })}
-                    </span>
-                  </div>
+<div className="flex items-center gap-2 mb-2">
+  <h3 className="text-lg font-bold">
+    {language === 'ar' ? hotel.name_ar : hotel.name_en}
+  </h3>
+  {hotel.is_contract && (
+    <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">
+      {t({ ar: 'بعقد', en: 'Contract' })}
+    </span>
+  )}
+  {hotel.is_temporary && (
+    <span className="text-xs px-2 py-1 rounded bg-orange-100 text-orange-700">
+      {t({ ar: 'مؤقت', en: 'Temporary' })}
+    </span>
+  )}
+</div>
                   <div className="space-y-1 text-sm text-muted-foreground">
                     <p><span className="font-medium">{t({ ar: 'الموقع:', en: 'Location:' })}</span> {hotel.location}</p>
                     <p><span className="font-medium">{t({ ar: 'المدينة:', en: 'City:' })}</span> {hotel.city}</p>
@@ -365,23 +378,25 @@ export default function PrivateHotels() {
                   />
                 </div>
               </div>
-              <div>
-                <Label>{t({ ar: 'نوع الفندق', en: 'Hotel Type' })}</Label>
-                <Select
-                  value={formData.contract_type}
-                  onValueChange={(value: 'contract' | 'temporary') => 
-                    setFormData({ ...formData, contract_type: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="contract">{t({ ar: 'فندق بعقد', en: 'Contract Hotel' })}</SelectItem>
-                    <SelectItem value="temporary">{t({ ar: 'فندق مؤقت', en: 'Temporary Hotel' })}</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+<div>
+  <Label>{t({ ar: 'نوع الفندق', en: 'Hotel Type' })}</Label>
+  <div className="flex items-center gap-6 py-2">
+    <label className="flex items-center gap-2 text-sm">
+      <Checkbox
+        checked={formData.is_contract}
+        onCheckedChange={(checked) => setFormData({ ...formData, is_contract: Boolean(checked) })}
+      />
+      {t({ ar: 'بعقد', en: 'Contract' })}
+    </label>
+    <label className="flex items-center gap-2 text-sm">
+      <Checkbox
+        checked={formData.is_temporary}
+        onCheckedChange={(checked) => setFormData({ ...formData, is_temporary: Boolean(checked) })}
+      />
+      {t({ ar: 'مؤقت', en: 'Temporary' })}
+    </label>
+  </div>
+</div>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label>{t({ ar: 'الموقع', en: 'Location' })}</Label>
@@ -425,13 +440,18 @@ export default function PrivateHotels() {
                   <SelectTrigger>
                     <SelectValue placeholder={t({ ar: 'اختر المالك', en: 'Select Owner' })} />
                   </SelectTrigger>
-                  <SelectContent>
-                    {owners.map(owner => (
-                      <SelectItem key={owner.id} value={owner.id}>
-                        {language === 'ar' ? owner.name_ar : owner.name_en}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
+<SelectContent>
+  {(owners as any[])
+    .filter((owner: any) => {
+      if (!formData.is_contract && !formData.is_temporary) return true;
+      return (formData.is_contract && owner.is_contract) || (formData.is_temporary && owner.is_temporary);
+    })
+    .map(owner => (
+      <SelectItem key={owner.id} value={owner.id}>
+        {language === 'ar' ? owner.name_ar : owner.name_en}
+      </SelectItem>
+    ))}
+</SelectContent>
                 </Select>
               </div>
             </div>
