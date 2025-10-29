@@ -48,6 +48,11 @@ import TaskAccessControl from './pages/TaskAccessControl';
 import TaskArchive from "./pages/TaskArchive";
 import PrivateAccounting from "./pages/PrivateAccounting";
 import PrivateAccountingSettings from "./pages/PrivateAccountingSettings";
+import PrivateCustomers from "./pages/PrivateCustomers";
+import PrivateBookings from "./pages/PrivateBookings";
+import PrivateHotels from "./pages/PrivateHotels";
+import PrivateOwners from "./pages/PrivateOwners";
+import PrivateRooms from "./pages/PrivateRooms";
 import TaskSharingSettings from "./pages/TaskSharingSettings";
 import PermissionsManagement from "./pages/PermissionsManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -84,6 +89,11 @@ const RouterWithTheme = () => {
           <Route path="/task-archive" element={<ProtectedRoute><TaskArchive /></ProtectedRoute>} />
           <Route path="/private-accounting" element={<ProtectedRoute><PrivateAccounting /></ProtectedRoute>} />
           <Route path="/private-accounting/settings" element={<ProtectedRoute><PrivateAccountingSettings /></ProtectedRoute>} />
+          <Route path="/private-accounting/customers" element={<ProtectedRoute><PrivateCustomers /></ProtectedRoute>} />
+          <Route path="/private-accounting/bookings" element={<ProtectedRoute><PrivateBookings /></ProtectedRoute>} />
+          <Route path="/private-accounting/hotels" element={<ProtectedRoute><PrivateHotels /></ProtectedRoute>} />
+          <Route path="/private-accounting/owners" element={<ProtectedRoute><PrivateOwners /></ProtectedRoute>} />
+          <Route path="/private-accounting/rooms" element={<ProtectedRoute><PrivateRooms /></ProtectedRoute>} />
               <Route path="/task-sharing-settings" element={<ProtectedRoute><TaskSharingSettings /></ProtectedRoute>} />
               <Route path="/employee" element={<EmployeeDashboard />} />
               <Route path="/customer-dashboard" element={<CustomerDashboard />} />

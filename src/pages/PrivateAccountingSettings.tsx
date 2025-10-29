@@ -5,10 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Shield, Users } from 'lucide-react';
+import { ArrowLeft, Shield, Users, FileSpreadsheet } from 'lucide-react';
 import { toast } from 'sonner';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { GoogleSheetsUploader } from '@/components/GoogleSheetsUploader';
 
 export default function PrivateAccountingSettings() {
   const { t } = useLanguage();
@@ -161,75 +163,135 @@ export default function PrivateAccountingSettings() {
           </div>
         </div>
 
-        {/* Access Control */}
-        <Card className="p-6">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Shield className="h-5 w-5 text-primary" />
-            </div>
-            <div>
-              <h2 className="text-xl font-bold">
-                {t({ ar: 'صلاحية الوصول', en: 'Access Control' })}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {t({ ar: 'اختر المستخدمين الذين يمكنهم الوصول إلى الحسابات الخاصة', en: 'Select users who can access private accounting' })}
-              </p>
-            </div>
-          </div>
+        {/* Settings Tabs */}
+        <Tabs defaultValue="access" className="w-full">
+          <TabsList className="grid w-full grid-cols-4 mb-6">
+            <TabsTrigger value="access" className="gap-2">
+              <Shield className="h-4 w-4" />
+              {t({ ar: 'الصلاحيات', en: 'Access' })}
+            </TabsTrigger>
+            <TabsTrigger value="customers" className="gap-2">
+              <FileSpreadsheet className="h-4 w-4" />
+              {t({ ar: 'رفع العملاء', en: 'Upload Customers' })}
+            </TabsTrigger>
+            <TabsTrigger value="hotels" className="gap-2">
+              <FileSpreadsheet className="h-4 w-4" />
+              {t({ ar: 'رفع الفنادق', en: 'Upload Hotels' })}
+            </TabsTrigger>
+            <TabsTrigger value="owners" className="gap-2">
+              <FileSpreadsheet className="h-4 w-4" />
+              {t({ ar: 'رفع الملاك', en: 'Upload Owners' })}
+            </TabsTrigger>
+          </TabsList>
 
-          <div className="space-y-4">
-            {users.map(user => (
-              <div
-                key={user.id}
-                className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors"
-              >
-                <div className="flex items-center gap-4">
-                  <div className="flex-shrink-0">
-                    <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
-                      <Users className="h-5 w-5 text-primary" />
-                    </div>
-                  </div>
-                  <div>
-                    <p className="font-medium">{user.full_name}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <p className="text-sm text-muted-foreground">{user.phone}</p>
-                      <span className="text-muted-foreground">•</span>
-                      <div className="flex gap-1 flex-wrap">
-                        {user.roles.map((role: string, index: number) => (
-                          <span key={index} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
-                            {getRoleLabel(role)}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+          {/* Access Control Tab */}
+          <TabsContent value="access">
+            <Card className="p-6">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <Shield className="h-5 w-5 text-primary" />
                 </div>
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id={`access-${user.id}`}
-                    checked={accessList.has(user.id) || user.roles.includes('manager')}
-                    disabled={user.roles.includes('manager')}
-                    onCheckedChange={(checked) => toggleAccess(user.id, checked as boolean)}
-                  />
-                  <Label htmlFor={`access-${user.id}`} className="cursor-pointer">
-                    {accessList.has(user.id) || user.roles.includes('manager')
-                      ? t({ ar: 'لديه صلاحية', en: 'Has Access' })
-                      : t({ ar: 'بدون صلاحية', en: 'No Access' })}
-                  </Label>
+                <div>
+                  <h2 className="text-xl font-bold">
+                    {t({ ar: 'صلاحية الوصول', en: 'Access Control' })}
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    {t({ ar: 'اختر المستخدمين الذين يمكنهم الوصول إلى الحسابات الخاصة', en: 'Select users who can access private accounting' })}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
 
-          {users.length === 0 && (
-            <div className="text-center py-12">
-              <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
-              <p className="text-muted-foreground">
-                {t({ ar: 'لا يوجد مستخدمون', en: 'No users found' })}
-              </p>
-            </div>
-          )}
-        </Card>
+              <div className="space-y-4">
+                {users.map(user => (
+                  <div
+                    key={user.id}
+                    className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/5 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="flex-shrink-0">
+                        <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <Users className="h-5 w-5 text-primary" />
+                        </div>
+                      </div>
+                      <div>
+                        <p className="font-medium">{user.full_name}</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <p className="text-sm text-muted-foreground">{user.phone}</p>
+                          <span className="text-muted-foreground">•</span>
+                          <div className="flex gap-1 flex-wrap">
+                            {user.roles.map((role: string, index: number) => (
+                              <span key={index} className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full">
+                                {getRoleLabel(role)}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Checkbox
+                        id={`access-${user.id}`}
+                        checked={accessList.has(user.id) || user.roles.includes('manager')}
+                        disabled={user.roles.includes('manager')}
+                        onCheckedChange={(checked) => toggleAccess(user.id, checked as boolean)}
+                      />
+                      <Label htmlFor={`access-${user.id}`} className="cursor-pointer">
+                        {accessList.has(user.id) || user.roles.includes('manager')
+                          ? t({ ar: 'لديه صلاحية', en: 'Has Access' })
+                          : t({ ar: 'بدون صلاحية', en: 'No Access' })}
+                      </Label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {users.length === 0 && (
+                <div className="text-center py-12">
+                  <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-muted-foreground">
+                    {t({ ar: 'لا يوجد مستخدمون', en: 'No users found' })}
+                  </p>
+                </div>
+              )}
+            </Card>
+          </TabsContent>
+
+          {/* Customers Upload Tab */}
+          <TabsContent value="customers">
+            <GoogleSheetsUploader
+              title={t({ ar: 'رفع بيانات العملاء', en: 'Upload Customers Data' })}
+              description={t({ ar: 'قم برفع بيانات العملاء من Google Sheets أو ملف CSV', en: 'Upload customer data from Google Sheets or CSV file' })}
+              onUpload={async (data) => {
+                const { error } = await supabase.from('private_customers' as any).insert(data);
+                if (error) throw error;
+              }}
+            />
+          </TabsContent>
+
+          {/* Hotels Upload Tab */}
+          <TabsContent value="hotels">
+            <GoogleSheetsUploader
+              title={t({ ar: 'رفع بيانات الفنادق', en: 'Upload Hotels Data' })}
+              description={t({ ar: 'قم برفع بيانات الفنادق من Google Sheets أو ملف CSV', en: 'Upload hotel data from Google Sheets or CSV file' })}
+              onUpload={async (data) => {
+                const { error } = await supabase.from('private_hotels' as any).insert(data);
+                if (error) throw error;
+              }}
+            />
+          </TabsContent>
+
+          {/* Owners Upload Tab */}
+          <TabsContent value="owners">
+            <GoogleSheetsUploader
+              title={t({ ar: 'رفع بيانات الملاك', en: 'Upload Owners Data' })}
+              description={t({ ar: 'قم برفع بيانات الملاك من Google Sheets أو ملف CSV', en: 'Upload owner data from Google Sheets or CSV file' })}
+              onUpload={async (data) => {
+                const { error } = await supabase.from('private_owners' as any).insert(data);
+                if (error) throw error;
+              }}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

@@ -318,6 +318,12 @@ export default function PrivateAccounting() {
                 <p className="text-muted-foreground">
                   {t({ ar: 'عرض وإدارة جميع مُلاّك الفنادق', en: 'View and manage all hotel owners' })}
                 </p>
+                <Button 
+                  onClick={() => navigate('/private-accounting/owners')} 
+                  className="mt-4"
+                >
+                  {t({ ar: 'إدارة المُلاّك', en: 'Manage Owners' })}
+                </Button>
               </div>
             </TabsContent>
 
@@ -330,6 +336,12 @@ export default function PrivateAccounting() {
                 <p className="text-muted-foreground">
                   {t({ ar: 'عرض وإدارة جميع الفنادق الخاصة', en: 'View and manage all private hotels' })}
                 </p>
+                <Button 
+                  onClick={() => navigate('/private-accounting/hotels')} 
+                  className="mt-4"
+                >
+                  {t({ ar: 'إدارة الفنادق', en: 'Manage Hotels' })}
+                </Button>
               </div>
             </TabsContent>
 
@@ -342,6 +354,12 @@ export default function PrivateAccounting() {
                 <p className="text-muted-foreground">
                   {t({ ar: 'عرض وإدارة جميع الغرف في الفنادق', en: 'View and manage all hotel rooms' })}
                 </p>
+                <Button 
+                  onClick={() => navigate('/private-accounting/rooms')} 
+                  className="mt-4"
+                >
+                  {t({ ar: 'إدارة الغرف', en: 'Manage Rooms' })}
+                </Button>
               </div>
             </TabsContent>
 
