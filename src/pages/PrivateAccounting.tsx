@@ -230,10 +230,18 @@ export default function PrivateAccounting() {
         {/* Main Content Tabs */}
         <Card className="p-6">
           <Tabs defaultValue="accounts" className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 gap-2">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-2">
               <TabsTrigger value="accounts" className="gap-2">
                 <Receipt className="h-4 w-4" />
                 {t({ ar: 'الحسابات', en: 'Accounts' })}
+              </TabsTrigger>
+              <TabsTrigger value="customers" className="gap-2">
+                <Users className="h-4 w-4" />
+                {t({ ar: 'العملاء', en: 'Customers' })}
+              </TabsTrigger>
+              <TabsTrigger value="bookings" className="gap-2">
+                <Receipt className="h-4 w-4" />
+                {t({ ar: 'الطلبات', en: 'Bookings' })}
               </TabsTrigger>
               <TabsTrigger value="owners" className="gap-2">
                 <Users className="h-4 w-4" />
@@ -262,6 +270,42 @@ export default function PrivateAccounting() {
                 <p className="text-muted-foreground">
                   {t({ ar: 'عرض وإدارة جميع حسابات الفنادق الخاصة', en: 'View and manage all private hotel accounts' })}
                 </p>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="customers" className="mt-6">
+              <div className="text-center py-12">
+                <Users className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">
+                  {t({ ar: 'إدارة العملاء', en: 'Manage Customers' })}
+                </h3>
+                <p className="text-muted-foreground">
+                  {t({ ar: 'عرض وإدارة جميع عملاء الحسابات الخاصة', en: 'View and manage all private customers' })}
+                </p>
+                <Button 
+                  onClick={() => navigate('/private-accounting/customers')} 
+                  className="mt-4"
+                >
+                  {t({ ar: 'إدارة العملاء', en: 'Manage Customers' })}
+                </Button>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="bookings" className="mt-6">
+              <div className="text-center py-12">
+                <Receipt className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
+                <h3 className="text-lg font-semibold mb-2">
+                  {t({ ar: 'إدارة الطلبات', en: 'Manage Bookings' })}
+                </h3>
+                <p className="text-muted-foreground">
+                  {t({ ar: 'عرض وإدارة جميع طلبات الحسابات الخاصة', en: 'View and manage all private bookings' })}
+                </p>
+                <Button 
+                  onClick={() => navigate('/private-accounting/bookings')} 
+                  className="mt-4"
+                >
+                  {t({ ar: 'إدارة الطلبات', en: 'Manage Bookings' })}
+                </Button>
               </div>
             </TabsContent>
 
