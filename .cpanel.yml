@@ -8,4 +8,3 @@ deployment:
     - /bin/cp -rf /var/www/u2890132/repositories/ithraa2/dist/* $DEPLOYPATH/ || true
     - /bin/cp -f /var/www/u2890132/repositories/ithraa2/.htaccess $DEPLOYPATH/ || true
     - /bin/echo "✅ تم التحديث بنجاح في $(date)"
-
