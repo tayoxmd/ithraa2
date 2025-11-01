@@ -46,15 +46,33 @@ npm run build
 
 ## ⚡ النشر التلقائي
 
-بعد إعداد Post-Receive Hook في cPanel:
+### الطريقة الموصى بها: `.cpanel.yml`
 
+المشروع يستخدم `.cpanel.yml` للنشر التلقائي على cPanel.
+
+**كيف يعمل:**
+1. ارفع التغييرات إلى GitHub:
 ```bash
 git add .
 git commit -m "تحديث"
 git push origin main
 ```
 
-✅ سيتم النشر تلقائياً على cPanel بعد 30-60 ثانية!
+2. في cPanel:
+   - اذهب إلى **Git Version Control**
+   - اختر المستودع `ithraa2`
+   - انقر على **"Pull or Deploy"**
+   - انقر على **"Update from Remote"**
+   - سيتم النشر تلقائياً عبر `.cpanel.yml`
+
+✅ **النشر التلقائي:** بعد `git push` و `Update from Remote` في cPanel، سيتم النشر خلال 2-5 دقائق!
+
+---
+
+### ⚠️ ملاحظة: GitHub Actions معطل
+
+- ❌ **GitHub Actions** تم تعطيله (لا حاجة لـ SSH keys)
+- ✅ **`.cpanel.yml`** هو الطريقة الوحيدة للنشر التلقائي
 
 ---
 
