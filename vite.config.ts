@@ -13,7 +13,8 @@ export default defineConfig(({ mode }) => ({
   plugins: [
     react(), 
     mode === "development" && componentTagger(),
-    VitePWA({
+    // تعطيل VitePWA في وضع التطوير بالكامل
+    mode !== "development" && VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png', 'icon-192.png', 'icon-512.png'],
       manifest: {

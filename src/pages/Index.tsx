@@ -108,8 +108,8 @@ const Index = () => {
             </h2>
             <p className="text-muted-foreground text-lg">اختر من بين مجموعة مختارة من أفضل الفنادق والشقق الفندقية</p>
             {/* Test indicator - النشر التلقائي يعمل! ✅ */}
-            <div className="mt-2 text-xs text-green-500 opacity-75">
-              آخر تحديث: {new Date().toLocaleString('ar-SA')}
+            <div className="mt-2 text-xs text-green-500 opacity-75 font-semibold">
+              🚀 آخر تحديث: {new Date().toLocaleString('ar-SA')} - النشر التلقائي يعمل بنجاح!
             </div>
           </div>
 
