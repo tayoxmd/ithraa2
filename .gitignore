@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+# Keep .htaccess in git for deployment
+!.htaccess
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

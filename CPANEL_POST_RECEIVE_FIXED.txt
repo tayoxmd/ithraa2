@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# Post-Receive Hook للنشر التلقائي إلى cPanel
+# يتم تشغيله تلقائياً عند git push
+
+echo "🚀 بدء النشر التلقائي..."
+
+# الانتقال إلى مجلد المشروع (المسار الصحيح في cPanel)
+cd /var/www/u2890132/repositories/ithraa2 || exit 1
+
+# سحب آخر التحديثات
+git pull origin main
+
+# تثبيت التبعيات (إذا لزم الأمر)
+if [ -f "package.json" ]; then
+    echo "📦 تثبيت التبعيات..."
+    npm install --production=false
+    
+    echo "🔨 بناء المشروع..."
+    npm run build
+    
+    # نسخ الملفات إلى public_html
+    if [ -d "dist" ]; then
+        echo "📤 رفع الملفات..."
+        cp -r dist/* /home/u2890132/public_html/
+        cp .htaccess /home/u2890132/public_html/ 2>/dev/null || true
+        
+        echo "✅ تم النشر بنجاح!"
+    else
+        echo "❌ فشل البناء - مجلد dist غير موجود"
+        exit 1
+    fi
+else
+    echo "⚠️  package.json غير موجود"
+    exit 1
+fi
+

@@ -10,6 +10,7 @@ import { countries } from "@/data/countries";
 import { Search, UserCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { WhatsAppAuth } from "@/components/WhatsAppAuth";
 
 interface BookingAuthDialogProps {
   open: boolean;
@@ -28,6 +29,7 @@ export function BookingAuthDialog({ open, onClose, onGuestContinue }: BookingAut
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
+  const [whatsappAuthOpen, setWhatsappAuthOpen] = useState(false);
 
   const selectedCountry = countries.find(c => c.dialCode === countryCode) || countries[0];
 
@@ -195,10 +197,7 @@ export function BookingAuthDialog({ open, onClose, onGuestContinue }: BookingAut
                   className="w-full h-14 text-lg gap-3"
                   style={{ backgroundColor: '#25D366', color: 'white', borderColor: '#25D366' }}
                   onClick={() => {
-                    toast({
-                      title: t({ ar: "قريباً", en: "Coming Soon" }),
-                      description: t({ ar: "التحقق عبر واتساب سيكون متاحاً قريباً", en: "WhatsApp verification will be available soon" }),
-                    });
+                    setWhatsappAuthOpen(true);
                   }}
                 >
                   <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
@@ -375,6 +374,12 @@ export function BookingAuthDialog({ open, onClose, onGuestContinue }: BookingAut
           )}
         </div>
       </DialogContent>
+      
+      <WhatsAppAuth 
+        open={whatsappAuthOpen} 
+        onOpenChange={setWhatsappAuthOpen}
+        redirectUrl={undefined}
+      />
     </Dialog>
   );
 }

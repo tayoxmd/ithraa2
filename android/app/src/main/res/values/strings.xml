@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">إثراء - ITHRAA</string>
+    <string name="title_activity_main">إثراء - ITHRAA</string>
+    <string name="package_name">com.ithraa.app</string>
+    <string name="custom_url_scheme">com.ithraa.app</string>
+</resources>

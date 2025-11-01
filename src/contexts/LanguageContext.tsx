@@ -35,8 +35,11 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const savedLang = localStorage.getItem("language") as Language;
-    if (savedLang) {
+    // تأكد من أن اللغة العربية هي الافتراضية
+    if (savedLang && savedLang === 'ar') {
       setLanguage(savedLang);
+    } else {
+      setLanguage("ar");
     }
   }, []);
 

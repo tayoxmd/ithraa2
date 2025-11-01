@@ -1,0 +1,9 @@
+---
+deployment:
+  tasks:
+    - /bin/bash -c "cd /var/www/u2890132/repositories/ithraa2 && git pull origin main"
+    - /bin/bash -c "cd /var/www/u2890132/repositories/ithraa2 && npm install"
+    - /bin/bash -c "cd /var/www/u2890132/repositories/ithraa2 && npm run build"
+    - /bin/cp -rf /var/www/u2890132/repositories/ithraa2/dist/* /home/u2890132/public_html/
+    - /bin/cp -f /var/www/u2890132/repositories/ithraa2/.htaccess /home/u2890132/public_html/
+

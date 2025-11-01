@@ -32,7 +32,14 @@ interface Hotel {
 const Index = () => {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
-  const { language } = useLanguage();
+  const { language, setLanguage } = useLanguage();
+
+  useEffect(() => {
+    // تأكد من أن اللغة العربية هي الافتراضية
+    if (language !== 'ar') {
+      setLanguage('ar');
+    }
+  }, []);
 
   useEffect(() => {
     fetchFeaturedHotels();
@@ -95,12 +102,16 @@ const Index = () => {
 
   {/* Featured Hotels Section */}
   <section className="container mx-auto px-4 py-16" id="hotels">
-        <div className="text-center mb-12 animate-fade-in-up">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
-            <span className="text-gradient-luxury">الفنادق المميزة</span>
-          </h2>
-          <p className="text-muted-foreground text-lg">اختر من بين مجموعة مختارة من أفضل الفنادق والشقق الفندقية</p>
-        </div>
+          <div className="text-center mb-12 animate-fade-in-up">
+            <h2 className="text-3xl md:text-4xl font-bold mb-4">
+              <span className="text-gradient-luxury">الفنادق المميزة</span>
+            </h2>
+            <p className="text-muted-foreground text-lg">اختر من بين مجموعة مختارة من أفضل الفنادق والشقق الفندقية</p>
+            {/* Test indicator - النشر التلقائي يعمل! ✅ */}
+            <div className="mt-2 text-xs text-green-500 opacity-75">
+              آخر تحديث: {new Date().toLocaleString('ar-SA')}
+            </div>
+          </div>
 
         {loading ? (
           <div className="flex justify-center py-12">

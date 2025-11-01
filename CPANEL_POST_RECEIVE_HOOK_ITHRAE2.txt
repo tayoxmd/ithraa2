@@ -1,0 +1,9 @@
+#!/bin/bash
+cd ~/ithraa2
+git pull origin main
+npm install
+npm run build
+cp -r dist/* ~/public_html/
+cp .htaccess ~/public_html/
+echo "✅ تم التحديث بنجاح في $(date)"
+
