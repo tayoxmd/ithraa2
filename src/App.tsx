@@ -56,6 +56,7 @@ import PrivateRooms from "./pages/PrivateRooms";
 import TaskSharingSettings from "./pages/TaskSharingSettings";
 import PermissionsManagement from "./pages/PermissionsManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { MobileDesigns } from "./pages/MobileDesigns";
 
 const queryClient = new QueryClient();
 
@@ -75,6 +76,7 @@ const RouterWithTheme = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/mobile-designs" element={<MobileDesigns />} />
               <Route path="/search" element={<SearchResults />} />
               <Route path="/no-results" element={<NoResults />} />
               <Route path="/hotel/:id" element={<HotelDetails />} />

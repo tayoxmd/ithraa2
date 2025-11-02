@@ -20,10 +20,15 @@ export const Mosque3D = ({ type = 'makkah' }: Mosque3DProps) => {
     sceneRef.current = scene;
     scene.background = new THREE.Color(0x001122);
 
+    // التأكد من وجود حجم صالح
+    const width = containerRef.current.clientWidth || 800;
+    const height = containerRef.current.clientHeight || 600;
+    if (height === 0) return;
+
     // إنشاء الكاميرا
     const camera = new THREE.PerspectiveCamera(
       50,
-      containerRef.current.clientWidth / containerRef.current.clientHeight,
+      width / height,
       0.1,
       1000
     );
@@ -36,8 +41,8 @@ export const Mosque3D = ({ type = 'makkah' }: Mosque3DProps) => {
       alpha: true,
       antialias: true 
     });
-    renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
-    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     containerRef.current.appendChild(renderer.domElement);
     rendererRef.current = renderer;
 
@@ -148,10 +153,13 @@ export const Mosque3D = ({ type = 'makkah' }: Mosque3DProps) => {
     // معالجة تغيير حجم النافذة
     const handleResize = () => {
       if (!containerRef.current || !camera || !renderer) return;
+      const newWidth = containerRef.current.clientWidth || width;
+      const newHeight = containerRef.current.clientHeight || height;
+      if (newHeight === 0) return;
 
-      camera.aspect = containerRef.current.clientWidth / containerRef.current.clientHeight;
+      camera.aspect = newWidth / newHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(containerRef.current.clientWidth, containerRef.current.clientHeight);
+      renderer.setSize(newWidth, newHeight);
     };
 
     window.addEventListener("resize", handleResize);

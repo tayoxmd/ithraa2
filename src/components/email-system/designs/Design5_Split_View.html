@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تصميم 5: عرض مقسم</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background: #f0f4f8;
+            padding: 15px;
+        }
+        .dashboard {
+            max-width: 1900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            overflow: hidden;
+        }
+        .nav-bar {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+            color: white;
+            padding: 20px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .nav-title {
+            font-size: 22px;
+            font-weight: 600;
+        }
+        .nav-tools {
+            display: flex;
+            gap: 12px;
+        }
+        .nav-icon {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .split-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 400px;
+            height: calc(100vh - 120px);
+        }
+        .left-sidebar {
+            background: #f8fafc;
+            border-right: 1px solid #e2e8f0;
+            padding: 25px;
+            overflow-y: auto;
+        }
+        .sidebar-heading {
+            font-size: 15px;
+            font-weight: 600;
+            color: #475569;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .template-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .template-item {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 16px;
+            cursor: move;
+            transition: all 0.3s;
+        }
+        .template-item:hover {
+            border-color: #4f46e5;
+            box-shadow: 0 4px 12px rgba(79,70,229,0.15);
+            transform: translateX(-5px);
+        }
+        .template-item.dragging {
+            opacity: 0.5;
+        }
+        .template-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .template-name {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .template-info {
+            font-size: 12px;
+            color: #64748b;
+        }
+        .main-workspace {
+            display: flex;
+            flex-direction: column;
+            background: white;
+        }
+        .workspace-tabs {
+            display: flex;
+            background: #f8fafc;
+            border-bottom: 2px solid #e2e8f0;
+            padding: 0 30px;
+        }
+        .workspace-tab {
+            padding: 16px 24px;
+            background: transparent;
+            border: none;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            color: #64748b;
+            transition: all 0.3s;
+        }
+        .workspace-tab.active {
+            color: #4f46e5;
+            border-bottom-color: #4f46e5;
+            background: white;
+        }
+        .kanban-view {
+            flex: 1;
+            padding: 30px;
+            overflow-x: auto;
+            display: flex;
+            gap: 20px;
+        }
+        .status-board {
+            min-width: 300px;
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 20px;
+            border-top: 4px solid transparent;
+        }
+        .status-board.paid {
+            border-top-color: #10b981;
+        }
+        .status-board.expired {
+            border-top-color: #ef4444;
+        }
+        .status-board.booked {
+            border-top-color: #3b82f6;
+        }
+        .status-board.unavailable {
+            border-top-color: #6b7280;
+        }
+        .board-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .board-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+        .board-number {
+            background: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #64748b;
+        }
+        .mail-item {
+            background: white;
+            border-radius: 10px;
+            padding: 18px;
+            margin-bottom: 15px;
+            cursor: move;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+        }
+        .mail-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+            transform: translateY(-2px);
+        }
+        .mail-item.dragging {
+            opacity: 0.6;
+            transform: rotate(3deg);
+        }
+        .mail-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+        .mail-subject {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 15px;
+        }
+        .mail-date {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+        .mail-content {
+            color: #475569;
+            font-size: 13px;
+            line-height: 1.6;
+            margin-bottom: 12px;
+        }
+        .mail-status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .mail-status.paid {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .mail-status.expired {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .mail-status.booked {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+        .mail-status.unavailable {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .right-panel {
+            background: #f8fafc;
+            border-left: 1px solid #e2e8f0;
+            padding: 25px;
+            overflow-y: auto;
+        }
+        .panel-section {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+        }
+        .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #1e293b;
+            margin-bottom: 15px;
+        }
+        .device-options {
+            display: grid;
+            gap: 12px;
+        }
+        .device-option {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px;
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .device-option:hover {
+            border-color: #4f46e5;
+            background: #eef2ff;
+        }
+        .device-option.active {
+            background: #4f46e5;
+            border-color: #4f46e5;
+            color: white;
+        }
+        .device-icon-large {
+            font-size: 28px;
+        }
+        .device-details {
+            flex: 1;
+        }
+        .device-name {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+        .device-size {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+        .preview-container {
+            background: #f8fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 10px;
+            padding: 30px;
+            text-align: center;
+            min-height: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .preview-placeholder {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <div class="nav-bar">
+            <div class="nav-title">📬 نظام إدارة البريد الإلكتروني</div>
+            <div class="nav-tools">
+                <button class="nav-icon">🔍</button>
+                <button class="nav-icon">🔔</button>
+                <button class="nav-icon">⚙️</button>
+                <button class="nav-icon">👤</button>
+            </div>
+        </div>
+        <div class="split-container">
+            <div class="left-sidebar">
+                <div class="sidebar-heading">📋 قوالب البريد</div>
+                <div class="template-list">
+                    <div class="template-item" draggable="true">
+                        <div class="template-icon">📄</div>
+                        <div class="template-name">إشعار حجز جديد</div>
+                        <div class="template-info">إشعار تلقائي للحجوزات</div>
+                    </div>
+                    <div class="template-item" draggable="true">
+                        <div class="template-icon">✅</div>
+                        <div class="template-name">تأكيد الحجز</div>
+                        <div class="template-info">رسالة تأكيد فورية</div>
+                    </div>
+                    <div class="template-item" draggable="true">
+                        <div class="template-icon">💰</div>
+                        <div class="template-name">تذكير بالدفع</div>
+                        <div class="template-info">تذكير تلقائي للدفع</div>
+                    </div>
+                    <div class="template-item" draggable="true">
+                        <div class="template-icon">❌</div>
+                        <div class="template-name">إلغاء الحجز</div>
+                        <div class="template-info">إشعار إلغاء الحجز</div>
+                    </div>
+                </div>
+            </div>
+            <div class="main-workspace">
+                <div class="workspace-tabs">
+                    <button class="workspace-tab active">📧 جميع البريد</button>
+                    <button class="workspace-tab">⭐ مميز</button>
+                    <button class="workspace-tab">📎 مرفقات</button>
+                </div>
+                <div class="kanban-view">
+                    <div class="status-board paid">
+                        <div class="board-title">
+                            <div class="board-name">💳 المدفوع</div>
+                            <span class="board-number">3</span>
+                        </div>
+                        <div class="mail-item paid" draggable="true">
+                            <div class="mail-header">
+                                <div class="mail-subject">فندق الريتز - تأكيد الدفع</div>
+                                <div class="mail-date">2h</div>
+                            </div>
+                            <div class="mail-content">تم تأكيد حجزكم وتم استلام المبلغ بالكامل. رقم الحجز: #12345</div>
+                            <span class="mail-status paid">مدفوع</span>
+                        </div>
+                    </div>
+                    <div class="status-board expired">
+                        <div class="board-title">
+                            <div class="board-name">❌ المنتهي</div>
+                            <span class="board-number">2</span>
+                        </div>
+                        <div class="mail-item expired" draggable="true">
+                            <div class="mail-header">
+                                <div class="mail-subject">فندق الماريوت - انتهاء الحجز</div>
+                                <div class="mail-date">1d</div>
+                            </div>
+                            <div class="mail-content">انتهى موعد حجزكم. يرجى الاتصال بنا لتجديد الحجز.</div>
+                            <span class="mail-status expired">منتهي</span>
+                        </div>
+                    </div>
+                    <div class="status-board booked">
+                        <div class="board-title">
+                            <div class="board-name">✅ تم الحجز</div>
+                            <span class="board-number">5</span>
+                        </div>
+                        <div class="mail-item booked" draggable="true">
+                            <div class="mail-header">
+                                <div class="mail-subject">فندق الهيلتون - تأكيد الحجز</div>
+                                <div class="mail-date">3h</div>
+                            </div>
+                            <div class="mail-content">تم تأكيد حجزكم. يرجى إتمام الدفع خلال 24 ساعة.</div>
+                            <span class="mail-status booked">تم الحجز</span>
+                        </div>
+                    </div>
+                    <div class="status-board unavailable">
+                        <div class="board-title">
+                            <div class="board-name">🚫 غير متاح</div>
+                            <span class="board-number">1</span>
+                        </div>
+                        <div class="mail-item unavailable" draggable="true">
+                            <div class="mail-header">
+                                <div class="mail-subject">طلب حجز مرفوض</div>
+                                <div class="mail-date">2d</div>
+                            </div>
+                            <div class="mail-content">الفندق غير متاح في هذه الفترة. يرجى اختيار تاريخ آخر.</div>
+                            <span class="mail-status unavailable">غير متاح</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="right-panel">
+                <div class="panel-section">
+                    <div class="section-title">📐 تخصيص العرض</div>
+                    <div class="device-options">
+                        <div class="device-option active">
+                            <div class="device-icon-large">📱</div>
+                            <div class="device-details">
+                                <div class="device-name">موبايل</div>
+                                <div class="device-size">375 × 667px</div>
+                            </div>
+                        </div>
+                        <div class="device-option">
+                            <div class="device-icon-large">📱</div>
+                            <div class="device-details">
+                                <div class="device-name">تابلت</div>
+                                <div class="device-size">768 × 1024px</div>
+                            </div>
+                        </div>
+                        <div class="device-option">
+                            <div class="device-icon-large">💻</div>
+                            <div class="device-details">
+                                <div class="device-name">سطح المكتب</div>
+                                <div class="device-size">1920 × 1080px</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel-section">
+                    <div class="section-title">👁️ معاينة البريد</div>
+                    <div class="preview-container">
+                        <div class="preview-placeholder">
+                            ستظهر معاينة البريد هنا عند اختيار قالب
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
