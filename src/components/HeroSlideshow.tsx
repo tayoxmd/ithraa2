@@ -40,18 +40,18 @@ export const HeroSlideshow = () => {
     <div className="absolute inset-0 z-0 overflow-hidden bg-gradient-to-b from-slate-900 via-blue-900 to-slate-900">
       {/* الكرة الأرضية فقط */}
       <div className="absolute inset-0">
-        <ErrorBoundary 
-          fallback={<div className="absolute inset-0 bg-gradient-to-b from-blue-900 to-slate-900" />}
-          onError={() => setError(true)}
-        >
-          <EarthGlobe 
-            meccaPosition={{ lat: 21.4225, lng: 39.8262 }}
-            medinaPosition={{ lat: 24.4672, lng: 39.6142 }}
-          />
-        </ErrorBoundary>
-        {/* Gradient Overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70 pointer-events-none" />
-      </div>
+            <ErrorBoundary 
+              fallback={<div className="absolute inset-0 bg-gradient-to-b from-blue-900 to-slate-900" />}
+              onError={() => setError(true)}
+            >
+              <EarthGlobe 
+                meccaPosition={{ lat: 21.4225, lng: 39.8262 }}
+                medinaPosition={{ lat: 24.4672, lng: 39.6142 }}
+              />
+            </ErrorBoundary>
+            {/* Gradient Overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/70 pointer-events-none" />
+          </div>
     </div>
   );
 };

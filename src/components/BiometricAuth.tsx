@@ -25,12 +25,12 @@ export function BiometricAuth({ open, onVerified, onCancel }: BiometricAuthProps
 
   useEffect(() => {
     if (open) {
-      // Detect device type
-      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-      setIsMobile(isMobileDevice);
+    // Detect device type
+    const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    setIsMobile(isMobileDevice);
 
-      // Check for biometric availability
-      checkBiometricAvailability();
+    // Check for biometric availability
+    checkBiometricAvailability();
     }
   }, [open]);
 
@@ -84,7 +84,7 @@ export function BiometricAuth({ open, onVerified, onCancel }: BiometricAuthProps
           } else if (isWindows) {
             setBiometricType('face'); // Windows Hello (usually face)
           } else {
-            setBiometricType('fingerprint');
+          setBiometricType('fingerprint');
           }
         } else {
           console.log('Platform authenticator not available via API check');
@@ -94,7 +94,7 @@ export function BiometricAuth({ open, onVerified, onCancel }: BiometricAuthProps
           if (isMac) {
             setBiometricType('fingerprint');
           } else if (isWindows) {
-            setBiometricType('face');
+          setBiometricType('face');
           } else {
             setBiometricType('fingerprint');
           }
@@ -130,20 +130,25 @@ export function BiometricAuth({ open, onVerified, onCancel }: BiometricAuthProps
       crypto.getRandomValues(challengeBuffer);
       const challenge = challengeBuffer;
 
+      // For mobile devices, use a more permissive approach
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      
       // Try WebAuthn authentication with platform authenticator (Passkeys)
       // This works with fingerprint, face ID, and other biometric methods
       const publicKeyCredentialRequestOptions: PublicKeyCredentialRequestOptions = {
         challenge: challenge,
-        timeout: 60000,
-        rpId: window.location.hostname,
+        timeout: isMobileDevice ? 120000 : 60000, // Longer timeout for mobile
+        rpId: window.location.hostname === 'localhost' ? undefined : window.location.hostname, // Allow localhost for development
         allowCredentials: [], // Empty array allows any credential (Passkeys)
         userVerification: 'required' as const, // Required for biometric
+        // For mobile, try silent mediation first
+        ...(isMobileDevice ? {} : {}),
       };
 
       // Request credential (this will trigger biometric prompt)
       const credential = await navigator.credentials.get({
         publicKey: publicKeyCredentialRequestOptions,
-        mediation: 'optional' as CredentialMediationRequirement, // Allow silent authentication if available
+        mediation: isMobileDevice ? 'silent' as CredentialMediationRequirement : 'optional' as CredentialMediationRequirement,
       }) as PublicKeyCredential | null;
 
       if (credential) {
@@ -154,6 +159,20 @@ export function BiometricAuth({ open, onVerified, onCancel }: BiometricAuthProps
         toast.success(t({ ar: 'تم التحقق بنجاح', en: 'Authentication successful' }));
         onVerified();
       } else {
+        // If silent mediation returned null, try with optional mediation
+        if (isMobileDevice) {
+          const credentialOptional = await navigator.credentials.get({
+            publicKey: publicKeyCredentialRequestOptions,
+            mediation: 'optional' as CredentialMediationRequirement,
+          }) as PublicKeyCredential | null;
+          
+          if (credentialOptional) {
+            console.log('Biometric authentication successful (optional):', credentialOptional.id);
+            toast.success(t({ ar: 'تم التحقق بنجاح', en: 'Authentication successful' }));
+            onVerified();
+            return;
+          }
+        }
         throw new Error('No credential returned');
       }
     } catch (error: any) {

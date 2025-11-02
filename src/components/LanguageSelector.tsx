@@ -13,8 +13,18 @@ export function LanguageSelector() {
   const { language, setLanguage } = useLanguage();
   const isMobile = useIsMobile();
 
+  const handleLanguageChange = (newLang: string) => {
+    setLanguage(newLang as any);
+    // Force a re-render by updating localStorage immediately
+    localStorage.setItem("language", newLang);
+    // Reload page to apply language changes fully
+    setTimeout(() => {
+      window.location.reload();
+    }, 100);
+  };
+
   return (
-    <Select value={language} onValueChange={setLanguage}>
+    <Select value={language} onValueChange={handleLanguageChange}>
       <SelectTrigger className={isMobile ? "w-[60px]" : "w-[180px]"}>
         <div className="flex items-center gap-2">
           <Globe className="w-4 h-4" />

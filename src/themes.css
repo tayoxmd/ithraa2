@@ -95,94 +95,194 @@
   /* Will be customized later */
 }
 
-/* Admin Dashboard Design 2 - Modern Infographic Style */
-.admin-design2 {
-  /* Deep Navy Blue - من الصور */
-  --primary: 230 45% 25%; /* #1E2D4D - navy blue */
+/* Admin Dashboard Design 1 (Current/Default) - Preserve current design */
+.admin-design1 {
+  /* Same as default root theme */
+  --primary: 220 60% 25%;
   --primary-foreground: 0 0% 100%;
-  --primary-glow: 230 45% 35%;
+  --primary-glow: 220 55% 35%;
   
-  /* Purple Accent - البنفسجي من التصميم */
-  --accent: 265 85% 65%; /* #8B5CF6 - purple */
-  --accent-foreground: 0 0% 100%;
+  --background: 220 45% 96%;
+  --foreground: 220 50% 15%;
   
-  /* Cyan/Turquoise - السماوي من التصميم */
-  --secondary: 175 85% 55%; /* #1DD3B0 - turquoise */
-  --secondary-foreground: 230 45% 15%;
-  
-  /* Light backgrounds */
-  --background: 220 25% 97%;
-  --foreground: 230 40% 15%;
-  
-  /* Card colors - white with gradient feel */
   --card: 0 0% 100%;
-  --card-foreground: 230 40% 15%;
+  --card-foreground: 220 50% 15%;
+  
+  --popover: 220 30% 25%;
+  --popover-foreground: 0 0% 100%;
+  
+  --secondary: 200 80% 50%;
+  --secondary-foreground: 0 0% 100%;
+  
+  --muted: 220 20% 92%;
+  --muted-foreground: 220 20% 45%;
+  
+  --accent: 220 25% 90%;
+  --accent-foreground: 220 50% 15%;
+  
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  
+  --border: 220 20% 88%;
+  --input: 220 15% 94%;
+  --ring: 220 60% 25%;
+  
+  --radius: 1rem;
+  
+  --gradient-luxury: linear-gradient(135deg, hsl(220 60% 25%), hsl(220 55% 35%));
+  --gradient-hero: linear-gradient(135deg, hsl(220 60% 20% / 0.95), hsl(220 55% 30% / 0.9));
+  --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 20% 98%));
+  
+  --shadow-luxury: 0 20px 60px -15px hsl(220 60% 25% / 0.3);
+  --shadow-card: 0 10px 30px -10px hsl(220 50% 20% / 0.15);
+  --shadow-elegant: 0 4px 20px -4px hsl(220 50% 20% / 0.2);
+  
+  --status-new: 210 100% 50%;
+  --status-pending: 30 100% 50%;
+  --status-confirmed: 142 71% 45%;
+  --status-cancelled: 0 84% 60%;
+}
+
+/* Admin Dashboard Design 2 - Dark Theme (Black Design from images) */
+.admin-design2 {
+  /* Very Dark Blue-Grey Background - almost black */
+  --background: 220 30% 12%; /* #1A1D24 - very dark blue-grey */
+  --foreground: 0 0% 98%; /* White text */
+  
+  /* Dark Cards */
+  --card: 220 25% 15%; /* Slightly lighter than background */
+  --card-foreground: 0 0% 98%;
   
   /* Popover colors */
-  --popover: 0 0% 100%;
-  --popover-foreground: 230 40% 15%;
+  --popover: 220 25% 18%;
+  --popover-foreground: 0 0% 98%;
+  
+  /* Light Blue Primary - for active states and key info */
+  --primary: 195 85% 65%; /* #00D4FF - light blue/cyan */
+  --primary-foreground: 220 30% 12%;
+  --primary-glow: 195 85% 75%;
+  
+  /* Green for Active/Success states */
+  --secondary: 142 71% 45%; /* #10B981 - green */
+  --secondary-foreground: 0 0% 98%;
   
   /* Muted colors */
-  --muted: 230 20% 92%;
-  --muted-foreground: 230 20% 45%;
+  --muted: 220 25% 20%;
+  --muted-foreground: 220 15% 70%;
+  
+  /* Accent - Light Blue for updates/info */
+  --accent: 195 85% 65%;
+  --accent-foreground: 220 30% 12%;
   
   /* Destructive colors */
   --destructive: 0 84% 60%;
   --destructive-foreground: 0 0% 100%;
   
   /* Border and input */
-  --border: 230 20% 85%;
-  --input: 230 20% 85%;
-  --ring: 230 45% 25%;
+  --border: 220 25% 25%;
+  --input: 220 25% 18%;
+  --ring: 195 85% 65%;
   
-  /* Radius - rounded modern */
-  --radius: 1.25rem;
+  /* Radius */
+  --radius: 0.75rem;
   
-  /* Gradients - modern infographic style */
-  --gradient-primary: linear-gradient(135deg, hsl(230 45% 25%), hsl(265 85% 65%));
-  --gradient-secondary: linear-gradient(135deg, hsl(175 85% 55%), hsl(190 85% 65%));
-  --gradient-hero: linear-gradient(135deg, hsl(230 45% 25%), hsl(265 85% 65%), hsl(175 85% 55%));
-  --gradient-card: linear-gradient(145deg, hsl(0 0% 100%), hsl(230 10% 98%));
+  /* Gradients */
+  --gradient-luxury: linear-gradient(135deg, hsl(220 30% 12%), hsl(220 25% 15%));
+  --gradient-hero: linear-gradient(135deg, hsl(220 30% 10%), hsl(220 25% 18%));
+  --gradient-card: linear-gradient(180deg, hsl(220 25% 15%), hsl(220 25% 18%));
   
-  /* Shadows - modern elevated */
-  --shadow-elegant: 0 8px 32px -4px hsl(230 45% 25% / 0.15);
-  --shadow-luxury: 0 12px 48px -8px hsl(230 45% 25% / 0.25);
-  --shadow-card: 0 4px 16px -2px hsl(230 20% 40% / 0.1);
+  /* Shadows - subtle on dark background */
+  --shadow-luxury: 0 8px 32px -4px hsl(0 0% 0% / 0.5);
+  --shadow-card: 0 4px 16px -2px hsl(0 0% 0% / 0.4);
+  --shadow-elegant: 0 2px 12px -2px hsl(0 0% 0% / 0.3);
   
-  /* Status Colors */
-  --status-new: 265 85% 65%;
-  --status-pending: 35 100% 55%;
-  --status-confirmed: 175 85% 55%;
-  --status-cancelled: 0 84% 60%;
+  /* Status Colors - from images */
+  --status-new: 195 85% 65%; /* Light blue */
+  --status-pending: 35 100% 55%; /* Orange */
+  --status-confirmed: 142 71% 45%; /* Green */
+  --status-cancelled: 0 84% 60%; /* Red */
+  
+  /* Sidebar Tokens */
+  --sidebar: 220 25% 12%;
+  --sidebar-foreground: 0 0% 98%;
+  --sidebar-accent: 220 25% 18%;
+  --sidebar-accent-foreground: 195 85% 65%;
+  --sidebar-border: 220 25% 25%;
+  --sidebar-ring: 195 85% 65%;
 }
 
-.admin-design2.dark {
-  /* Dark mode - deep navy background */
-  --background: 230 45% 10%;
-  --foreground: 0 0% 98%;
+/* Mobile-specific styles for admin-design2 */
+@media (max-width: 768px) {
+  .admin-design2 {
+    --background: 220 30% 10%; /* Even darker for mobile */
+    --card: 220 25% 13%;
+  }
+}
+
+/* Admin Dashboard Design 3 - White Theme (White Design from images) */
+.admin-design3 {
+  /* Pure White Background */
+  --background: 0 0% 100%; /* #FFFFFF - white */
+  --foreground: 220 50% 15%; /* Dark grey text */
   
-  --card: 230 40% 15%;
-  --card-foreground: 0 0% 98%;
+  /* White Cards */
+  --card: 0 0% 100%;
+  --card-foreground: 220 50% 15%;
   
-  --popover: 230 40% 15%;
-  --popover-foreground: 0 0% 98%;
+  /* Popover colors */
+  --popover: 0 0% 100%;
+  --popover-foreground: 220 50% 15%;
   
-  --primary: 230 45% 35%;
+  /* Dark Grey/Navy Primary - for buttons and active states */
+  --primary: 220 45% 20%; /* #2C3E50 - dark grey-blue */
   --primary-foreground: 0 0% 100%;
+  --primary-glow: 220 45% 30%;
   
-  --secondary: 175 85% 45%;
-  --secondary-foreground: 0 0% 100%;
+  /* Light Grey Secondary */
+  --secondary: 220 20% 96%;
+  --secondary-foreground: 220 50% 15%;
   
-  --muted: 230 35% 20%;
-  --muted-foreground: 230 15% 70%;
+  /* Muted colors */
+  --muted: 220 15% 92%;
+  --muted-foreground: 220 20% 45%;
   
-  --accent: 265 85% 60%;
-  --accent-foreground: 0 0% 100%;
+  /* Accent - Light Grey */
+  --accent: 220 20% 96%;
+  --accent-foreground: 220 50% 15%;
   
-  --border: 230 30% 22%;
-  --input: 230 30% 22%;
-  --ring: 230 45% 35%;
+  /* Destructive colors */
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
   
-  --gradient-primary: linear-gradient(135deg, hsl(230 45% 35%), hsl(265 85% 60%));
-  --gradient-hero: linear-gradient(135deg, hsl(230 45% 20%), hsl(265 85% 50%), hsl(175 85% 45%));
+  /* Border and input */
+  --border: 220 15% 88%;
+  --input: 220 15% 94%;
+  --ring: 220 45% 20%;
+  
+  /* Radius */
+  --radius: 0.75rem;
+  
+  /* Gradients - subtle */
+  --gradient-luxury: linear-gradient(135deg, hsl(220 45% 20%), hsl(220 45% 30%));
+  --gradient-hero: linear-gradient(135deg, hsl(220 45% 18%), hsl(220 45% 25%));
+  --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 10% 98%));
+  
+  /* Shadows - subtle on white background */
+  --shadow-luxury: 0 4px 24px -4px hsl(220 50% 20% / 0.1);
+  --shadow-card: 0 2px 12px -2px hsl(220 20% 40% / 0.08);
+  --shadow-elegant: 0 1px 8px -1px hsl(220 50% 20% / 0.06);
+  
+  /* Status Colors - pastel colors from images */
+  --status-new: 210 100% 50%; /* Blue */
+  --status-pending: 30 100% 50%; /* Orange */
+  --status-confirmed: 142 71% 45%; /* Green */
+  --status-cancelled: 0 84% 60%; /* Red */
+  
+  /* Sidebar Tokens */
+  --sidebar: 0 0% 100%;
+  --sidebar-foreground: 220 50% 15%;
+  --sidebar-accent: 220 15% 92%;
+  --sidebar-accent-foreground: 220 50% 15%;
+  --sidebar-border: 220 15% 88%;
+  --sidebar-ring: 220 45% 20%;
 }

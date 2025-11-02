@@ -11,8 +11,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
+import { useTheme } from "@/contexts/ThemeContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Palette, Type, Languages, Layout, Percent, Key, Loader2, Code, Utensils, MessageCircle, Download, Database, Save } from "lucide-react";
+import { Palette, Type, Languages, Layout, Percent, Key, Loader2, Code, Utensils, MessageCircle, Download, Database, Save, Monitor } from "lucide-react";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Switch } from "@/components/ui/switch";
 import { HexColorPicker } from "react-colorful";
@@ -20,10 +21,12 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 
 import { BackupManager } from "@/components/BackupManager";
 import { PageBuilder } from "@/components/page-builder/PageBuilder";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function SiteSettings() {
   const { t } = useLanguage();
   const { userRole, loading } = useAuth();
+  const { adminTheme = 'design1', setAdminTheme } = useTheme();
   const navigate = useNavigate();
   const [primaryColor, setPrimaryColor] = useState("#F59E0B");
   const [fontFamily, setFontFamily] = useState("Cairo");
@@ -612,6 +615,90 @@ export default function SiteSettings() {
         <h1 className="text-3xl font-bold mb-8">
           {t({ ar: 'إعدادات الموقع', en: 'Site Settings' })}
         </h1>
+
+        {/* Admin Dashboard Theme Selector - Only show for admins */}
+        {userRole === 'admin' && (
+          <Card className="card-luxury mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Palette className="w-5 h-5" />
+                {t({ ar: 'تصميم داشبورد الأدمن', en: 'Admin Dashboard Design' })}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <p className="text-sm text-muted-foreground mb-4">
+                  {t({ 
+                    ar: 'اختر تصميم داشبورد الأدمن. سيتم تطبيق التصميم فوراً.', 
+                    en: 'Choose admin dashboard design. Changes will be applied instantly.' 
+                  })}
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Button
+                  variant={adminTheme === 'design1' ? 'default' : 'outline'}
+                  className={`h-24 flex flex-col items-center justify-center gap-2 ${
+                    adminTheme === 'design1' ? 'border-2 border-primary' : ''
+                  }`}
+                  onClick={() => {
+                    setAdminTheme('design1').then(() => {
+                      toast({
+                        title: t({ ar: "تم التغيير", en: "Changed" }),
+                        description: t({ ar: "تم تطبيق التصميم 1 (الحالي)", en: "Design 1 (Current) applied" }),
+                      });
+                    });
+                  }}
+                >
+                  <Monitor className="w-6 h-6" />
+                  <div className="text-center">
+                    <div className="font-semibold">{t({ ar: 'تصميم 1', en: 'Design 1' })}</div>
+                    <div className="text-xs text-muted-foreground">{t({ ar: 'الحالي', en: 'Current' })}</div>
+                  </div>
+                </Button>
+                <Button
+                  variant={adminTheme === 'design2' ? 'default' : 'outline'}
+                  className={`h-24 flex flex-col items-center justify-center gap-2 ${
+                    adminTheme === 'design2' ? 'border-2 border-primary' : ''
+                  }`}
+                  onClick={() => {
+                    setAdminTheme('design2').then(() => {
+                      toast({
+                        title: t({ ar: "تم التغيير", en: "Changed" }),
+                        description: t({ ar: "تم تطبيق التصميم 2 (أسود)", en: "Design 2 (Dark) applied" }),
+                      });
+                    });
+                  }}
+                >
+                  <Monitor className="w-6 h-6" />
+                  <div className="text-center">
+                    <div className="font-semibold">{t({ ar: 'تصميم 2', en: 'Design 2' })}</div>
+                    <div className="text-xs text-muted-foreground">{t({ ar: 'أسود', en: 'Dark' })}</div>
+                  </div>
+                </Button>
+                <Button
+                  variant={adminTheme === 'design3' ? 'default' : 'outline'}
+                  className={`h-24 flex flex-col items-center justify-center gap-2 ${
+                    adminTheme === 'design3' ? 'border-2 border-primary' : ''
+                  }`}
+                  onClick={() => {
+                    setAdminTheme('design3').then(() => {
+                      toast({
+                        title: t({ ar: "تم التغيير", en: "Changed" }),
+                        description: t({ ar: "تم تطبيق التصميم 3 (أبيض)", en: "Design 3 (White) applied" }),
+                      });
+                    });
+                  }}
+                >
+                  <Monitor className="w-6 h-6" />
+                  <div className="text-center">
+                    <div className="font-semibold">{t({ ar: 'تصميم 3', en: 'Design 3' })}</div>
+                    <div className="text-xs text-muted-foreground">{t({ ar: 'أبيض', en: 'White' })}</div>
+                  </div>
+                </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Tabs defaultValue="page-builder" className="space-y-6">
           <TabsList>

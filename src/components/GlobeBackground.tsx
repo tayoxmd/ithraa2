@@ -127,8 +127,8 @@ export const GlobeBackground = ({ className = '' }: GlobeBackgroundProps) => {
             controls.update();
           }
 
-          // دوران تلقائي - يتوقف فقط عند السحب
-          if (earth && (!controls || !controls.isDragging)) {
+          // دوران تلقائي
+          if (earth) {
             earth.rotation.y += 0.0018; // سرعة الدوران
           }
 

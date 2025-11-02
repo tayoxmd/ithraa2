@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from "react";
 
-type Language = "ar" | "en" | "fr" | "es" | "ru" | "id" | "ms";
+type Language = "ar" | "en" | "fr" | "es" | "ru" | "id" | "ms" | "sw";
 
 type TranslationObject = {
   ar: string;
@@ -10,6 +10,7 @@ type TranslationObject = {
   ru: string;
   id: string;
   ms: string;
+  sw: string;
 };
 
 interface LanguageContextType {
@@ -29,6 +30,7 @@ const languageNames: Record<Language, string> = {
   ru: "Русский",
   id: "Bahasa Indonesia",
   ms: "Bahasa Melayu",
+  sw: "Kiswahili",
 };
 
 export function LanguageProvider({ children }: { children: ReactNode }) {
@@ -74,6 +76,10 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
     if (translations.ar) {
       return translations.ar;
     }
+    // إذا لم تكن موجودة، جرب السواحلية
+    if (translations.sw) {
+      return translations.sw;
+    }
     // في النهاية، جرب أي لغة متاحة
     const availableLanguages = Object.keys(translations) as Language[];
     if (availableLanguages.length > 0) {
@@ -98,6 +104,6 @@ export function useLanguage() {
   return context;
 }
 
-export const languages: Language[] = ["ar", "en", "fr", "es", "ru", "id", "ms"];
+export const languages: Language[] = ["ar", "en", "fr", "es", "ru", "id", "ms", "sw"];
 export { languageNames };
 export type { Language };

@@ -130,19 +130,45 @@ export default function EmailSettings() {
   const saveSettings = async () => {
     try {
       setSaving(true);
-      const { error } = await supabase
+      
+      // Check if settings exist
+      const { data: existingData } = await supabase
         .from('email_settings')
-        .upsert({
-          ...settings,
-          updated_at: new Date().toISOString(),
-        });
+        .select('id')
+        .limit(1)
+        .maybeSingle();
+
+      let error;
+      if (existingData?.id) {
+        // Update existing
+        const { error: updateError } = await supabase
+          .from('email_settings')
+          .update({
+            ...settings,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', existingData.id);
+        error = updateError;
+      } else {
+        // Insert new
+        const { error: insertError } = await supabase
+          .from('email_settings')
+          .insert({
+            ...settings,
+            updated_at: new Date().toISOString(),
+          });
+        error = insertError;
+      }
 
       if (error) throw error;
 
       toast.success(t({ ar: 'تم حفظ الإعدادات', en: 'Settings saved' }));
-    } catch (error) {
+      
+      // Refresh settings after save
+      await fetchSettings();
+    } catch (error: any) {
       console.error('Error saving settings:', error);
-      toast.error(t({ ar: 'خطأ في حفظ الإعدادات', en: 'Error saving settings' }));
+      toast.error(t({ ar: 'خطأ في حفظ الإعدادات', en: 'Error saving settings' }) + ': ' + (error.message || 'Unknown error'));
     } finally {
       setSaving(false);
     }

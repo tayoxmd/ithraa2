@@ -67,7 +67,10 @@ ${t({ ar: 'الأولوية', en: 'Priority' })}: ${task.priority}
       if (error) throw error;
 
       toast.success(t({ ar: 'تمت أرشفة المهمة', en: 'Task archived successfully' }));
-      onTaskDeleted();
+      // Call callback to refresh the task list
+      if (onTaskDeleted) {
+        onTaskDeleted();
+      }
     } catch (error) {
       console.error('Error archiving task:', error);
       toast.error(t({ ar: 'خطأ في أرشفة المهمة', en: 'Error archiving task' }));
@@ -83,23 +86,40 @@ ${t({ ar: 'الأولوية', en: 'Priority' })}: ${task.priority}
           <Button 
             variant="ghost" 
             size="icon"
-            className="h-5 w-5 absolute top-1 left-1 z-10 hover:bg-accent"
+            className="h-5 w-5 absolute top-1 left-1 z-50 hover:bg-accent pointer-events-auto"
+            onPointerDown={(e) => e.stopPropagation()}
           >
             <MoreVertical className="h-3 w-3" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start" className="z-[1000]">
           <DropdownMenuItem 
-            onSelect={(e) => { e.preventDefault(); shareToWhatsApp(); }}
-            onClick={(e) => { e.preventDefault(); shareToWhatsApp(); }}
+            onSelect={(e) => { 
+              e.preventDefault(); 
+              e.stopPropagation();
+              shareToWhatsApp(); 
+            }}
+            onClick={(e) => { 
+              e.preventDefault(); 
+              e.stopPropagation();
+              shareToWhatsApp(); 
+            }}
             className="gap-2 cursor-pointer"
           >
             <MessageCircle className="h-4 w-4 text-green-500" />
             {t({ ar: 'مشاركة عبر واتساب', en: 'Share via WhatsApp' })}
           </DropdownMenuItem>
           <DropdownMenuItem 
-            onSelect={(e) => { e.preventDefault(); archiveTask(); }}
-            onClick={(e) => { e.preventDefault(); archiveTask(); }}
+            onSelect={(e) => { 
+              e.preventDefault(); 
+              e.stopPropagation();
+              archiveTask(); 
+            }}
+            onClick={(e) => { 
+              e.preventDefault(); 
+              e.stopPropagation();
+              archiveTask(); 
+            }}
             className="gap-2 text-orange-600 cursor-pointer"
           >
             <Archive className="h-4 w-4" />

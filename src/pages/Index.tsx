@@ -82,7 +82,7 @@ const Index = () => {
         <HeroSlideshow />
 
         {/* Content */}
-        <div className="relative z-10 container mx-auto px-4 py-20">
+        <div className="relative z-30 container mx-auto px-4 py-20">
           <div className="text-center mb-12 animate-fade-in">
             <h1 className="text-4xl md:text-6xl font-bold text-white mb-6 drop-shadow-lg">جوار الحرم</h1>
             <p className="text-xl text-white max-w-2xl mx-auto drop-shadow-md">
@@ -91,7 +91,7 @@ const Index = () => {
           </div>
 
       {/* Search Box */}
-      <div className="mt-32">
+      <div className="mt-32 relative z-40">
         <SearchBox />
       </div>
     </div>
