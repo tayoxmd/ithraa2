@@ -26,7 +26,7 @@ interface Hotel {
 export default function NoResults() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
+  const { t, language, getHotelName } = useLanguage();
   const [nearbyHotels, setNearbyHotels] = useState<Hotel[]>([]);
   const [alternateDateHotels, setAlternateDateHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -102,7 +102,7 @@ export default function NoResults() {
         <div className="relative h-48">
           <img
             src={mainImage}
-            alt={language === 'ar' ? hotel.name_ar : hotel.name_en}
+            alt={getHotelName(hotel.name_ar, hotel.name_en)}
             className="w-full h-full object-cover"
           />
           <Badge className="absolute top-4 right-4 bg-primary text-primary-foreground">
@@ -112,7 +112,7 @@ export default function NoResults() {
         </div>
         <CardContent className="p-4">
           <h3 className="text-xl font-bold mb-2">
-            {language === 'ar' ? hotel.name_ar : hotel.name_en}
+            {getHotelName(hotel.name_ar, hotel.name_en)}
           </h3>
           <div className="flex items-center text-muted-foreground mb-3">
             <MapPin className="w-4 h-4 ml-1" />

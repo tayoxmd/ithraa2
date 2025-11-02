@@ -36,7 +36,7 @@ interface SeasonalPrice {
 
 export default function SeasonalPricing() {
   const { userRole, loading } = useAuth();
-  const { t, language } = useLanguage();
+  const { t, language, getHotelName } = useLanguage();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const hotelId = searchParams.get('hotelId');
@@ -289,7 +289,7 @@ export default function SeasonalPricing() {
           </h1>
           {hotel && (
             <p className="text-muted-foreground">
-              {language === 'ar' ? hotel.name_ar : hotel.name_en}
+              {getHotelName(hotel.name_ar, hotel.name_en)}
             </p>
           )}
         </div>

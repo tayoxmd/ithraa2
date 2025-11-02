@@ -25,7 +25,10 @@ import {
   Gift,
   Calendar,
   MessageSquare,
-  Clapperboard
+  Clapperboard,
+  Mail,
+  ChevronRight,
+  ChevronDown
 } from "lucide-react";
 import { playNotificationSound } from "@/utils/notificationSound";
 import { LoadingSpinner } from "@/components/LoadingSpinner";
@@ -37,6 +40,11 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
+import {
   Sidebar,
   SidebarContent,
   SidebarGroup,
@@ -45,6 +53,9 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarProvider,
 } from "@/components/ui/sidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -69,9 +80,12 @@ export default function AdminDashboard() {
     pendingPayments: 0,
   });
 
+  const [generalSettingsOpen, setGeneralSettingsOpen] = useState(false);
+  
   const adminMenuItems = [
     { icon: Home, label: t({ ar: 'الصفحة الرئيسية', en: 'Home' }), path: '/' },
     { icon: LayoutDashboard, label: t({ ar: 'إدارة المهام', en: 'Task Manager' }), path: '/task-manager' },
+    { icon: Mail, label: t({ ar: 'البريد', en: 'Email' }), path: '/email-manager' },
     { icon: DollarSign, label: t({ ar: 'الحسابات الخاصة', en: 'Private Accounting' }), path: '/private-accounting' },
     { icon: Hotel, label: t({ ar: 'إدارة الفنادق', en: 'Manage Hotels' }), path: '/manage-hotels' },
     { icon: Users, label: t({ ar: 'إدارة المستخدمين', en: 'Manage Users' }), path: '/manage-employees' },
@@ -84,11 +98,14 @@ export default function AdminDashboard() {
     { icon: Calendar, label: t({ ar: 'الأسعار الموسمية', en: 'Seasonal Pricing' }), path: '/seasonal-pricing' },
     { icon: Briefcase, label: t({ ar: 'برنامج الولاء', en: 'Loyalty Program' }), path: '/loyalty-program' },
     { icon: Clapperboard, label: t({ ar: 'الاستديو', en: 'Studio' }), path: '/studio' },
+    { icon: FileText, label: t({ ar: 'سجل التدقيق', en: 'Audit Logs' }), path: '/audit-logs' },
+    { icon: User, label: t({ ar: 'الملف الشخصي', en: 'Profile' }), path: '/profile' },
+  ];
+
+  const generalSettingsItems = [
     { icon: Settings, label: t({ ar: 'إعدادات الموقع', en: 'Site Settings' }), path: '/site-settings' },
     { icon: DollarSign, label: t({ ar: 'إعدادات API', en: 'API Settings' }), path: '/api-settings' },
     { icon: FileText, label: t({ ar: 'إعدادات PDF', en: 'PDF Settings' }), path: '/pdf-settings' },
-    { icon: FileText, label: t({ ar: 'سجل التدقيق', en: 'Audit Logs' }), path: '/audit-logs' },
-    { icon: User, label: t({ ar: 'الملف الشخصي', en: 'Profile' }), path: '/profile' },
   ];
 
   useEffect(() => {
@@ -293,6 +310,37 @@ export default function AdminDashboard() {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+              
+              {/* General Settings Collapsible */}
+              <Collapsible open={generalSettingsOpen} onOpenChange={setGeneralSettingsOpen}>
+                <SidebarMenuItem>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton>
+                      <Settings className="w-5 h-5" />
+                      <span>{t({ ar: 'الإعدادات العامة', en: 'General Settings' })}</span>
+                      {generalSettingsOpen ? (
+                        <ChevronDown className="w-4 h-4 mr-auto" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4 mr-auto" />
+                      )}
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <SidebarMenuSub>
+                      {generalSettingsItems.map((item) => (
+                        <SidebarMenuSubItem key={item.path}>
+                          <SidebarMenuSubButton asChild>
+                            <a href={item.path} onClick={(e) => { e.preventDefault(); navigate(item.path); }}>
+                              <item.icon className="w-4 h-4" />
+                              <span>{item.label}</span>
+                            </a>
+                          </SidebarMenuSubButton>
+                        </SidebarMenuSubItem>
+                      ))}
+                    </SidebarMenuSub>
+                  </CollapsibleContent>
+                </SidebarMenuItem>
+              </Collapsible>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -353,6 +401,44 @@ export default function AdminDashboard() {
                           <span className="text-base">{item.label}</span>
                         </Button>
                       ))}
+                      
+                      {/* General Settings Collapsible for Mobile */}
+                      <Collapsible open={generalSettingsOpen} onOpenChange={setGeneralSettingsOpen}>
+                        <div className="space-y-2">
+                          <CollapsibleTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              className="w-full justify-start gap-3 h-12"
+                            >
+                              <Settings className="w-5 h-5" />
+                              <span className="text-base">{t({ ar: 'الإعدادات العامة', en: 'General Settings' })}</span>
+                              {generalSettingsOpen ? (
+                                <ChevronDown className="w-4 h-4 mr-auto" />
+                              ) : (
+                                <ChevronRight className="w-4 h-4 mr-auto" />
+                              )}
+                            </Button>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <div className="mr-6 space-y-1">
+                              {generalSettingsItems.map((item) => (
+                                <Button
+                                  key={item.path}
+                                  variant="ghost"
+                                  className="w-full justify-start gap-3 h-10"
+                                  onClick={() => {
+                                    navigate(item.path);
+                                    setAdminMenuOpen(false);
+                                  }}
+                                >
+                                  <item.icon className="w-4 h-4" />
+                                  <span className="text-sm">{item.label}</span>
+                                </Button>
+                              ))}
+                            </div>
+                          </CollapsibleContent>
+                        </div>
+                      </Collapsible>
                     </div>
                   </SheetContent>
                 </Sheet>

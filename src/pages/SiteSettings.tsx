@@ -19,6 +19,7 @@ import { HexColorPicker } from "react-colorful";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import { BackupManager } from "@/components/BackupManager";
+import { PageBuilder } from "@/components/page-builder/PageBuilder";
 
 export default function SiteSettings() {
   const { t } = useLanguage();
@@ -612,7 +613,22 @@ export default function SiteSettings() {
           {t({ ar: 'إعدادات الموقع', en: 'Site Settings' })}
         </h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Tabs defaultValue="page-builder" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="page-builder">
+              {t({ ar: 'منشئ الصفحات', en: 'Page Builder' })}
+            </TabsTrigger>
+            <TabsTrigger value="settings">
+              {t({ ar: 'الإعدادات', en: 'Settings' })}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="page-builder">
+            <PageBuilder />
+          </TabsContent>
+
+          <TabsContent value="settings">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Tax Settings Section */}
           <Card className="card-luxury">
             <CardHeader>
@@ -1757,10 +1773,29 @@ export default function SiteSettings() {
             </CardContent>
           </Card>
         </div>
-      </div>
 
-      {/* API Settings Link */}
-      <div className="container mx-auto px-4 pb-8">
+        {/* Page Customization */}
+        <div className="container mx-auto px-4 pb-8">
+        <Card className="card-luxury">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Layout className="w-5 h-5" />
+              {t({ ar: "تخصيص الصفحات", en: "Page Customization" })}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              {t({ ar: "قم بتخصيص وتحرير صفحات الموقع والنوافذ المنبثقة وتعديل قياساتها", en: "Customize and edit site pages, popups, and adjust their dimensions" })}
+            </p>
+            <Button onClick={() => navigate('/page-customization')} variant="outline" className="w-full">
+              {t({ ar: "تخصيص الصفحات", en: "Customize Pages" })}
+            </Button>
+          </CardContent>
+        </Card>
+        </div>
+
+        {/* API Settings Link */}
+        <div className="container mx-auto px-4 pb-8">
         <Card className="card-luxury">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -1777,10 +1812,10 @@ export default function SiteSettings() {
             </Button>
           </CardContent>
         </Card>
-      </div>
+        </div>
 
-      {/* Backup System */}
-      <div className="container mx-auto px-4 pb-8">
+        {/* Backup System */}
+        <div className="container mx-auto px-4 pb-8">
         <Card className="card-luxury">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -1863,9 +1898,12 @@ export default function SiteSettings() {
             </div>
           </CardContent>
         </Card>
-      </div>
+        </div>
 
-      <BackupManager open={showBackupManager} onOpenChange={setShowBackupManager} />
+        <BackupManager open={showBackupManager} onOpenChange={setShowBackupManager} />
+      </TabsContent>
+    </Tabs>
+      </div>
 
       <Footer />
     </div>

@@ -26,7 +26,7 @@ interface Room {
 }
 
 export default function PrivateRooms() {
-  const { t, language } = useLanguage();
+  const { t, language, getHotelName } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -363,7 +363,7 @@ export default function PrivateRooms() {
                   <SelectContent>
                     {hotels.map(hotel => (
                       <SelectItem key={hotel.id} value={hotel.id}>
-                        {language === 'ar' ? hotel.name_ar : hotel.name_en}
+                        {getHotelName(hotel.name_ar, hotel.name_en)}
                       </SelectItem>
                     ))}
                   </SelectContent>

@@ -32,7 +32,7 @@ interface Hotel {
 const Index = () => {
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
-  const { language, setLanguage } = useLanguage();
+  const { language, setLanguage, getHotelName } = useLanguage();
 
   useEffect(() => {
     // تأكد من أن اللغة العربية هي الافتراضية
@@ -123,7 +123,7 @@ const Index = () => {
               <div key={hotel.id} style={{ animationDelay: `${index * 100}ms` }} className="animate-fade-in-up w-full">
                 <HotelCard
                   id={hotel.id}
-                  name={language === "ar" ? hotel.name_ar : hotel.name_en}
+                  name={getHotelName(hotel.name_ar, hotel.name_en)}
                   nameEn={hotel.name_en}
                   location={`${language === "ar" ? hotel.city_name_ar : hotel.city_name_en}`}
                   price={Number(hotel.price_per_night)}

@@ -40,7 +40,7 @@ interface Hotel {
 export default function SearchResults() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
+  const { t, language, getHotelName } = useLanguage();
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [filteredHotels, setFilteredHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
@@ -396,7 +396,7 @@ export default function SearchResults() {
               <HotelCard
               key={hotel.id}
               id={hotel.id}
-              name={language === 'ar' ? hotel.name_ar : hotel.name_en}
+              name={getHotelName(hotel.name_ar, hotel.name_en)}
               nameEn={hotel.name_en}
               location={hotel.location}
               price={Number(hotel.seasonal_price || hotel.price_per_night)}

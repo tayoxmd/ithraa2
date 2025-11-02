@@ -56,7 +56,7 @@ interface Hotel {
 
 export default function ManageHotels() {
   const { userRole, loading } = useAuth();
-  const { t, language } = useLanguage();
+  const { t, language, getHotelName } = useLanguage();
   const navigate = useNavigate();
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [filteredHotels, setFilteredHotels] = useState<Hotel[]>([]);
@@ -679,7 +679,7 @@ export default function ManageHotels() {
             >
               <CardHeader>
                 <CardTitle className="flex flex-col gap-4">
-                  <span>{language === 'ar' ? hotel.name_ar : hotel.name_en}</span>
+                  <span>{getHotelName(hotel.name_ar, hotel.name_en)}</span>
                   
                   {/* Mobile/Tablet Layout */}
                   <div className="flex flex-col gap-2 lg:hidden">

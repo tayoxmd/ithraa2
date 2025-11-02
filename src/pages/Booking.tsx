@@ -50,7 +50,7 @@ export default function Booking() {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const { t, language } = useLanguage();
+  const { t, language, getHotelName } = useLanguage();
   const isMobile = useIsMobile();
   const { userTheme } = useTheme();
   const { mealBadgeSettings, mealDescriptionSettings } = useMealSettings();
@@ -714,7 +714,7 @@ export default function Booking() {
                     )}
                     <div className="flex-1">
                       <h3 className="font-bold text-lg mb-1">
-                        {language === 'ar' ? hotel.name_ar : hotel.name_en}
+                        {getHotelName(hotel.name_ar, hotel.name_en)}
                       </h3>
                       <p className="text-sm text-muted-foreground">{hotel.location}</p>
                     </div>

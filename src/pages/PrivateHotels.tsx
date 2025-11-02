@@ -31,7 +31,7 @@ interface PrivateHotel {
 }
 
 export default function PrivateHotels() {
-  const { t, language } = useLanguage();
+  const { t, language, getHotelName } = useLanguage();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -299,7 +299,7 @@ const csvContent = [
                 <div className="flex-1">
 <div className="flex items-center gap-2 mb-2">
   <h3 className="text-lg font-bold">
-    {language === 'ar' ? hotel.name_ar : hotel.name_en}
+    {getHotelName(hotel.name_ar, hotel.name_en)}
   </h3>
   {hotel.is_contract && (
     <span className="text-xs px-2 py-1 rounded bg-blue-100 text-blue-700">

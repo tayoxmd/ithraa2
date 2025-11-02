@@ -16,6 +16,7 @@ interface LanguageContextType {
   language: Language;
   setLanguage: (lang: Language) => void;
   t: (translations: Partial<TranslationObject> | string, en?: string) => string;
+  getHotelName: (nameAr: string, nameEn: string) => string;
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
@@ -35,11 +36,12 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const savedLang = localStorage.getItem("language") as Language;
-    // تأكد من أن اللغة العربية هي الافتراضية
-    if (savedLang && savedLang === 'ar') {
+    // تحميل اللغة المحفوظة إذا كانت صحيحة، وإلا استخدم العربية كافتراضية
+    if (savedLang && languages.includes(savedLang)) {
       setLanguage(savedLang);
     } else {
       setLanguage("ar");
+      localStorage.setItem("language", "ar");
     }
   }, []);
 
@@ -52,13 +54,40 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const t = (translations: Partial<TranslationObject> | string, en?: string): string => {
     if (typeof translations === "string") {
       // Old format: t('ar text', 'en text')
-      return language === "ar" ? translations : en || translations;
+      // للصيغة القديمة، إذا كانت اللغة غير العربية، استخدم الإنجليزية
+      if (language === "ar") {
+        return translations;
+      } else {
+        return en || translations;
+      }
     }
-    // New format: t({ ar: 'ar text', en: 'en text', ... })
-    return translations[language] || translations.en || translations.ar || "";
+    // New format: t({ ar: 'ar text', en: 'en text', fr: 'fr text', ... })
+    // محاولة إرجاع الترجمة للغة المحددة
+    if (translations[language]) {
+      return translations[language];
+    }
+    // إذا لم تكن موجودة، جرب الإنجليزية
+    if (translations.en) {
+      return translations.en;
+    }
+    // إذا لم تكن موجودة، جرب العربية
+    if (translations.ar) {
+      return translations.ar;
+    }
+    // في النهاية، جرب أي لغة متاحة
+    const availableLanguages = Object.keys(translations) as Language[];
+    if (availableLanguages.length > 0) {
+      return translations[availableLanguages[0]] || "";
+    }
+    return "";
   };
 
-  return <LanguageContext.Provider value={{ language, setLanguage, t }}>{children}</LanguageContext.Provider>;
+  // دالة للحصول على اسم الفندق - تبقى بالإنجليزية عند اختيار أي لغة غير العربية
+  const getHotelName = (nameAr: string, nameEn: string): string => {
+    return language === "ar" ? nameAr : nameEn;
+  };
+
+  return <LanguageContext.Provider value={{ language, setLanguage, t, getHotelName }}>{children}</LanguageContext.Provider>;
 }
 
 export function useLanguage() {

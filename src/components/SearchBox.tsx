@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { toast } from "@/hooks/use-toast";
 import type { DateRange } from "react-day-picker";
+import { GlobeBackground } from "@/components/GlobeBackground";
 
 interface City {
   id: string;
@@ -68,6 +69,9 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
     }
     fetchCities();
   }, []);
+
+  // لا حاجة لتغيير الخلفية - الكرة الأرضية فقط
+  // useEffect for background rotation removed
 
   const handleSearch = () => {
     if (!selectedCity) {
@@ -129,8 +133,12 @@ export function SearchBox({ initialValues, onSearch }: { initialValues?: any, on
 
   return (
     <div className="w-full max-w-6xl mx-auto">
-      <div className="bg-primary/55 backdrop-blur-md text-white shadow-elegant rounded-2xl p-3 md:p-4 animate-scale-in gap-2 border-0">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <div 
+        className="bg-primary/55 backdrop-blur-md text-white shadow-elegant rounded-2xl p-3 md:p-4 animate-scale-in gap-2 border-0 relative overflow-hidden transition-all duration-1000"
+      >
+        
+        {/* المحتوى */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 relative z-20">
           {/* Location */}
           <div className="relative">
             <label className="text-sm font-medium text-white/90 mb-1.5 block">

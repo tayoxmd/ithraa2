@@ -37,7 +37,7 @@ export default function HotelDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const { t, language } = useLanguage();
+  const { t, language, getHotelName } = useLanguage();
   const isMobile = useIsMobile();
   const { userTheme } = useTheme();
   const [hotel, setHotel] = useState<Hotel | null>(null);
@@ -230,7 +230,7 @@ export default function HotelDetails() {
 
           <div>
             <h1 className="text-4xl font-bold mb-4">
-              {language === 'ar' ? hotel.name_ar : hotel.name_en}
+              {getHotelName(hotel.name_ar, hotel.name_en)}
             </h1>
             
             <div className="flex items-center gap-4 mb-4">

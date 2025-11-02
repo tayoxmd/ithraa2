@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { SettingsProvider } from "@/contexts/SettingsContext";
@@ -57,13 +58,28 @@ import TaskSharingSettings from "./pages/TaskSharingSettings";
 import PermissionsManagement from "./pages/PermissionsManagement";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { MobileDesigns } from "./pages/MobileDesigns";
+import EmailManager from "./pages/EmailManager";
+import EmailSettings from "./pages/EmailSettings";
+import PageCustomization from "./pages/PageCustomization";
 
 const queryClient = new QueryClient();
 
 const RouterWithTheme = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const adminPaths = ['/admin', '/admin-dashboard', '/manage', '/employee', '/api-settings', '/site-settings', '/pdf-settings', '/audit-logs', '/studio'];
   const isAdmin = adminPaths.some((p) => location.pathname.startsWith(p));
+
+  // استعادة المسار المحفوظ عند تحميل الصفحة
+  useEffect(() => {
+    const lastPath = sessionStorage.getItem('lastPath');
+    if (lastPath && lastPath !== location.pathname && location.pathname === '/') {
+      // تأكد من أن الصفحة الحالية هي الصفحة الرئيسية قبل إعادة التوجيه
+      navigate(lastPath, { replace: true });
+      sessionStorage.removeItem('lastPath');
+    }
+  }, [location.pathname, navigate]);
+
   return (
     <ThemeProvider isAdmin={isAdmin}>
       <TooltipProvider>
@@ -85,6 +101,8 @@ const RouterWithTheme = () => {
               <Route path="/admin-dashboard" element={<AdminDashboard />} />
               <Route path="/task-manager" element={<ProtectedRoute><TaskManager /></ProtectedRoute>} />
               <Route path="/my-tasks" element={<ProtectedRoute><MyTasks /></ProtectedRoute>} />
+              <Route path="/email-manager" element={<ProtectedRoute><EmailManager /></ProtectedRoute>} />
+              <Route path="/email-settings" element={<ProtectedRoute><EmailSettings /></ProtectedRoute>} />
               <Route path="/task-categories" element={<ProtectedRoute><TaskCategoriesSettings /></ProtectedRoute>} />
               <Route path="/task-settings" element={<ProtectedRoute><TaskSettings /></ProtectedRoute>} />
               <Route path="/task-access-control" element={<ProtectedRoute><TaskAccessControl /></ProtectedRoute>} />
@@ -119,6 +137,7 @@ const RouterWithTheme = () => {
               <Route path="/permissions" element={<ProtectedRoute><PermissionsManagement /></ProtectedRoute>} />
               <Route path="/api-settings" element={<ProtectedRoute><APISettings /></ProtectedRoute>} />
               <Route path="/site-settings" element={<ProtectedRoute><SiteSettings /></ProtectedRoute>} />
+              <Route path="/page-customization" element={<ProtectedRoute><PageCustomization /></ProtectedRoute>} />
               <Route path="/pdf-settings" element={<ProtectedRoute><PDFSettings /></ProtectedRoute>} />
               <Route path="/audit-logs" element={<ProtectedRoute><AuditLogs /></ProtectedRoute>} />
               <Route path="/reset-password" element={<ResetPassword />} />
@@ -131,16 +150,31 @@ const RouterWithTheme = () => {
   );
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <SettingsProvider>
-      <MealSettingsProvider>
-        <BrowserRouter>
-          <RouterWithTheme />
-        </BrowserRouter>
-      </MealSettingsProvider>
-    </SettingsProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  // حفظ المسار الحالي قبل تحديث الصفحة
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      const currentPath = window.location.pathname + window.location.search;
+      if (currentPath !== '/') {
+        sessionStorage.setItem('lastPath', currentPath);
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <SettingsProvider>
+        <MealSettingsProvider>
+          <BrowserRouter>
+            <RouterWithTheme />
+          </BrowserRouter>
+        </MealSettingsProvider>
+      </SettingsProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;

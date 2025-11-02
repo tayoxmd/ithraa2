@@ -27,7 +27,7 @@ export function MobileHotelDetails({
   avgPricePerNight,
   mealBadgeSettings,
 }: MobileHotelDetailsProps) {
-  const { t, language } = useLanguage();
+  const { t, language, getHotelName } = useLanguage();
   const navigate = useNavigate();
   const [galleryOpen, setGalleryOpen] = useState(false);
   const [galleryIndex, setGalleryIndex] = useState(0);
@@ -103,7 +103,7 @@ export function MobileHotelDetails({
           <CardContent className="p-4">
             <div className="flex items-start justify-between mb-2">
               <h1 className="text-xl font-bold flex-1">
-                {language === 'ar' ? hotel.name_ar : hotel.name_en}
+                {getHotelName(hotel.name_ar, hotel.name_en)}
               </h1>
               <div className="flex items-center gap-1 bg-primary/10 px-2 py-1 rounded-lg">
                 <Star className="w-4 h-4 text-primary fill-primary" />

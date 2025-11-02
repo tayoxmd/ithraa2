@@ -2649,6 +2649,537 @@ export type Database = {
         }
         Relationships: []
       }
+      emails: {
+        Row: {
+          id: string
+          subject: string
+          from_email: string
+          from_name: string
+          to_email: string
+          to_name: string
+          body: string
+          body_html: string | null
+          status: string
+          status_id: string | null
+          filter_id: string | null
+          has_replies: boolean | null
+          reply_count: number | null
+          is_read: boolean | null
+          priority: string | null
+          attachments: Json | null
+          hotel_id: string | null
+          booking_id: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          subject: string
+          from_email: string
+          from_name: string
+          to_email: string
+          to_name: string
+          body: string
+          body_html?: string | null
+          status?: string
+          status_id?: string | null
+          filter_id?: string | null
+          has_replies?: boolean | null
+          reply_count?: number | null
+          is_read?: boolean | null
+          priority?: string | null
+          attachments?: Json | null
+          hotel_id?: string | null
+          booking_id?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          subject?: string
+          from_email?: string
+          from_name?: string
+          to_email?: string
+          to_name?: string
+          body?: string
+          body_html?: string | null
+          status?: string
+          status_id?: string | null
+          filter_id?: string | null
+          has_replies?: boolean | null
+          reply_count?: number | null
+          is_read?: boolean | null
+          priority?: string | null
+          attachments?: Json | null
+          hotel_id?: string | null
+          booking_id?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      email_settings: {
+        Row: {
+          id: string
+          design_theme: string | null
+          smtp_host: string | null
+          smtp_port: number | null
+          smtp_username: string | null
+          smtp_password: string | null
+          smtp_encryption: string | null
+          imap_host: string | null
+          imap_port: number | null
+          imap_username: string | null
+          imap_password: string | null
+          imap_encryption: string | null
+          pop3_host: string | null
+          pop3_port: number | null
+          pop3_username: string | null
+          pop3_password: string | null
+          pop3_encryption: string | null
+          from_email: string | null
+          from_name: string | null
+          backup_email: string | null
+          backup_enabled: boolean | null
+          forward_to: string | null
+          forward_enabled: boolean | null
+          inbox_color: string | null
+          sent_color: string | null
+          trash_color: string | null
+          spam_color: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          design_theme?: string | null
+          smtp_host?: string | null
+          smtp_port?: number | null
+          smtp_username?: string | null
+          smtp_password?: string | null
+          smtp_encryption?: string | null
+          imap_host?: string | null
+          imap_port?: number | null
+          imap_username?: string | null
+          imap_password?: string | null
+          imap_encryption?: string | null
+          pop3_host?: string | null
+          pop3_port?: number | null
+          pop3_username?: string | null
+          pop3_password?: string | null
+          pop3_encryption?: string | null
+          from_email?: string | null
+          from_name?: string | null
+          backup_email?: string | null
+          backup_enabled?: boolean | null
+          forward_to?: string | null
+          forward_enabled?: boolean | null
+          inbox_color?: string | null
+          sent_color?: string | null
+          trash_color?: string | null
+          spam_color?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          design_theme?: string | null
+          smtp_host?: string | null
+          smtp_port?: number | null
+          smtp_username?: string | null
+          smtp_password?: string | null
+          smtp_encryption?: string | null
+          imap_host?: string | null
+          imap_port?: number | null
+          imap_username?: string | null
+          imap_password?: string | null
+          imap_encryption?: string | null
+          pop3_host?: string | null
+          pop3_port?: number | null
+          pop3_username?: string | null
+          pop3_password?: string | null
+          pop3_encryption?: string | null
+          from_email?: string | null
+          from_name?: string | null
+          backup_email?: string | null
+          backup_enabled?: boolean | null
+          forward_to?: string | null
+          forward_enabled?: boolean | null
+          inbox_color?: string | null
+          sent_color?: string | null
+          trash_color?: string | null
+          spam_color?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      email_statuses: {
+        Row: {
+          id: string
+          name_ar: string
+          name_en: string
+          color: string
+          icon: string | null
+          order_index: number | null
+          is_active: boolean | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name_ar: string
+          name_en: string
+          color?: string
+          icon?: string | null
+          order_index?: number | null
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name_ar?: string
+          name_en?: string
+          color?: string
+          icon?: string | null
+          order_index?: number | null
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      email_filters: {
+        Row: {
+          id: string
+          name_ar: string
+          name_en: string
+          filter_type: string
+          criteria: Json | null
+          order_index: number | null
+          is_active: boolean | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name_ar: string
+          name_en: string
+          filter_type: string
+          criteria?: Json | null
+          order_index?: number | null
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name_ar?: string
+          name_en?: string
+          filter_type?: string
+          criteria?: Json | null
+          order_index?: number | null
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      email_templates: {
+        Row: {
+          id: string
+          name_ar: string
+          name_en: string
+          subject_ar: string | null
+          subject_en: string | null
+          body_html: string
+          body_text: string | null
+          signature_html: string | null
+          signature_text: string | null
+          is_default: boolean | null
+          is_active: boolean | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name_ar: string
+          name_en: string
+          subject_ar?: string | null
+          subject_en?: string | null
+          body_html: string
+          body_text?: string | null
+          signature_html?: string | null
+          signature_text?: string | null
+          is_default?: boolean | null
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name_ar?: string
+          name_en?: string
+          subject_ar?: string | null
+          subject_en?: string | null
+          body_html?: string
+          body_text?: string | null
+          signature_html?: string | null
+          signature_text?: string | null
+          is_default?: boolean | null
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      email_template_components: {
+        Row: {
+          id: string
+          template_id: string
+          component_type: string
+          content: Json
+          order_index: number | null
+          style: Json | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          template_id: string
+          component_type: string
+          content: Json
+          order_index?: number | null
+          style?: Json | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          template_id?: string
+          component_type?: string
+          content?: Json
+          order_index?: number | null
+          style?: Json | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      email_design_settings: {
+        Row: {
+          id: string | null
+          desktop_width: number | null
+          desktop_font_size: number | null
+          desktop_line_height: number | null
+          desktop_background_color: string | null
+          desktop_text_color: string | null
+          tablet_width: number | null
+          tablet_font_size: number | null
+          tablet_line_height: number | null
+          tablet_background_color: string | null
+          tablet_text_color: string | null
+          mobile_width: number | null
+          mobile_font_size: number | null
+          mobile_line_height: number | null
+          mobile_background_color: string | null
+          mobile_text_color: string | null
+          signature_html: string | null
+          signature_text: string | null
+          signature_position: string | null
+          default_template_id: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string | null
+          desktop_width?: number | null
+          desktop_font_size?: number | null
+          desktop_line_height?: number | null
+          desktop_background_color?: string | null
+          desktop_text_color?: string | null
+          tablet_width?: number | null
+          tablet_font_size?: number | null
+          tablet_line_height?: number | null
+          tablet_background_color?: string | null
+          tablet_text_color?: string | null
+          mobile_width?: number | null
+          mobile_font_size?: number | null
+          mobile_line_height?: number | null
+          mobile_background_color?: string | null
+          mobile_text_color?: string | null
+          signature_html?: string | null
+          signature_text?: string | null
+          signature_position?: string | null
+          default_template_id?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string | null
+          desktop_width?: number | null
+          desktop_font_size?: number | null
+          desktop_line_height?: number | null
+          desktop_background_color?: string | null
+          desktop_text_color?: string | null
+          tablet_width?: number | null
+          tablet_font_size?: number | null
+          tablet_line_height?: number | null
+          tablet_background_color?: string | null
+          tablet_text_color?: string | null
+          mobile_width?: number | null
+          mobile_font_size?: number | null
+          mobile_line_height?: number | null
+          mobile_background_color?: string | null
+          mobile_text_color?: string | null
+          signature_html?: string | null
+          signature_text?: string | null
+          signature_position?: string | null
+          default_template_id?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      email_template_variables: {
+        Row: {
+          id: string
+          template_id: string
+          variable_name: string
+          variable_label_ar: string | null
+          variable_label_en: string | null
+          variable_type: string | null
+          variable_options: Json | null
+          is_required: boolean | null
+          default_value: string | null
+          order_index: number | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          template_id: string
+          variable_name: string
+          variable_label_ar?: string | null
+          variable_label_en?: string | null
+          variable_type?: string | null
+          variable_options?: Json | null
+          is_required?: boolean | null
+          default_value?: string | null
+          order_index?: number | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          template_id?: string
+          variable_name?: string
+          variable_label_ar?: string | null
+          variable_label_en?: string | null
+          variable_type?: string | null
+          variable_options?: Json | null
+          is_required?: boolean | null
+          default_value?: string | null
+          order_index?: number | null
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+      email_access_users: {
+        Row: {
+          id: string
+          user_id: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+      email_tags: {
+        Row: {
+          id: string
+          name_ar: string
+          name_en: string
+          color: string
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          name_ar: string
+          name_en: string
+          color?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          name_ar?: string
+          name_en?: string
+          color?: string
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      email_email_tags: {
+        Row: {
+          id: string
+          email_id: string
+          tag_id: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          email_id: string
+          tag_id: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          email_id?: string
+          tag_id?: string
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+      email_attachments: {
+        Row: {
+          id: string
+          email_id: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          email_id: string
+          file_name: string
+          file_path: string
+          file_size: number
+          file_type: string
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          email_id?: string
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          file_type?: string
+          created_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

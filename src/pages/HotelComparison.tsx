@@ -27,7 +27,7 @@ interface Hotel {
 export default function HotelComparison() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { t, language } = useLanguage();
+  const { t, language, getHotelName } = useLanguage();
   const [hotels, setHotels] = useState<Hotel[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -111,11 +111,11 @@ export default function HotelComparison() {
               <CardHeader>
                 <img
                   src={hotel.images?.[0] || "https://images.unsplash.com/photo-1566073771259-6a8506099945"}
-                  alt={language === 'ar' ? hotel.name_ar : hotel.name_en}
+                  alt={getHotelName(hotel.name_ar, hotel.name_en)}
                   className="w-full h-48 object-cover rounded-lg mb-4"
                 />
                 <CardTitle className="text-xl">
-                  {language === 'ar' ? hotel.name_ar : hotel.name_en}
+                  {getHotelName(hotel.name_ar, hotel.name_en)}
                 </CardTitle>
                 <div className="flex items-center gap-2 text-sm text-muted-foreground">
                   <MapPin className="w-4 h-4" />
