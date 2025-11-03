@@ -69,3 +69,4 @@ CREATE TRIGGER update_email_feature_settings_updated_at
 BEFORE UPDATE ON public.email_feature_settings
 FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
+

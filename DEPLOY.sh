@@ -64,3 +64,4 @@ echo "   1. ارفع محتويات dist إلى public_html في cPanel"
 echo "   2. تأكد من رفع ملف .htaccess"
 echo "   3. افتح https://in33.in للتحقق"
 
+
