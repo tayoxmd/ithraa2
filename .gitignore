@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Environment variables (لا ترفع إلى Git!)
+.env
+.env.local
+.env.*.local
+
 # Keep .htaccess in git for deployment
 !.htaccess
 
