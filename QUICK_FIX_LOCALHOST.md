@@ -69,3 +69,4 @@ npm run dev
 ---
 
 آخر تحديث: تم إصلاح إعدادات vite.config.ts
+
